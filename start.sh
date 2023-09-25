@@ -4,8 +4,6 @@ set +u
 
 bashio::log.info "Starting hakit"
 
-node ./server/dist/server/index.js &
-./node_modules/.bin/vite & 
-wait
+exec npm run start:public;
 
 bashio::log.info "hakit running!"

@@ -16,13 +16,11 @@ COPY start.sh ./
 # Copy application
 COPY server ./server
 COPY client ./client
+COPY services.d /etc/services.d
 
 # Install & build application
 RUN apk add --no-cache \
     nodejs npm && \
     npm install && \
     npm run build:client && \
-    npm run build:server && \
-    chmod a+x ./start.sh
-
-CMD ["./start.sh"]
+    npm run build:server
