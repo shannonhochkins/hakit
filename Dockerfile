@@ -1,6 +1,6 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
-
+WORKDIR /usr/app
 # Copy dependencies
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -14,8 +14,8 @@ COPY index.html ./
 COPY start.sh ./
 
 # Copy application
-COPY server ./server
-COPY client ./client
+COPY server /usr/app/server
+COPY client /usr/app/client
 COPY services.d /etc/services.d
 
 # Install & build application

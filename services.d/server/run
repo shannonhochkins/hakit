@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv bashio
 
 bashio::log.info "Starting server"
-exec node ../../server/dist/server/index.js
+exec node /usr/app/server/dist/server/index.js
