@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv bashio
 
 bashio::log.info "Starting client"
-exec ./node_modules/.bin/vite
+exec ../../node_modules/.bin/vite
