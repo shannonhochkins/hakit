@@ -1,5 +1,5 @@
-FROM node:18
-WORKDIR /usr/src/app
+ARG BUILD_FROM
+FROM $BUILD_FROM
 
 # Copy dependencies
 COPY package*.json ./
@@ -13,13 +13,16 @@ COPY config.ts ./
 COPY index.html ./
 COPY start.sh ./
 
-
 # Copy application
 COPY server ./server
 COPY client ./client
-ENV NODE_ENV=production
-RUN npm install
-RUN npm run build:client
-RUN npm run build:server
+
+# Install & build application
+RUN apk add --no-cache \
+    nodejs npm && \
+    npm install && \
+    npm run build:client && \
+    npm run build:server && \
+    chmod a+x ./start.sh
 
 CMD ["./start.sh"]
