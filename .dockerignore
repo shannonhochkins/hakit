@@ -1,0 +1,21 @@
+#Ignore logs directory
+logs/
+npm-debug.log
+
+#Ignore the git and cache folders
+.git
+.cache
+**/.vscode
+
+#Ignore node_modules
+**/node_modules
+**/coverage
+
+#Ingore all markdown
+*.md
+
+#Ignore all .env
+**/.env
+
+#Ignore build folders
+**/dist

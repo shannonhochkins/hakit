@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "module": "CommonJS",
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "vite.config.ts",
+    "setup-jest.ts"
+  ]
+}

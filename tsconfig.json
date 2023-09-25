@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "allowJs": false,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "baseUrl": ".",
+    "outDir": "server/dist",
+    "sourceMap": true,
+    "preserveConstEnums": true,
+    "paths": {
+      "@root/*": ["./*"],
+      "@server": ["./server/index.ts"],
+      "@client/*": ["./client/src/*"],
+      "@server/*": ["./server/*"],
+      "@utils/*": ["./server/utils/*"],
+      "@routes": ["./server/routes/index.ts"],
+      "@routes/*": ["./server/routes/*"],
+      "@schema/*": ["./server/schema/*"],
+    }
+  },
+  "include": [
+    "client",
+    "server",
+    "vite.config.ts",
+    ".d.ts",
+    "global.d.ts",
+    "config.ts",
+    "reset.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
