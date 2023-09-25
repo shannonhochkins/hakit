@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import { config } from './config';
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: "/usr/app",  // Set root directory
   server: {
     port: config.ports.CLIENT_PORT,
   },
