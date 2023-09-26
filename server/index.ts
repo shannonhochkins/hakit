@@ -3,7 +3,6 @@ import express from 'express';
 import http from 'http';
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import cors from 'cors';
 import { router } from '@server/trpc';
 import * as routes from '@routes';
 // @ts-expect-error - ignore
@@ -22,9 +21,11 @@ export type RouterOutput = inferRouterOutputs<AppRouter>;
 // can pass the context here so even backend can be restricted with auth
 export const caller = appRouter.createCaller({});
 if (process.env.NODE_ENV !== 'test') {
-  // express implementation
-  // enable cors
-  app.use(cors());
+  // Additional Middleware for logging
+  app.use((req, _res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url} from ${req.hostname}`);
+    next();
+  });
   app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
   app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
@@ -37,13 +38,6 @@ if (process.env.NODE_ENV !== 'test') {
       router: appRouter
     })
   );
-
-  app.use((req, _res, next) => {
-    console.log(`Incoming request: ${req.method} ${req.url}`);
-    next();
-  });
-
-  // app.get('/', (_req, res) => res.send(''));
   server.listen(config.ports.SERVER_PORT, '0.0.0.0', () => {
     console.log(`API listening on port ${config.ports.SERVER_PORT}`);
   });
