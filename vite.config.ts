@@ -6,6 +6,7 @@ import { config } from './config';
 // https://vitejs.dev/config/
 export default defineConfig({
   root: config.isProductionEnvironment ? "/usr/app" : undefined,  // Set root directory
+  base: config.isProductionEnvironment ? "./" : undefined,  // Set base directory
   server: {
     port: config.ports.CLIENT_PORT,
   },
