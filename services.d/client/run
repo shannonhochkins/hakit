@@ -1,4 +1,0 @@
-#!/usr/bin/with-contenv bashio
-
-bashio::log.info "Starting client"
-exec /usr/app/node_modules/.bin/vite --config /usr/app/vite.config.ts

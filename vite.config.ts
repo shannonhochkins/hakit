@@ -2,9 +2,10 @@ import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vite';
 import { config } from './config';
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  root: "/usr/app",  // Set root directory
+  root: config.isProductionEnvironment ? "/usr/app" : undefined,  // Set root directory
   server: {
     port: config.ports.CLIENT_PORT,
   },

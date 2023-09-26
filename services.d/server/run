@@ -1,4 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
+bashio::log.info "Changing directory to /usr/app"
+cd /usr/app || exit 1  # Exit if directory change fails
+
 bashio::log.info "Starting server"
-exec node /usr/app/server/dist/server/index.js
+exec npm run dev:server

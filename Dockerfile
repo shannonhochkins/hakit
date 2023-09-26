@@ -11,16 +11,16 @@ COPY reset.d.ts ./
 COPY global.d.ts ./
 COPY config.ts ./
 COPY index.html ./
-COPY start.sh ./
 
 # Copy application
 COPY server /usr/app/server
 COPY client /usr/app/client
 COPY services.d /etc/services.d
 
+ENV NODE_ENV=production
+EXPOSE 2022
+
 # Install & build application
-RUN apk add --no-cache \
-    nodejs npm && \
-    npm install && \
-    npm run build:client && \
-    npm run build:server
+RUN apk add --no-cache nodejs npm
+RUN npm install
+RUN npm run build:client

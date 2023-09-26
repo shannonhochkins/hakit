@@ -14,10 +14,10 @@ interface Config {
   ports: Record<string, number>;
 }
 
-export const config: Readonly<Config> = {
+export const config: Config = {
   isProductionEnvironment,
   ports: {
     CLIENT_PORT: 4000,
     SERVER_PORT: 2022
   },
-};
+} as const;

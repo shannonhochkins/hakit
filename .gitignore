@@ -22,3 +22,5 @@ terraform.tfstate*
 *.terraform.lock*
 */.terraform-lock.hcl
 pres.json
+ha
+ha/*
