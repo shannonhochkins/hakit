@@ -17,7 +17,7 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `http://localhost:${String(2022)}/api`,
+          url: `/api`,
         })
       ],
     }),

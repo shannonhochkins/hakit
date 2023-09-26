@@ -24,3 +24,5 @@ EXPOSE 2022
 RUN apk add --no-cache nodejs npm
 RUN npm install
 RUN npm run build:client
+RUN chmod +x /etc/services.d/server/run
+
