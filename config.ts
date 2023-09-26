@@ -1,12 +1,11 @@
 import { config as dotEnv } from 'dotenv';
-import path from 'path';
 
 const isProductionEnvironment = process.env.NODE_ENV === 'production';
 
 if (!isProductionEnvironment) {
   // Convenience for local dev
-  dotEnv({ path: path.resolve('.env') });
-  dotEnv({ path: path.resolve('.env.local') });
+  dotEnv({ path: '.env' });
+  dotEnv({ path: '.env.local' });
 }
 
 interface Config {

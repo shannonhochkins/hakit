@@ -7,9 +7,16 @@ import 'ace-builds/src-noconflict/theme-solarized_dark';
 
 export const TestService: FC = () => {
   const editorRef = useRef<AceEditor['editor']>();
-  const [inputDataset, setInputDataset] = useState<null | string>(process.env.SUPERVISOR_TOKEN ?? 'unknown');
-  const FileApi = trpc.Files.write.useMutation();
-
+  const trpcClient = trpc.useContext();
+  const [filename, setFilename] = useState<string>('test.txt');
+  const [inputDataset, setInputDataset] = useState<null | string>('');
+  const writeFile = trpc.Files.write.useMutation();
+  const readFile = async (filename: string): Promise<void> => {
+    const response = await trpcClient.Files.read.fetch({
+      filename,
+    });
+    console.log('response', response);
+  };
   return (
     <>
       <Column
@@ -18,6 +25,11 @@ export const TestService: FC = () => {
         fullWidth
       >
         <Row fullWidth>
+          <label>FILENAME</label>
+          <input type="text" onChange={(e) => {
+            const text = e.target.value;
+            setFilename(text);
+          }}/>
           <AceEditor
             mode="json"
             width="100%"
@@ -40,9 +52,9 @@ export const TestService: FC = () => {
             onClick={() => {
               void(async () => {
                 if (inputDataset !== null) {
-                  FileApi.mutate({
+                  writeFile.mutate({
                     text: inputDataset,
-                    filename: 'absfilename',
+                    filename,
                   }, {
                     onError(error) {
                       console.log('error', error);
@@ -53,6 +65,16 @@ export const TestService: FC = () => {
             }}
           >
             WRITE FILE
+          </button>
+          <button
+            disabled={inputDataset === null || inputDataset.length === 0}
+            onClick={() => {
+              void(async () => {
+                await readFile(filename);
+              })();
+            }}
+          >
+            READ FILE
           </button>
         </Row>
       </Column>
