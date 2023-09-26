@@ -15,7 +15,9 @@
     "clean": "rm -rf node_modules",
     "start": "run-p dev:*",
     "start:public": "node ./server/dist/server/index.js && vite serve",
+    "dev": "NODE_ENV=development npm run watch:client",
     "build": "run-p build:*",
+    "watch:client": "npm run build:client && chokidar 'client/**/*' -c 'npm run build:client'",
     "build:client": "vite build",
     "build:server": "tsc -p \"tsconfig-build.json\" && tsc-alias server/index.ts",
     "dev:server": "ts-node -r tsconfig-paths/register server/index.ts",
@@ -64,5 +66,8 @@
     "vite-tsconfig-paths": "^4.0.3",
     "zod": "^3.20.2",
     "zod-error": "^1.1.1"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0"
   }
 }
