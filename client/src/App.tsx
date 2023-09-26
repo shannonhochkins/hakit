@@ -4,6 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { trpc } from '../../client/src/utils/trpc';
 import { css, Global } from '@emotion/react';
 import { ThemeProvider } from '@hakit/components';
+// @ts-expect-error - no need to validate this, two files with similar names
+import { config } from '../../config.ts';
+
+const getBaseUri = (): string => config.isProductionEnvironment === true ? document.baseURI : '/';
 
 export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const [queryClient] = useState(() => new QueryClient({
@@ -17,7 +21,7 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `/api`,
+          url: `${getBaseUri()}api`,
         })
       ],
     }),
