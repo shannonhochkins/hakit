@@ -7,7 +7,6 @@ import { router } from '@server/trpc';
 import * as routes from '@routes';
 // @ts-expect-error - ignore
 import { config } from "../config.ts";
-console.log('config', config)
 // root router to call
 export const appRouter = router(routes);
 
@@ -24,6 +23,7 @@ if (process.env.NODE_ENV !== 'test') {
   // Additional Middleware for logging
   app.use((req, _res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url} from ${req.hostname}`);
+    console.log('supervisor', process.env.SUPERVISOR_TOKEN ?? 'unknown');
     next();
   });
   app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
