@@ -38,7 +38,7 @@
     "server",
     ".d.ts",
     "global.d.ts",
-    "config.ts",
+    "app-config.ts",
     "reset.d.ts"
   ],
   "exclude": [

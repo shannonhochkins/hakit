@@ -36,6 +36,8 @@
   },
   rules: {
     '@typescript-eslint/restrict-template-expressions': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/strict-boolean-expressions': 'off',
     'semi': [1, 'always'],
     'no-duplicate-imports': 1,
     'arrow-body-style': ['warn', 'as-needed'],

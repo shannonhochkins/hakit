@@ -3,8 +3,7 @@ import { WriteContentsResponse, WriteContentsInput } from '@root/server/schema/w
 import { ReadContentsResponse, ReadContentsInput } from '@root/server/schema/read-contents';
 import { writeFile, existsSync, mkdirSync, readFileSync } from 'fs';
 import path from 'path';
-// @ts-expect-error - TODO - fix this
-import { config } from '../../../config.ts';
+import { config } from '../../../app-config';
 
 const ROOT_FOLDER_NAME = 'hakit';
 const OUTPUT_DIR = config.isProductionEnvironment === true ? '/config' : `${process.cwd()}/ha`;
@@ -47,7 +46,7 @@ export const Files = router({
     .input(WriteContentsInput)
     .output(WriteContentsResponse)
     .mutation(async ({ input }) => {
-      const status = await writeFileToConfig(input.filename, input.text);
+      const status = await writeFileToConfig(input.filename, input.content);
       return { status };
     }),
   read: publicProcedure

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const WriteContentsInput = z.object({
-  text: z.string({
+  content: z.string({
     required_error:
-      'The text content is required to store data'
+      'The content is required to store data'
   }),
   filename: z.string({
     required_error: 'The filename is required to store the content.'

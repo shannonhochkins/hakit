@@ -5,8 +5,8 @@ import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { router } from '@server/trpc';
 import * as routes from '@routes';
-// @ts-expect-error - ignore
-import { config } from "../config.ts";
+import { config } from "../app-config";
+import cors from 'cors';
 // root router to call
 export const appRouter = router(routes);
 
@@ -26,10 +26,15 @@ if (process.env.NODE_ENV !== 'test') {
     console.log('supervisor', process.env.SUPERVISOR_TOKEN ?? 'unknown');
     next();
   });
-  app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
-  app.get('/', (_req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
+  if (process.env.NODE_ENV === 'production') {
+    app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
+    app.get('/', (_req, res) => {
+      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    });
+  } else {
+    // enable cors
+    app.use(cors());
+  }
 
   // listen for api endpoints with /api as base
   app.use(
