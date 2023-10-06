@@ -5,19 +5,18 @@ This is extremely early days, but the intent of this project, is to have an addo
 Additionally, i hope to have a way to create / write custom components that can automatically be updated as a component to pick from in the UI, meaning you can create your own components and share them with others.
 
 ### Local Development
-Simply run `npm run dev` and it will spin up a server and client under port 2022.
+After `npm install`, Simply run `npm run dev` and it will spin up a server and client under port 2022.
 From there, it will create/update files under the `ha` folder in your current working directory.
 
 
 ### Configuration Files
-These are currently read/written to /config/hakit so you can store the configurations correctly. Additionally, this means that you can copy/paste the files and provide them to someone else and the dashboard will render! Neato!
+These are currently read/written to /config/hakit in addon mode so you can store the configurations correctly. Additionally, this means that you can copy/paste the files and provide them to someone else and the dashboard will render! Neato! In development mode (`npm run dev`) they're included under /ha in your current working directory.
 
 ### Next Steps
 - figure out how to pass authentication token through to hakit
-- https://github.com/react-grid-layout/react-grid-layout - I want to use this for the ui layout so users can drag / drop components or entire sections, need to check if this can be achieved to have nested layouts.
-- each "drop zone" should have a "component picker" to allow users to dump any component into a dropzone.
 - add configurable popup for every component used.
 - generate the options for the popup from @hakit/core @hakit/component packages so there's nothing to maintain.
+- Generic schema to create a custom card / component, I want to make this EXREMELY easy to extend so users have full capability of building what they desire.
 
 
 ### Test the build with docker
