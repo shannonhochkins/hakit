@@ -1,14 +1,17 @@
 import styled from '@emotion/styled';
 
-const StyledFormControlGroup = styled.div`
+const StyledFormControlGroup = styled.div<{
+  reverse?: boolean;
+}>`
   position: relative;
   background-color: var(--ha-S100);
-  padding: 0.5rem;
+  padding: 1rem;
   border-radius: 0.5rem;
-  width: calc(100% - 0.5rem);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  ${props => props.reverse ? `justify-content: flex-end; flex-direction: row-reverse;` : ''}
   gap: 0.5rem;
   label {
     display:block;
@@ -26,15 +29,17 @@ interface FormControlGroupProps {
   label: string;
   description?: string;
   children: React.ReactNode;
+  reverse?: boolean;
 }
 export function FormControlGroup({
   label,
   children,
   description,
+  reverse,
   ...rest
 }: FormControlGroupProps) {
   return (
-    <StyledFormControlGroup {...rest}>
+    <StyledFormControlGroup reverse={reverse} {...rest}>
       <label>{label}</label>
       {children}
       {description && <span>{description}</span>}

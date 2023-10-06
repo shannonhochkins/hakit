@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { useHakitStore } from '@client/store';
 import { Icon } from '@iconify/react';
-import { Tooltip } from '@hakit/components';
+import { Tooltip, Row } from '@hakit/components';
 import { motion } from 'framer-motion';
-import { useWriteFile } from '@client/hooks';
+import { useSaveConfiguration } from '@client/hooks';
 
 const PageContainer = styled.div`
   position: relative;
@@ -17,7 +17,6 @@ const SaveWidgetButton = styled(motion.button)`
   margin: 0;
   cursor: pointer;
   height: 100%;
-  aspect-ratio: 1/1;
   &:hover {
     background-color: var(--ha-S500);
   }
@@ -35,19 +34,21 @@ const SaveWidgetButton = styled(motion.button)`
 
 export function SaveConfig() {
   const pages = useHakitStore(({ pages }) => pages);
-  const writeFile = useWriteFile();
+  const saveConfiguration = useSaveConfiguration();
   return (<>
     <PageContainer>
       <SaveWidgetButton onClick={() => {
-        void(async () => {
-          await writeFile({
-            filename: 'config.json',
-            content: JSON.stringify(pages, null, 2),
-          });
-        })();
+        void saveConfiguration(pages);
       }}>
         <Tooltip title="Save Layouts" placement="left">
-          <Icon icon="mdi:content-save" />
+          <Row fullWidth fullHeight gap="0.5rem" style={{
+            padding: '0.5rem'
+          }}>
+            <Icon icon="mdi:content-save" style={{
+              fontSize: '1.1rem'
+            }} />
+            SAVE
+          </Row>
         </Tooltip>
       </SaveWidgetButton>
     </PageContainer>

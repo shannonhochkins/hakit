@@ -37,6 +37,7 @@
     "client",
     "server",
     ".d.ts",
+    "schema-generator.mts",
     "global.d.ts",
     "app-config.ts",
     "reset.d.ts"

@@ -3,10 +3,10 @@ import styled from "@emotion/styled";
 
 const StyledReactSwitch = styled(ReactSwitch)`
   .react-switch-bg {
-    background: ${props => props.checked === true ? `var(--ha-A100)` : `rgba(0,0,0,0.4)`} !important;
+    background: ${props => props.checked ? `var(--ha-A100)` : `var(--ha-S500)`} !important;
   }
   .react-switch-handle {
-    background: ${props => props.checked === true ? `var(--ha-A400)` : `var(--ha-S50-contrast)`} !important;
+    background: ${props => props.checked ? `var(--ha-A400)` : `var(--ha-S50-contrast)`} !important;
   }
 `;
 

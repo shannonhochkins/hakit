@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Ripples } from '@hakit/components';
 
 const StyledButton = styled.button`
   display: flex;
@@ -55,8 +56,14 @@ interface ButtonProps extends Omit<React.HTMLProps<HTMLButtonElement>, 'as' | 't
   danger?: boolean;
 }
 
-export function Button({ children, secondary, danger, className, ...rest }: ButtonProps) {
-  return (<StyledButton className={`${secondary ? 'secondary' : ''} ${danger ? 'danger' : ''} ${className}`} {...rest}>
-    {children}
-  </StyledButton>);
+export function Button({ children, secondary, disabled, danger, className, ...rest }: ButtonProps) {
+  return (<Ripples
+    disabled={disabled}
+    borderRadius="0.5rem"
+    whileTap={{ scale: disabled ? 1 : 0.9 }}
+    >
+      <StyledButton disabled={disabled} className={`${secondary ? 'secondary' : ''} ${danger ? 'danger' : ''} ${className}`} {...rest}>
+        {children}
+      </StyledButton>
+  </Ripples>);
 }

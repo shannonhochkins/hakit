@@ -15,7 +15,7 @@
   "globals": {
     "React": "readonly"
   },
-  ignorePatterns: ["client/dist/*", "client/coverage/*", "server/dist/*", "server/coverage/*", "__snapshots__/*"],
+  ignorePatterns: ["client/dist/*", "vite.config.ts", "plugin.ts", "client/coverage/*", "server/dist/*"],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',

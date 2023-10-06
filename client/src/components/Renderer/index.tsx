@@ -1,39 +1,55 @@
-import { useState, useEffect, useMemo, useRef, ReactElement } from 'react';
-import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import GridLayout, { Responsive, WidthProvider, Layout } from 'react-grid-layout';
 import { useHakitStore, PageWidget, PageConfig } from '@client/store';
 import styled from '@emotion/styled';
 import { useResizeDetector } from 'react-resize-detector';
-import widgets from '../../widgets';
-import { FabCard, Row, Tooltip } from '@hakit/components';
-import { WidgetEditor } from '@client/components/WidgetEditor';
+import { useWidget } from '@client/hooks';
+import { WidgetEditBar } from '@client/components/WidgetEditBar';
+import { DEFAULT_COLUMNS, DEFAULT_LAYOUT_PROPS } from '@client/store/pages';
+import { getMinimumPageWidth } from '@root/client/src/utils/layout-helpers';
 
-const ResponsiveGridLayout = WidthProvider(Responsive);
-
+// const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Parent = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - var(--ha-header-height));
+  maxWidth: 100%;
+  margin: 0 auto;
+  overflow: auto;
 `;
 
 const EditContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+  border: 1px solid transparent;
+  transition: border-color var(--ha-transition-duration) var(--ha-easing);
+  &:hover {
+    border-color: var(--ha-A400);
+  }
 `;
 
-
 function getBreakpointFromWidth(
-  breakpoints: Record<string, number>,
+  pages: PageConfig[],
   width: number
 ): string {
+  const breakpoints = pages.filter(page => page.enabled).reduce<Record<string, number>>((acc, breakpoint) => {
+    acc[breakpoint.id] = breakpoint.maxWidth;
+    return acc;
+  }, {});
   const sorted = sortBreakpoints(breakpoints);
-  let matching = sorted[0];
-  for (let i = 1, len = sorted.length; i < len; i++) {
-    const breakpointName = sorted[i];
-    if (width > breakpoints[breakpointName]) matching = breakpointName;
+  if (width <= breakpoints[sorted[0]]) {
+    return sorted[0];  // Handle the first range
   }
-  return matching;
+  for (let i = 1, len = sorted.length; i < len; i++) {
+    const prevBreakpointName = sorted[i - 1];
+    const breakpointName = sorted[i];
+    if (width > breakpoints[prevBreakpointName] && width <= breakpoints[breakpointName]) {
+      return breakpointName;
+    }
+  }
+  return sorted[sorted.length - 1];  // If width is greater than the last breakpoint, return the last breakpoint name
 }
 
 /**
@@ -52,61 +68,7 @@ function sortBreakpoints(
   });
 }
 
-const DEFAULT_COLS = 48;
 
-const InnerBar = styled(Row)`
-
-`;
-
-const StyledEditBar = styled.div`
-  position: absolute;
-  inset: 0;
-  bottom: 0;
-  z-index: 1;
-  background-color: transparent;
-  transition: background-color var(--ha-transition-duration) var(--ha-easing);
-  overflow: hidden;
-  cursor: move;
-  .inner-bar {
-    transition: transform var(--ha-transition-duration) var(--ha-easing);
-    transform: translate3d(0, 100%, 0);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    padding: 0.5rem;
-  }
-  &:hover {
-    background-color: rgba(0,0,0,0.4);
-    .inner-bar {
-      transform: translate3d(0, 0, 0);
-    }
-  }
-`;
-
-interface EditBarProps {
-  widget: PageWidget;
-}
-
-function EditBar({ widget }: EditBarProps): ReactElement {
-  const [editWidget, setEditWidget] = useState(false);
-  return (<>
-    <StyledEditBar className="edit-bar">
-      <InnerBar className="inner-bar" fullWidth gap="0.5rem">
-        <Tooltip title="Edit" placement="bottom">
-          <FabCard layoutId={`${widget.id}-editor`} icon="mdi:edit" size={30} onClick={() => setEditWidget(true)} />
-        </Tooltip>
-        <Tooltip title="Delete" placement="bottom">
-          <FabCard icon="mdi:trash" size={30} />
-        </Tooltip>
-      </InnerBar>
-    </StyledEditBar>
-    <WidgetEditor widget={widget} id={`${widget.id}-editor`} open={editWidget} onClose={() => {
-      setEditWidget(false);
-    }} onSave={() => {
-      setEditWidget(false);
-    }} />
-  </>);
-}
 interface RendererProps {
   nested?: boolean;
   onHeightChange?: (height: number, key: string) => void;
@@ -116,7 +78,6 @@ export function Renderer(props: RendererProps) {
   const { width, ref } = useResizeDetector();
   const firstLayoutChange = useRef(true);
   const mode = useHakitStore(({ mode }) => mode);
-  const [layoutChanges, setLayoutChanges] = useState<Record<string, Layout[]>>({});
   const pages = useHakitStore(({ pages }) => pages);
   const currentPageId = useHakitStore(({ currentPageId }) => currentPageId);
   const page = pages.find(page => page.id === currentPageId) ?? null;
@@ -124,18 +85,18 @@ export function Renderer(props: RendererProps) {
   const setCurrentPageId = useHakitStore(({ setCurrentPageId }) => setCurrentPageId);
   const [mounted, setMounted] = useState(false);
   const isEditMode = mode === 'edit';
+  const getWidget = useWidget();
 
   function widgetRenderer(pageWidget: PageWidget) {
-    const { props, renderer} = widgets[pageWidget.name];
-    return renderer(props);
+    const { props, renderer} = getWidget(pageWidget.name);
+    return renderer({
+      ...props,
+      ...pageWidget.props
+    }, pageWidget);
   }
 
   const cols = useMemo(() => pages.reduce<Record<string, number>>((acc, breakpoint) => {
-    acc[breakpoint.id] = DEFAULT_COLS;
-    return acc;
-  }, {}), [pages]);
-  const breakpoints = useMemo(() => pages.reduce<Record<string, number>>((acc, breakpoint) => {
-    acc[breakpoint.id] = breakpoint.maxWidth;
+    acc[breakpoint.id] = DEFAULT_COLUMNS;
     return acc;
   }, {}), [pages]);
 
@@ -149,19 +110,12 @@ export function Renderer(props: RendererProps) {
     firstLayoutChange.current = true;
   }, []);
 
-  useEffect(() => {
-    // TODO - make this smarter to pick the right default page
-    if (!currentPageId) {
-      setCurrentPageId('3');
-    }
-  }, [currentPageId, setCurrentPageId]);
-
   const updateLayouts = (layout: Layout[]) => {
     if (page === null) return;
     setPages(pages.map(p => {
       if (page.id === p.id) {
         const newPage =  { ...page, widgets: page.widgets.map(widget => {
-          const updatedLayout = layout.find(l => l.i === widget.id);
+          const updatedLayout = layout.find(l => l.i === widget.props.id);
           if (typeof updatedLayout === 'undefined') return widget;
           return { ...widget, layout: updatedLayout };
         }) } satisfies PageConfig;
@@ -173,45 +127,62 @@ export function Renderer(props: RendererProps) {
 
   const layouts = useMemo(() => pages.reduce<Record<string, Layout[]>>((acc, page) => {
     acc[page.id] = page.widgets.map(widget => ({
-      i: widget.id,
+      ...DEFAULT_LAYOUT_PROPS,
+      i: widget.props.id,
       ...widget.layout,
     }));
     return acc;
   }, {}), [pages]);
 
-  const columnWidth = ((width ?? 0) - ((page?.margin[0] ?? 0) * (DEFAULT_COLS - 1) + 2 * (page?.containerPadding[0] ?? 0))) / DEFAULT_COLS;
-  // if (width) {
-  //   console.log(JSON.stringify(layouts, null, 2));
-  //   console.log(JSON.stringify(breakpoints, null, 2));
-  //   console.log(JSON.stringify(cols, null, 2));
-  //   console.log(JSON.stringify(columnWidth, null, 2));
-  //   console.log(JSON.stringify(page, null, 2));
-  // }
+  useEffect(() => {
+    if (!currentPageId && width) {
+      const newBreakpointId = getBreakpointFromWidth(pages, width);
+      setCurrentPageId(newBreakpointId);
+    }
+    // when in live mode, we need to update the current page id when the width changes
+    // to activate breakpoints
+    if (!isEditMode && width) {
+      const newBreakpointId = getBreakpointFromWidth(pages, width);
+      if (newBreakpointId !== currentPageId) {
+        setCurrentPageId(newBreakpointId);
+      }
+    }
+  }, [currentPageId, isEditMode, pages, setCurrentPageId, width]);
+
+  const columnWidth = ((width ?? 0) - ((page?.margin[0] ?? 0) * (DEFAULT_COLUMNS - 1) + 2 * (page?.containerPadding[0] ?? 0))) / DEFAULT_COLUMNS;
+  // in edit mode, we set the container width to the minimum width of the page so that in
+  // live mode, as it's fluid it doesn't squash any of the components below the desired size
+  const minPageWidth = isEditMode && page ? getMinimumPageWidth(page, pages) : '100%';
 
   return (
-    <Parent className="parent" ref={ref}>
-      {mounted && page && <ResponsiveGridLayout
+    <Parent className="parent" ref={ref} style={isEditMode ? {
+      width: minPageWidth,
+      border: `2px solid var(--ha-A400)`
+    } : {}}>
+      {mounted && page && currentPageId && <GridLayout
           width={width}
           margin={page?.margin ?? [0, 0]}
           containerPadding={page?.containerPadding ?? [0, 0]}
           onDragStart={(_layout, _oldItem, _newItem, _placeholder, e) => e.stopPropagation()}
-          layouts={layouts}
+          layout={layouts[currentPageId]}
           isResizable
           isDraggable
           isDroppable
           onResizeStop={(layout) => {
+            // when any element is resized in the UI, we need to update the layout
             updateLayouts(layout);
           }}
-          breakpoint={currentPageId ?? undefined}
-          onWidthChange={(newWidth, _oldWidth) => {
-            const newBreakpointId = getBreakpointFromWidth(breakpoints, newWidth);
-            if (currentPageId !== newBreakpointId) {
-              setCurrentPageId(newBreakpointId);
-            }
-          }}
-          breakpoints={breakpoints}
-          cols={cols}
-          onLayoutChange={(_layout, allLayouts) => {
+          // breakpoint={currentPageId ?? undefined}
+          // onWidthChange={(newWidth, _oldWidth) => {
+          //   const newBreakpointId = getBreakpointFromWidth(pages, newWidth);
+          //   console.log('newBreakpointId', newBreakpointId, newWidth);
+          //   if (currentPageId !== newBreakpointId) {
+          //     setCurrentPageId(newBreakpointId);
+          //   }
+          // }}
+          // breakpoints={breakpoints}
+          cols={cols[currentPageId]}
+          onLayoutChange={(_layout) => {
             // setLayoutChanges(allLayouts);
             // if (props.nested === true && typeof props.onHeightChange === 'function') {
             //   // Sum up the height of all items
@@ -225,22 +196,23 @@ export function Renderer(props: RendererProps) {
           }}
           // disables the height calculation
           autoSize={false}
-          measureBeforeMount={false}
+          compactType={null}
+          // measureBeforeMount={false}
           useCSSTransforms
           className="layout"
           rowHeight={columnWidth}
         >
           {page.widgets.map(function (widget) {
             return (
-              <div key={widget.id}>
-                {/* {widget.id.startsWith("grid-") && (
+              <div key={widget.props.id}>
+                {/* {widget.props.id.startsWith("grid-") && (
                   <Renderer
                     nested
-                    itemKey={widget.id}
+                    itemKey={widget.props.id}
                     onHeightChange={(newHeight, key) => {
                       if (page === null) return;
                       const updatedLayout = page.widgets.map(widget => {
-                        if (widget.id === key) {
+                        if (widget.props.id === key) {
                           return { ...widget, layout: {
                             ...widget.layout,
                             h: newHeight,
@@ -257,15 +229,15 @@ export function Renderer(props: RendererProps) {
                     }}
                   />
                 )} */}
-                {!widget.id.startsWith("grid-") && isEditMode ? (<EditContainer className="edit-container">
+                {isEditMode ? (<EditContainer className="edit-container">
                     {widgetRenderer(widget)}
-                    <EditBar widget={widget} />
+                    <WidgetEditBar widget={widget} />
                   </EditContainer>) : widgetRenderer(widget)
                 }
               </div>
             );
           })}
-      </ResponsiveGridLayout>}
+      </GridLayout>}
     </Parent>
   );
 }

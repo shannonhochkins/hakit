@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { trpc } from '../../client/src/utils/trpc';
 import { css, Global } from '@emotion/react';
 import { ThemeProvider } from '@hakit/components';
+import { ToastContainer } from 'react-toastify';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { useHakitStore } from '@client/store';
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -33,8 +35,15 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   );
   return (
     <>
+      <ThemeProvider />
+      {/* TODO - plug in the dark theme toggle from the options */}
+      <ToastContainer autoClose={3000} theme="dark" position="bottom-left" />
       <Global
         styles={css`
+          :root {
+            --ha-background-opaque: rgba(0,0,0,.1);
+            --ha-header-height: 3rem;
+          }
           html, body, #root {
             width: 100%;
             margin: 0;
@@ -63,10 +72,13 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
               height: 100% !important;
             }
           }
+          .MuiTypography-root {
+            color: var(--ha-S400-contrast);
+          }
           
           ${isEdit ? `
             #root {
-              padding-top: 3rem;
+              padding-top: var(--ha-header-height);
               display:flex;
               > div {
                 height: auto;
@@ -94,10 +106,10 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
                 // pointer-events: none;
               }
             }
+            
           ` : ``}
         `}
       />
-      <ThemeProvider />
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
           {children}

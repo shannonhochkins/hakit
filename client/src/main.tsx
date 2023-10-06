@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { HassConnect } from '@hakit/core';
 import { useHakitStore, PageConfig } from './store';
 import { DEFAULT_PAGE_CONFIG } from './store/pages';
+import { CONFIGURATION_FILENAME } from './store/constants';
 import { useReadFile } from './hooks';
 import { merge } from 'lodash';
 interface PreloadConfigurationProps {
@@ -22,7 +23,7 @@ function PreloadConfiguration({ children }: PreloadConfigurationProps) {
     if (requested.current) return;
     void(async () => {
       try {
-        const response = await readFile('config.json');
+        const response = await readFile(CONFIGURATION_FILENAME);
         requested.current = true;
         setReady(true);
         if (response.status) {

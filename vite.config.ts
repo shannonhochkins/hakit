@@ -3,6 +3,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vite';
 import { config } from './app-config';
 
+import generateSchemas from './schema-generator.mjs';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   root: config.isProductionEnvironment ? "/usr/app" : undefined,  // Set root directory
@@ -21,5 +23,5 @@ export default defineConfig({
     // server files.
     'process.env': {},
   },
-  plugins: [tsconfigPaths(), react()]
+  plugins: [generateSchemas(), tsconfigPaths(), react()]
 });

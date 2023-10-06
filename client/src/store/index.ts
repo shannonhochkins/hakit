@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { DEFAULT_PAGE_CONFIG } from './pages';
 import type { Layout } from 'react-grid-layout';
-import type { AvailableWidgets } from '@client/widgets/types';
+import type { AvailableWidgets } from '../widgets/types';
 
 export interface PageWidget {
-  id: string;
+  uid: string;
   name: AvailableWidgets;
-  props: object;
+  props: Record<string, any>;
   layout: Omit<Layout, 'i'>;
 }
 
@@ -23,6 +23,7 @@ export interface PageConfig {
 
 interface Store {
   mode: 'edit' | 'live';
+  setMode: (mode: 'edit' | 'live') => void;
   currentPageId: string | null;
   setCurrentPageId: (id: string | null) => void;
   pages: PageConfig[];
@@ -31,6 +32,7 @@ interface Store {
 
 export const useHakitStore = create<Store>((set) => ({
   mode: 'edit',
+  setMode: (mode) => set({ mode }),
   currentPageId: null,
   setCurrentPageId: (id: string | null) => set({ currentPageId: id }),
   pages: DEFAULT_PAGE_CONFIG,

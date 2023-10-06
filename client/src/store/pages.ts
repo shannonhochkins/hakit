@@ -1,4 +1,17 @@
+import type { Layout } from 'react-grid-layout';
 import type { PageConfig } from '.';
+
+export const DEFAULT_COLUMNS = 48; // 48 columns
+export const DEFAULT_WIDGET_WIDTH = 300; // 300px
+
+export const DEFAULT_LAYOUT_PROPS: Partial<Layout> = {
+  minW: 1,
+  maxW: DEFAULT_COLUMNS,
+  static: false,
+  isDraggable: true,
+  isResizable: true,
+  resizeHandles: undefined,
+};
 
 export const DEFAULT_PAGE_CONFIG: PageConfig[] = [{
   id: '1',
@@ -13,7 +26,7 @@ export const DEFAULT_PAGE_CONFIG: PageConfig[] = [{
   id: '2',
   name: 'Tablet',
   icon: 'mdi:tablet',
-  maxWidth: 1024,
+  maxWidth: 1280,
   enabled: true,
   widgets: [],
   margin: [10, 10],
