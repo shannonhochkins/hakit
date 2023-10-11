@@ -1,4 +1,5 @@
 import { config as dotEnv } from 'dotenv';
+import { version } from './config.json';
 
 const isProductionEnvironment = process.env.NODE_ENV === 'production';
 
@@ -11,10 +12,12 @@ if (!isProductionEnvironment) {
 interface Config {
   isProductionEnvironment: boolean;
   ports: Record<string, number>;
+  version: string;
 }
 
 export const config: Config = {
   isProductionEnvironment,
+  version,
   ports: {
     CLIENT_PORT: 4000,
     SERVER_PORT: 2022

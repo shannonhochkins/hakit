@@ -6,7 +6,7 @@ import path from 'path';
 import { config } from '../../../app-config';
 
 const ROOT_FOLDER_NAME = 'hakit';
-const OUTPUT_DIR = config.isProductionEnvironment === true ? '/config' : `${process.cwd()}/ha`;
+const OUTPUT_DIR = config.isProductionEnvironment ? '/config' : `${process.cwd()}/ha`;
 
 async function readFileFromHakit(fileName: string): Promise<string> {
   ensureHakitDirectoryExists();
@@ -31,15 +31,22 @@ async function writeFileToConfig(fileName: string, data: string): Promise<boolea
   ensureHakitDirectoryExists();
   const hakitDirPath = path.join(OUTPUT_DIR, ROOT_FOLDER_NAME);
   const filePath = path.join(hakitDirPath, fileName);
-  return await new Promise<boolean>((resolve) => {
-    writeFile(filePath, data, (err) => {
-      if (err !== null) {
-        return resolve(false);
+    return await new Promise<boolean>((resolve) => {
+      try {
+        // TODO - validate with zod
+        const contents = JSON.parse(data) as Record<string, unknown>;
+        contents.version = config.version;
+          writeFile(filePath, data, (err) => {
+            if (err !== null) {
+              return resolve(false);
+            }
+            return resolve(true);
+          });
+      } catch (e) {
+        throw new Error('Invalid JSON parsed to configuration');
       }
-      return resolve(true);
-    });
   });
-};
+}
 
 export const Files = router({
   write: publicProcedure

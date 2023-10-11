@@ -31,9 +31,47 @@ const INTERNAL_SCHEMA_DEFINITIONS = [
   'service',
 ];
 
-const REMAP_TYPES: Record<string, JSONSchema7['type']> = {
-  'React.ReactNode': ['string', "null"]
+type UpdateCallback = (originalValue: any) => JSONSchema7['type'] | string;
+type RemapTypes = Record<string, UpdateCallback>;
+
+const REMAP_TYPES: RemapTypes = {
+  'React.ReactNode': () => ['string', "null"],
+  'color' : () => ['string', "null"],
+  'textColor' : () => ['string', "null"],
+  'iconColor' : () => ['string', "null"],
+  '$ref': (originalValue: any) => {
+    return '#' + (originalValue ?? '').split('#').pop()
+  }
 }
+
+function updateValues(obj: any, keysToUpdate: string[], remapTypes: RemapTypes): TJS.Definition | null {
+  // Base case: if obj is not an object or is null, return obj
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  // Recursive case: iterate through keys in obj
+  Object.keys(obj).forEach(key => {
+    if (keysToUpdate.includes(key) && remapTypes[key]) {
+      // Update the value of the key using the provided callback function
+      obj[key] = remapTypes[key](obj[key]);
+    } else if (Array.isArray(obj[key])) {
+      // If the property is an array, iterate through its elements
+      obj[key].forEach((item: any, index: number) => {
+        if (typeof item === 'object' && item !== null) {
+          // If the element is an object, recur on it
+          updateValues(item, keysToUpdate, remapTypes);
+        }
+      });
+    } else {
+      // If the property is an object, recur on it
+      updateValues(obj[key], keysToUpdate, remapTypes);
+    }
+  });
+
+  return obj;
+}
+
 
 async function generateSchemaForFiles(file: string, basePath: string): Promise < TJS.Definition | null > {
   const program = TJS.getProgramFromFiles(
@@ -61,16 +99,11 @@ function isDefinition(value: TJS.DefinitionOrBoolean): value is TJS.Definition {
   return typeof value !== 'boolean';
 }
 
-let hasRun = false;
 
 const runNpmGenerateScript = (): Plugin => ({
   name: 'run-npm-generate-script',
   enforce: 'pre',
   async buildStart() {
-    if (hasRun) {
-      return;
-    }
-    hasRun = true;
     try {
       const files = await readdir(widgetsDir, { withFileTypes: true })
       const subDirectories = files.filter(dirent => dirent.isDirectory())
@@ -88,7 +121,8 @@ const runNpmGenerateScript = (): Plugin => ({
         const targetFilePath = join(widgetsDir, subDir, 'index.tsx');
         const targetFileExists = await stat(targetFilePath);
         if (targetFileExists.isFile()) {
-          const schema = await generateSchemaForFiles(targetFilePath, join(widgetsDir, subDir));
+          const outputSchema = await generateSchemaForFiles(targetFilePath, join(widgetsDir, subDir));
+          const schema = updateValues(outputSchema, Object.keys(REMAP_TYPES), REMAP_TYPES);
           if (!schema) {
             throw new Error(`Failed to generate schema for ${targetFilePath}`);
           }

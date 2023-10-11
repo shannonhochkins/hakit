@@ -10,14 +10,14 @@ export default {
     }
   },
   previewOptions: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 140,
   },
   defaultProps: (entities) => ({
     entity: entities[0].entity_id as EntityName,
   }),
   renderer(props) {
-    return <ButtonCard defaultLayout="default" {...props} />;
+    return <ButtonCard defaultLayout="slim" {...props} />;
   }
 } satisfies Widget<ButtonCardProps<EntityName>>;
 

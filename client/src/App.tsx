@@ -16,6 +16,7 @@ const getBaseUri = (): string => isDevelopment ? `http://localhost:${String(2022
 
 export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const mode = useHakitStore(({ mode }) => mode);
+  const config = useHakitStore(({ config }) => config);
   const isEdit = mode === 'edit';
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
@@ -35,7 +36,7 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   );
   return (
     <>
-      <ThemeProvider />
+      <ThemeProvider {...config.theme ?? {}} />
       {/* TODO - plug in the dark theme toggle from the options */}
       <ToastContainer autoClose={3000} theme="dark" position="bottom-left" />
       <Global
@@ -64,18 +65,23 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
           }
           .react-grid-item {
             > *:not(.react-resizable-handle):not(.edit-container):not(.parent), > .edit-container >*:not(.edit-bar) {
-              padding: 0;
               margin: 0;
               width: 100% !important;
               flex-shrink: 1;
               flex-grow: 1;
               height: 100% !important;
+              box-sizing: border-box !important;
             }
           }
-          .MuiTypography-root {
-            color: var(--ha-S400-contrast);
+          .form-group {
+            .MuiTypography-root {
+              color: var(--ha-S400-contrast);
+            }
+            .MuiPaper-root {
+              background-color: rgba(0,0,0,0.1);
+              background-image: none;
+            }
           }
-          
           ${isEdit ? `
             #root {
               padding-top: var(--ha-header-height);
@@ -84,10 +90,18 @@ export const TrpcWrapper: FC<{ children: ReactNode }> = ({ children }) => {
                 height: auto;
               }
             }
-            .react-grid-item > .react-resizable-handle.react-resizable-handle-se {
-              bottom: 0.25rem;
-              right: 0.25rem;
-              z-index: 2;
+            .react-grid-item > .react-resizable-handle {
+              width: 1rem;
+              height: 1rem;
+              &.react-resizable-handle-se {
+                bottom: 0.25rem;
+                right: 0.25rem;
+                z-index: 2;
+                background-image: none;
+                &:after {
+                  border-color: var(--ha-200);
+                }
+              }
             }
 
             .react-grid-item.react-draggable-dragging {

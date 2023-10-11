@@ -1,14 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import GridLayout, { Responsive, WidthProvider, Layout } from 'react-grid-layout';
+import GridLayout, { Layout } from 'react-grid-layout';
 import { useHakitStore, PageWidget, PageConfig } from '@client/store';
 import styled from '@emotion/styled';
 import { useResizeDetector } from 'react-resize-detector';
 import { useWidget } from '@client/hooks';
 import { WidgetEditBar } from '@client/components/WidgetEditBar';
-import { DEFAULT_COLUMNS, DEFAULT_LAYOUT_PROPS } from '@client/store/pages';
+import { DEFAULT_COLUMNS, DEFAULT_LAYOUT_PROPS } from '@root/client/src/store/config';
 import { getMinimumPageWidth } from '@root/client/src/utils/layout-helpers';
-
-// const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Parent = styled.div`
   position: relative;
@@ -78,7 +76,10 @@ export function Renderer(props: RendererProps) {
   const { width, ref } = useResizeDetector();
   const firstLayoutChange = useRef(true);
   const mode = useHakitStore(({ mode }) => mode);
-  const pages = useHakitStore(({ pages }) => pages);
+  const config = useHakitStore(({ config }) => config);
+  const view = useHakitStore(({ view }) => view);
+  const setView = useHakitStore(({ setView }) => setView);
+  const pages = useHakitStore(({ view }) => view?.pages ?? []);
   const currentPageId = useHakitStore(({ currentPageId }) => currentPageId);
   const page = pages.find(page => page.id === currentPageId) ?? null;
   const setPages = useHakitStore(({ setPages }) => setPages);
@@ -130,11 +131,20 @@ export function Renderer(props: RendererProps) {
       ...DEFAULT_LAYOUT_PROPS,
       i: widget.props.id,
       ...widget.layout,
+      ...isEditMode ? {} : {
+        isDraggable: false,
+        isResizable: false,
+        static: true,
+      }
     }));
     return acc;
-  }, {}), [pages]);
+  }, {}), [pages, isEditMode]);
 
   useEffect(() => {
+    if (!view) {
+      // TODO - set this based on the current url
+      setView(config.views[0]);
+    }
     if (!currentPageId && width) {
       const newBreakpointId = getBreakpointFromWidth(pages, width);
       setCurrentPageId(newBreakpointId);
@@ -147,7 +157,7 @@ export function Renderer(props: RendererProps) {
         setCurrentPageId(newBreakpointId);
       }
     }
-  }, [currentPageId, isEditMode, pages, setCurrentPageId, width]);
+  }, [currentPageId, view, isEditMode, pages, setCurrentPageId, width, setView, config.views]);
 
   const columnWidth = ((width ?? 0) - ((page?.margin[0] ?? 0) * (DEFAULT_COLUMNS - 1) + 2 * (page?.containerPadding[0] ?? 0))) / DEFAULT_COLUMNS;
   // in edit mode, we set the container width to the minimum width of the page so that in
@@ -159,7 +169,7 @@ export function Renderer(props: RendererProps) {
       width: minPageWidth,
       border: `2px solid var(--ha-A400)`
     } : {}}>
-      {mounted && page && currentPageId && <GridLayout
+      {mounted && page && currentPageId && width && <GridLayout
           width={width}
           margin={page?.margin ?? [0, 0]}
           containerPadding={page?.containerPadding ?? [0, 0]}
@@ -172,15 +182,6 @@ export function Renderer(props: RendererProps) {
             // when any element is resized in the UI, we need to update the layout
             updateLayouts(layout);
           }}
-          // breakpoint={currentPageId ?? undefined}
-          // onWidthChange={(newWidth, _oldWidth) => {
-          //   const newBreakpointId = getBreakpointFromWidth(pages, newWidth);
-          //   console.log('newBreakpointId', newBreakpointId, newWidth);
-          //   if (currentPageId !== newBreakpointId) {
-          //     setCurrentPageId(newBreakpointId);
-          //   }
-          // }}
-          // breakpoints={breakpoints}
           cols={cols[currentPageId]}
           onLayoutChange={(_layout) => {
             // setLayoutChanges(allLayouts);
@@ -196,8 +197,9 @@ export function Renderer(props: RendererProps) {
           }}
           // disables the height calculation
           autoSize={false}
-          compactType={null}
-          // measureBeforeMount={false}
+          compactType={page.compactType === 'off' ? null : page.compactType}
+          preventCollision={page.preventCollision}
+          allowOverlap={page.allowOverlap}
           useCSSTransforms
           className="layout"
           rowHeight={columnWidth}

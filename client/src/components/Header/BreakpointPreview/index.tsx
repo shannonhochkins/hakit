@@ -28,7 +28,7 @@ const BreakPointButton = styled(motion.button)`
 `;
 
 export function BreakpointPreview() {
-  const pages = useHakitStore(({ pages }) => pages);
+  const pages = useHakitStore(({ view }) => view?.pages ?? []);
   const currentPageId = useHakitStore(({ currentPageId }) => currentPageId);
   const setCurrentPageId = useHakitStore(({ setCurrentPageId }) => setCurrentPageId);
   return (<>

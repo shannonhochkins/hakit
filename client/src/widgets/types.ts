@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 import type { Layout } from 'react-grid-layout';
 import widgets from './';
 import { PageWidget } from '../store';
+import { UiSchema } from '@rjsf/utils';
+import { HassEntity } from 'home-assistant-js-websocket';
 
 type BlacklistedProps = 'i' | 'moved' | 'w' | 'h' | 'y' | 'x';
 
@@ -35,12 +37,27 @@ interface PreviewOptions {
    * Note: This is automatically translated into column widths based on the current layout
    * */
   height?: number;
+  /**
+   * The preview widget will be scaled by this amount @default 1.5
+   * */
+  scale?: number;
+  /**
+   * This will disable the fixed size of the preview card allowing it to resize fluidly, enable this
+   * if the component has a property that resizes it from the options panel
+   */
+  noDefaultSize?: boolean;
+}
+
+interface ServicePickerOptions {
+  domain: string;
 }
 export interface Widget<T extends object = Record<string, unknown>> {
   /** By default, the entity picker is included, set this to false if it should not be shown, you can also provide additional options on how this entity picker should be displayed
    * @example { domainWhitelist: ['light', 'switch', 'media_player'] } <- will only show entities with these domains
    */
   entityPicker?: EntityPickerOptions | false;
+  /** hide or show the service picker @default false */
+  servicePicker?: ServicePickerOptions | false;
   previewOptions?: PreviewOptions;
   /** the default layout properties of the card
    * @example if you want the card to be 10 columns wide and 4 columns high
@@ -50,8 +67,12 @@ export interface Widget<T extends object = Record<string, unknown>> {
    * }
    */
   layout?: Partial<Omit<Layout, BlacklistedProps>>;
+  /** any changes to the ui schema for reactjs forms @see https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema */
+  uiSchema?: UiSchema;
   /** The default props to render with the widget */
-  props: T;
+  defaultProps?: (entities: HassEntity[]) => T;
+  /** @internal use only */
+  props?: T,
   /** this function is called internally to render, however you can style/format however you like based on the props picked or based on the other data provided */
   renderer: (props: T, widget?: PageWidget) => ReactNode;
 }

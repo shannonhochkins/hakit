@@ -7,17 +7,13 @@ import { HassEntity } from 'home-assistant-js-websocket';
 import { VariableSizeList, ListChildComponentProps } from 'react-window';
 import { forwardRef, cloneElement, isValidElement, useRef, useEffect, useContext, createContext, Children } from 'react';
 import { Widget } from '@client/widgets/types';
-import { useFilterEntities } from '@client/hooks';
+import { useFilterEntities, useWidget } from '@client/hooks';
+import { WidgetProps } from '@rjsf/utils';
 
 interface Option {
   value: string;
   label: string;
   icon?: string;
-}
-interface EntityAutocompleteWidgetProps {
-  onChange: (value: HassEntity | null) => void;
-  value?: HassEntity['entity_id'] | null;
-  widgetDefinition: Widget<Record<string, unknown>>;
 }
 
 const Title = styled.div`
@@ -129,25 +125,30 @@ function RenderOption({
   </li>);
 }
 
-export function EntityAutocompleteWidget({ onChange, value, widgetDefinition }: EntityAutocompleteWidgetProps) {
+export function EntityAutocomplete({ onChange, disabled, value, formContext }: WidgetProps) {
   const filterEntities = useFilterEntities();
+  const { formData } = formContext;
+  const { widgetName } = formData;
+  const getWidget = useWidget();
+  const widgetDefinition = getWidget(widgetName);
   const entities = filterEntities(widgetDefinition);
   const options: Option[] = entities.map(item => ({
     value: item.entity_id,
     icon: item.attributes.icon,
     label: item.attributes.friendly_name ?? item.entity_id,
   }));
+  const matchedValue = options.find((option) => option.value === value);
   return (
     <Autocomplete
+      disabled={disabled}
       options={options}
       style={{ width: '100%' }}
-      value={options.find((option) => option.value === value) ?? null}
+      value={matchedValue}
       ListboxComponent={ListboxComponent as any}
       getOptionLabel={(option) => `${option.label} (${option.value})`}
       onChange={(_event, newValue) => {
         if (newValue) {
-          const match = entities.find(entity => newValue.value === entity.entity_id) ?? null;
-          onChange(match);
+          onChange(newValue.value);
         }
       }}
       renderOption={(props, option) => <RenderOption {...props} option={option} />}

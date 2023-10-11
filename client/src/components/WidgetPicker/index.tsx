@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { useHakitStore, PageWidget } from '@client/store';
-import { DEFAULT_WIDGET_WIDTH } from '@client/store/pages';
+import { DEFAULT_WIDGET_SIZE } from '@root/client/src/store/config';
 import { Icon } from '@iconify/react';
 import { Tooltip, Modal, Row } from '@hakit/components';
 import { motion } from 'framer-motion';
@@ -70,6 +70,8 @@ const WidgetPreview = styled.div`
   > * {
     width: 100% !important;
     max-width: 24rem;
+    justify-content: center;
+    display: flex;
   }
 `;
 
@@ -98,7 +100,7 @@ const generateUID = (widgetLength: number): string => {
 export function WidgetPicker() {
   const [openWidgetPicker, setOpenWidgetPicker] = useState(false);
   const [dummyWidget, setDummyWidget] = useState<PageWidget | null>(null);
-  const pages = useHakitStore(({ pages }) => pages);
+  const pages = useHakitStore(({ view }) => view?.pages ?? []);
   const currentPageId = useHakitStore(({ currentPageId }) => currentPageId);
   const page = pages.find(page => page.id === currentPageId) ?? null;
   const setPages = useHakitStore(({ setPages }) => setPages);
@@ -111,8 +113,8 @@ export function WidgetPicker() {
     const layout = {
       // defaults
       ...merge({
-        w: convertPixelToColumn(widget.previewOptions?.width ?? DEFAULT_WIDGET_WIDTH, page, pages),
-        h: convertPixelToColumn(widget.previewOptions?.height ?? DEFAULT_WIDGET_WIDTH, page, pages),
+        w: convertPixelToColumn(widget.previewOptions?.width ?? DEFAULT_WIDGET_SIZE, page, pages),
+        h: convertPixelToColumn(widget.previewOptions?.height ?? DEFAULT_WIDGET_SIZE, page, pages),
         x: 0,
         y: 0,
       }, widget.layout),
@@ -124,7 +126,7 @@ export function WidgetPicker() {
       name: key,
       props: {
         ...widget.props,
-        id: 'PLACEHOLDER'
+        id: `${uid}-PLACEHOLDER`
       },
     } satisfies PageWidget;
   }
@@ -137,8 +139,8 @@ export function WidgetPicker() {
         const i = `${widget.name}||page=${p.id}||i=${count}`;
         const { x, y } = findOptimalPosition(p.widgets.map(w => w.layout), widget.layout.w, widget.layout.h);
         const widgetDefinition = getWidget(widget.name);
-        const w = convertPixelToColumn(widgetDefinition.previewOptions?.width ?? DEFAULT_WIDGET_WIDTH, p, pages);
-        const h = convertPixelToColumn(widgetDefinition.previewOptions?.height ?? DEFAULT_WIDGET_WIDTH, p, pages);
+        const w = convertPixelToColumn(widgetDefinition.previewOptions?.width ?? DEFAULT_WIDGET_SIZE, p, pages);
+        const h = convertPixelToColumn(widgetDefinition.previewOptions?.height ?? DEFAULT_WIDGET_SIZE, p, pages);
         const layoutWithPosition = { ...widget.layout, x, y, w, h };
         const newWidget = {
           ...widget,
@@ -154,12 +156,18 @@ export function WidgetPicker() {
     }));
   }
 
-  const prevewWidgets = useMemo(() => widgets.map<[string, Widget<Record<string, unknown>>]>(([key, widget]) => {
+  const previewWidgets = useMemo(() => widgets.map<[string, Widget<Record<string, unknown>>]>(([key, widget]) => {
       if (widget.entityPicker !== false) {
-        const [entity] = filterEntities(widget);
-        if (entity) {
-          widget.props.entity = entity.entity_id;
+        const entities = filterEntities(widget);
+        if (entities.length) {
+          widget.props = {
+            ...widget.props,
+            ...typeof widget.defaultProps === 'function' ? widget.defaultProps(entities) : {},
+          };
         }
+      }
+      if (widget.props) {
+        widget.props.id = generateUID(widgets.length);
       }
       return [key, widget];
     }), [filterEntities, widgets]);
@@ -183,7 +191,7 @@ export function WidgetPicker() {
       setOpenWidgetPicker(false);
     }}>
       <Row fullWidth gap="0.5rem" alignItems="stretch">
-        {prevewWidgets.map(([key, widget]) => (<WidgetBox onClick={(e) => {
+        {previewWidgets.map(([key, widget]) => (<WidgetBox onClick={(e) => {
             e.stopPropagation();
             setOpenWidgetPicker(false);
             const dummyWidget = createDummyWidget(key as AvailableWidgets, widget);
@@ -193,7 +201,7 @@ export function WidgetPicker() {
                 {key}
               </WidgetTitle>
               <WidgetPreview>
-                {widget.renderer(widget.props)}
+                {widget.renderer(widget.props ?? {})}
               </WidgetPreview>
             </WidgetBox>))}
       </Row>

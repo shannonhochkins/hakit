@@ -33,12 +33,13 @@ const SaveWidgetButton = styled(motion.button)`
 `;
 
 export function SaveConfig() {
-  const pages = useHakitStore(({ pages }) => pages);
+  const setMode = useHakitStore(store => store.setMode);
   const saveConfiguration = useSaveConfiguration();
   return (<>
     <PageContainer>
       <SaveWidgetButton onClick={() => {
-        void saveConfiguration(pages);
+        void saveConfiguration();
+        setMode('live');
       }}>
         <Tooltip title="Save Layouts" placement="left">
           <Row fullWidth fullHeight gap="0.5rem" style={{

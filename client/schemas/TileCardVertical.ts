@@ -9,13 +9,6 @@ export default {
         "string"
       ]
     },
-    "description": {
-      "description": "By default, the description is retrieved from the friendly name of the entity, or you can specify a manual description",
-      "type": [
-        "null",
-        "string"
-      ]
-    },
     "icon": {
       "description": "Optional icon param, this is automatically retrieved by the \"domain\" name if provided, or can be overwritten with a custom value",
       "type": [
@@ -27,6 +20,13 @@ export default {
       "string",
       "null"
     ],
+    "description": {
+      "description": "By default, the description is retrieved from the friendly name of the entity, or you can specify a manual description",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
     "hideState": {
       "description": "Hide the state value",
       "type": "boolean"
@@ -41,5 +41,5 @@ export default {
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "/ButtonCard/index.tsx"
+  "$id": "/TileCardVertical/index.tsx"
 };

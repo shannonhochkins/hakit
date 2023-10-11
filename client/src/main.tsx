@@ -4,8 +4,8 @@ import { TrpcWrapper } from './App';
 import { Renderer } from './components/Renderer';
 import { Header } from './components/Header';
 import { HassConnect } from '@hakit/core';
-import { useHakitStore, PageConfig } from './store';
-import { DEFAULT_PAGE_CONFIG } from './store/pages';
+import { useHakitStore, Config } from './store';
+import { DEFAULT_CONFIG } from './store/config';
 import { CONFIGURATION_FILENAME } from './store/constants';
 import { useReadFile } from './hooks';
 import { merge } from 'lodash';
@@ -16,7 +16,7 @@ interface PreloadConfigurationProps {
 function PreloadConfiguration({ children }: PreloadConfigurationProps) {
   const requested = useRef(false);
   const [ready, setReady] = useState(false);
-  const setPages = useHakitStore(store => store.setPages);
+  const setConfig = useHakitStore(store => store.setConfig);
   const readFile = useReadFile();
 
   useEffect(() => {
@@ -28,8 +28,8 @@ function PreloadConfiguration({ children }: PreloadConfigurationProps) {
         setReady(true);
         if (response.status) {
           try {
-            const config = JSON.parse(response.contents) as PageConfig[];
-            setPages(merge(DEFAULT_PAGE_CONFIG, config));
+            const config = JSON.parse(response.contents) as Config[];
+            setConfig(merge(DEFAULT_CONFIG, config));
           } catch (e) {
             alert('malformed configuration object');
           }
@@ -39,7 +39,7 @@ function PreloadConfiguration({ children }: PreloadConfigurationProps) {
         setReady(true);
       }
     })();
-  }, [readFile, setPages]);
+  }, [readFile, setConfig]);
 
   return (
     <>

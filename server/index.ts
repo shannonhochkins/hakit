@@ -26,6 +26,8 @@ if (process.env.NODE_ENV !== 'test') {
     console.log('supervisor', process.env.SUPERVISOR_TOKEN ?? 'unknown');
     next();
   });
+  // listen for api endpoints with /api as base
+
   if (process.env.NODE_ENV === 'production') {
     app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
     app.get('/', (_req, res) => {
@@ -35,8 +37,6 @@ if (process.env.NODE_ENV !== 'test') {
     // enable cors
     app.use(cors());
   }
-
-  // listen for api endpoints with /api as base
   app.use(
     '/api',
     createExpressMiddleware({

@@ -3,10 +3,9 @@ import styled from '@emotion/styled';
 import { PageConfig, PageWidget, useHakitStore } from '@client/store';
 import { FabCard, Row, Tooltip, Modal, Column } from '@hakit/components';
 import { WidgetEditor } from '@client/components/WidgetEditor';
-import { FormControlGroup, Switch, Button } from '@client/components/Shared';
+import { FormControl, Switch, Button } from '@mui/material';
 import { Icon } from '@iconify/react';
 import { useSaveConfiguration } from '@client/hooks';
-import { CONFIGURATION_FILENAME } from '@client/store/constants';
 
 const InnerBar = styled(Row)`
 
@@ -15,15 +14,17 @@ const InnerBar = styled(Row)`
 const StyledEditBar = styled.div`
   position: absolute;
   inset: 0;
-  bottom: 0;
   z-index: 1;
   background-color: transparent;
   transition: background-color var(--ha-transition-duration) var(--ha-easing);
-  overflow: hidden;
-  cursor: move;
+  &.not-pinned {
+    cursor: move;
+  }
   .inner-bar {
-    transition: transform var(--ha-transition-duration) var(--ha-easing);
-    transform: translate3d(0, 100%, 0);
+    transition: var(--ha-transition-duration) var(--ha-easing);
+    opacity: 0;
+    transition-property: transform, opacity;
+    transform: translate3d(0%, 100%, 0);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -32,7 +33,8 @@ const StyledEditBar = styled.div`
   &:hover {
     background-color: rgba(0,0,0,0.4);
     .inner-bar {
-      transform: translate3d(0, 0, 0);
+      opacity: 1;
+      transform: translate3d(0%, 0, 0);
     }
   }
 `;
@@ -47,7 +49,7 @@ const Dialog = styled(Modal)`
 `;
 
 export function WidgetEditBar({ widget }: WidgetEditBarProps): ReactElement {
-  const pages = useHakitStore(store => store.pages);
+  const pages = useHakitStore(store => store.view?.pages ?? []);
   const setPages = useHakitStore(store => store.setPages);
   const currentPageId = useHakitStore(store => store.currentPageId);
   const [editWidget, setEditWidget] = useState(false);
@@ -56,8 +58,8 @@ export function WidgetEditBar({ widget }: WidgetEditBarProps): ReactElement {
   const saveConfiguration = useSaveConfiguration();
   const saveConfig = (pages: PageConfig[]) => {
     void(async () => {
-      await saveConfiguration(pages);
       setPages(pages);
+      await saveConfiguration();
     })();
   };
 
@@ -99,8 +101,34 @@ export function WidgetEditBar({ widget }: WidgetEditBarProps): ReactElement {
     saveConfig([...newPages]);
   }
 
+  function pinWidget(currentStatic?: boolean) {
+    // now update the pages with the current widget id
+    const newPages = pages.map(page => {
+      const newWidgets = page.widgets.map(w => {
+        if (w.uid === widget.uid) {
+          const isStatic = typeof currentStatic === 'boolean' ? !currentStatic : false;
+          return {
+            ...w,
+            layout: {
+              ...w.layout,
+              static: isStatic,
+              isResizable: !isStatic,
+              isDraggable: !isStatic,
+            }
+          };
+        }
+        return w;
+      });
+      return {
+        ...page,
+        widgets: newWidgets,
+      };
+    });
+    saveConfig([...newPages]);
+  }
+
   return (<>
-    <StyledEditBar className="edit-bar">
+    <StyledEditBar className={`edit-bar ${widget.layout.static ? 'pinned' : 'not-pinned'}`}>
       <InnerBar className="inner-bar" fullWidth gap="0.5rem">
         <Tooltip title="Edit" placement="bottom">
           <FabCard layoutId={`${widget.props.id}-editor`} icon="mdi:edit" size={30} onClick={() => setEditWidget(true)} />
@@ -108,19 +136,23 @@ export function WidgetEditBar({ widget }: WidgetEditBarProps): ReactElement {
         <Tooltip title="Delete" placement="bottom">
           <FabCard layoutId={`${widget.props.id}-delete`} icon="mdi:trash" size={30} onClick={() => setOpenDeleteConfirmation(true)} />
         </Tooltip>
+        <Tooltip title={widget.layout.static ? 'Unpin item' : 'Pin item'} placement="bottom">
+          <FabCard layoutId={`${widget.props.id}-pin`} icon={widget.layout.static ? 'mdi:pin-off' : 'mdi:pin'} size={30} onClick={() => pinWidget(widget.layout.static)} />
+        </Tooltip>
       </InnerBar>
     </StyledEditBar>
     <Dialog description="Are you sure you want to delete this widget?" id={`${widget.props.id}-delete`} title={`Delete ${widget.name}`} open={openDeleteConfirmation} onClose={() => {
       setOpenDeleteConfirmation(false);
     }} >
       <Column fullWidth alignItems="flex-start">
-        <FormControlGroup reverse label={deleteFromAllLayouts ? 'Delete from all layouts' : 'Delete from current layout only'}>
-          <Switch checked={deleteFromAllLayouts} onChange={value => setDeleteFromAllLayouts(value)} />
-        </FormControlGroup>
+        <FormControl>
+          <label>{deleteFromAllLayouts ? 'Delete from all layouts' : 'Delete from current layout only'}</label>
+          <Switch checked={deleteFromAllLayouts} onChange={(_e, checked) => setDeleteFromAllLayouts(checked)} />
+        </FormControl>
         <Row gap="0.5rem" fullWidth justifyContent="flex-end" style={{
           marginTop: '1rem'
         }}>
-          <Button danger onClick={() => {
+          <Button color="error" onClick={() => {
             deleteWidget();
           }}>
             <Icon icon="mdi:trash" />

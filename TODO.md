@@ -9,6 +9,10 @@
 9. Determine how custom widgets might work in addon mode
 10. Header to navigate between views (not pages)
 11. Icon Picker to widgets
+12. When an entity has no services, hide the service field
+13. Add compactType as setting option
+13. Add a "layout" tab to widget editor to define custom options like "collision detection", "resizeHandles" etc, static should be handled as per below
+14. Add a "pin" icon to the edit bar of widgets to make them static / freeze the position
 
 
 Documentation - Once everything is working as expected, document everything

@@ -28,8 +28,8 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@hakit/components": "^2.1.0",
-    "@hakit/core": "^2.1.0",
+    "@hakit/components": "file:../ha-component-kit/packages/components/hakit-components-2.1.0.tgz",
+    "@hakit/core": "file:../ha-component-kit/packages/core/hakit-core-2.1.0.tgz",
     "@iconify/react": "^4.1.1",
     "@rjsf/core": "^5.13.0",
     "@rjsf/utils": "^5.13.0",

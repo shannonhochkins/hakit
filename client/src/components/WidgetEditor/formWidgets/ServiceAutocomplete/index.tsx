@@ -4,18 +4,14 @@ import { Autocomplete } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import styled from '@emotion/styled';
 import { Row, Column } from '@hakit/components';
-import { HassEntity, HassServices } from 'home-assistant-js-websocket';
+import { HassServices } from 'home-assistant-js-websocket';
+import { WidgetProps } from '@rjsf/utils';
+import { useWidget } from '@client/hooks';
 
 interface Option {
   value: string;
   label: string;
   description?: string;
-}
-interface ServiceAutocompleteProps {
-  onChange: (value: string | null) => void;
-  value?: HassEntity['entity_id'] | null;
-  disabled?: boolean;
-  entity: HassEntity | null;
 }
 
 const Title = styled.div`
@@ -27,10 +23,16 @@ const Description = styled.span`
   color: var(--ha-S400-contrast);
 `;
 
-export const ServiceAutocomplete: React.FC<ServiceAutocompleteProps> = ({ onChange, entity, disabled, value }) => {
+export function ServiceAutocomplete({ onChange, disabled, formContext, value }: WidgetProps) {
   const { getServices } = useHass();
+  const { formData } = formContext;
+  const { entity, widgetName } = formData;
   const [services, setServices] = useState<HassServices | null>(null);
-  const domain = computeDomain((entity?.entity_id ?? '') as EntityName);
+  const getWidget = useWidget();
+  const widgetDefinition = getWidget(widgetName);
+  const whitelistDomain = widgetDefinition?.servicePicker ? widgetDefinition?.servicePicker?.domain : null;
+  console.log('whitelistDomain', whitelistDomain);
+  const domain = computeDomain((whitelistDomain ?? entity ?? '') as EntityName);
   useEffect(() => {
     void(async function fetchData() {
       const services = await getServices();

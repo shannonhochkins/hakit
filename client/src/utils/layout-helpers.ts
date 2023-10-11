@@ -1,5 +1,5 @@
 import { PageConfig } from '@client/store';
-import { DEFAULT_COLUMNS } from '@client/store/pages';
+import { DEFAULT_COLUMNS } from '@root/client/src/store/config';
 
 export function getMinimumPageWidth(page: PageConfig, pages: PageConfig[]): number {
   // Find the index of the current page in the pages array

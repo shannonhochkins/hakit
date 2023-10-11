@@ -1,15 +1,17 @@
 import { useCallback } from 'react';
 import { useWriteFile } from './';
-import { PageConfig } from '@client/store';
+import { useHakitStore } from '@client/store';
 import { CONFIGURATION_FILENAME } from '@client/store/constants';
 import { toast } from 'react-toastify';
 
 export function useSaveConfiguration() {
   const writeFile = useWriteFile();
-  return useCallback(async (content: PageConfig[]) => {
+  const config = useHakitStore(state => state.config);
+  return useCallback(async () => {
       try {
+        console.log('config', config);
         await writeFile({
-          content: JSON.stringify(content, null, 2),
+          content: JSON.stringify(config, null, 2),
           filename: CONFIGURATION_FILENAME
         });
         toast.success('Successfully saved');
@@ -17,5 +19,5 @@ export function useSaveConfiguration() {
         toast.error('Oops! Something went wrong');
         console.error('Save configuration error:', e);
       }
-  }, [writeFile]);
+  }, [writeFile, config]);
 }
