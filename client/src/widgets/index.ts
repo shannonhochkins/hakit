@@ -10,6 +10,9 @@ import TileCardVertical from './TileCardVertical';
 import TileCardHorizontal from './TileCardHorizontal';
 import GarbageCollectionCard from './GarbageCollectionCard';
 import EntitiesCard from './EntitiesCard';
+import MediaPlayerCard from './MediaPlayerCard';
+import GroupCard from './GroupCard';
+
 export default {
   ButtonCard,
   EntitiesCard,
@@ -22,4 +25,6 @@ export default {
   GarbageCollectionCard,
   TileCardVertical,
   TileCardHorizontal,
+  MediaPlayerCard,
+  GroupCard,
 };

@@ -69,6 +69,7 @@ function sortBreakpoints(
 
 interface RendererProps {
   nested?: boolean;
+  nestedWidgets?: PageWidget[];
   onHeightChange?: (height: number, key: string) => void;
 }
 
@@ -89,11 +90,15 @@ export function Renderer(props: RendererProps) {
   const getWidget = useWidget();
 
   function widgetRenderer(pageWidget: PageWidget) {
-    const { props, renderer} = getWidget(pageWidget.name);
+    const { props, acceptsWidgets, renderer} = getWidget(pageWidget.name);
+    let nestedWidgets: PageWidget[] = [];
+    if (acceptsWidgets && page) {
+      nestedWidgets = pageWidget.widgets ?? [];
+    }
     return renderer({
       ...props,
       ...pageWidget.props
-    }, pageWidget);
+    }, pageWidget, acceptsWidgets ? <Renderer nestedWidgets={nestedWidgets} nested /> : undefined);
   }
 
   const cols = useMemo(() => pages.reduce<Record<string, number>>((acc, breakpoint) => {
@@ -164,6 +169,8 @@ export function Renderer(props: RendererProps) {
   // live mode, as it's fluid it doesn't squash any of the components below the desired size
   const minPageWidth = isEditMode && page ? getMinimumPageWidth(page, pages) : '100%';
 
+  const renderable = props.nested && props.nestedWidgets ? props.nestedWidgets : page?.widgets ?? [];
+
   return (
     <Parent className="parent" ref={ref} style={isEditMode ? {
       width: minPageWidth,
@@ -204,7 +211,7 @@ export function Renderer(props: RendererProps) {
           className="layout"
           rowHeight={columnWidth}
         >
-          {page.widgets.map(function (widget) {
+          {renderable.map(function (widget) {
             return (
               <div key={widget.props.id}>
                 {/* {widget.props.id.startsWith("grid-") && (

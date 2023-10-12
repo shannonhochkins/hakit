@@ -17,6 +17,12 @@ const loadSchema = async (name: string): Promise<TJS.Definition> => {
     }case 'GarbageCollectionCard': {
       const imported = await import('./GarbageCollectionCard');
       return imported.default as TJS.Definition;
+    }case 'GroupCard': {
+      const imported = await import('./GroupCard');
+      return imported.default as TJS.Definition;
+    }case 'MediaPlayerCard': {
+      const imported = await import('./MediaPlayerCard');
+      return imported.default as TJS.Definition;
     }case 'SensorCard': {
       const imported = await import('./SensorCard');
       return imported.default as TJS.Definition;

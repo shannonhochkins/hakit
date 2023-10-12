@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Bundler",
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,

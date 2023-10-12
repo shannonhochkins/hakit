@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import type { Layout } from 'react-grid-layout';
-import widgets from './';
 import { PageWidget } from '../store';
 import { UiSchema } from '@rjsf/utils';
 import { HassEntity } from 'home-assistant-js-websocket';
+import type { AvailableWidgets } from './available-widgets';
 
 type BlacklistedProps = 'i' | 'moved' | 'w' | 'h' | 'y' | 'x';
 
@@ -42,14 +42,25 @@ interface PreviewOptions {
    * */
   scale?: number;
   /**
-   * This will disable the fixed size of the preview card allowing it to resize fluidly, enable this
+   * This will disable the fixed width size of the preview card allowing it to resize fluidly, enable this
    * if the component has a property that resizes it from the options panel
    */
-  noDefaultSize?: boolean;
+  noDefaultWidth?: boolean;
+  /**
+   * This will disable the fixed height size of the preview card allowing it to resize fluidly, enable this
+   * if the component has a property that resizes it from the options panel
+   */
+  noDefaultHeight?: boolean;
 }
 
 interface ServicePickerOptions {
   domain: string;
+}
+interface AcceptsWidgetOptions {
+  filterOptions: {
+    blacklist?: AvailableWidgets[];
+    whitelist?: AvailableWidgets[];
+  }
 }
 export interface Widget<T extends object = Record<string, unknown>> {
   /** By default, the entity picker is included, set this to false if it should not be shown, you can also provide additional options on how this entity picker should be displayed
@@ -74,7 +85,7 @@ export interface Widget<T extends object = Record<string, unknown>> {
   /** @internal use only */
   props?: T,
   /** this function is called internally to render, however you can style/format however you like based on the props picked or based on the other data provided */
-  renderer: (props: T, widget?: PageWidget) => ReactNode;
+  renderer: (props: T, widget?: PageWidget, renderer?: React.ReactElement) => ReactNode;
+  /** when provided, this component will have a widget picker & renderer included automatically so you can add widgets to this component @default false */
+  acceptsWidgets?: AcceptsWidgetOptions | false;
 }
-
-export type AvailableWidgets = keyof typeof widgets;

@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { DEFAULT_CONFIG } from './config';
 import type { Layout } from 'react-grid-layout';
-import type { AvailableWidgets } from '../widgets/types';
+import type { AvailableWidgets } from '../widgets/available-widgets';
 
 export interface PageWidget {
   uid: string;
   name: AvailableWidgets;
   props: Record<string, any>;
   layout: Omit<Layout, 'i'>;
+  widgets: PageWidget[];
 }
 
 export interface PageConfig {

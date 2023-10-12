@@ -113,13 +113,13 @@ export function WidgetEditor({
     const scaleAmount = widgetDefinition?.previewOptions?.scale ?? 1.5;
     const previewWidth = `${(widgetDefinition?.previewOptions?.width ?? DEFAULT_WIDGET_SIZE) * scaleAmount}px`;
     const previewHeight = `${(widgetDefinition?.previewOptions?.height ?? DEFAULT_WIDGET_SIZE) * scaleAmount}px`;
-    const sizeWidth = widgetDefinition?.previewOptions?.noDefaultSize ? 'auto' : previewWidth;
-    const sizeHeight = widgetDefinition?.previewOptions?.noDefaultSize ? 'auto' : previewHeight;
+    const sizeWidth = widgetDefinition?.previewOptions?.noDefaultWidth ? 'auto' : previewWidth;
+    const sizeHeight = widgetDefinition?.previewOptions?.noDefaultHeight ? 'auto' : previewHeight;
     const previewProps = {
       cssStyles: `
         width: ${sizeWidth} !important;
         height: ${sizeHeight} !important;
-        max-width: 100%;
+        max-width: 50vw;
         align-items: center;
         justify-content: center;
         ${formData.cssStyles ?? ''}
@@ -129,7 +129,7 @@ export function WidgetEditor({
       ...customProps,
       ...previewProps,
     };
-  }, [formData, widgetDefinition?.previewOptions?.height, widgetDefinition?.previewOptions?.noDefaultSize, widgetDefinition?.previewOptions?.scale, widgetDefinition?.previewOptions?.width])
+  }, [formData, widgetDefinition?.previewOptions]);
   // TODO - set the default value of entity pickers to the first option
   // TODO - figure out why everything is so slow
   const [schemaProcessed, uiSchemaProcessed] = useMemo(() => {
@@ -184,7 +184,7 @@ export function WidgetEditor({
   // console.log('rendering with props', entity, service, previewProps)
   return (<FullScreenModal title={`${widget.name} configuration`} id={id} open={open} onClose={onClose}>
     <ThemeProvider theme={darkTheme}>
-      <Row fullWidth fullHeight wrap="nowrap">
+      <Row fullWidth fullHeight wrap="nowrap" gap="1rem">
         <Column fullWidth fullHeight justifyContent="flex-start" wrap="nowrap" style={{
           overflow: 'auto',
           padding: '1rem 0'
@@ -238,7 +238,9 @@ export function WidgetEditor({
           </TabPanel>
         </Column>
         <Column fullWidth fullHeight justifyContent="flex-start" style={{
-          padding: '2rem 0'
+          padding: '2rem',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderRadius: '0.5rem'
         }}>
           {widgetDefinition?.renderer({
             ...rendererProps,

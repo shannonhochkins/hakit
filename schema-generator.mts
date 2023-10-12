@@ -105,6 +105,7 @@ const runNpmGenerateScript = (): Plugin => ({
   enforce: 'pre',
   async buildStart() {
     try {
+      const availableWidgets = [];
       const files = await readdir(widgetsDir, { withFileTypes: true })
       const subDirectories = files.filter(dirent => dirent.isDirectory())
         .map(dirent => dirent.name);
@@ -129,14 +130,38 @@ const runNpmGenerateScript = (): Plugin => ({
           if (schema.properties) {
             Object.entries(schema.properties).forEach(([key, value]) => {
               const properties = schema.properties as Record<string, TJS.DefinitionOrBoolean>; // Type assertion
+              if (isDefinition(value) && value.anyOf) {
+                const allOfType = value.anyOf.find(item => isDefinition(item) && item.allOf);
+                
+                if (allOfType && isDefinition(allOfType) && allOfType.allOf) {
+                  const hasReactObject = allOfType.allOf.length === 2 && JSON.stringify(allOfType.allOf) === JSON.stringify([
+                    {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]);
+                  const [_, replacement] = value.anyOf;
+                  if (hasReactObject && replacement && isDefinition(replacement)) {
+                    //   // remap this type as it's likely to be a react css property
+                    delete value.anyOf;
+                    // check if the replacement.type array includes a number and a string
+                    if (replacement.type && Array.isArray(replacement.type) && replacement.type.includes('number') && replacement.type.includes('string')) {
+                      replacement.type = 'string';
+                    }
+                    properties[key] = {
+                      ...value,
+                      ...replacement,
+                    };
+                  }
+                }
+              }
               if (isDefinition(value) && typeof value.$ref === 'string') {
                 const remapped = REMAP_TYPES[value.$ref.split('/').pop() as string];
-                if (remapped) {
+                if (typeof remapped !== 'undefined') {
                   delete value.$ref;
-                  properties[key] = {
-                    ...value,
-                    type: remapped,
-                  };
                 } else {
                   value.$ref = '#' + value.$ref.split('#').pop();
                   properties[key] = value;
@@ -167,6 +192,7 @@ const runNpmGenerateScript = (): Plugin => ({
           const fileContent = `${WARNING}
 export default ${JSON.stringify(schema, null, 2)};
 `;
+          availableWidgets.push(subDir);
           // Write schema to the file
           const schemaFileName = `${subDir}.ts`;
           const schemaFilePath = join(schemasDir, schemaFileName);
@@ -195,6 +221,12 @@ export default loadSchema;
       // Write the loadSchema function to the index.ts file in the schemas directory
       const indexPath = join(schemasDir, 'index.ts');
       await writeFile(indexPath, indexContent, 'utf8');
+
+      const availableWidgetsPath = join(widgetsDir, 'available-widgets.ts');
+      await writeFile(availableWidgetsPath, `${WARNING}
+export type AvailableWidgets = ${availableWidgets.map(w => `'${w}'`).join(' | ')};\n`, 'utf8');
+
+      availableWidgets
 
     } catch (error) {
       console.error(`Failed to run npm generate script`, error);

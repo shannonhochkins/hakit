@@ -11,7 +11,8 @@ export default {
   previewOptions: {
     width: 50,
     height: 50,
-    noDefaultSize: true,
+    noDefaultWidth: true,
+    noDefaultHeight: true,
   },
   defaultProps: (entities) => ({
     entity: entities[0].entity_id as EntityName,

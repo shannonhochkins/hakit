@@ -4,10 +4,11 @@ import { useHakitStore, PageWidget } from '@client/store';
 import { DEFAULT_WIDGET_SIZE } from '@root/client/src/store/config';
 import { Icon } from '@iconify/react';
 import { Tooltip, Modal, Row } from '@hakit/components';
+import { HassEntity } from 'home-assistant-js-websocket';
 import { motion } from 'framer-motion';
 import { useWidget, useWidgets, useFilterEntities } from '@client/hooks';
 import { convertPixelToColumn } from '@root/client/src/utils/layout-helpers';
-import { AvailableWidgets, Widget } from '@client/widgets/types';
+import { AvailableWidgets, Widget } from '@client/widgets/available-widgets';
 import { merge } from 'lodash';
 import type { Layout } from 'react-grid-layout';
 import { WidgetEditor } from '../WidgetEditor';
@@ -157,15 +158,14 @@ export function WidgetPicker() {
   }
 
   const previewWidgets = useMemo(() => widgets.map<[string, Widget<Record<string, unknown>>]>(([key, widget]) => {
+      let entities: HassEntity[] = [];
       if (widget.entityPicker !== false) {
-        const entities = filterEntities(widget);
-        if (entities.length) {
-          widget.props = {
-            ...widget.props,
-            ...typeof widget.defaultProps === 'function' ? widget.defaultProps(entities) : {},
-          };
-        }
+        entities = filterEntities(widget);
       }
+      widget.props = {
+        ...widget.props,
+        ...typeof widget.defaultProps === 'function' ? widget.defaultProps(widget.entityPicker !== false ? entities : []) : {},
+      };
       if (widget.props) {
         widget.props.id = generateUID(widgets.length);
       }
