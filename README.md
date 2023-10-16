@@ -1,6 +1,6 @@
-## ABANDONED
+##  ON HOLD
 
-I'm going to abandon this project, quickly realising the complexities of achieving a multi responsive nested dynamic grid layout - it works, but it's not ever going to be perfect, if someone wants to take over feel free, but there's a LOT of work to do
+the complexity of this project to achieve something completely dynamic and customisable is proving to be a very complicated challenge, this may take a steer in a different direction with prebuilt editable templates, for now I'll focus on improving the underlining react components and resist this after I'm happy with the main components 
 
 ## WIP
 
