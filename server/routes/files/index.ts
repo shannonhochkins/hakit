@@ -1,16 +1,17 @@
-import { router, publicProcedure } from '@server/trpc';
-import { WriteContentsResponse, WriteContentsInput } from '@root/server/schema/write-contents';
-import { ReadContentsResponse, ReadContentsInput } from '@root/server/schema/read-contents';
+import { router, publicProcedure } from '../../trpc.js';
+import { WriteContentsResponse, WriteContentsInput } from '../../schema/write-contents.js';
+import { ReadContentsResponse, ReadContentsInput } from '../../schema/read-contents.js';
 import { writeFile, existsSync, mkdirSync, readFileSync } from 'fs';
 import path from 'path';
-import { config } from '../../../app-config';
+import { config } from '../../../app-config.js';
 
 const ROOT_FOLDER_NAME = 'hakit';
 const OUTPUT_DIR = config.isProductionEnvironment ? '/config' : `${process.cwd()}/ha`;
+const hakitDirPath = path.join(OUTPUT_DIR, ROOT_FOLDER_NAME);
+
 
 async function readFileFromHakit(fileName: string): Promise<string> {
   ensureHakitDirectoryExists();
-  const hakitDirPath = path.join(OUTPUT_DIR, ROOT_FOLDER_NAME);
   const filePath = path.join(hakitDirPath, fileName);
   if (existsSync(filePath)) {
     return readFileSync(filePath, 'utf8');
@@ -20,8 +21,6 @@ async function readFileFromHakit(fileName: string): Promise<string> {
 }
 
 function ensureHakitDirectoryExists(): void {
-  const hakitDirPath = path.join(OUTPUT_DIR, ROOT_FOLDER_NAME);
-
   if (!existsSync(hakitDirPath)) {
     mkdirSync(hakitDirPath);
   }
@@ -29,19 +28,18 @@ function ensureHakitDirectoryExists(): void {
 
 async function writeFileToConfig(fileName: string, data: string): Promise<boolean> {
   ensureHakitDirectoryExists();
-  const hakitDirPath = path.join(OUTPUT_DIR, ROOT_FOLDER_NAME);
   const filePath = path.join(hakitDirPath, fileName);
     return await new Promise<boolean>((resolve) => {
       try {
         // TODO - validate with zod
         const contents = JSON.parse(data) as Record<string, unknown>;
         contents.version = config.version;
-          writeFile(filePath, data, (err) => {
-            if (err !== null) {
-              return resolve(false);
-            }
-            return resolve(true);
-          });
+        writeFile(filePath, data, (err) => {
+          if (err !== null) {
+            return resolve(false);
+          }
+          return resolve(true);
+        });
       } catch (e) {
         throw new Error('Invalid JSON parsed to configuration');
       }

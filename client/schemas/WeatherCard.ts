@@ -7,7 +7,11 @@ export default {
       "type": "string"
     },
     "temperatureSuffix": {
-      "description": "override the temperature suffix that's pulled from the entity, will retrieve the temperature_unit from entity by default\""
+      "description": "override the temperature suffix that's pulled from the entity, will retrieve the temperature_unit from entity by default\"",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "includeForecast": {
       "description": "include the forecast",
@@ -31,7 +35,11 @@ export default {
     }
   },
   "required": [],
-  "definitions": {},
+  "definitions": {
+    "Iterable<React.ReactNode>": {
+      "type": "object"
+    }
+  },
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "/WeatherCard/index.tsx"
 };

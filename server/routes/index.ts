@@ -1,4 +1,4 @@
-import { Files } from '@root/server/routes/files';
+import { Files } from './files/index.js';
 
 export {
   Files,

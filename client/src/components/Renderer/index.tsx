@@ -6,25 +6,34 @@ import { useResizeDetector } from 'react-resize-detector';
 import { useWidget } from '@client/hooks';
 import { WidgetEditBar } from '@client/components/WidgetEditBar';
 import { DEFAULT_COLUMNS, DEFAULT_LAYOUT_PROPS } from '@root/client/src/store/config';
-import { getMinimumPageWidth } from '@root/client/src/utils/layout-helpers';
+import { getMinimumPageWidth, findWidgetInPage } from '@root/client/src/utils/layout-helpers';
+import { WidgetPicker } from '../WidgetPicker';
+
 
 const Parent = styled.div`
   position: relative;
   width: 100%;
   height: calc(100vh - var(--ha-header-height));
-  maxWidth: 100%;
+  max-width: 100%;
   margin: 0 auto;
   overflow: auto;
+  &.edit-mode:not(.nested) {
+    border: 2px solid var(--ha-A400);
+  }
 `;
 
 const EditContainer = styled.div`
   position: relative;
-  width: 100%;
   height: 100%;
-  border: 1px solid transparent;
-  transition: border-color var(--ha-transition-duration) var(--ha-easing);
-  &:hover {
-    border-color: var(--ha-A400);
+  width: 100%;
+  &:not(.nested) {
+    .widget-renderer {
+      border: 1px solid transparent;
+      transition: border-color var(--ha-transition-duration) var(--ha-easing);
+      &:hover {
+        border-color: var(--ha-A400);
+      }
+    }
   }
 `;
 
@@ -68,8 +77,7 @@ function sortBreakpoints(
 
 
 interface RendererProps {
-  nested?: boolean;
-  nestedWidgets?: PageWidget[];
+  widgetId?: string;
   onHeightChange?: (height: number, key: string) => void;
 }
 
@@ -88,17 +96,24 @@ export function Renderer(props: RendererProps) {
   const [mounted, setMounted] = useState(false);
   const isEditMode = mode === 'edit';
   const getWidget = useWidget();
+  // Extract the widgets from the parent page widget
+  const renderableWidgets = useMemo(() => {
+    if (props.widgetId && page) {
+      const parentWidget = findWidgetInPage(props.widgetId, page);
+      return parentWidget ? parentWidget.widgets ?? [] : [];
+    } else {
+      return page?.widgets ?? [];
+    }
+  }, [page, props.widgetId]);
 
   function widgetRenderer(pageWidget: PageWidget) {
     const { props, acceptsWidgets, renderer} = getWidget(pageWidget.name);
-    let nestedWidgets: PageWidget[] = [];
-    if (acceptsWidgets && page) {
-      nestedWidgets = pageWidget.widgets ?? [];
-    }
-    return renderer({
-      ...props,
-      ...pageWidget.props
-    }, pageWidget, acceptsWidgets ? <Renderer nestedWidgets={nestedWidgets} nested /> : undefined);
+    return <div className={`widget-renderer ${acceptsWidgets ? 'accepts-widgets' : ''}`}>
+      {renderer({
+        ...props,
+        ...pageWidget.props
+      }, pageWidget, acceptsWidgets ? <Renderer widgetId={pageWidget.uid} /> : undefined)}
+    </div>;
   }
 
   const cols = useMemo(() => pages.reduce<Record<string, number>>((acc, breakpoint) => {
@@ -119,7 +134,20 @@ export function Renderer(props: RendererProps) {
   const updateLayouts = (layout: Layout[]) => {
     if (page === null) return;
     setPages(pages.map(p => {
-      if (page.id === p.id) {
+      if (props.widgetId && p.id === page.id) {
+        const pageClone = { ...p };
+        // Recursively search for the widget within the current page and its child widgets
+        const matchedWidget = findWidgetInPage(props.widgetId, pageClone);
+        if (matchedWidget?.widgets) {
+          matchedWidget.widgets = matchedWidget.widgets.map(widget => {
+            const updatedLayout = layout.find(l => l.i === widget.props.id);
+            if (typeof updatedLayout === 'undefined') return widget;
+            return { ...widget, layout: updatedLayout };
+          })
+          return pageClone;
+        }
+        return p;
+      } else if (page.id === p.id) {
         const newPage =  { ...page, widgets: page.widgets.map(widget => {
           const updatedLayout = layout.find(l => l.i === widget.props.id);
           if (typeof updatedLayout === 'undefined') return widget;
@@ -131,26 +159,29 @@ export function Renderer(props: RendererProps) {
     }));
   };
 
-  const layouts = useMemo(() => pages.reduce<Record<string, Layout[]>>((acc, page) => {
-    acc[page.id] = page.widgets.map(widget => ({
-      ...DEFAULT_LAYOUT_PROPS,
-      i: widget.props.id,
-      ...widget.layout,
-      ...isEditMode ? {} : {
-        isDraggable: false,
-        isResizable: false,
-        static: true,
-      }
-    }));
-    return acc;
-  }, {}), [pages, isEditMode]);
+  const layouts = useMemo(() => [...pages].reduce<Record<string, Layout[]>>((acc, page) => {
+    const parentWidget = props.widgetId ? findWidgetInPage(props.widgetId, page) ?? null : null;
+    const widgets = parentWidget ? parentWidget.widgets ?? [] : page.widgets;
+    return {
+      ...acc,
+      [page.id]: widgets.map(widget => {
+        return {
+          ...DEFAULT_LAYOUT_PROPS,
+          i: widget.props.id,
+          ...widget.layout,
+        };
+      }),
+    }
+  }, {}), [pages, props.widgetId]);
 
   useEffect(() => {
+    // don't do any of these updates in child grid layouts
+    if (props.widgetId) return;
     if (!view) {
       // TODO - set this based on the current url
       setView(config.views[0]);
     }
-    if (!currentPageId && width) {
+    if (!currentPageId && width && isEditMode) {
       const newBreakpointId = getBreakpointFromWidth(pages, width);
       setCurrentPageId(newBreakpointId);
     }
@@ -162,29 +193,28 @@ export function Renderer(props: RendererProps) {
         setCurrentPageId(newBreakpointId);
       }
     }
-  }, [currentPageId, view, isEditMode, pages, setCurrentPageId, width, setView, config.views]);
+  }, [currentPageId, props.widgetId, view, isEditMode, pages, setCurrentPageId, width, setView, config.views]);
 
   const columnWidth = ((width ?? 0) - ((page?.margin[0] ?? 0) * (DEFAULT_COLUMNS - 1) + 2 * (page?.containerPadding[0] ?? 0))) / DEFAULT_COLUMNS;
   // in edit mode, we set the container width to the minimum width of the page so that in
   // live mode, as it's fluid it doesn't squash any of the components below the desired size
   const minPageWidth = isEditMode && page ? getMinimumPageWidth(page, pages) : '100%';
 
-  const renderable = props.nested && props.nestedWidgets ? props.nestedWidgets : page?.widgets ?? [];
-
   return (
-    <Parent className="parent" ref={ref} style={isEditMode ? {
+    <Parent className={`${props.widgetId ? 'nested' : ''} ${isEditMode ? 'edit-mode' : ''} parent`} ref={ref} style={isEditMode ? {
       width: minPageWidth,
-      border: `2px solid var(--ha-A400)`
     } : {}}>
+      {isEditMode && <WidgetPicker widgetId={props.widgetId} />}
       {mounted && page && currentPageId && width && <GridLayout
           width={width}
           margin={page?.margin ?? [0, 0]}
           containerPadding={page?.containerPadding ?? [0, 0]}
           onDragStart={(_layout, _oldItem, _newItem, _placeholder, e) => e.stopPropagation()}
           layout={layouts[currentPageId]}
-          isResizable
-          isDraggable
-          isDroppable
+          isResizable={isEditMode}
+          isDraggable={isEditMode}
+          isDroppable={isEditMode}
+          isBounded
           onResizeStop={(layout) => {
             // when any element is resized in the UI, we need to update the layout
             updateLayouts(layout);
@@ -211,7 +241,7 @@ export function Renderer(props: RendererProps) {
           className="layout"
           rowHeight={columnWidth}
         >
-          {renderable.map(function (widget) {
+          {renderableWidgets.map(function (widget) {
             return (
               <div key={widget.props.id}>
                 {/* {widget.props.id.startsWith("grid-") && (

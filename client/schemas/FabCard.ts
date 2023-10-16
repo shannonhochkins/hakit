@@ -10,6 +10,11 @@ export default {
       "description": "disable the fab card, onClick will not fire",
       "type": "boolean"
     },
+    "size": {
+      "description": "The size of the Fab, this applies to the width and height",
+      "default": 48,
+      "type": "number"
+    },
     "icon": {
       "description": "Optional icon param, this is automatically retrieved by the \"domain\" name if provided, or can be overwritten with a custom value",
       "type": [
@@ -21,11 +26,6 @@ export default {
       "string",
       "null"
     ],
-    "size": {
-      "description": "The size of the Fab, this applies to the width and height",
-      "default": 48,
-      "type": "number"
-    },
     "noIcon": {
       "description": "will not show any icons",
       "type": "boolean"

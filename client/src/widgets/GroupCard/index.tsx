@@ -18,11 +18,11 @@ export default {
     children: [],
   }),
   renderer(props, _widget, renderer) {
-    return (<Group {...props}>
+    return (<Group layout="column" {...props}>
       {renderer}
     </Group>);
   }
 } satisfies Widget<GroupProps>;
 
 type OmitProperties = Omit<React.ComponentProps<"div">, "title">;
-export type Schema = Omit<GroupProps, keyof OmitProperties>;
+export type Schema = Omit<GroupProps, 'layout' | 'alignItems' | 'justifyContent' | 'gap' | 'collapsed' | keyof OmitProperties>;

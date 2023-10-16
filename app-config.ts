@@ -1,5 +1,5 @@
 import { config as dotEnv } from 'dotenv';
-import { version } from './config.json';
+import addonConfig from './config.json' assert { type: "json" };
 
 const isProductionEnvironment = process.env.NODE_ENV === 'production';
 
@@ -17,7 +17,7 @@ interface Config {
 
 export const config: Config = {
   isProductionEnvironment,
-  version,
+  version: addonConfig.version,
   ports: {
     CLIENT_PORT: 4000,
     SERVER_PORT: 2022

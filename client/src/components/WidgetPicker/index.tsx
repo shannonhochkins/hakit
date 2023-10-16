@@ -1,43 +1,22 @@
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { useHakitStore, PageWidget } from '@client/store';
-import { DEFAULT_WIDGET_SIZE } from '@root/client/src/store/config';
-import { Icon } from '@iconify/react';
-import { Tooltip, Modal, Row } from '@hakit/components';
+import { DEFAULT_WIDGET_SIZE } from '@client/store/config';
+import { Modal, Row, FabCard } from '@hakit/components';
 import { HassEntity } from 'home-assistant-js-websocket';
-import { motion } from 'framer-motion';
 import { useWidget, useWidgets, useFilterEntities } from '@client/hooks';
-import { convertPixelToColumn } from '@root/client/src/utils/layout-helpers';
-import { AvailableWidgets, Widget } from '@client/widgets/available-widgets';
+import { findWidgetInPage, convertPixelToColumn } from '@client/utils/layout-helpers';
+import { AvailableWidgets } from '@client/widgets/available-widgets';
 import { merge } from 'lodash';
 import type { Layout } from 'react-grid-layout';
 import { WidgetEditor } from '../WidgetEditor';
+import { Widget } from '@client/widgets/types';
 
-const PageContainer = styled.div`
-  position: relative;
-  height: 100%;
-`;
-
-const AddWidgetButton = styled(motion.button)`
-  background-color: var(--ha-S200);
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  height: 100%;
-  &:hover {
-    background-color: var(--ha-S300);
-  }
-  &.active {
-    background-color: var(--ha-S400);
-  }
-  > * {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+const WidgetButtonContainer = styled.div`
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 10;
 `;
 
 const WidgetBox = styled.div`
@@ -81,7 +60,7 @@ const StyledModal = styled(Modal)`
   max-width: 100%;
 `;
 
-function findOptimalPosition(layout: Array<Omit<Layout, 'i'>>, w: number, h: number): { x: number; y: number } {
+function findOptimalPosition(layout: Array<Omit<Layout, 'i'>>): { x: number; y: number } {
   // Find the highest Y position among all widgets
   const highestY = layout.reduce((maxY, item) => Math.max(maxY, item.y + item.h), 0);
 
@@ -98,7 +77,11 @@ const generateUID = (widgetLength: number): string => {
   return counterPart + randomPart;
 };
 
-export function WidgetPicker() {
+export function WidgetPicker({
+  widgetId,
+}: {
+  widgetId?: string;
+}) {
   const [openWidgetPicker, setOpenWidgetPicker] = useState(false);
   const [dummyWidget, setDummyWidget] = useState<PageWidget | null>(null);
   const pages = useHakitStore(({ view }) => view?.pages ?? []);
@@ -129,6 +112,7 @@ export function WidgetPicker() {
         ...widget.props,
         id: `${uid}-PLACEHOLDER`
       },
+      widgets: []
     } satisfies PageWidget;
   }
 
@@ -138,7 +122,7 @@ export function WidgetPicker() {
     setPages(pages.map(p => {
       if (page.id === p.id || includeInAllLayouts) {
         const i = `${widget.name}||page=${p.id}||i=${count}`;
-        const { x, y } = findOptimalPosition(p.widgets.map(w => w.layout), widget.layout.w, widget.layout.h);
+        const { x, y } = findOptimalPosition(p.widgets.map(w => w.layout));
         const widgetDefinition = getWidget(widget.name);
         const w = convertPixelToColumn(widgetDefinition.previewOptions?.width ?? DEFAULT_WIDGET_SIZE, p, pages);
         const h = convertPixelToColumn(widgetDefinition.previewOptions?.height ?? DEFAULT_WIDGET_SIZE, p, pages);
@@ -151,6 +135,17 @@ export function WidgetPicker() {
           },
           layout: layoutWithPosition,
         } satisfies PageWidget;
+        // if there's a widgetId, we're adding to a widget not the main page
+        if (widgetId) {
+          const matchedWidget = findWidgetInPage(widgetId, p);
+          if (matchedWidget) {
+            matchedWidget.widgets = matchedWidget.widgets ?? [];
+            matchedWidget.widgets.push(newWidget);
+            return p;
+          } else {
+            throw new Error(`Something went wrong finding widget by id "${widgetId}"`);
+          }
+        }
         return { ...p, widgets: [...p.widgets, newWidget]};
       }
       return p;
@@ -173,20 +168,9 @@ export function WidgetPicker() {
     }), [filterEntities, widgets]);
 
   return (<>
-    <PageContainer>
-      <AddWidgetButton layoutId="widget-picker" onClick={() => setOpenWidgetPicker(true)}>
-        <Tooltip title="Add Card" placement="left">
-          <Row fullWidth fullHeight gap="0.5rem" style={{
-            padding: '0.5rem'
-          }}>
-            <Icon icon="solar:widget-add-broken" style={{
-              fontSize: '1.1rem'
-            }} />
-            ADD CARD
-          </Row>
-        </Tooltip>
-      </AddWidgetButton>
-    </PageContainer>
+    <WidgetButtonContainer>
+      <FabCard icon="solar:widget-add-broken" title="Add Widget" tooltipPlacement="left" layoutId="widget-picker" onClick={() => setOpenWidgetPicker(true)} />
+    </WidgetButtonContainer>
     {openWidgetPicker && <StyledModal title="Widget Picker" id="widget-picker" open onClose={() => {
       setOpenWidgetPicker(false);
     }}>

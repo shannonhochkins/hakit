@@ -3,9 +3,9 @@ import express from 'express';
 import http from 'http';
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import { router } from '@server/trpc';
-import * as routes from '@routes';
-import { config } from "../app-config";
+import { router } from './trpc.js';
+import * as routes from './routes/index.js';
+import { config } from "../app-config.js";
 import cors from 'cors';
 // root router to call
 export const appRouter = router(routes);

@@ -7,11 +7,6 @@ export default {
       "default": false,
       "type": "boolean"
     },
-    "icon": {
-      "description": "the name of the icon, defaults to the sensor.date icon or mdi:calendar",
-      "default": "mdi:calendar",
-      "type": "string"
-    },
     "includeDate": {
       "description": "set this to false this if you do not want to include the date,",
       "default": true,
@@ -21,6 +16,11 @@ export default {
       "description": "remove the icon before the time,",
       "default": true,
       "type": "boolean"
+    },
+    "icon": {
+      "description": "the name of the icon, defaults to the sensor.date icon or mdi:calendar",
+      "default": "mdi:calendar",
+      "type": "string"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",

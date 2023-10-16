@@ -6,9 +6,9 @@ import type { AvailableWidgets } from '../widgets/available-widgets';
 export interface PageWidget {
   uid: string;
   name: AvailableWidgets;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
   layout: Omit<Layout, 'i'>;
-  widgets: PageWidget[];
+  widgets?: PageWidget[];
 }
 
 export interface PageConfig {
@@ -53,20 +53,30 @@ interface Store {
   setCurrentPageId: (id: string | null) => void;
   config: Config;
   setConfig: (config: Config) => void;
+  getConfig: () => Config;
+  setSaving: (saving: boolean) => void;
+  saving: boolean;
   // the current active view (dashboard)
   view: View | null;
   setView: (view: View) => void;
   setPages: (pages: PageConfig[]) => void;
 }
 
+
 export const useHakitStore = create<Store>((set, get) => ({
-  mode: 'edit',
+  mode: 'live',
   setMode: (mode) => set({ mode }),
   config: DEFAULT_CONFIG,
   setConfig: (config) => set({ config }),
   currentPageId: null,
+  setSaving: (saving) => set({ saving }),
+  saving: false,
   setCurrentPageId: (id: string | null) => set({ currentPageId: id }),
   view: null,
+  getConfig: () => {
+    const currentState = get();
+    return currentState.config;
+  },
   setView: (view) => {
     // Update the view in the store
     set({ view });
@@ -84,19 +94,11 @@ export const useHakitStore = create<Store>((set, get) => ({
     if (!currentState.view) {
       return;
     }
-
     // Update the pages in the current view
     const updatedView = {
       ...currentState.view,
       pages,
     };
-    set({ view: updatedView });
-
-    // Update the corresponding view in config.views
-    const updatedViews = currentState.config.views.map((v) =>
-      v.id === updatedView.id ? updatedView : v
-    );
-    const updatedConfig = { ...currentState.config, views: updatedViews };
-    set({ config: updatedConfig });
+    currentState.setView(updatedView);
   },
 }));

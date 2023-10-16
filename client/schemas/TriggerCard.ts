@@ -6,12 +6,12 @@ export default {
       "description": "An optional override for the title",
       "type": "string"
     },
-    "icon": {
-      "description": "optional override to replace the icon that appears in the card",
-      "type": "string"
-    },
     "description": {
       "description": "an optional description to add to the card",
+      "type": "string"
+    },
+    "icon": {
+      "description": "optional override to replace the icon that appears in the card",
       "type": "string"
     },
     "sliderIcon": {

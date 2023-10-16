@@ -12,7 +12,7 @@ import {
   Plugin
 } from 'vite';
 import * as TJS from "typescript-json-schema";
-import { JSONSchema7 } from "json-schema";
+import { JSONSchema7TypeName } from "json-schema";
 
 const schemasDir = resolve(__dirname, './client/schemas');
 const widgetsDir = resolve(__dirname, './client/src/widgets');
@@ -31,7 +31,7 @@ const INTERNAL_SCHEMA_DEFINITIONS = [
   'service',
 ];
 
-type UpdateCallback = (originalValue: any) => JSONSchema7['type'] | string;
+type UpdateCallback = (originalValue?: any) => JSONSchema7TypeName | JSONSchema7TypeName[];
 type RemapTypes = Record<string, UpdateCallback>;
 
 const REMAP_TYPES: RemapTypes = {
@@ -39,8 +39,8 @@ const REMAP_TYPES: RemapTypes = {
   'color' : () => ['string', "null"],
   'textColor' : () => ['string', "null"],
   'iconColor' : () => ['string', "null"],
-  '$ref': (originalValue: any) => {
-    return '#' + (originalValue ?? '').split('#').pop()
+  '$ref': (originalValue?: string) => {
+    return '#' + (originalValue ?? '').split('#').pop() as JSONSchema7TypeName;
   }
 }
 
@@ -162,6 +162,8 @@ const runNpmGenerateScript = (): Plugin => ({
                 const remapped = REMAP_TYPES[value.$ref.split('/').pop() as string];
                 if (typeof remapped !== 'undefined') {
                   delete value.$ref;
+                  value.type = remapped(value.type);
+                  properties[key] = value;
                 } else {
                   value.$ref = '#' + value.$ref.split('#').pop();
                   properties[key] = value;

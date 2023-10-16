@@ -110,7 +110,7 @@ export function PageConfig() {
               <Form formData={Object.keys(optionsSchema.properties ?? {}).reduce((acc, key) => ({
                 ...acc,
                 [key]: editingPage[key as keyof PageConfigType]
-              }), {})} validator={validator} schema={optionsSchema} onSubmit={(data) => {
+              }), {})} validator={validator} schema={optionsSchema} onSubmit={async (data) => {
                 const newConfig = pages.map(bp => {
                   if (bp.id === editingPage.id) {
                     return {
@@ -122,7 +122,6 @@ export function PageConfig() {
                 });
                 setPages(newConfig);
                 setEditingPage(null);
-                void saveConfiguration();
               }} />
             </ThemeProvider>
           </Column>}

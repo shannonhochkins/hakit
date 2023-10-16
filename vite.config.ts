@@ -2,8 +2,7 @@ import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vite';
 import { config } from './app-config';
-
-import generateSchemas from './schema-generator.mjs';
+import generateSchemas from './schema-generator';
 
 // https://vitejs.dev/config/
 export default defineConfig({

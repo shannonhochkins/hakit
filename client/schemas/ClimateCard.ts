@@ -2,10 +2,6 @@
 export default {
   "type": "object",
   "properties": {
-    "hideState": {
-      "description": "hide the state of the climate entity",
-      "type": "boolean"
-    },
     "hvacModes": {
       "description": "provide a list of hvacModes you want to support/display in the UI, will use all by default",
       "type": "array",
@@ -28,6 +24,10 @@ export default {
     },
     "hideFanMode": {
       "description": "hide the fan mode fab",
+      "type": "boolean"
+    },
+    "hideState": {
+      "description": "hide the state of the climate entity",
       "type": "boolean"
     },
     "hideUpdated": {

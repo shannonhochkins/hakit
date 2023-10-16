@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import { useHakitStore } from '@client/store';
 import { PageConfig } from './PageConfig';
 import { SaveConfig } from './SaveConfig';
-import { WidgetPicker } from '../WidgetPicker';
 import { BreakpointPreview } from './BreakpointPreview';
 import { Row, FabCard } from '@hakit/components';
 
@@ -45,7 +44,6 @@ export function Header() {
       </Row>
       <Row fullHeight gap={'0.1rem'}>
         <SaveConfig />
-        <WidgetPicker />
       </Row>
     </StyledHeader>
   );

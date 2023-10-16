@@ -2,11 +2,6 @@
 export default {
   "type": "object",
   "properties": {
-    "disabled": {
-      "description": "disable the card manually if the internal disable functionality needs to be updated",
-      "default": false,
-      "type": "boolean"
-    },
     "layout": {
       "description": "the layout of the card",
       "default": "'card'",
@@ -15,6 +10,11 @@ export default {
         "slim"
       ],
       "type": "string"
+    },
+    "disabled": {
+      "description": "disable the card manually if the internal disable functionality needs to be updated",
+      "default": false,
+      "type": "boolean"
     },
     "groupMembers": {
       "description": "if the entity supports grouping, you can provide the groupMembers as a list to join them together",

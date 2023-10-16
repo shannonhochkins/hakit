@@ -3,17 +3,29 @@ export default {
   "type": "object",
   "properties": {
     "title": {
-      "description": "An optional override for the title"
+      "description": "An optional override for the title",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "description": "an optional description to add to the card",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "icon": {
       "description": "optional override to replace the icon that appears in the card",
       "type": "string"
     },
-    "description": {
-      "description": "an optional description to add to the card"
-    },
     "unit": {
-      "description": "override the unit displayed alongside the state"
+      "description": "override the unit displayed alongside the state",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "historyOptions": {
       "description": "options to pass to the history request",
@@ -22,6 +34,9 @@ export default {
   },
   "required": [],
   "definitions": {
+    "Iterable<React.ReactNode>": {
+      "type": "object"
+    },
     "HistoryOptions": {
       "type": "object",
       "properties": {
@@ -42,9 +57,19 @@ export default {
           "type": "boolean"
         },
         "limits": {
-          "description": "data limits for coordinates",
-          "minimum": 0,
-          "type": "integer"
+          "type": "object",
+          "properties": {
+            "min": {
+              "description": "The minimum value to show",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "max": {
+              "description": "The maximum value to show",
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
         }
       }
     }
