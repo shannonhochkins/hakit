@@ -1,3 +1,7 @@
+## ABANDONED
+
+I'm going to abandon this project, quickly realising the complexities of achieving a multi responsive nested dynamic grid layout - it works, but it's not ever going to be perfect, if someone wants to take over feel free, but there's a LOT of work to do
+
 ## WIP
 
 This is extremely early days, but the intent of this project, is to have an addon to create any dashboard with @hakit/core or @hakit/components with a UI in home assistant rather than having to create / upload react components.
