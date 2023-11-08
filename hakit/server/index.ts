@@ -43,7 +43,9 @@ const findHtmlFiles = (dir: string, fileList: string[] = []): string[] => {
 // Function to load configuration with assertions
 async function loadConfig() {
   try {
+    console.log('OPTIONS', OPTIONS);
     const config = await import(OPTIONS, { assert: { type: 'json' } });
+    console.log('matched config', config);
     if (config && config.default) return config.default;
     return config;
   } catch (error) {
