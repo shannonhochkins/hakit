@@ -7,7 +7,6 @@
     "noEmit": false,
     "allowJs": false,
     "isolatedModules": true,
-    "jsx": "react-jsx",
     "esModuleInterop": true,
     "types": ["node"],
     "target": "ES2020",
@@ -22,30 +21,12 @@
     "outDir": "server/dist",
     "sourceMap": true,
     "preserveConstEnums": true,
-    "paths": {
-      "@root/*": ["./*"],
-      "@server": ["./server/index.ts"],
-      "@client/*": ["./client/src/*"],
-      "@server/*": ["./server/*"],
-      "@utils/*": ["./server/utils/*"],
-      "@routes": ["./server/routes/index.ts"],
-      "@routes/*": ["./server/routes/*"],
-      "@schema/*": ["./server/schema/*"],
-    }
   },
   "include": [
     "server",
-    ".d.ts",
-    "global.d.ts",
-    "reset.d.ts",
-    "client",
-    "schema-generator.ts",
-    "app-config.ts",
-    "config.json",
-    "vite.config.ts",
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "server/dist"
   ]
 }

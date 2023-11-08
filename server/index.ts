@@ -1,52 +1,111 @@
 import path from 'path';
 import express from 'express';
 import http from 'http';
-import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import { router } from './trpc.js';
-import * as routes from './routes/index.js';
-import { config } from "../app-config.js";
 import cors from 'cors';
-// root router to call
-export const appRouter = router(routes);
+import fs from 'fs';
+import './options.json' assert { type: "json" };
+
+/***************************************************************************************************************************
+ * Load Environment Values
+***************************************************************************************************************************/
+const PORT = process.env.PORT || 2022;
+const OPTIONS = process.env.OPTIONS || "./options.json";
+
+const OUTPUT_DIR = process.env.NODE_ENV === 'production' ? '/config' : `${process.cwd()}/config`;
 
 // http server
 const app = express();
 const server = http.createServer(app);
 
-export type AppRouter = typeof appRouter;
-export type RouterInput = inferRouterInputs<AppRouter>;
-export type RouterOutput = inferRouterOutputs<AppRouter>;
-// can pass the context here so even backend can be restricted with auth
-export const caller = appRouter.createCaller({});
-if (process.env.NODE_ENV !== 'test') {
+// Function to check if the file is HTML by extension
+const isHtmlFile = (filePath: string): boolean => {
+  return path.extname(filePath).toLowerCase() === '.html';
+};
+
+// Recursive function to find HTML files
+const findHtmlFiles = (dir: string, fileList: string[] = []): string[] => {
+  const files = fs.readdirSync(dir);
+
+  files.forEach(file => {
+    const filePath = path.join(dir, file);
+    if (fs.statSync(filePath).isDirectory()) {
+      fileList = findHtmlFiles(filePath, fileList); // Recurse into subdirectories
+    } else {
+      if (isHtmlFile(filePath)) {
+        fileList.push(filePath); // Add HTML file to list
+      }
+    }
+  });
+
+  return fileList;
+};
+
+// Function to load configuration with assertions
+async function loadConfig() {
+  try {
+    const config = await import(OPTIONS, { assert: { type: 'json' } });
+    if (config && config.default) return config.default;
+    return config;
+  } catch (error) {
+    console.error('Error loading config:', error);
+    return null;
+  }
+}
+
+
+(async () => {
+  // can pass the context here so even backend can be restricted with auth
+  const config = await loadConfig();
+  const htmlFilePath = path.join(OUTPUT_DIR, config.html_file_path);
+
   // Additional Middleware for logging
   app.use((req, _res, next) => {
     console.log(`Incoming request: ${req.method} ${req.url} from ${req.hostname}`);
-    console.log('supervisor', process.env.SUPERVISOR_TOKEN ?? 'unknown');
     next();
   });
   // listen for api endpoints with /api as base
+  // enable cors
+  app.use(cors());
+  app.get('/', async (_req, res) => {
+    try {
+      // Check if the provided path is an HTML file
+      if (fs.existsSync(htmlFilePath) && isHtmlFile(htmlFilePath)) {
+        res.sendFile(htmlFilePath);
+      } else {
+        // If not, search for all HTML files in OUTPUT_DIR
+        const htmlFiles = findHtmlFiles(OUTPUT_DIR);
+        if (htmlFiles.length === 0) {
+          res.status(404).send('No HTML files found, have you uploaded your custom dashboard to your config directory?');
+        } else {
+          // Format the valid paths as a bullet list, removing the OUTPUT_DIR from each path
+          const validOptions = htmlFiles.map(file =>
+            `- "${file.replace(`${OUTPUT_DIR}/`, '')}"` // Replace OUTPUT_DIR with an empty string
+          ).join('\n');
 
-  if (process.env.NODE_ENV === 'production') {
-    app.use('/assets', express.static(path.join(__dirname, '../client/dist/assets')));
-    app.get('/', (_req, res) => {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+          // Send the response
+          res.type('text/plain').send(`Invalid "html_file_path" option, valid options are:\n\n${validOptions}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Server error');
+    }
+  });
+  if (config.spa_mode) {
+    app.get('*', (_req, res) => { // This wildcard route captures all GET requests
+      if (fs.existsSync(htmlFilePath) && isHtmlFile(htmlFilePath)) {
+        res.sendFile(htmlFilePath); // Serve index.html for all paths if spa_mode is true
+      } else {
+        res.status(404).send('Index HTML file not found.');
+      }
     });
-  } else {
-    // enable cors
-    app.use(cors());
   }
-  app.use(
-    '/api',
-    createExpressMiddleware({
-      router: appRouter
-    })
-  );
-  server.listen(config.ports.SERVER_PORT, '0.0.0.0', () => {
-    console.log(`API listening on port ${config.ports.SERVER_PORT}`);
+  server.listen(PORT, () => {
+    console.log(`Dashboard Ready! Port: ${PORT}, options: ${JSON.stringify(OPTIONS, null, 2)})}`);
   });
   process.on('SIGTERM', () => {
-    server.close();
+    server.close(() => {
+      console.log('Server terminated');
+    });
   });
-}
+})();

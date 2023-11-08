@@ -1,26 +1,13 @@
 # compiled output
 **/dist
 node_modules
-coverage
-**/build
-
+config
+server/options.json
 # Logs
 npm-debug.log*
-
-# Credentials
-service-account-*.json
 
 # Environment
 *.env
 
 # OS
 .DS_Store
-
-# terragrunt
-.terragrunt-cache
-terraform.tfstate*
-*.terraform.lock*
-*/.terraform-lock.hcl
-pres.json
-ha
-ha/*
