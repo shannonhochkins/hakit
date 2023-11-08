@@ -80,12 +80,12 @@ async function loadConfig() {
           res.status(404).send('No HTML files found, have you uploaded your custom dashboard to your config directory?');
         } else {
           // Format the valid paths as a bullet list, removing the OUTPUT_DIR from each path
-          const validOptions = htmlFiles.map(file =>
+          const validOptions = htmlFiles.filter(file => file.includes('node_modules')).map(file =>
             `- "${file.replace(`${OUTPUT_DIR}/`, '')}"` // Replace OUTPUT_DIR with an empty string
           ).join('\n');
 
           // Send the response
-          res.type('text/plain').send(`Invalid "html_file_path" option, valid options are:\n\n${validOptions}`);
+          res.type('text/plain').send(`Invalid "html_file_path" option, valid file paths are:\n\n${validOptions}`);
         }
       }
     } catch (error) {
