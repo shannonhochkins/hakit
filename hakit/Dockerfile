@@ -14,7 +14,8 @@ COPY server /usr/app/server
 COPY services.d /etc/services.d
 # Set the environment to production
 ENV NODE_ENV=production
-
+# Install dependencies
+RUN npm install
 # Attempt to build the application, with output for debugging
 RUN npm run build
 # Expose the port the app runs on
