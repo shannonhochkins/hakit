@@ -4,24 +4,19 @@
   "slug": "hakit",
   "init": false,
   "ingress": true,
+  "stage": "stable",
   "ingress_port": 2022,
   "description": "An addon to render custom dashboards for home assistant using @hakit/core & @hakit/components",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "boot": "auto",
-  "map": ["config:rw"],
+  "map": ["config:ro"],
   "options": {
     "html_file_path": "www/ha-dashboard/index.html",
     "spa_mode": true
   },
   "schema": {
-    "html_file_path": {
-      "type": "str",
-      "description": "The relative path within the 'config' directory to the index.html file to serve."
-    },
-    "spa_mode": {
-      "type": "bool",
-      "description": "Enable SPA mode to reroute all traffic to the index.html file for a single page application."
-    }
+    "html_file_path": "str",
+    "spa_mode": "bool"
   },
   "startup": "services",
   "hassio_api": true,
