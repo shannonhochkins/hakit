@@ -1,6 +1,6 @@
 {
   "name": "hakit",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "type": "module",
   "description": "An addon for home assistant to render custom dashboards built with @hakit/core or @hakit/components",
   "main": "index.js",

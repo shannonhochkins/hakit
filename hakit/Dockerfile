@@ -14,6 +14,7 @@ EXPOSE 2022
 
 # Install & build application
 RUN apk add --no-cache nodejs npm
-RUN npm install --production
+RUN npm install
+run npm run build
 RUN chmod +x /etc/services.d/server/run
 
