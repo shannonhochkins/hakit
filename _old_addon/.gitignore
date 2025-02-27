@@ -1,0 +1,13 @@
+# compiled output
+**/dist
+node_modules
+config
+server/options.json
+# Logs
+npm-debug.log*
+
+# Environment
+*.env
+
+# OS
+.DS_Store

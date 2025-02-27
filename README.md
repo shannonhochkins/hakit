@@ -1,44 +1,43 @@
-## HAKIT Dashboard
 
-This addon simply serves your custom dashboard to a new sidebar link in home assistant making it easier to access your custom dashboard.
+# hakit
 
-This (over time) will evolve into a much more complicated addon where users will be able to design & build dashboards as well as download / upload custom templates from the community or create their own.
+## Pre-requisites
 
+1. Bun
+2. Neon DB database url - https://console.neon.tech/, add to packages/server/.env
 
-## Installation
+To install dependencies:
 
-1. Copy this repository url "https://github.com/shannonhochkins/hakit"
-2. Navigate to the "Add-ons" section in home assistant
-3. Click on "Add-on Store"
-4. In the top right, click on the 3 dots and select "Repositories"
-5. Paste the url you copied in step 1 into the "Add repository" box and click "Add"
-6. Click on the new repository you just added and click on "HAKIT Dashboard"
-7. Click on "Install" and wait for the installation to complete
-8. Click on "Start" to start the addon, tick "Show in sidebar"
-
-You should now see the "HAKIT Dashboard" option in the sidebar menu which should load your custom dashboard!
-
-
-### Local Development
-Set your directory to the hakit folder, After `npm install`, Simply run `npm run dev` and it will spin up a server and client under port 2022.
-
-#### Options
-To get this to work locally, create an options.json file under the server directory with the following contents:
-```
-{
-  "html_file_path": "www/ha-dashboard/index.html",
-  "spa_mode": true
-}
-```
-This will You will also need to create a "config" directory under the `hakit` directory containing the file path of the `html_file_path` option above.
-
-```
-hakit
-  server
-    - options.json
-  config
-    - www
-        - ha-dashboard
-            - index.html
+```bash
+bun install && cd ./packages/client && bun install
 ```
 
+To run locally:
+
+```bash
+bun run dev
+```
+
+This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+
+
+## Drizzle DB
+
+.env - DATABASE_URL=GET FROM NEON DB
+
+1. Generate sql files from schemas `bun drizzle-kit generate`
+2. Migrate the data to the neon db table `bun run migrate.ts`
+3. Visualize the database - `bunx drizzle-kit studio`
+
+When adding new columns, run through all the steps again.
+
+## Authentication
+We're using Kinde for authentication, environment variables needed from hakit.kinde.com/admin are:
+
+```bash
+KINDE_DOMAIN=
+KINDE_CLIENT_ID=
+KINDE_CLIENT_SECRET=
+KINDE_REDIRECT_URI=
+KINDE_LOGOUT_REDIRECT_URI=
+```
