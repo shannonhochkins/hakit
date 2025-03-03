@@ -12,7 +12,7 @@ const ProcessEnv = ServeEnv.parse(process.env);
 
 const server = Bun.serve({
   port: ProcessEnv.PORT,
-  hostname: "127.0.0.1",
+  hostname: "0.0.0.0",
   fetch: app.fetch,
 });
 

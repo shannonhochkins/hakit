@@ -1,22 +1,48 @@
 // db/schema/config.ts
 
-import { pgTable, serial, varchar, jsonb, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { pgTable, serial, text, real, integer, jsonb, boolean, numeric, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+
+const PuckObject = z.object({
+  type: z.string(),
+  props: z.object({}),
+});
+
+export const configZodSchema = z.object({
+  pageConfigurations: z.array(z.object({
+    id: z.string(),
+    config: z.object({
+      zones: z.record(z.array(PuckObject)),
+      content: z.array(PuckObject),
+    }),
+  })),
+  config: z.object({
+    dashboards: z.array(z.object({
+      title: z.string(),
+      id: z.string(),
+    })),
+    viewports: z.array(z.object({
+      label: z.string(),
+      width: z.number(),
+      disabled: z.boolean(),
+    })),
+    theme: z.object({
+      hue: z.number().min(0).max(360).default(220),
+      saturation: z.number().min(0).max(100).default(60),
+      lightness: z.number().min(0).max(100).default(54),
+      tint: z.number().min(0).max(1).default(0.8),
+      darkMode: z.boolean().default(true),
+      contrastThreshold: z.number().min(0).max(100).default(65),
+    }).strict(),
+  }).strict()
+}).strict();
 
 export const configTable = pgTable("config", {
   id: serial("id").primaryKey(),
+  name: text("name").notNull(),
 
-  /**
-   * 1) Ties this configuration to a user by ID, referencing the users table.
-   *    Because usersTable.id is a primary key, Drizzle allows this reference.
-   */
-  userId: serial("id").primaryKey(),
-
-  /**
-   * 3) The JSON blob for the config. We'll use the "jsonb" column type.
-   */
-  config: jsonb("config").notNull(),
+  userId: text("user_id").notNull(),
 
   createdAt: timestamp("created_at", { withTimezone: false })
     .defaultNow()
@@ -26,18 +52,58 @@ export const configTable = pgTable("config", {
     .notNull(),
 });
 
-// Zod schemas for inserts & selects
-export const insertConfigSchema = createInsertSchema(configTable, {
-  config: z.object({
-    userId: z.string(),
-    config: z.object({
-      theme: z.string(),
-    }),
-  }),
+// Dashboards table – multiple dashboards per config schema
+export const dashboardsTable = pgTable("dashboards", {
+  id: text("id").primaryKey(), // Using the provided dashboard id (string)
+  title: text("title").notNull(),
+  configSchemaId: integer("config_schema_id")
+    .references(() => configTable.id)
+    .notNull(),
 });
-export const selectConfigSchema = createSelectSchema(configTable, {
-  userId: z.string(),
-}).pick({
-  userId: true,
+
+// Viewports table – multiple viewports per config schema
+export const viewportsTable = pgTable("viewports", {
+  id: serial("id").primaryKey(),
+  label: text("label").notNull(),
+  width: integer("width").notNull(),
+  disabled: boolean("disabled").notNull(),
+  configSchemaId: integer("config_schema_id")
+    .references(() => configTable.id)
+    .notNull(),
 });
+
+// Theme table – one theme per config schema (one-to-one relationship)
+export const themesTable = pgTable("themes", {
+  configSchemaId: integer("config_schema_id")
+    .references(() => configTable.id)
+    .primaryKey(),
+  hue: integer("hue").notNull(), // 0-360
+  saturation: integer("saturation").notNull(), // 0-100
+  lightness: integer("lightness").notNull(), // 0-100
+  tint: real("tint").notNull(), // 0-1
+  darkMode: boolean("dark_mode").notNull(),
+  contrastThreshold: integer("contrast_threshold").notNull(), // 0-100
+});
+
+// Page Configurations table – each config can have many pages
+// Here, we store the nested configuration (zones, content, root) as one JSONB blob.
+export const pageConfigurationsTable = pgTable("page_configurations", {
+  id: text("id").primaryKey(), // using the provided string id
+  configSchemaId: integer("config_schema_id")
+    .references(() => configTable.id)
+    .notNull(),
+  // The entire page configuration as JSON. It should match the structure:
+  // {
+  //   zones: { [key: string]: Array<PuckObject> },
+  //   content: Array<PuckObject>,
+  // }
+  config: jsonb("config").notNull(),
+});
+// Zod schemas for inserts & selects, no payload for creation, we use defaults in this case, maybe this needs a "theme" input one day?
+export const insertConfigSchema = createInsertSchema(configTable).pick({
+  name: true,
+});
+
+export const updateConfigSchema = createUpdateSchema(configTable);
+
 

@@ -1,13 +1,13 @@
 import { HassConnect } from '@hakit/core';
 import { createFileRoute } from '@tanstack/react-router';
-import Page from '../lib/editor/puck/Page';
+import Page from '../../lib/editor/puck/Page';
 import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 import { Modal } from '@editor/puck/EditorComponents/Modal';
 import { useRef } from 'react';
 // import { ColourTesting } from './puck/ColourTesting';
 
 
-export const Route = createFileRoute('/editor')({
+export const Route = createFileRoute('/_authenticated/editor')({
   component: Editor,
 })
 

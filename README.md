@@ -4,7 +4,8 @@
 ## Pre-requisites
 
 1. Bun
-2. Neon DB database url - https://console.neon.tech/, add to packages/server/.env
+2. .env file with DATABASE_URL value, and KINDE env variables listed below
+3. service-account.json
 
 To install dependencies:
 
@@ -20,13 +21,16 @@ bun run dev
 
 This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 
+## GCLOUD Postgres
+- Need to attach IP address to access the DB, will be the server and any local IP needed
+
 
 ## Drizzle DB
 
-.env - DATABASE_URL=GET FROM NEON DB
+.env - DATABASE_URL= GET FROM GCLOUD
 
 1. Generate sql files from schemas `bun drizzle-kit generate`
-2. Migrate the data to the neon db table `bun run migrate.ts`
+2. Migrate the data to the gcp db table `bun run migrate.ts`
 3. Visualize the database - `bunx drizzle-kit studio`
 
 When adding new columns, run through all the steps again.

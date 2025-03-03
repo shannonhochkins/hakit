@@ -1,0 +1,3 @@
+- Swap out kinde for clerke?
+- Tables setup and storing default empty configurations
+- Now need to focus on the "Theme" part, where you can "install" themes, which will create a new config and related rows in the db, and also with preset values

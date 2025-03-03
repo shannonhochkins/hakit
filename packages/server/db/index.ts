@@ -3,10 +3,13 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { z } from "zod";
 
+console.log('ProcessEnv.DATABASE_URL', process.env.DATABASE_URL);
+
 const PostgresEnv = z.object({
   DATABASE_URL: z.string().url(),
 });
 const ProcessEnv = PostgresEnv.parse(process.env);
+
 
 // for query purposes
 const queryClient = postgres(ProcessEnv.DATABASE_URL);
