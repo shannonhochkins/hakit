@@ -5,32 +5,32 @@ import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 import { Modal } from '@editor/puck/EditorComponents/Modal';
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { pageConfigQueryOptions, configQueryOptions } from '@client/src/lib/api/configuration';
+import { pageConfigQueryOptions, dashboardQueryOptions } from '@client/src/lib/api/dashboard';
 
 // import { ColourTesting } from './puck/ColourTesting';
 
 
-export const Route = createFileRoute('/_authenticated/editor/$configId/$pageId')({
+export const Route = createFileRoute('/_authenticated/editor/$dashboardPath/$pagePath')({
   component: Editor,
 })
 
 function Editor() {
   // get the path param from /editor:/id with tanstack router
   const params = Route.useParams();
+  const dashboardPageQuery = useQuery(pageConfigQueryOptions(params.dashboardPath, params.pagePath));
+
   const hassUrlRef = useRef<string | null>(null);
   const [hassUrl, setHassUrl] = useLocalStorage<string | null>('hassUrl', import.meta.env.VITE_HA_URL);
   const [hassToken] = useLocalStorage<string | undefined>('hassToken', import.meta.env.VITE_HA_TOKEN);
-  const configuration = useQuery(pageConfigQueryOptions(params.configId, params.pageId));
-  const test = useQuery(configQueryOptions(params.configId));
-  console.log('test', test);
-  const data = configuration.data;
+  const dashboard = dashboardPageQuery.data;
 
-  if (configuration.isLoading || !data) {
+  if (dashboardPageQuery.isLoading || !dashboard) {
     return <div>Loading...</div>
   }
-  if (configuration.isError) {
-    return <div>Error: {configuration.error.message}</div>
+  if (dashboardPageQuery.isError) {
+    return <div>Error: {dashboardPageQuery.error.message}</div>
   }
+  console.log('dashboard', dashboard);
   if (!hassUrl) {
     return <Modal open title="Home Assistant URL" onClose={() => {
       // do nothing, the value provided below will automatically close the modal when the hassUrl is provided
@@ -47,6 +47,6 @@ function Editor() {
   }
   return <HassConnect hassUrl={hassUrl} hassToken={hassToken}>
     {/* <ColourTesting /> */}
-    <Page data={data} />
+    {/* <Page data={data} /> */}
   </HassConnect>;
 }

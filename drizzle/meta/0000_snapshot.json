@@ -1,28 +1,40 @@
 {
-  "id": "9bd67eb4-4150-45c3-aea6-2bee61c6ad6c",
+  "id": "115f3605-f043-49f1-affc-788be74bf4a6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.config": {
-      "name": "config",
+    "public.dashboard": {
+      "name": "dashboard",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path": {
+          "name": "path",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "text",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
@@ -44,87 +56,102 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "unique_user_path": {
+          "name": "unique_user_path",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "path"
+          ]
+        }
+      },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "valid_path": {
+          "name": "valid_path",
+          "value": "\"dashboard\".\"path\" ~ '^[a-z0-9-]+$'"
+        },
+        "valid_user_id": {
+          "name": "valid_user_id",
+          "value": "\"dashboard\".\"user_id\" ~ '^kp_[a-f0-9]{32}$'"
+        }
+      },
       "isRLSEnabled": false
     },
-    "public.dashboards": {
-      "name": "dashboards",
+    "public.pages": {
+      "name": "pages",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true
         },
-        "title": {
-          "name": "title",
-          "type": "text",
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
         },
-        "config_schema_id": {
-          "name": "config_schema_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "dashboards_config_schema_id_config_id_fk": {
-          "name": "dashboards_config_schema_id_config_id_fk",
-          "tableFrom": "dashboards",
-          "tableTo": "config",
-          "columnsFrom": [
-            "config_schema_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.page_configurations": {
-      "name": "page_configurations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "config_schema_id": {
-          "name": "config_schema_id",
-          "type": "integer",
+        "path": {
+          "name": "path",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true
         },
-        "config": {
-          "name": "config",
+        "data": {
+          "name": "data",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
+        },
+        "dashboard_id": {
+          "name": "dashboard_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "pages_dashboard_id_idx": {
+          "name": "pages_dashboard_id_idx",
+          "columns": [
+            {
+              "expression": "dashboard_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "page_configurations_config_schema_id_config_id_fk": {
-          "name": "page_configurations_config_schema_id_config_id_fk",
-          "tableFrom": "page_configurations",
-          "tableTo": "config",
+        "pages_dashboard_id_dashboard_id_fk": {
+          "name": "pages_dashboard_id_dashboard_id_fk",
+          "tableFrom": "pages",
+          "tableTo": "dashboard",
           "columnsFrom": [
-            "config_schema_id"
+            "dashboard_id"
           ],
           "columnsTo": [
             "id"
@@ -134,129 +161,23 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "unique_dashboard_page_path": {
+          "name": "unique_dashboard_page_path",
+          "nullsNotDistinct": false,
+          "columns": [
+            "dashboard_id",
+            "path"
+          ]
+        }
+      },
       "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.themes": {
-      "name": "themes",
-      "schema": "",
-      "columns": {
-        "config_schema_id": {
-          "name": "config_schema_id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "hue": {
-          "name": "hue",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "saturation": {
-          "name": "saturation",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "lightness": {
-          "name": "lightness",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tint": {
-          "name": "tint",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "dark_mode": {
-          "name": "dark_mode",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "contrast_threshold": {
-          "name": "contrast_threshold",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
+      "checkConstraints": {
+        "valid_path": {
+          "name": "valid_path",
+          "value": "\"pages\".\"path\" ~ '^[a-z0-9-]+$'"
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "themes_config_schema_id_config_id_fk": {
-          "name": "themes_config_schema_id_config_id_fk",
-          "tableFrom": "themes",
-          "tableTo": "config",
-          "columnsFrom": [
-            "config_schema_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.viewports": {
-      "name": "viewports",
-      "schema": "",
-      "columns": {
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "width": {
-          "name": "width",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "disabled": {
-          "name": "disabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "config_schema_id": {
-          "name": "config_schema_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "viewports_config_schema_id_config_id_fk": {
-          "name": "viewports_config_schema_id_config_id_fk",
-          "tableFrom": "viewports",
-          "tableTo": "config",
-          "columnsFrom": [
-            "config_schema_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },

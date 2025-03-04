@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { configsQueryOptions } from '@client/src/lib/api/configuration';
+import { dashboardsQueryOptions } from '@client/src/lib/api/dashboard';
 
 export const Route = createFileRoute('/_authenticated/editor/')({
   component: RouteComponent,
@@ -8,34 +8,38 @@ export const Route = createFileRoute('/_authenticated/editor/')({
 
 function RouteComponent() {
   const navigate = useNavigate();
-  const configurations = useQuery(configsQueryOptions);
+  const dashboardsQuery = useQuery(dashboardsQueryOptions);
 
-  const data = configurations.data;
+  const dashboards = dashboardsQuery.data;
 
-  if (configurations.isLoading || !data) {
+  if (dashboardsQuery.isLoading || !dashboards) {
     return <div>Loading...</div>
   }
-  if (configurations.isError) {
-    return <div>Error: {configurations.error.message}</div>
+  if (dashboardsQuery.isError) {
+    return <div>Error: {dashboardsQuery.error.message}</div>
   }
   return <>
-    {data.map((config) => {
-      return <div key={config.id}>
-        <span>name: {config.name}-{config.id}</span>
-        {config.pageConfigurationIds?.map((pageId) => {
-          return <button key={pageId} onClick={() => {
+    {dashboards.map((dashboard) => {
+      return <div key={dashboard.id} style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        border: '1px solid black',
+        margin: '20px',
+      }}>
+        <span>name: {dashboard.name}</span>
+        {dashboard.pages?.map((page) => {
+          return <button key={page.id} onClick={() => {
             navigate({
-              to: '/editor/$configId/$pageId',
+              to: '/editor/$dashboardPath/$pagePath',
               params: {
-                configId: String(config.id),
-                pageId: pageId,
+                dashboardPath: dashboard.path,
+                pagePath: page.path,
               }
             });
           }
-          }>View</button>
+          }>{page.name}</button>
         })}
-        
-        
       </div>
     })}
   </>

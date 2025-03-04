@@ -6,6 +6,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.11.11",
+    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.30.5",
     "i": "^0.3.7",
     "tsx": "^4.19.3"
@@ -17,7 +18,8 @@
     "dev": "bun run dev:client & bun run dev:server",
     "start": "bun ./packages/server/index.ts",
     "dev:client": "bun --filter 'hakit-client' dev",
-    "dev:server": "bun --watch ./packages/server/index.ts"
+    "dev:server": "bun --watch ./packages/server/index.ts",
+    "dbml": "bun run ./packages/server/db/schema/dbml.ts"
   },
   "peerDependencies": {
     "typescript": "^5"

@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { userQueryOptions } from '../lib/api';
-import { createConfiguration, configsQueryOptions, getConfigurationForUser, getConfigurationsForUser } from '../lib/api/configuration';
+import { createDashboard, dashboardsQueryOptions, getDashboardForUser, getDashboardsForUser, getPageConfigurationForUser } from '../lib/api/dashboard';
 import { useQuery } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/')({
@@ -10,22 +10,36 @@ export const Route = createFileRoute('/')({
 
 function RouteComponent() {
   const user = useQuery(userQueryOptions);
-  const configurations = useQuery(configsQueryOptions);
-  const navigate = useNavigate();
+  const configurations = useQuery(dashboardsQueryOptions);
 
-  const _getConfigurationForUser = useCallback(async (id: string) => {
-    const config = await getConfigurationForUser(id);
+
+  const _getConfigurationsForUser = useCallback(async () => {
+    const config = await getDashboardsForUser();
     console.log('config', config);
   }, [])
 
-  const _getConfigurationsForUser = useCallback(async () => {
-    const config = await getConfigurationsForUser();
-    console.log('config', config);
+  const _getPageConfigurationForUser = useCallback(async (dashboardPath: string, pathPath: string) => {
+    const dashboard = await getPageConfigurationForUser(dashboardPath, pathPath);
+    console.log('dashboard', dashboard);
+  }, [])
+
+  const _getDashboardForUser = useCallback(async (dashboardPath: string) => {
+    const dashboard = await getDashboardForUser(dashboardPath);
+    console.log('dashboard', dashboard);
   }, [])
 
   const _createConfiguration = useCallback(async () => {
     if (!user.data) return;
-    const config = await createConfiguration()
+    const name = await prompt('Dashboard Name');
+    if (!name) return;
+    const path = await prompt('Dashboard Path');
+    if (!path) return;
+    const data = {};
+    const config = await createDashboard({
+      name,
+      path,
+      data,
+    })
     console.log('new config', config);
   }, [user]);
 
@@ -40,10 +54,10 @@ function RouteComponent() {
   // }, [])
   return <div>Hello &quot;/&quot;!
     <button onClick={() => _getConfigurationsForUser()}>GET CONFIG</button>
-    {configurations.data && configurations.isSuccess && Array.isArray(configurations.data) && configurations.data.map((config) => {
-      return <button key={config.id} onClick={() => {
-        _getConfigurationForUser(String(config.id));
-      }}>{config.name}</button>
+    {configurations.data && configurations.isSuccess && Array.isArray(configurations.data) && configurations.data.map((dashboard) => {
+      return <button key={dashboard.id} onClick={() => {
+        _getDashboardForUser(dashboard.path);
+      }}>{dashboard.name}</button>
     })}
     <button disabled={!user.data} onClick={() => _createConfiguration()}>CREATE CONFIG</button>
     <button onClick={() => fetch('/api/logout')}>LOGOUT</button>

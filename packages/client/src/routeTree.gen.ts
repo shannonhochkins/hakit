@@ -14,7 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedEditorIndexImport } from './routes/_authenticated/editor/index'
-import { Route as AuthenticatedEditorConfigIdPageIdImport } from './routes/_authenticated/editor/$configId.$pageId'
+import { Route as AuthenticatedEditorDashboardPathPagePathImport } from './routes/_authenticated/editor/$dashboardPath.$pagePath'
 
 // Create/Update Routes
 
@@ -35,10 +35,10 @@ const AuthenticatedEditorIndexRoute = AuthenticatedEditorIndexImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenticatedEditorConfigIdPageIdRoute =
-  AuthenticatedEditorConfigIdPageIdImport.update({
-    id: '/editor/$configId/$pageId',
-    path: '/editor/$configId/$pageId',
+const AuthenticatedEditorDashboardPathPagePathRoute =
+  AuthenticatedEditorDashboardPathPagePathImport.update({
+    id: '/editor/$dashboardPath/$pagePath',
+    path: '/editor/$dashboardPath/$pagePath',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -67,11 +67,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEditorIndexImport
       parentRoute: typeof AuthenticatedImport
     }
-    '/_authenticated/editor/$configId/$pageId': {
-      id: '/_authenticated/editor/$configId/$pageId'
-      path: '/editor/$configId/$pageId'
-      fullPath: '/editor/$configId/$pageId'
-      preLoaderRoute: typeof AuthenticatedEditorConfigIdPageIdImport
+    '/_authenticated/editor/$dashboardPath/$pagePath': {
+      id: '/_authenticated/editor/$dashboardPath/$pagePath'
+      path: '/editor/$dashboardPath/$pagePath'
+      fullPath: '/editor/$dashboardPath/$pagePath'
+      preLoaderRoute: typeof AuthenticatedEditorDashboardPathPagePathImport
       parentRoute: typeof AuthenticatedImport
     }
   }
@@ -81,13 +81,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
-  AuthenticatedEditorConfigIdPageIdRoute: typeof AuthenticatedEditorConfigIdPageIdRoute
+  AuthenticatedEditorDashboardPathPagePathRoute: typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
-  AuthenticatedEditorConfigIdPageIdRoute:
-    AuthenticatedEditorConfigIdPageIdRoute,
+  AuthenticatedEditorDashboardPathPagePathRoute:
+    AuthenticatedEditorDashboardPathPagePathRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -98,14 +98,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
   '/editor': typeof AuthenticatedEditorIndexRoute
-  '/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
+  '/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
   '/editor': typeof AuthenticatedEditorIndexRoute
-  '/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
+  '/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRoutesById {
@@ -113,20 +113,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
-  '/_authenticated/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
+  '/_authenticated/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/editor' | '/editor/$configId/$pageId'
+  fullPaths: '/' | '' | '/editor' | '/editor/$dashboardPath/$pagePath'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/editor' | '/editor/$configId/$pageId'
+  to: '/' | '' | '/editor' | '/editor/$dashboardPath/$pagePath'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_authenticated/editor/'
-    | '/_authenticated/editor/$configId/$pageId'
+    | '/_authenticated/editor/$dashboardPath/$pagePath'
   fileRoutesById: FileRoutesById
 }
 
@@ -161,15 +161,15 @@ export const routeTree = rootRoute
       "filePath": "_authenticated.tsx",
       "children": [
         "/_authenticated/editor/",
-        "/_authenticated/editor/$configId/$pageId"
+        "/_authenticated/editor/$dashboardPath/$pagePath"
       ]
     },
     "/_authenticated/editor/": {
       "filePath": "_authenticated/editor/index.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/editor/$configId/$pageId": {
-      "filePath": "_authenticated/editor/$configId.$pageId.tsx",
+    "/_authenticated/editor/$dashboardPath/$pagePath": {
+      "filePath": "_authenticated/editor/$dashboardPath.$pagePath.tsx",
       "parent": "/_authenticated"
     }
   }

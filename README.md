@@ -45,3 +45,9 @@ KINDE_CLIENT_SECRET=
 KINDE_REDIRECT_URI=
 KINDE_LOGOUT_REDIRECT_URI=
 ```
+## dbml
+To preview the database modal, run `bun dbml` in the root directory.
+
+Install the vscode extension https://marketplace.visualstudio.com/items?itemName=nicolas-liger.dbml-viewer
+
+Open the schema.dbml and CMD + P, search for "DBML: Visualize"

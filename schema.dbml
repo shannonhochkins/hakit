@@ -1,0 +1,30 @@
+table dashboard {
+  id uuid [pk, not null]
+  name varchar(100) [not null]
+  path varchar(50) [not null]
+  user_id varchar(50) [not null]
+  data jsonb [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    (user_id, path) [name: 'unique_user_path', unique]
+    
+    
+  }
+}
+
+table pages {
+  id uuid [pk, not null]
+  name varchar(100) [not null]
+  path varchar(50) [not null]
+  data jsonb [not null]
+  dashboard_id uuid [not null]
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+
+  indexes {
+    
+    (dashboard_id, path) [name: 'unique_dashboard_page_path', unique]
+  }
+}

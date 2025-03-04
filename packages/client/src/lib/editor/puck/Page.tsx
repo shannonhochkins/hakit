@@ -11,7 +11,7 @@ import { getPuckConfiguration } from './dynamic-puck-configuration';
 import { useHass } from '@hakit/core';
 import { usePanel } from '@editor/hooks/usePanel';
 // import { useQuery } from '@tanstack/react-query';
-// import { configQueryOptions } from '@client/src/lib/api/configuration';
+// import { dashboardQueryOptions } from '@client/src/lib/api/configuration';
 
 export interface EditorAndRendererProps {
   data: PuckPageData;
@@ -26,7 +26,7 @@ function Page({ data }: { data: PuckPageData }) {
   const { getAllEntities, getServices } = useHass();
   const [error, setError] = useState<string | null>(null);
   const [editMode] = useEditMode();
-  // const configuration = useQuery(configQueryOptions(configId));
+  // const configuration = useQuery(dashboardQueryOptions(configId));
   const [id, setId] = useLocalStorage<string | null>('id', null);
 
   // const pageConfigurations = usePageConfigurations(id);
