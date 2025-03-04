@@ -47,6 +47,6 @@ function Editor() {
   }
   return <HassConnect hassUrl={hassUrl} hassToken={hassToken}>
     {/* <ColourTesting /> */}
-    {/* <Page data={data} /> */}
+    <Page data={dashboard.page.data} />
   </HassConnect>;
 }
