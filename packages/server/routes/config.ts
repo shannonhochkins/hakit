@@ -169,6 +169,8 @@ async function getFullConfiguration({
     config: commonConfig,
   };
 
+  console.log('fullConfiguration', JSON.stringify(fullConfiguration, null, 2));
+
   // Validate and return using your Zod schema.
   const parsedConfiguration = configZodSchema.parse(fullConfiguration);
   return parsedConfiguration;
@@ -228,6 +230,7 @@ const configRoute = new Hono()
         userId: user.id,
         configId: Number(configId),
       });
+    console.log('xxx', config)
       return c.json(config, 200);
     } catch (error) {
       return c.json(

@@ -5,7 +5,7 @@ import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 import { Modal } from '@editor/puck/EditorComponents/Modal';
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { pageConfigQueryOptions } from '@client/src/lib/api/configuration';
+import { pageConfigQueryOptions, configQueryOptions } from '@client/src/lib/api/configuration';
 
 // import { ColourTesting } from './puck/ColourTesting';
 
@@ -21,6 +21,8 @@ function Editor() {
   const [hassUrl, setHassUrl] = useLocalStorage<string | null>('hassUrl', import.meta.env.VITE_HA_URL);
   const [hassToken] = useLocalStorage<string | undefined>('hassToken', import.meta.env.VITE_HA_TOKEN);
   const configuration = useQuery(pageConfigQueryOptions(params.configId, params.pageId));
+  const test = useQuery(configQueryOptions(params.configId));
+  console.log('test', test);
   const data = configuration.data;
 
   if (configuration.isLoading || !data) {

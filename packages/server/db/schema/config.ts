@@ -10,7 +10,7 @@ export const puckObjectZodSchema = z.object({
 });
 
 export const pageConfigurationZodSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   config: z.object({
     zones: z.record(z.array(puckObjectZodSchema)),
     content: z.array(puckObjectZodSchema),
