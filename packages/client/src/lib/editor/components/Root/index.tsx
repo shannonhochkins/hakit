@@ -184,21 +184,21 @@ const component = createComponent<RootProps>({
     let lastId: string | null = null;
     if (props?.dashboards) {
       const shallowCopy = [...props.dashboards].map(dashboard => ({ ...dashboard }));;
-      for (const dashboard of shallowCopy) {
-        if (dashboard.id === lastId && dashboard.id) {
-          // If the ID is the same as the previous ID, we're likely cloning the item
-          const clonedDashboard: { id: string } = await callApi('/api/page/configuration/clone', {
-            id: dashboard.id,
-          });
-          dashboard.id = clonedDashboard.id;
-        }
-        lastId = dashboard.id;
-        // no ID because the default is null
-        if (!dashboard.id) {
-          const newDashboard = await callApi('/api/page/configuration/new');
-          dashboard.id = newDashboard.id;
-        }
-      }
+      // for (const dashboard of shallowCopy) {
+      //   if (dashboard.id === lastId && dashboard.id) {
+      //     // If the ID is the same as the previous ID, we're likely cloning the item
+      //     const clonedDashboard: { id: string } = await callApi('/api/page/configuration/clone', {
+      //       id: dashboard.id,
+      //     });
+      //     dashboard.id = clonedDashboard.id;
+      //   }
+      //   lastId = dashboard.id;
+      //   // no ID because the default is null
+      //   if (!dashboard.id) {
+      //     const newDashboard = await callApi('/api/page/configuration/new');
+      //     dashboard.id = newDashboard.id;
+      //   }
+      // }
       props.dashboards = shallowCopy;
     }
 

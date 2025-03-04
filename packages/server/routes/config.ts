@@ -1,13 +1,14 @@
 import { Hono} from 'hono';
 import { db } from '../db';
-import { eq, and } from 'drizzle-orm';
-import { configTable, pageConfigurationsTable, dashboardsTable, viewportsTable, themesTable, configZodSchema, insertConfigSchema, updateConfigSchema } from "../db/schema/config";
+import { eq, and, sql } from 'drizzle-orm';
+import { configTable, pageConfigurationsTable, dashboardsTable, viewportsTable, themesTable, configZodSchema, pageConfigurationZodSchema, insertConfigSchema, updateConfigSchema } from "../db/schema/config";
 import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
 import { uploadFileFromPath } from '../helpers/gcloud-file';
 import { z } from 'zod';
 import { defaultViewports } from '../../client/src/lib/editor/components/Root/viewports';
+import type { PuckPageData } from '../../client/typings/puck';
 
 const DEFAULT_DASHBOARD_TITLE = 'Dashboard';
 
@@ -21,27 +22,34 @@ function createDefaultPageConfiguration():PageConfiguration['config'] {
   return {
     zones: {},
     content: [],
+    root: {
+      props: {},
+    },
   };
 }
 
-async function getFullConfiguration(
-  userId: string,
-  configSchemaId: number
-) {
-  // 1. Verify the configSchema belongs to the given user.
+type CommonConfigType = z.infer<typeof configZodSchema.shape.config>;
+
+// Helper: verifies ownership and retrieves common configuration parts.
+async function getCommonConfigurationPartsForUser({
+  userId,
+  configId,
+}: {
+  userId: string;
+  configId: number;
+}): Promise<{ commonConfig: CommonConfigType; configSchemaId: number }> {
+  // Verify the config schema belongs to the given user.
   const configSchemaRecord = await db
     .select()
     .from(configTable)
     .where(
-      and(eq(configTable.id, configSchemaId), eq(configTable.userId, userId))
+      and(eq(configTable.id, configId), eq(configTable.userId, userId))
     )
     .then((rows) => rows[0]);
 
   if (!configSchemaRecord) {
     throw new Error("Configuration not found for the given user and ID");
   }
-
-  // 2. Query global configuration parts.
 
   // Get dashboards related to the config schema.
   const dashboards = await db
@@ -62,56 +70,185 @@ async function getFullConfiguration(
     .where(eq(themesTable.configSchemaId, configSchemaRecord.id))
     .then((rows) => rows[0]);
 
-  // 3. Query page configurations. 
-  // Each record already contains a JSONB blob for the nested page config.
-  const pageConfigurations = await db
-    .select()
-    .from(pageConfigurationsTable)
-    .where(eq(pageConfigurationsTable.configSchemaId, configSchemaRecord.id));
-
-  // 4. Combine into the expected structure.
-  const fullConfiguration = {
-    pageConfigurations: pageConfigurations.map((pc) => ({
-      id: pc.id,
-      config: pc.config, // Should match { zones: {}, content: [], root?: {} }
+  const commonConfig: CommonConfigType = {
+    dashboards: dashboards.map((d) => ({
+      id: d.id,
+      title: d.title,
     })),
-    config: {
-      dashboards: dashboards.map((d) => ({
-        id: d.id,
-        title: d.title,
-      })),
-      viewports: viewports.map((v) => ({
-        label: v.label,
-        width: v.width,
-        disabled: v.disabled,
-      })),
-      theme: {
-        hue: theme.hue,
-        saturation: theme.saturation,
-        lightness: theme.lightness,
-        // If stored as a numeric type (and possibly as a string), convert to number:
-        tint: Number(theme.tint),
-        darkMode: theme.darkMode,
-        contrastThreshold: theme.contrastThreshold,
-      },
+    viewports: viewports.map((v) => ({
+      label: v.label,
+      width: v.width,
+      disabled: v.disabled,
+    })),
+    theme: {
+      hue: theme.hue,
+      saturation: theme.saturation,
+      lightness: theme.lightness,
+      tint: Number(theme.tint), // convert to number if necessary
+      darkMode: theme.darkMode,
+      contrastThreshold: theme.contrastThreshold,
     },
   };
 
-  // 5. Validate and format using the Zod schema.
+  return { commonConfig, configSchemaId: configSchemaRecord.id };
+}
+
+
+async function getPageConfiguration({
+  userId,
+  configId,
+  pageId,
+}: {
+  userId: string;
+  configId: number;
+  pageId: string;
+}) {
+  // Retrieve common configuration parts and verify user ownership.
+  const { commonConfig, configSchemaId } = await getCommonConfigurationPartsForUser({
+    userId,
+    configId,
+  });
+
+  // Fetch the specific page configuration record.
+  const pageConfigRecord = await db
+    .select()
+    .from(pageConfigurationsTable)
+    .where(
+      and(
+        eq(pageConfigurationsTable.configSchemaId, configSchemaId),
+        eq(pageConfigurationsTable.id, Number(pageId))
+      )
+    )
+    .then((rows) => rows[0]);
+
+  if (!pageConfigRecord) {
+    throw new Error(
+      `Page configuration with ID ${pageId} not found for the given config schema`
+    );
+  }
+
+  const config = pageConfigRecord.config as PageConfiguration["config"];
+  const puckData: PuckPageData = {
+    content: config.content,
+    zones: config.zones,
+    root: {
+      props: commonConfig,
+    },
+  };
+
+  const parsedPuckData = pageConfigurationZodSchema.shape.config.parse(puckData);
+
+  return parsedPuckData;
+}
+
+
+async function getFullConfiguration({
+  userId,
+  configId,
+}: {
+  userId: string;
+  configId: number;
+}) {
+  // Retrieve common configuration parts and verify user ownership.
+  const { commonConfig, configSchemaId } = await getCommonConfigurationPartsForUser({
+    userId,
+    configId,
+  });
+
+  // Query all page configurations for the schema.
+  const pageConfigurations = await db
+    .select()
+    .from(pageConfigurationsTable)
+    .where(eq(pageConfigurationsTable.configSchemaId, configSchemaId));
+
+  const fullConfiguration = {
+    pageConfigurations: pageConfigurations.map((pc) => ({
+      id: pc.id,
+      config: pc.config, // Expected shape: { zones: {}, content: [], root?: {} }
+    })),
+    config: commonConfig,
+  };
+
+  // Validate and return using your Zod schema.
   const parsedConfiguration = configZodSchema.parse(fullConfiguration);
   return parsedConfiguration;
 }
 
+interface Configuration {
+  id: number;
+  userId: string;
+  name: string;
+  pageConfigurationIds: string[] | null;
+}
+
+async function getConfigurations(userId: string): Promise<Configuration[]> {
+
+  const pageConfigsSubquery = db
+    .select({
+      configSchemaId: pageConfigurationsTable.configSchemaId,
+      // Explicitly tell TypeScript that this returns a string array.
+      pageConfigurationIds: sql<string[]>`array_agg(${pageConfigurationsTable.id})`.as("pageConfigurationIds"),
+    })
+    .from(pageConfigurationsTable)
+    .groupBy(pageConfigurationsTable.configSchemaId)
+    .as("pageConfigs");
+
+  // Now select all your configuration columns and join the subquery.
+  const configurations = await db
+    .select({
+      // List the columns from your configTable that you need.
+      id: configTable.id,
+      userId: configTable.userId,
+      name: configTable.name, // example column—replace with yours
+      // Add the computed column from the subquery.
+      pageConfigurationIds: pageConfigsSubquery.pageConfigurationIds,
+    })
+    .from(configTable)
+    .leftJoin(
+      pageConfigsSubquery,
+      eq(configTable.id, pageConfigsSubquery.configSchemaId)
+    )
+    .where(eq(configTable.userId, userId))
+    .execute();
+
+  return configurations;
+
+}
+
 
 const configRoute = new Hono()
-  .get('/:id', getUser, zValidator("param", z.object({
-    id: z.string()
+  .get('/:configId', getUser, zValidator("param", z.object({
+    configId: z.string()
   })),  async (c) => {
     const user = c.var.user;
-    const id = c.req.valid('param').id;
+    const { configId } = c.req.valid('param');
 
     try {
-      const config = await getFullConfiguration(user.id, Number(id));
+      const config = await getFullConfiguration({
+        userId: user.id,
+        configId: Number(configId),
+      });
+      return c.json(config, 200);
+    } catch (error) {
+      return c.json(
+        { error: 'Failed to fetch config', detail: String(error) },
+        400
+      );
+    }
+  })
+  .get('/:configId/:pageId', getUser, zValidator("param", z.object({
+    configId: z.string(),
+    pageId: z.string()
+  })),  async (c) => {
+    const user = c.var.user;
+    const { configId, pageId } = c.req.valid('param');
+
+    try {
+      const config = await getPageConfiguration({
+        userId: user.id,
+        configId: Number(configId),
+        pageId,
+      });
       return c.json(config, 200);
     } catch (error) {
       return c.json(
@@ -124,12 +261,8 @@ const configRoute = new Hono()
     const user = c.var.user;
 
     try {
-      const configurations = await db
-        .select()
-        .from(configTable)
-        .where(
-          eq(configTable.userId, user.id)
-        );
+      const configurations = await getConfigurations(user.id);
+      
       return c.json(configurations, 200);
     } catch (error) {
       return c.json(
@@ -169,20 +302,16 @@ const configRoute = new Hono()
         })
         .returning();
 
-      // Generate a new page configuration ID and default configuration blob.
-      const pageConfigId = generateId();
       const defaultPageConfig = createDefaultPageConfiguration();
 
       // Insert default page configuration (JSONB blob)
       await db.insert(pageConfigurationsTable).values({
-        id: pageConfigId,
         configSchemaId: configSchemaRecord.id,
         config: defaultPageConfig,
       });
 
       // Insert default dashboard tied to the page configuration.
       await db.insert(dashboardsTable).values({
-        id: pageConfigId, // tying dashboard id to the page config id
         title: DEFAULT_DASHBOARD_TITLE,
         configSchemaId: configSchemaRecord.id,
       });

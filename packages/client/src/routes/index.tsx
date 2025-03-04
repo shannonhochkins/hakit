@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { userQueryOptions } from '../lib/api';
-import { createConfiguration, configQueryOptions, getConfigurationForUser, getConfigurationsForUser } from '../lib/api/configuration';
+import { createConfiguration, configsQueryOptions, getConfigurationForUser, getConfigurationsForUser } from '../lib/api/configuration';
 import { useQuery } from '@tanstack/react-query';
 
 export const Route = createFileRoute('/')({
@@ -10,10 +10,10 @@ export const Route = createFileRoute('/')({
 
 function RouteComponent() {
   const user = useQuery(userQueryOptions);
-  const configurations = useQuery(configQueryOptions);
+  const configurations = useQuery(configsQueryOptions);
   const navigate = useNavigate();
 
-  const _getConfigurationForUser = useCallback(async (id: number) => {
+  const _getConfigurationForUser = useCallback(async (id: string) => {
     const config = await getConfigurationForUser(id);
     console.log('config', config);
   }, [])
@@ -42,7 +42,7 @@ function RouteComponent() {
     <button onClick={() => _getConfigurationsForUser()}>GET CONFIG</button>
     {configurations.data && configurations.isSuccess && Array.isArray(configurations.data) && configurations.data.map((config) => {
       return <button key={config.id} onClick={() => {
-        _getConfigurationForUser(config.id);
+        _getConfigurationForUser(String(config.id));
       }}>{config.name}</button>
     })}
     <button disabled={!user.data} onClick={() => _createConfiguration()}>CREATE CONFIG</button>

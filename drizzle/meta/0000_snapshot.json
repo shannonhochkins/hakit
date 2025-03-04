@@ -1,5 +1,5 @@
 {
-  "id": "ee014190-e1d0-4b9f-8c68-b7106df3f3d3",
+  "id": "9bd67eb4-4150-45c3-aea6-2bee61c6ad6c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -55,7 +55,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -100,7 +100,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -212,12 +212,6 @@
       "name": "viewports",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "label": {
           "name": "label",
           "type": "text",

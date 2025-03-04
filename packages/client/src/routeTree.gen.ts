@@ -13,7 +13,8 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthenticatedEditorImport } from './routes/_authenticated/editor'
+import { Route as AuthenticatedEditorIndexImport } from './routes/_authenticated/editor/index'
+import { Route as AuthenticatedEditorConfigIdPageIdImport } from './routes/_authenticated/editor/$configId.$pageId'
 
 // Create/Update Routes
 
@@ -28,11 +29,18 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedEditorRoute = AuthenticatedEditorImport.update({
-  id: '/editor',
-  path: '/editor',
+const AuthenticatedEditorIndexRoute = AuthenticatedEditorIndexImport.update({
+  id: '/editor/',
+  path: '/editor/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+
+const AuthenticatedEditorConfigIdPageIdRoute =
+  AuthenticatedEditorConfigIdPageIdImport.update({
+    id: '/editor/$configId/$pageId',
+    path: '/editor/$configId/$pageId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -52,11 +60,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
-    '/_authenticated/editor': {
-      id: '/_authenticated/editor'
+    '/_authenticated/editor/': {
+      id: '/_authenticated/editor/'
       path: '/editor'
       fullPath: '/editor'
-      preLoaderRoute: typeof AuthenticatedEditorImport
+      preLoaderRoute: typeof AuthenticatedEditorIndexImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/editor/$configId/$pageId': {
+      id: '/_authenticated/editor/$configId/$pageId'
+      path: '/editor/$configId/$pageId'
+      fullPath: '/editor/$configId/$pageId'
+      preLoaderRoute: typeof AuthenticatedEditorConfigIdPageIdImport
       parentRoute: typeof AuthenticatedImport
     }
   }
@@ -65,11 +80,14 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedEditorRoute: typeof AuthenticatedEditorRoute
+  AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
+  AuthenticatedEditorConfigIdPageIdRoute: typeof AuthenticatedEditorConfigIdPageIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedEditorRoute: AuthenticatedEditorRoute,
+  AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
+  AuthenticatedEditorConfigIdPageIdRoute:
+    AuthenticatedEditorConfigIdPageIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -79,28 +97,36 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
-  '/editor': typeof AuthenticatedEditorRoute
+  '/editor': typeof AuthenticatedEditorIndexRoute
+  '/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
-  '/editor': typeof AuthenticatedEditorRoute
+  '/editor': typeof AuthenticatedEditorIndexRoute
+  '/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/_authenticated/editor': typeof AuthenticatedEditorRoute
+  '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
+  '/_authenticated/editor/$configId/$pageId': typeof AuthenticatedEditorConfigIdPageIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/editor'
+  fullPaths: '/' | '' | '/editor' | '/editor/$configId/$pageId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/editor'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/editor'
+  to: '/' | '' | '/editor' | '/editor/$configId/$pageId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/editor/'
+    | '/_authenticated/editor/$configId/$pageId'
   fileRoutesById: FileRoutesById
 }
 
@@ -134,11 +160,16 @@ export const routeTree = rootRoute
     "/_authenticated": {
       "filePath": "_authenticated.tsx",
       "children": [
-        "/_authenticated/editor"
+        "/_authenticated/editor/",
+        "/_authenticated/editor/$configId/$pageId"
       ]
     },
-    "/_authenticated/editor": {
-      "filePath": "_authenticated/editor.tsx",
+    "/_authenticated/editor/": {
+      "filePath": "_authenticated/editor/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/editor/$configId/$pageId": {
+      "filePath": "_authenticated/editor/$configId.$pageId.tsx",
       "parent": "/_authenticated"
     }
   }

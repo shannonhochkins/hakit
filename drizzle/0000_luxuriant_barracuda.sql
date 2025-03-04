@@ -7,13 +7,13 @@ CREATE TABLE "config" (
 );
 --> statement-breakpoint
 CREATE TABLE "dashboards" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
 	"config_schema_id" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "page_configurations" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"config_schema_id" integer NOT NULL,
 	"config" jsonb NOT NULL
 );
@@ -29,7 +29,6 @@ CREATE TABLE "themes" (
 );
 --> statement-breakpoint
 CREATE TABLE "viewports" (
-	"id" serial PRIMARY KEY NOT NULL,
 	"label" text NOT NULL,
 	"width" integer NOT NULL,
 	"disabled" boolean NOT NULL,

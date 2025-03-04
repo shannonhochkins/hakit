@@ -1,8 +1,10 @@
 import { type Data, type Config, type DefaultComponentProps } from '@measured/puck';
-import { type RootProps } from '../packages/client/src/lib/editor/components/Root';
+// import { type RootProps } from '../packages/client/src/lib/editor/components/Root';
 
 // intentionally using default props instead of component definitions as there's a custom fields function
 export type Props = DefaultComponentProps;
+
+type RootProps = DefaultComponentProps;
 
 export type PuckPageData = Data<Props, RootProps>;
 export type PageConfiguration = {
