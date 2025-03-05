@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { userQueryOptions } from '../lib/api';
+import { userQueryOptions } from '../lib/api/user';
 import { createDashboard, dashboardsQueryOptions, getDashboardForUser, getDashboardsForUser, getPageConfigurationForUser } from '../lib/api/dashboard';
 import { useQuery } from '@tanstack/react-query';
 

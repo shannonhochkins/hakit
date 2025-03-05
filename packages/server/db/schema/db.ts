@@ -70,6 +70,18 @@ export const dashboardTable = pgTable("dashboard", {
   check("valid_user_id", sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
 ]);
 
+export const themesTable = pgTable("themes", {
+  id: uuid().primaryKey().notNull(),
+  // the name of the theme
+  name: varchar("name", { length: 100 }).notNull(),
+});
+
+export const components = pgTable("components", {
+  id: uuid().primaryKey().notNull(),
+  // the name of the theme
+  name: varchar("name", { length: 100 }).notNull(),
+});
+
 // Page Configurations table – each config can have many pages
 export const pagesTable = pgTable("pages", {
   id: uuid().primaryKey().notNull(),

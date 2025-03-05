@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { userQueryOptions } from "../lib/api";
+import { userQueryOptions } from "../lib/api/user";
 
 const Login = () => {
   return (
