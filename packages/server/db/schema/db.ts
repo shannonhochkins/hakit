@@ -1,51 +1,9 @@
-// db/schema/config.ts
-
 import { pgTable, varchar, unique, jsonb, check, index, timestamp, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-// import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
-// import { z } from "zod";
-
-// export const puckObjectZodSchema = z.object({
-//   type: z.string(),
-//   props: z.object({}).passthrough(),
-// });
-
-// export const pageConfigurationZodSchema = z.object({
-//   id: z.number(),
-//   config: z.object({
-//     zones: z.record(z.array(puckObjectZodSchema)),
-//     content: z.array(puckObjectZodSchema),
-//     root: puckObjectZodSchema.omit({
-//       type: true
-//     })
-//   }),
-// });
-
-// export const configZodSchema = z.object({
-//   pageConfigurations: z.array(pageConfigurationZodSchema),
-//   config: z.object({
-//     pages: z.array(z.object({
-//       title: z.string(),
-//       id: z.number(),
-//     })),
-//     viewports: z.array(z.object({
-//       label: z.string(),
-//       width: z.number(),
-//       disabled: z.boolean(),
-//     })),
-//     theme: z.object({
-//       hue: z.number().min(0).max(360).default(220),
-//       saturation: z.number().min(0).max(100).default(60),
-//       lightness: z.number().min(0).max(100).default(54),
-//       tint: z.number().min(0).max(1).default(0.8),
-//       darkMode: z.boolean().default(true),
-//       contrastThreshold: z.number().min(0).max(100).default(65),
-//     }).strict(),
-//   }).strict()
-// }).strict();
-
-// there can be many dashboards per user
+// ----------------------
+// DASHBOARD TABLE - multiple dashboards per user
+// ----------------------
 export const dashboardTable = pgTable("dashboard", {
   id: uuid().primaryKey(),
   // the name of the dashboard
@@ -54,6 +12,8 @@ export const dashboardTable = pgTable("dashboard", {
   path: varchar("path", { length: 50 }).notNull(),
   // the user id of the dashboard owner
   userId: varchar("user_id", { length: 50 }).notNull(),
+  // Optionally link a theme to a dashboard
+  themeId: uuid("theme_id").references(() => themesTable.id),
   // any data to store against the dashboard, basically global settings
   data: jsonb("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
@@ -68,19 +28,67 @@ export const dashboardTable = pgTable("dashboard", {
   // Enforces that path contains only lowercase letters, digits, and dashes.
   check("valid_path", sql`${table.path} ~ '^[a-z0-9-]+$'`),
   check("valid_user_id", sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
+  index("dashboard_theme_id_idx").on(table.themeId),
 ]);
 
+// ----------------------
+// THEMES TABLE
+// ----------------------
 export const themesTable = pgTable("themes", {
-  id: uuid().primaryKey().notNull(),
+  id: uuid("id").primaryKey().notNull(),
+  // the user id of the theme owner
+  userId: varchar("user_id", { length: 50 }).notNull(),
   // the name of the theme
   name: varchar("name", { length: 100 }).notNull(),
-});
+  // version of the theme
+  version: varchar("version", { length: 50 }).notNull(),
+  // optional thumbnail path or URL
+  thumbnail: varchar("thumbnail", { length: 255 }),
+  // optional extra metadata or JSON structure if needed
+  data: jsonb("data"),
+  createdAt: timestamp("created_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+}, table => [
+  // A user may choose to keep multiple versions of a theme with the same name,
+  // so you may or may not want to enforce uniqueness. 
+  // If you do want to enforce uniqueness of (userId, name, version):
+  unique("unique_user_theme_name_version").on(table.userId, table.name, table.version),
+  check("valid_user_id", sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
+  index("themes_user_id_idx").on(table.userId),
+]);
 
-export const components = pgTable("components", {
-  id: uuid().primaryKey().notNull(),
-  // the name of the theme
+// ----------------------
+// COMPONENTS TABLE
+// ----------------------
+export const componentsTable = pgTable("components", {
+  id: uuid("id").primaryKey().notNull(),
+  // The user who owns this component
+  userId: varchar("user_id", { length: 50 }).notNull(),
+  // The name of the component
   name: varchar("name", { length: 100 }).notNull(),
-});
+  // Optional version (if relevant to how you manage components)
+  version: varchar("version", { length: 50 }),
+  // If the component is part of a theme, store the theme id
+  themeId: uuid("theme_id").references(() => themesTable.id),
+  // Optionally store metadata
+  data: jsonb("data"),
+  createdAt: timestamp("created_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: false })
+    .defaultNow()
+    .notNull(),
+}, table => [
+  // enforce unique naming per user
+  unique("unique_user_component_name").on(table.userId, table.name),
+  check("valid_user_id", sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
+  index("components_user_id_idx").on(table.userId),
+  index("components_theme_id_idx").on(table.themeId),
+]);
 
 // Page Configurations table – each config can have many pages
 export const pagesTable = pgTable("pages", {
@@ -108,43 +116,3 @@ export const pagesTable = pgTable("pages", {
   unique("unique_dashboard_page_path").on(table.dashboardId, table.path),
   index("pages_dashboard_id_idx").on(table.dashboardId),
 ]);
-
-// Dashboards table – multiple dashboards per config schema
-// export const pagesTable = pgTable("pages", {
-//   id: serial("id").primaryKey(), // Using the provided dashboard id (string)
-//   title: text("title").notNull(),
-//   config: jsonb("config").notNull(),
-// });
-
-// // Viewports table – multiple viewports per config schema
-// export const viewportsTable = pgTable("viewports", {
-//   label: text("label").notNull(),
-//   width: integer("width").notNull(),
-//   disabled: boolean("disabled").notNull(),
-//   dashboardId: integer("dashboard_id")
-//     .references(() => dashboardTable.id)
-//     .notNull(),
-// });
-
-// // Theme table – one theme per config schema (one-to-one relationship)
-// export const themesTable = pgTable("themes", {
-//   dashboardId: integer("dashboard_id")
-//     .references(() => dashboardTable.id)
-//     .primaryKey(),
-//   hue: integer("hue").notNull(), // 0-360
-//   saturation: integer("saturation").notNull(), // 0-100
-//   lightness: integer("lightness").notNull(), // 0-100
-//   tint: real("tint").notNull(), // 0-1
-//   darkMode: boolean("dark_mode").notNull(),
-//   contrastThreshold: integer("contrast_threshold").notNull(), // 0-100
-// });
-
-
-// Zod schemas for inserts & selects, no payload for creation, we use defaults in this case, maybe this needs a "theme" input one day?
-// export const insertConfigSchema = createInsertSchema(dashboardTable).pick({
-//   name: true,
-// });
-
-// export const updateConfigSchema = createUpdateSchema(dashboardTable);
-
-

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { userQueryOptions } from '../lib/api/user';
+import { getCurrentUser, userQueryOptions } from '../lib/api/user';
 import { createDashboard, dashboardsQueryOptions, getDashboardForUser, getDashboardsForUser, getPageConfigurationForUser } from '../lib/api/dashboard';
 import { useQuery } from '@tanstack/react-query';
 
@@ -53,6 +53,7 @@ function RouteComponent() {
   //   console.log('new user', user);
   // }, [])
   return <div>Hello &quot;/&quot;!
+    <button onClick={() => getCurrentUser()}>GET USER</button>
     <button onClick={() => _getConfigurationsForUser()}>GET CONFIG</button>
     {configurations.data && configurations.isSuccess && Array.isArray(configurations.data) && configurations.data.map((dashboard) => {
       return <button key={dashboard.id} onClick={() => {

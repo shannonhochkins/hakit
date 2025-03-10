@@ -8,6 +8,13 @@
       "when": 1741082168155,
       "tag": "0000_volatile_mercury",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741557904085,
+      "tag": "0001_chief_sentry",
+      "breakpoints": true
     }
   ]
 }
