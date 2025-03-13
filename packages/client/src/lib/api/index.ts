@@ -19,7 +19,16 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
     try {
       const res = await (request as Promise<Response>);
       if (!res.ok) {
-        return reject("Server error");
+        try {
+          const response = await res.json();
+          if (response.error && response.message) {
+            return reject(`${response.error}: ${response.message}`);
+          }
+          return reject('Invalid error structure');
+        } catch (e) {
+          // generic error
+          return reject("Server error");
+        }
       }
       const data = await res.json();
       if ('error' in data) {

@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@emotion/styled": "^11.14.0",
-    "@hakit/components": "^5.0.5",
-    "@hakit/core": "^5.0.5",
+    "@hakit/components": "^5.0.7",
+    "@hakit/core": "^5.0.7",
     "@measured/puck": "^0.18.2",
     "@tanstack/react-query": "^5.24.1",
     "@tanstack/react-router": "^1.17.4",
@@ -35,7 +35,6 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "home-assistant-js-websocket": "^9.4.0",
-    "i": "^0.3.7",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",

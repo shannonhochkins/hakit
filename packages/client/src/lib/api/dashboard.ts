@@ -36,7 +36,8 @@ export async function getPageConfigurationForUser(dashboardPath: string, pagePat
 }
 
 export async function getDashboardsForUser() {
-  const res = await callApi(api.dashboard.$get());
+  const req = api.dashboard.$get();
+  const res = await callApi(req);
   return res; 
 }
 

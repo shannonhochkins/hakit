@@ -6,11 +6,10 @@ import { insertDashboardSchema, updateDashboardSchema } from "../db/schema/schem
 import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
-import { uploadFileFromPath } from '../helpers/gcloud-file';
 import { z } from 'zod';
-import { defaultViewports } from '../../client/src/lib/editor/components/Root/viewports';
 import type { PuckPageData } from '../../client/typings/puck';
 import type { Json } from '@kinde-oss/kinde-typescript-sdk';
+import { formatErrorResponse } from "../helpers/formatErrorResponse";
 
 const DEFAULT_DASHBOARD_TITLE = 'Dashboard';
 
@@ -236,11 +235,10 @@ function createDefaultPageConfiguration(): PuckPageData {
 const dashboardRoute = new Hono()
   .get('/:dashboardPath', getUser, zValidator("param", z.object({
     dashboardPath: z.string()
-  })),  async (c) => {
-    const user = c.var.user;
-    const { dashboardPath } = c.req.valid('param');
-
+  })), async (c) => {
     try {
+      const user = c.var.user;
+      const { dashboardPath } = c.req.valid('param');
       const dashboards = await db
         .select({
           id: dashboardTable.id,
@@ -270,20 +268,16 @@ const dashboardRoute = new Hono()
         .groupBy(dashboardTable.id);
       return c.json(dashboards[0] as unknown as DashboardWithPages, 200);
     } catch (error) {
-      return c.json(
-        { error: 'Failed to fetch config', detail: String(error) },
-        400
-      );
+      return c.json(formatErrorResponse('Dashboard Fetch Error', error), 400);
     }
   })
   .get('/:dashboardPath/:pagePath', getUser, zValidator("param", z.object({
     dashboardPath: z.string(),
     pagePath: z.string()
   })),  async (c) => {
-    const user = c.var.user;
-    const { dashboardPath, pagePath } = c.req.valid('param');
-
     try {
+      const user = c.var.user;
+      const { dashboardPath, pagePath } = c.req.valid('param');
       const [dashboardWithPage] = await db
         .select({
           id: dashboardTable.id,
@@ -308,15 +302,12 @@ const dashboardRoute = new Hono()
         );
       return c.json(dashboardWithPage as unknown as DashboardWithPage, 200);
     } catch (error) {
-      return c.json(
-        { error: 'Failed to fetch config', detail: String(error) },
-        400
-      );
+      return c.json(formatErrorResponse('Dashboard Page Fetch Error', error), 400);
     }
   })
   .get('/', getUser, async (c) => {
-    const user = c.var.user;
     try {
+      const user = c.var.user;
       const dashboards = await db
         .select({
           id: dashboardTable.id,
@@ -344,10 +335,7 @@ const dashboardRoute = new Hono()
       // have to cast here as the sql function is not typed
       return c.json(dashboards as unknown as Dashboards, 200);
     } catch (error) {
-      return c.json(
-        { error: 'Failed to fetch config', detail: String(error) },
-        400
-      );
+      return c.json(formatErrorResponse('Dashboards Fetch Error', error), 400);
     }
   })
   .put('/', getUser, zValidator("json", updateDashboardSchema), async (c) => {
@@ -363,11 +351,7 @@ const dashboardRoute = new Hono()
       
       // return c.json(newConfig, 201);
     } catch (error) {
-      console.log('err', error);
-      return c.json(
-        { error: 'Failed to create config', detail: String(error) },
-        400
-      );
+      return c.json(formatErrorResponse('Dashboards Update Error', error), 400);
     }
   })
   .post('/', getUser, zValidator("json", insertDashboardSchema), async (c) => {
@@ -396,11 +380,7 @@ const dashboardRoute = new Hono()
       
       return c.json(dashboardRecord, 201);
     } catch (error) {
-      console.log('err', error);
-      return c.json(
-        { error: 'Failed to create config', detail: String(error) },
-        400
-      );
+      return c.json(formatErrorResponse('Dashboard Creation Error', error), 400);
     }
   })
 
