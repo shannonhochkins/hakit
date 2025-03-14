@@ -52,13 +52,6 @@ export function Editor({ data, onChange, config }: EditorAndRendererProps) {
           </Column>
           <SidebarSection />
         </Row>
-
-        {/* <PanelActivator />
-          <Puck.Header />
-          <Row fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
-            <Puck.Canvas />
-            <SidebarSection />
-          </Row> */}
       </Column>
     </Puck>
   );

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { kindeClient, sessionManager } from "../kinde";
 import { getUser } from "../kinde";
 
-export const authRoute = new Hono()
+const authRoute = new Hono()
   .get("/login", async (c) => {
     const loginUrl = await kindeClient.login(sessionManager(c));
     return c.redirect(loginUrl.toString());
@@ -25,3 +25,5 @@ export const authRoute = new Hono()
     const user = c.var.user
     return c.json({ user }, 200);
   });
+
+export default authRoute;

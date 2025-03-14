@@ -15,7 +15,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run dev:client & bun run dev:server",
+    "dev": "bun run build & bun run start",
+    "build": "bun --filter 'hakit-client' build",
     "start": "bun ./packages/server/index.ts",
     "dev:client": "bun --filter 'hakit-client' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",

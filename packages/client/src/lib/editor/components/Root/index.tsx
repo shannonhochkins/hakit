@@ -211,7 +211,7 @@ const component = createComponent<RootProps>({
       height: '100%',
       // stretch the children
       alignItems: 'stretch',
-    }} allow={[]} />;
+    }} />;
   },
 });
 

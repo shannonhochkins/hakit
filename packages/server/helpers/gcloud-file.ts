@@ -1,12 +1,16 @@
 import { Storage, type SaveData } from '@google-cloud/storage';
-import { type BunFile } from 'bun';
+import { join } from 'node:path';
+import { formatErrorResponse } from './formatErrorResponse';
 
+export function gCloudPrefix(userId: string) {
+  return `dashboard-content/${userId}`;
+}
 
 const storage = new Storage({
   projectId: process.env.PROJECT_ID,
   keyFilename: process.env.KEYFILENAME,
 });
-const bucket = storage.bucket(process.env.BUCKET_NAME!);
+export const bucket = storage.bucket(process.env.BUCKET_NAME!);
 
 export async function getSignedUrl(objectKey: string) {
   const file = bucket.file(objectKey);
@@ -49,7 +53,7 @@ export async function uploadFile({
     if (!userId) {
       throw new Error('User not found');
     }
-    const destinationPath = `dashboard-content/${userId}/${suffix}`;
+    const destinationPath = join(gCloudPrefix(userId), '/', `${suffix}`);
 
     const gcFile = bucket.file(destinationPath);
     // Upload using the .save() convenience method
@@ -59,10 +63,10 @@ export async function uploadFile({
       },
       resumable: false, // optional; if you have large files, consider `true`
     })
-    return destinationPath;
-
+    return suffix;
   } catch (e) {
-    console.log('error', e);
+    const error = formatErrorResponse('Upload Asset Error', e);
+    throw new Error(`${error.error}: ${error.message}`)
   }
 }
 

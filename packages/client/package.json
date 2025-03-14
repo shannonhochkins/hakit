@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.14.0",
     "@hakit/components": "^5.0.7",
     "@hakit/core": "^5.0.7",
+    "@kanamone/vite-plugin-dynamic-import-with-import-map": "^0.1.2",
     "@measured/puck": "^0.18.2",
     "@tanstack/react-query": "^5.24.1",
     "@tanstack/react-router": "^1.17.4",

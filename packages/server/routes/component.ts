@@ -4,7 +4,7 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
 import t from '@babel/types';
 import { uploadFile } from '../helpers/gcloud-file';
@@ -158,6 +158,17 @@ async function fetchFile(owner: string, repo: string, branch: string, filepath: 
  */
 export function convertAstNodeToValue(node: t.Node): any {
   switch (node.type) {
+    case 'UnaryExpression':
+    if (node.operator === '!') {
+      // Evaluate the operand, e.g., !0 => true, !1 => false
+      const operandValue = convertAstNodeToValue(node.argument); 
+      // If node.argument is a NumericLiteral(0), that's `false`; !false => true
+      // Or if node.argument is a BooleanLiteral, etc.
+
+      // A very naive approach:
+      return !operandValue;
+    }
+    throw new Error(`Unsupported unary operator: ${node.operator}`);
     case 'ObjectExpression': {
       const obj: Record<string, any> = {};
       for (const prop of node.properties) {
@@ -215,37 +226,61 @@ export function convertAstNodeToValue(node: t.Node): any {
 /**
  * Locates and converts `export default { ... }` if it's an object/array literal.
  */
-function extractDefaultExportObject(ast: t.File) {
-  let defaultExportNode: t.ObjectExpression | t.ArrayExpression | null = null;
-
+function extractDefaultExportObject(ast: t.File, filename: string) {
+  let defaultLocalName: string | null = null;
+  let defaultExportNode: t.ObjectExpression | null = null;
   // simple BFS or using @babel/traverse:
   traverse(ast, {
-    ExportDefaultDeclaration(path) {
-      const decl = path.node.declaration;
-      // If the default export is an object or array expression, store it
-      if (
-        t.isObjectExpression(decl) ||
-        t.isArrayExpression(decl)
-      ) {
-        defaultExportNode = decl;
+    ExportNamedDeclaration(path) {
+      const { specifiers } = path.node;
+      for (const spec of specifiers) {
+        // The `exported` identifier is the name on the "export" side
+        // The `local` identifier is the name on the variable side
+        if (
+          t.isExportSpecifier(spec) &&
+          t.isIdentifier(spec.exported) &&
+          spec.exported.name === 'default'
+        ) {
+          // So "someVar" is re-exported as default
+          if (t.isIdentifier(spec.local)) {
+            defaultLocalName = spec.local.name; // e.g. "someVar"
+          }
+        }
       }
-    },
+    }
   });
+  if (defaultLocalName) {
+    traverse(ast, {
+      VariableDeclarator(path) {
+        const varId = path.node.id;
+        const init = path.node.init;
+  
+        if (
+          t.isIdentifier(varId) &&
+          varId.name === defaultLocalName &&
+          t.isObjectExpression(init)
+        ) {
+          // Bingo
+          defaultExportNode = init;
+        }
+      }
+    });
+  }
 
   if (!defaultExportNode) {
-    throw new Error('No valid object/array literal found in default export.');
+    throw new Error(`Uploaded component "${filename}" does not have a valid default export.`);
   }
 
   return convertAstNodeToValue(defaultExportNode);
 }
 
-function validateComponentCode(code: string) {
+function validateComponentCode(code: string, filename: string) {
   const ast = parse(code, {
     sourceType: 'module',
     plugins: ['jsx', 'typescript'] // adjust if needed
-  })
+  });
 
-  const result = extractDefaultExportObject(ast);
+  const result = extractDefaultExportObject(ast, filename);
   let parsed: ReturnType<typeof componentSchema.parse>;
   try {
     parsed = componentSchema.parse(result);
@@ -313,7 +348,7 @@ const componentRoute = new Hono()
   
       // Read file contents and parse it to get the component data.
       const code = await body.file.text();
-      const parsed = validateComponentCode(code);
+      const parsed = validateComponentCode(code, body.filename as string);
   
       // Check if the version already exists for this component.
       if (parsed.version === currentComponent.version) {
@@ -368,7 +403,7 @@ const componentRoute = new Hono()
 
       // Read the file contents in memory (as text)
       const code = await body.file.text();
-      const parsed = validateComponentCode(code);
+      const parsed = validateComponentCode(code, body.filename as string);
       // it's been validated, now we can "safely" upload the component, then store the reference to the object key 
       // in the database
       const objectKey = await uploadFile({
@@ -451,14 +486,11 @@ const componentRoute = new Hono()
       // Validate the manifest.json content.
       const validatedManifest = manifestSchema.parse(manifestJson);
 
-      let additionalComponents: string[] = [];
+      let additionalComponents: Array<string[]> = [];
       if (validatedManifest.componentPaths && validatedManifest.componentPaths.length > 0) {
         const fetchPromises = validatedManifest.componentPaths.map(async (path) => {
           const response = await fetchFile(owner, repo, branch, path);
-          if (response.mimeType !== 'application/javascript') {
-            throw new Error(`Invalid MIME type "${response.mimeType}" for ${path}`);
-          }
-          return response.content;
+          return [response.content, path];
         });
         const results = await Promise.all(fetchPromises);
         results.forEach((code) => {
@@ -467,8 +499,16 @@ const componentRoute = new Hono()
       }
       // Prepare all rows first
       const rowsToInsert = await Promise.all(
-        additionalComponents.map(async (componentCode) => {
-          const parsed = validateComponentCode(componentCode);
+        additionalComponents.map(async ([componentCode, path]) => {
+          const parsed = validateComponentCode(componentCode, path);
+          // first, check if the component already exists
+          const existingComponent = await db
+            .select()
+            .from(componentsTable)
+            .where(and(eq(componentsTable.userId, user.id), eq(componentsTable.name, parsed.label)));
+          if (existingComponent.length > 0) {
+            throw new Error(`Component "${parsed.label}" already exists.`);
+          }
 
           // upload the component, get the objectKey
           const objectKey = await uploadFile({
@@ -487,12 +527,15 @@ const componentRoute = new Hono()
             id: uuidv4(),
             userId: user.id,
             name: parsed.label,
+            description: parsed.description,
             objectKey,
             uploadType: 'github',
             version: parsed.version,
           };
         })
       );
+
+
 
       // Now insert all of them in a single query
       await db

@@ -32,6 +32,7 @@ function Page({ data }: { data: PuckPageData }) {
   // const pageConfigurations = usePageConfigurations(id);
   // const [data, setData] = useState<PuckPageData | null>(_data);
   const [config, setConfig] = useState<UserConfig | null>(null);
+  console.log('getAllEntities', getAllEntities())
 
   useEffect(() => {
     getPuckConfiguration({
@@ -99,7 +100,7 @@ function Page({ data }: { data: PuckPageData }) {
   //   return <div>Error: {configuration.data.detail}{configuration.error instanceof Error ? configuration.error.message : configuration.error}</div>;
   // }
 
-  if (!config || !id) {
+  if (!config) {
     return <div>Loading...</div>;
   }
   return (
@@ -117,7 +118,7 @@ function Page({ data }: { data: PuckPageData }) {
           }}
         >
           <Editor
-            id={id}
+            id={'asd'}
             data={data}
             config={config}
             onChange={_data => {

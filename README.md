@@ -51,3 +51,25 @@ To preview the database modal, run `bun dbml` in the root directory.
 Install the vscode extension https://marketplace.visualstudio.com/items?itemName=nicolas-liger.dbml-viewer
 
 Open the schema.dbml and CMD + P, search for "DBML: Visualize"
+
+## Cors
+When dealing with the gcloud bucket, cors may need to be updated with origins
+
+running with gcloud cli:
+
+```bash
+gcloud storage buckets update gs://BUCKET_NAME --cors-file=gcloud-cors.json
+```
+
+Then create the `gcloud-cors.json` file:
+
+```json
+[
+  {
+    "origin": ["http://localhost:3000", "ANYTHING ELSE"],
+    "method": ["GET"],
+    "responseHeader": ["Content-Type", "Authorization"],
+    "maxAgeSeconds": 3600
+  }
+]
+```

@@ -30,7 +30,6 @@ function Editor() {
   if (dashboardPageQuery.isError) {
     return <div>Error: {dashboardPageQuery.error.message}</div>
   }
-  console.log('dashboard', dashboard);
   if (!hassUrl) {
     return <Modal open title="Home Assistant URL" onClose={() => {
       // do nothing, the value provided below will automatically close the modal when the hassUrl is provided
