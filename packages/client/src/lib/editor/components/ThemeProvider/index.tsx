@@ -47,7 +47,6 @@ const component = createComponent({
     if (editMode && !hasSetWindowContext.current) {
       return <></>;
     }
-
     return (
       <InternalThemeProvider
         breakpoints={breakpoints}

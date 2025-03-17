@@ -15,7 +15,10 @@ import { getDefaultPropsFromFields, transformFields, wrapDefaults, transformProp
 import { AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import { type PuckCategories } from '@typings/puck';
+import { usePuckFrame } from '@editor/hooks/usePuckFrame';
+import { usePuckData } from '@editor/hooks/usePuckData';
 import { deepCopy } from 'deep-copy-ts';
+import { DropZone } from '@measured/puck';
 
 // Automatic extensions
 // import { type Actions, getActionFields, resolveActionFields } from '@editor/puck/EditorComponents/form/definitions/actions';
@@ -136,6 +139,8 @@ export function createComponent<
         return fields;
       },
       render(props) {
+        const data = usePuckData();
+        const editorFrame = usePuckFrame();
         // get active breakpoint
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const activeBreakpoint = useActiveBreakpoint();
@@ -149,13 +154,19 @@ export function createComponent<
         }, [props, activeBreakpoint]);
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const finalProps = useMemo(() => {
+          const { puck, ...rest } = resolvedProps;
           return {
-            ...resolvedProps,
+            ...rest,
+            dragRef: puck.dragRef,
+            DropZone,
+            data,
+            editorFrame,
             activeBreakpoint: activeBreakpoint,
           };
-        }, [resolvedProps, activeBreakpoint]);
+        }, [resolvedProps, activeBreakpoint, data, editorFrame]);
         // Call the original render with the final single-value props
         // plus any additional props provided in the CustomComponentConfig type
+        // @ts-expect-error - Will fix later
         return config.render(finalProps);
       },
     };

@@ -1,28 +1,39 @@
-import { defineConfig } from "vite";
+import { build, defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { dynamicImportWithImportMap } from '@kanamone/vite-plugin-dynamic-import-with-import-map'
+import federation from "@originjs/vite-plugin-federation";
+// import { dynamicImportWithImportMap } from '@kanamone/vite-plugin-dynamic-import-with-import-map'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
     react(),
     TanStackRouterVite(),
-    dynamicImportWithImportMap([
-      'react',
-      'react-dom',
-      '@hakit/core',
-      '@hakit/components',
-      // '@measured/puck',
-      '@emotion/styled',
-      '@emotion/react',
-    ]),
+    federation({
+      // The "name" can be any string identifying this host
+      name: 'myHost',
+      // You can leave remotes: {} empty if you're loading them at runtime
+      filename: 'remoteEntry.js',
+      remotes: {
+        dummy: {
+          external: "",
+          externalType: 'url',
+          format: "esm",
+        },
+      },
+      shared: ['react', 'react-dom', '@hakit/core', '@hakit/components', 'framer-motion', '@measured/puck', '@emotion/styled', '@emotion/react'],
+    })
   ],
   build: {
-    manifest: true,
+    modulePreload: false,
+    target: 'esnext',
+    minify: false,
+    cssCodeSplit: false,
+    manifest: false,
     rollupOptions: {
-      external: (id) => /^\/api\/asset\//.test(id),
+      // external: (id) => /^\/api\/asset\//.test(id),
     }
   },
 });
+

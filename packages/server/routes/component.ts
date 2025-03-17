@@ -193,7 +193,8 @@ export function convertAstNodeToValue(node: t.Node): any {
             throw new Error('Spread element must be an object');
           }
         } else {
-          throw new Error(`Unsupported property type: ${prop.type}`);
+          console.log('prop, prop', prop.key)
+          // throw new Error(`Unsupported property type: ${prop.type} on key ${prop.key}`);
         }
       }
       return obj;

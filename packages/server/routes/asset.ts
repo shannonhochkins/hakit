@@ -7,35 +7,44 @@ import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 import { bucket } from '../helpers/gcloud-file';
 
-const signedUrlCache = new Map<
-  string,
-  { url: string; expiresAt: number }
->();
+// const signedUrlCache = new Map<
+//   string,
+//   { url: string; expiresAt: number }
+// >();
 
-async function getSignedUrlWithCache(objectKey: string): Promise<string> {
-  const now = Date.now();
+// async function getSignedUrlWithCache(objectKey: string): Promise<string> {
+//   const now = Date.now();
 
-  // If there's a cached URL and it hasn't expired, reuse it
-  const cached = signedUrlCache.get(objectKey);
-  if (cached && cached.expiresAt > now) {
-    return cached.url;
-  }
 
-  // Otherwise, generate a new one that is valid for 1 hour
-  const [signedUrl] = await bucket.file(objectKey).getSignedUrl({
-    action: 'read',
-    expires: now + 60 * 60 * 1000, // 1 hour from now
-  });
+//   // If there's a cached URL and it hasn't expired, reuse it
+//   // const cached = signedUrlCache.get(objectKey);
+//   // if (cached && cached.expiresAt > now) {
+//   //   return cached.url;
+//   // }
 
-  // Cache it, so subsequent calls within the hour can reuse
-  signedUrlCache.set(objectKey, {
-    url: signedUrl,
-    expiresAt: now + 60 * 60 * 1000,
-  });
+//   // Otherwise, generate a new one that is valid for 1 hour
+//   const [signedUrl] = await bucket.file(objectKey).getSignedUrl({
+//     action: 'read',
+//     expires: now + 60 * 60 * 1000, // 1 hour from now
+//     // expires: now + 1 * 1000,
+//     // contentType: 'application/javascript',
+//   });
+//   console.log('signedUrl', signedUrl);
 
-  return signedUrl;
+//   // Cache it, so subsequent calls within the hour can reuse
+//   signedUrlCache.set(objectKey, {
+//     url: signedUrl,
+//     expiresAt: now + 60 * 60 * 1000,
+//     // expiresAt: now + 1 * 1000,
+//   });
+
+//   return signedUrl;
+// }
+
+async function getPublicUrl(objectKey: string): Promise<string> {
+  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${objectKey}`;
+  return publicUrl;
 }
-
 
 const assetRoute = new Hono()
   .get('/:objectKey{.*}', getUser, zValidator("param", z.object({
@@ -45,7 +54,8 @@ const assetRoute = new Hono()
       const user = c.var.user;
       const prefix = gCloudPrefix(user.id);
       const fullObjectKey = join(prefix, c.req.valid('param').objectKey);
-      const signedUrl = await getSignedUrlWithCache(fullObjectKey);
+      const signedUrl = await getPublicUrl(fullObjectKey);
+      // write to the terminal
       return c.redirect(signedUrl, 302);
     } catch (error) {
       return c.json(formatErrorResponse('Read Asset Error', error), 400);
