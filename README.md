@@ -66,7 +66,7 @@ Then create the `gcloud-cors.json` file:
 ```json
 [
   {
-    "origin": ["http://localhost:3000", "ANYTHING ELSE"],
+    "origin": ["http://localhost:5000", "ANYTHING ELSE"],
     "method": ["GET"],
     "responseHeader": ["Content-Type", "Authorization"],
     "maxAgeSeconds": 3600

@@ -1,56 +1,56 @@
-import { useMemo } from 'react';
-import { useBreakpoint, Row, type BreakPoint } from '@hakit/components';
+// import { useMemo } from 'react';
+// import { useBreakpoint, Row, type BreakPoint } from '@hakit/components';
+import { Row } from '@hakit/components';
 import { Ruler } from './components/Ruler';
 import styled from '@emotion/styled';
-import { getCssVariableValue, setSidebarWidth } from '../Sidebar/helpers';
-import { Tooltip } from '../Tooltip';
-import { useViewports, toBreakpoints } from '@editor/hooks/useViewports';
+// import { getCssVariableValue, setSidebarWidth } from '../Sidebar/helpers';
+// import { Tooltip } from '../Tooltip';
 
-const BreakpointIndicator = styled.div`
-  position: absolute;
-  height: 100%;
-  flex-shrink: 0;
-  flex-grow: 0;
-  display: flex;
-  align-items: center;
-  border-bottom: 3px solid var(--puck-color-grey-06);
-  border-right: 2px solid var(--puck-color-grey-06);
-  cursor: pointer;
-  user-select: none;
-  > div {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  span {
-    display: flex;
-    color: var(--puck-color-grey-05);
-  }
-  &:hover,
-  &:focus {
-    background-color: rgba(255, 255, 255, 0.025);
-    span {
-      color: var(--puck-color-grey-04);
-    }
-  }
-  &.bp-xlg {
-    > div {
-      justify-content: flex-start;
-    }
-    span {
-      padding-left: 24px;
-    }
-  }
-  &.active {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-bottom-color: var(--puck-color-grey-05);
-    span {
-      color: var(--puck-color-grey-01);
-    }
-  }
-`;
+// const BreakpointIndicator = styled.div`
+//   position: absolute;
+//   height: 100%;
+//   flex-shrink: 0;
+//   flex-grow: 0;
+//   display: flex;
+//   align-items: center;
+//   border-bottom: 3px solid var(--puck-color-grey-06);
+//   border-right: 2px solid var(--puck-color-grey-06);
+//   cursor: pointer;
+//   user-select: none;
+//   > div {
+//     width: 100%;
+//     height: 100%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//   }
+//   span {
+//     display: flex;
+//     color: var(--puck-color-grey-05);
+//   }
+//   &:hover,
+//   &:focus {
+//     background-color: rgba(255, 255, 255, 0.025);
+//     span {
+//       color: var(--puck-color-grey-04);
+//     }
+//   }
+//   &.bp-xlg {
+//     > div {
+//       justify-content: flex-start;
+//     }
+//     span {
+//       padding-left: 24px;
+//     }
+//   }
+//   &.active {
+//     background-color: rgba(255, 255, 255, 0.05);
+//     border-bottom-color: var(--puck-color-grey-05);
+//     span {
+//       color: var(--puck-color-grey-01);
+//     }
+//   }
+// `;
 
 const StyledViewportControls = styled(Row)`
   min-height: var(--header-height);
@@ -59,23 +59,22 @@ const StyledViewportControls = styled(Row)`
 `;
 
 export const ViewportControls = () => {
-  const viewports = useViewports();
-  const breakpoints = useMemo(() => toBreakpoints(viewports), [viewports]);
-  const sortedBreakpoints = useMemo(() => {
-    const clone: Record<BreakPoint, number> = { ...breakpoints, xlg: breakpoints['lg'] + 1 };
-    return Object.entries(clone).map((entry, index, array) => {
-      const [name, width] = entry;
-      const previousWidth = array[index - 1] ? array[index - 1][1] : 0;
-      return {
-        name,
-        previousPos: previousWidth,
-        value: name === 'xlg' ? previousWidth : width,
-        width: name === 'xlg' ? 100 : width - previousWidth,
-      };
-    });
-  }, [breakpoints]);
+  // const breakpoints = []
+  // const sortedBreakpoints = useMemo(() => {
+  //   const clone: Record<BreakPoint, number> = { ...breakpoints, xlg: breakpoints['lg'] + 1 };
+  //   return Object.entries(clone).map((entry, index, array) => {
+  //     const [name, width] = entry;
+  //     const previousWidth = array[index - 1] ? array[index - 1][1] : 0;
+  //     return {
+  //       name,
+  //       previousPos: previousWidth,
+  //       value: name === 'xlg' ? previousWidth : width,
+  //       width: name === 'xlg' ? 100 : width - previousWidth,
+  //     };
+  //   });
+  // }, [breakpoints]);
 
-  const activeViewport = useBreakpoint();
+  // const activeViewport = useBreakpoint();
 
   return (
     <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' fullWidth wrap='nowrap'>
@@ -116,7 +115,7 @@ export const ViewportControls = () => {
           {/* Draw a full-width rectangle that uses the pattern */}
           <rect x={0} y={0} width='100%' height='80' fill={`url(#ruler)`} />
         </svg>
-        {sortedBreakpoints.map(({ name, previousPos, width, value }, index) => (
+        {/* {sortedBreakpoints.map(({ name, previousPos, width, value }, index) => (
           <BreakpointIndicator
             key={name}
             className={`${activeViewport[name as keyof typeof activeViewport] ? 'active' : ''} bp-${name}`}
@@ -138,7 +137,7 @@ export const ViewportControls = () => {
               <span>{name}</span>
             </Tooltip>
           </BreakpointIndicator>
-        ))}
+        ))} */}
       </Row>
     </StyledViewportControls>
   );

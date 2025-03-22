@@ -166,7 +166,7 @@ export function createComponent<
         }, [resolvedProps, activeBreakpoint, data, editorFrame]);
         // Call the original render with the final single-value props
         // plus any additional props provided in the CustomComponentConfig type
-        // @ts-expect-error - Will fix later
+        // @ts-expect-error - This is fine, internal factory can't determine the types
         return config.render(finalProps);
       },
     };

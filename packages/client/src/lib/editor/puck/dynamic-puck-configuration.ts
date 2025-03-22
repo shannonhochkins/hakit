@@ -44,31 +44,35 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // const mod = await fetch(`/api/asset/plugins/test/remoteEntry.js`);
   // const url = await mod.json();
   // console.log('url', url);
-  const dev = true;
-  const url = dev ? 'http://localhost:5001/assets/remoteEntry.js' : '/api/asset/plugins/assets/remoteEntry.js';
-  setModule('Theme', url);
-  const componentsToLoad = ['Root', 'Background', 'Navigation', 'Layout', 'Slider'];
-  for (const componentName of componentsToLoad) {
-    const component = await getComponent('Theme', componentName);
-    console.log('component', component);
-    const componentFactory = await createComponent(component);
-    const componentConfig = await componentFactory(data);
-    if (componentConfig.label === 'Root') {
-      rootConfig = componentConfig as unknown as UserConfig['root'];
-    } else {
-      components[componentConfig.label as string] = componentConfig as ComponentConfig;
-      if (componentConfig.category) {
-        if (!categories[componentConfig.category]) {
-          categories[componentConfig.category] = {
-            title: componentConfig.category,
-            visible: componentConfig.category !== 'other',
-            defaultExpanded: componentConfig.category !== 'other',
-            components: [],
-          };
+  try {
+    const dev = true;
+    const url = dev ? 'http://localhost:5001/assets/remoteEntry.js' : '/api/asset/plugins/assets/remoteEntry.js';
+    setModule('Theme', url);
+    const componentsToLoad = ['Root', 'Background', 'Navigation', 'Layout', 'Slider'];
+    for (const componentName of componentsToLoad) {
+      const component = await getComponent('Theme', componentName);
+      console.log('component', component);
+      const componentFactory = await createComponent(component);
+      const componentConfig = await componentFactory(data);
+      if (componentConfig.label === 'Root') {
+        rootConfig = componentConfig as unknown as UserConfig['root'];
+      } else {
+        components[componentConfig.label as string] = componentConfig as ComponentConfig;
+        if (componentConfig.category) {
+          if (!categories[componentConfig.category]) {
+            categories[componentConfig.category] = {
+              title: componentConfig.category,
+              visible: componentConfig.category !== 'other',
+              defaultExpanded: componentConfig.category !== 'other',
+              components: [],
+            };
+          }
+          categories[componentConfig.category].components?.push(componentConfig.label as string);
         }
-        categories[componentConfig.category].components?.push(componentConfig.label as string);
       }
     }
+  } catch (e) {
+    console.error(e);
   }
 
   // const dynamicComponents = await getComponentsForUser();

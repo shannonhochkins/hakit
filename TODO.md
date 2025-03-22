@@ -5,3 +5,14 @@
   - Need to figure out how the navigation for this data type will work
   - Once loading the editor with a "dashboard" id /editor/1, it could show a dropdown menu with the "Dashboard", and another with the "pageConfigurations"
 
+
+1. gcp upload repository should be only done once per repository
+    - Should be stored in version folders named like the version of the package.json file
+    - package name should be the name of the folder in gcp
+    - Should skip upload if folder already exists in gcp and just give user access
+
+
+
+    1. User Auth
+      - Once domain is available, need to update kinde -> Application nodejs -> urls
+      - Also update .env, one for dev and one for production for callback urls
