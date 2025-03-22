@@ -52,7 +52,7 @@ interface ComponentModule {
 export async function getPuckConfiguration(data: ComponentFactoryData) {
   // const modules = import.meta.glob<ComponentModule>('../components/*/index.tsx');
   const components: UserConfig['components'] = {};
-  // let rootConfig: UserConfig['root'] | undefined;
+  let rootConfig: UserConfig['root'] | undefined;
   const categories: NonNullable<UserConfig['categories']> = {} as NonNullable<UserConfig['categories']>;
   // const { getComponent, setModule } = useFederation();
   // // Each key in `modules` is a file path, and the value is an async import function.
@@ -84,7 +84,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // const mod = await fetch(`/api/asset/plugins/test/remoteEntry.js`);
   // const url = await mod.json();
   // console.log('url', url);
-  const host = init({
+  init({
     name: '@hakit/editor',
     remotes: [
       {
@@ -102,43 +102,75 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   //   share: true,
   // }]);
 
-
-  const rootConfig = await loadRemote<{
-    default: CustomComponentConfig<DefaultComponentProps>;
-  }>('@hakit/test/Root').then(module => {
-    if (!module) {
-      throw new Error('No "Root" component found');
+  const componentsToLoad = ['Root', 'Background', 'Navigation'];
+  for (const componentName of componentsToLoad) {
+    const component = await loadRemote<{
+      default: CustomComponentConfig<DefaultComponentProps>;
+    }>(`@hakit/test/${componentName}`).then(module => {
+      if (!module) {
+        throw new Error(`No "${componentName}" component found`);
+      }
+      return module.default;
+    });
+    const componentFactory = await createComponent(component);
+    const componentConfig = await componentFactory(data);
+    if (componentConfig.label === 'Root') {
+      rootConfig = componentConfig as unknown as UserConfig['root'];
+    } else {
+      components[componentConfig.label as string] = componentConfig as ComponentConfig;
+      if (componentConfig.category) {
+        if (!categories[componentConfig.category]) {
+          categories[componentConfig.category] = {
+            title: componentConfig.category,
+            visible: componentConfig.category !== 'other',
+            defaultExpanded: componentConfig.category !== 'other',
+            components: [],
+          };
+        }
+        categories[componentConfig.category].components?.push(componentConfig.label as string);
+      }
     }
-    return module.default;
-  });
-  const componentFactory = await createComponent(rootConfig);
-  const root = await componentFactory(data);
-  console.log('root', root);
-
-
-  const navigationConfig = await loadRemote<{
-    default: CustomComponentConfig<DefaultComponentProps>;
-  }>('@hakit/test/Navigation').then(module => {
-    if (!module) {
-      throw new Error('No "Root" component found');
-    }
-    return module.default;
-  });
-  const componentFactoryNavigation = await createComponent(navigationConfig);
-  const componentConfig = await componentFactoryNavigation(data);
-  components[componentConfig.label as string] = componentConfig as ComponentConfig;
-  if (componentConfig.category) {
-    if (!categories[componentConfig.category]) {
-      categories[componentConfig.category] = {
-        title: componentConfig.category,
-        visible: componentConfig.category !== 'other',
-        defaultExpanded: componentConfig.category !== 'other',
-        components: [], // ???? what's this
-      };
-    }
-    categories[componentConfig.category].components?.push(componentConfig.label as string);
   }
-  console.log('componentConfig', componentConfig);
+
+  console.log('components', rootConfig, components);
+
+
+  // const rootConfig = await loadRemote<{
+  //   default: CustomComponentConfig<DefaultComponentProps>;
+  // }>('@hakit/test/Root').then(module => {
+  //   if (!module) {
+  //     throw new Error('No "Root" component found');
+  //   }
+  //   return module.default;
+  // });
+  // const componentFactory = await createComponent(rootConfig);
+  // const root = await componentFactory(data);
+  // console.log('root', root);
+
+
+  // const navigationConfig = await loadRemote<{
+  //   default: CustomComponentConfig<DefaultComponentProps>;
+  // }>('@hakit/test/Navigation').then(module => {
+  //   if (!module) {
+  //     throw new Error('No "Root" component found');
+  //   }
+  //   return module.default;
+  // });
+  // const componentFactoryNavigation = await createComponent(navigationConfig);
+  // const componentConfig = await componentFactoryNavigation(data);
+  // components[componentConfig.label as string] = componentConfig as ComponentConfig;
+  // if (componentConfig.category) {
+  //   if (!categories[componentConfig.category]) {
+  //     categories[componentConfig.category] = {
+  //       title: componentConfig.category,
+  //       visible: componentConfig.category !== 'other',
+  //       defaultExpanded: componentConfig.category !== 'other',
+  //       components: [], // ???? what's this
+  //     };
+  //   }
+  //   categories[componentConfig.category].components?.push(componentConfig.label as string);
+  // }
+  // console.log('componentConfig', componentConfig);
 
   // try {
   //   const dev = true;
@@ -197,7 +229,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const config: UserConfig = {
     components,
     categories,
-    root,
+    root: rootConfig,
   };
 
   return config;
