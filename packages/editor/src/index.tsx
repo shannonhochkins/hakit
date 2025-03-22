@@ -9,8 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { routeTree } from "./routeTree.gen";
 
 // Create a client
-const queryClient = new QueryClient(); //?
-
+const queryClient = new QueryClient();
 
 // Create a new router instance
 const router = createRouter({ routeTree, context: {queryClient} });
@@ -21,8 +20,6 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
-
-
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -1,0 +1,33 @@
+{
+  "name": "editor",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "rsbuild dev --open",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@hakit/components": "^5.0.9",
+    "@hakit/core": "^5.0.9",
+    "@measured/puck": "^0.18.2",
+    "@tanstack/react-query": "^5.69.0",
+    "@tanstack/react-router": "^1.114.27",
+    "lucide-react": "^0.483.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-window": "^1.8.11"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "^0.11.1",
+    "@rsbuild/core": "^1.2.15",
+    "@rsbuild/plugin-react": "^1.1.1",
+    "@swc/plugin-emotion": "^9.0.0",
+    "@tanstack/router-plugin": "^1.114.27",
+    "@types/react": "^19.0.01",
+    "@types/react-dom": "~19.0.0",
+    "typescript": "^5.7.2"
+  }
+}

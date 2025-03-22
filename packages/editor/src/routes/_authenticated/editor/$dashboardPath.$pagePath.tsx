@@ -20,8 +20,8 @@ function Editor() {
   const dashboardPageQuery = useQuery(pageConfigQueryOptions(params.dashboardPath, params.pagePath));
 
   const hassUrlRef = useRef<string | null>(null);
-  const [hassUrl, setHassUrl] = useLocalStorage<string | null>('hassUrl', import.meta.env.VITE_HA_URL);
-  const [hassToken] = useLocalStorage<string | undefined>('hassToken', import.meta.env.VITE_HA_TOKEN);
+  const [hassUrl, setHassUrl] = useLocalStorage<string | null>('hassUrl');
+  const [hassToken] = useLocalStorage<string | undefined>('hassToken');
   const dashboard = dashboardPageQuery.data;
 
   if (dashboardPageQuery.isLoading || !dashboard) {

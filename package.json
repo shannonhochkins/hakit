@@ -13,7 +13,7 @@
     "tsx": "^4.19.3"
   },
   "workspaces": [
-    "packages/*"
+    "packages/editor"
   ],
   "scripts": {
     "dev": "bun run build & bun run start",
