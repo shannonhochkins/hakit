@@ -69,40 +69,6 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
     }
   }
 
-  console.log('components', components);
-
-  // const componentsToLoad = ['Root', 'Background', 'Navigation'];
-  // for (const componentName of componentsToLoad) {
-  //   const component = await loadRemote<{
-  //     default: CustomComponentConfig<DefaultComponentProps>;
-  //   }>(`@hakit/test/${componentName}`).then(module => {
-  //     if (!module) {
-  //       throw new Error(`No "${componentName}" component found`);
-  //     }
-  //     return module.default;
-  //   });
-  //   const componentFactory = await createComponent(component);
-  //   const componentConfig = await componentFactory(data);
-  //   if (componentConfig.label === 'Root') {
-  //     rootConfig = componentConfig as unknown as UserConfig['root'];
-  //   } else {
-  //     components[componentConfig.label as string] = componentConfig as ComponentConfig;
-  //     if (componentConfig.category) {
-  //       if (!categories[componentConfig.category]) {
-  //         categories[componentConfig.category] = {
-  //           title: componentConfig.category,
-  //           visible: componentConfig.category !== 'other',
-  //           defaultExpanded: componentConfig.category !== 'other',
-  //           components: [],
-  //         };
-  //       }
-  //       categories[componentConfig.category].components?.push(componentConfig.label as string);
-  //     }
-  //   }
-  // }
-
-  // console.log('components', rootConfig, components);
-
 
   if (!rootConfig) {
     throw new Error('No "Root" component found');

@@ -7,6 +7,7 @@
     "@originjs/vite-plugin-federation": "^1.4.0",
     "@types/bun": "latest",
     "@types/pg": "^8.11.11",
+    "concurrently": "^9.1.2",
     "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.30.5",
     "i": "^0.3.7",
@@ -16,7 +17,7 @@
     "packages/editor"
   ],
   "scripts": {
-    "dev": "bun run build & bun run start",
+    "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
     "build": "bun --filter 'hakit-client' build",
     "watch:build": "bun --filter 'hakit-client' watch:build",
     "start": "bun ./packages/server/index.ts",

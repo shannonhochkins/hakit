@@ -61,7 +61,7 @@ running with gcloud cli:
 gcloud storage buckets update gs://BUCKET_NAME --cors-file=gcloud-cors.json
 ```
 
-Then create the `gcloud-cors.json` file:
+Then create the `cors.json` file:
 
 ```json
 [

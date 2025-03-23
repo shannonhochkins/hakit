@@ -13,7 +13,6 @@ import { Outline } from './Tabs/Outline';
 import { ActionBar } from './ActionBar';
 import { useId, useRef } from 'react';
 import { getSidebarWidth, setSidebarWidth } from './helpers';
-import { Background } from './Tabs/Background';
 
 const PanelWrapper = styled(Row)`
   max-height: calc(100% - 8px);
@@ -129,7 +128,6 @@ export const SidebarSection = () => {
             {panel === 'components' && <Components />}
             {panel === 'options' && <Options />}
             {panel === 'outline' && <Outline />}
-            {panel === 'background' && <Background />}
           </PanelWrapper>
           <Tabs />
         </Row>

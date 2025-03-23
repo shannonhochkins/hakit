@@ -17,6 +17,8 @@ export default defineConfig({
     template: './static/index.html',
   },
   server: {
+    port: 3000,
+    strictPort: true,
     proxy: {
       context: "/api",
       target: "http://localhost:5000",

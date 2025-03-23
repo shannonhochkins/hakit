@@ -25,11 +25,6 @@ const tabs: Tab[] = [
     panel: 'outline',
     icon: <MousePointerSquareDashed size={22} />,
   },
-  {
-    label: 'Background',
-    panel: 'background',
-    icon: <Image size={22} />,
-  },
 ];
 
 const TabContainer = styled(Column)`

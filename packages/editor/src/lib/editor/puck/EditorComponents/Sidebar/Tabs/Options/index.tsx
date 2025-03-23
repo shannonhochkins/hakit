@@ -19,12 +19,6 @@ export function Options() {
     });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (selectedItem && selectedItem.type === 'Background') {
-      deselect();
-    }
-  }, [selectedItem, deselect]);
-
   if (!selectedItem) {
     return (
       <div>
