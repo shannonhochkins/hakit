@@ -243,7 +243,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
   field.disableBreakpoints = automaticDisableBreakpointsForTypes.includes(field.type)
     ? true
     : (field.disableBreakpoints ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED);
-  // return
   return {
     type: 'custom',
     _field: field,
@@ -275,7 +274,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
       const onChange = (value: unknown, uiState?: Partial<UiState>) => {
         if (typeof value === 'undefined') return;
         if (field.disableBreakpoints) {
-          debugger;
           // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
           puckOnChange(value as Props, uiState);
         } else if (typeof value !== 'undefined') {
@@ -288,13 +286,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
             : ({
                 [xlg]: value,
               } as Props);
-          console.log('newValue', {
-            newValue,
-            breakpointMode,
-            activeBreakpoint,
-            valOrDefault,
-            value,
-          });
           // send back the converted breakpoint value
           // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
           puckOnChange(newValue, uiState);

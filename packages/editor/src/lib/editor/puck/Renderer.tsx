@@ -1,10 +1,19 @@
 import { Render } from '@measured/puck';
-import { EditorAndRendererProps } from './Page';
+import { useEffect } from 'react';
+import { useGlobalStore } from '@editor/hooks/useGlobalStore';
 
-export function Renderer({ data, config }: EditorAndRendererProps) {
+export function Renderer() {
+  const puckPageData = useGlobalStore(state => state.puckPageData);
+  const userConfig = useGlobalStore(state => state.userConfig);
+  useEffect(() => {
+    document.body.classList.remove('edit-mode');
+  }, []);
+  if (!userConfig) {
+    return <div>Loading user config...</div>;
+  }
   return (
     <>
-      <Render config={config} data={data} />
+      <Render config={userConfig} data={puckPageData} />
     </>
   );
 }

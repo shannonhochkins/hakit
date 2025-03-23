@@ -16,3 +16,8 @@
     1. User Auth
       - Once domain is available, need to update kinde -> Application nodejs -> urls
       - Also update .env, one for dev and one for production for callback urls
+
+Figure out why when navigation is added by itself, why it doesn't update, but when you add Background it does...
+
+
+1. Figure out we can navigate to a DASHBOARD, and then be able to edit a page

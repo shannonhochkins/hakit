@@ -1,8 +1,7 @@
 import { type UserConfig } from '@typings/puck';
-import { ComponentFactoryData, CustomComponentConfig } from '../components';
 import { ComponentConfig, DefaultComponentProps } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
-import { createComponent } from './createComponent';
+import { createComponent, type ComponentFactoryData, type CustomComponentConfig } from './createComponent';
 
 interface ComponentModule {
   default: CustomComponentConfig<DefaultComponentProps>;

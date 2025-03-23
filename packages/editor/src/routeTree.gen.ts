@@ -14,7 +14,8 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedEditorIndexImport } from './routes/_authenticated/editor/index'
-import { Route as AuthenticatedEditorDashboardPathPagePathImport } from './routes/_authenticated/editor/$dashboardPath.$pagePath'
+import { Route as AuthenticatedPreviewDashboardPathImport } from './routes/_authenticated/preview/$dashboardPath'
+import { Route as AuthenticatedEditorDashboardPathImport } from './routes/_authenticated/editor/$dashboardPath'
 
 // Create/Update Routes
 
@@ -35,10 +36,17 @@ const AuthenticatedEditorIndexRoute = AuthenticatedEditorIndexImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenticatedEditorDashboardPathPagePathRoute =
-  AuthenticatedEditorDashboardPathPagePathImport.update({
-    id: '/editor/$dashboardPath/$pagePath',
-    path: '/editor/$dashboardPath/$pagePath',
+const AuthenticatedPreviewDashboardPathRoute =
+  AuthenticatedPreviewDashboardPathImport.update({
+    id: '/preview/$dashboardPath',
+    path: '/preview/$dashboardPath',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+
+const AuthenticatedEditorDashboardPathRoute =
+  AuthenticatedEditorDashboardPathImport.update({
+    id: '/editor/$dashboardPath',
+    path: '/editor/$dashboardPath',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -60,18 +68,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/editor/$dashboardPath': {
+      id: '/_authenticated/editor/$dashboardPath'
+      path: '/editor/$dashboardPath'
+      fullPath: '/editor/$dashboardPath'
+      preLoaderRoute: typeof AuthenticatedEditorDashboardPathImport
+      parentRoute: typeof AuthenticatedImport
+    }
+    '/_authenticated/preview/$dashboardPath': {
+      id: '/_authenticated/preview/$dashboardPath'
+      path: '/preview/$dashboardPath'
+      fullPath: '/preview/$dashboardPath'
+      preLoaderRoute: typeof AuthenticatedPreviewDashboardPathImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/editor/': {
       id: '/_authenticated/editor/'
       path: '/editor'
       fullPath: '/editor'
       preLoaderRoute: typeof AuthenticatedEditorIndexImport
-      parentRoute: typeof AuthenticatedImport
-    }
-    '/_authenticated/editor/$dashboardPath/$pagePath': {
-      id: '/_authenticated/editor/$dashboardPath/$pagePath'
-      path: '/editor/$dashboardPath/$pagePath'
-      fullPath: '/editor/$dashboardPath/$pagePath'
-      preLoaderRoute: typeof AuthenticatedEditorDashboardPathPagePathImport
       parentRoute: typeof AuthenticatedImport
     }
   }
@@ -80,14 +95,16 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedEditorDashboardPathRoute: typeof AuthenticatedEditorDashboardPathRoute
+  AuthenticatedPreviewDashboardPathRoute: typeof AuthenticatedPreviewDashboardPathRoute
   AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
-  AuthenticatedEditorDashboardPathPagePathRoute: typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedEditorDashboardPathRoute: AuthenticatedEditorDashboardPathRoute,
+  AuthenticatedPreviewDashboardPathRoute:
+    AuthenticatedPreviewDashboardPathRoute,
   AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
-  AuthenticatedEditorDashboardPathPagePathRoute:
-    AuthenticatedEditorDashboardPathPagePathRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -97,36 +114,50 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
+  '/editor/$dashboardPath': typeof AuthenticatedEditorDashboardPathRoute
+  '/preview/$dashboardPath': typeof AuthenticatedPreviewDashboardPathRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
-  '/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
+  '/editor/$dashboardPath': typeof AuthenticatedEditorDashboardPathRoute
+  '/preview/$dashboardPath': typeof AuthenticatedPreviewDashboardPathRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
-  '/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/editor/$dashboardPath': typeof AuthenticatedEditorDashboardPathRoute
+  '/_authenticated/preview/$dashboardPath': typeof AuthenticatedPreviewDashboardPathRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
-  '/_authenticated/editor/$dashboardPath/$pagePath': typeof AuthenticatedEditorDashboardPathPagePathRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/editor' | '/editor/$dashboardPath/$pagePath'
+  fullPaths:
+    | '/'
+    | ''
+    | '/editor/$dashboardPath'
+    | '/preview/$dashboardPath'
+    | '/editor'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/editor' | '/editor/$dashboardPath/$pagePath'
+  to:
+    | '/'
+    | ''
+    | '/editor/$dashboardPath'
+    | '/preview/$dashboardPath'
+    | '/editor'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/editor/$dashboardPath'
+    | '/_authenticated/preview/$dashboardPath'
     | '/_authenticated/editor/'
-    | '/_authenticated/editor/$dashboardPath/$pagePath'
   fileRoutesById: FileRoutesById
 }
 
@@ -160,16 +191,21 @@ export const routeTree = rootRoute
     "/_authenticated": {
       "filePath": "_authenticated.tsx",
       "children": [
-        "/_authenticated/editor/",
-        "/_authenticated/editor/$dashboardPath/$pagePath"
+        "/_authenticated/editor/$dashboardPath",
+        "/_authenticated/preview/$dashboardPath",
+        "/_authenticated/editor/"
       ]
+    },
+    "/_authenticated/editor/$dashboardPath": {
+      "filePath": "_authenticated/editor/$dashboardPath.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/preview/$dashboardPath": {
+      "filePath": "_authenticated/preview/$dashboardPath.tsx",
+      "parent": "/_authenticated"
     },
     "/_authenticated/editor/": {
       "filePath": "_authenticated/editor/index.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/editor/$dashboardPath/$pagePath": {
-      "filePath": "_authenticated/editor/$dashboardPath.$pagePath.tsx",
       "parent": "/_authenticated"
     }
   }

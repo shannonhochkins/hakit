@@ -161,7 +161,7 @@ export function createComponent<
             DropZone,
             data,
             editorFrame,
-            activeBreakpoint: activeBreakpoint,
+            activeBreakpoint,
           };
         }, [resolvedProps, activeBreakpoint, data, editorFrame]);
         // Call the original render with the final single-value props

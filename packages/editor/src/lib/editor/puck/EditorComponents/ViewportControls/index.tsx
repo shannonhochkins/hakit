@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useBreakpoint, Row, type BreakPoint } from '@hakit/components';
+import { useBreakpoint, Row, type BreakPoint, type AvailableQueries, type BreakPoints } from '@hakit/components';
 import { Ruler } from './components/Ruler';
 import styled from '@emotion/styled';
 import { getCssVariableValue, setSidebarWidth } from '../Sidebar/helpers';
@@ -57,16 +57,58 @@ const StyledViewportControls = styled(Row)`
   overflow: hidden;
 `;
 
+export type ViewportItem = {
+  label: string;
+  width: number;
+  disabled: boolean;
+};
+
+const defaultViewports: Required<ViewportItem[]> = [
+  // Extra small devices (phones, 368px and down)
+  {
+    label: 'xxs',
+    width: 368,
+    disabled: false,
+  },
+  // Small devices (phones, 480px and down)
+  {
+    label: 'xs',
+    width: 480,
+    disabled: true,
+  },
+  // Tablets, 768px and down
+  {
+    label: 'sm',
+    width: 768,
+    disabled: false,
+  },
+  // Laptops, 1279px and down
+  {
+    label: 'md',
+    width: 1279,
+    disabled: false,
+  },
+  // Desktops, 1600px and down
+  {
+    label: 'lg',
+    width: 1600,
+    disabled: false,
+  },
+];
+
+function toBreakpoints(viewports: ViewportItem[]): BreakPoints {
+  return viewports.reduce(
+    (acc, viewport) => ({
+      ...acc,
+      [viewport.label as keyof AvailableQueries]: viewport.width,
+    }),
+    {} as BreakPoints
+  );
+}
+
 
 export const ViewportControls = () => {
-  const breakpoints: Record<BreakPoint, number> = {
-    xxs: 368,
-    xs: 480,
-    sm: 768,
-    md: 1279,
-    lg: 1600,
-    xlg: 1601,
-  }
+  const breakpoints = useMemo(() => toBreakpoints(defaultViewports), [defaultViewports]);
   const sortedBreakpoints = useMemo(() => {
     const clone: Record<BreakPoint, number> = { ...breakpoints, xlg: breakpoints['lg'] + 1 };
     return Object.entries(clone).map((entry, index, array) => {
