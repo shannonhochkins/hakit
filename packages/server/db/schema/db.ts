@@ -113,7 +113,9 @@ export const pagesTable = pgTable("pages", {
   data: jsonb("data").notNull(),
   // the dashboard id that this page belongs to
   dashboardId: uuid("dashboard_id")
-    .references(() => dashboardTable.id)
+    .references(() => dashboardTable.id, {
+      onDelete: "cascade",
+    })
     .notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
     .defaultNow()

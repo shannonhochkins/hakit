@@ -8,6 +8,13 @@
       "when": 1741636168338,
       "tag": "0000_needy_gauntlet",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1742765479762,
+      "tag": "0001_smart_blue_blade",
+      "breakpoints": true
     }
   ]
 }

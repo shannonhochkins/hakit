@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { Json } from "@kinde-oss/kinde-typescript-sdk";
 import { api, callApi } from './';
+import { Dashboard } from "@typings/dashboard";
 
 type CreateDashboardPayload = {
   name: string;
@@ -14,6 +15,15 @@ export async function createDashboard({ name, path, data }: CreateDashboardPaylo
       name,
       path,
       data,
+    },
+  }));
+}
+
+export async function deleteDashboard({ id }: { id: string }) {
+  // Adjust path if you named it differently in your Hono routes
+  return await callApi(api.dashboard.$delete({
+    json: {
+      id,
     },
   }));
 }
@@ -33,6 +43,18 @@ export async function getPageConfigurationForUser(dashboardPath: string, pagePat
       pagePath,
     }
   }));
+}
+
+export async function updateDashboardForUser(dashboard: Dashboard) {
+  const req = api.dashboard.$put({
+    json: {
+      id: dashboard.id,
+      name: dashboard.name,
+      path: dashboard.path,
+    }
+  })
+  const res = await callApi(req);
+  return res; 
 }
 
 export async function getDashboardsForUser() {

@@ -338,6 +338,28 @@ const dashboardRoute = new Hono()
       return c.json(formatErrorResponse('Dashboards Fetch Error', error), 400);
     }
   })
+  .delete('/', getUser, zValidator("json", z.object({
+    id: z.string()
+  })), async (c) => {
+    try {
+      const user = c.var.user;
+      const { id } = await c.req.valid('json');
+      await db
+        .delete(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        )
+        .returning();
+      return c.json({
+        message: 'Dashboard deleted successfully'
+      }, 200);
+    } catch (error) {
+      return c.json(formatErrorResponse('Dashboards Delete Error', error), 400);
+    }
+  })
   .put('/', getUser, zValidator("json", updateDashboardSchema), async (c) => {
     try {
       // TODO - TEST THIS
@@ -346,7 +368,7 @@ const dashboardRoute = new Hono()
       if (!data.id) {
         throw new Error('No dashboard ID provided');
       }
-      const [newConfig] = await db
+      const [dashboardRecord] = await db
         .update(dashboardTable)
         .set({
           name: data.name,
@@ -360,7 +382,8 @@ const dashboardRoute = new Hono()
             eq(dashboardTable.userId, user.id)
           )
         )
-      return c.json(newConfig, 201);
+        .returning();
+      return c.json(dashboardRecord, 200);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboards Update Error', error), 400);
     }
