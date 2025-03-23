@@ -1,3 +1,12 @@
+- Work on save logic after interaction with editor
+- Introduce dropdown menu for selecting a page within a dashboard
+   - Also introduce a way to create a new page, potentially a popup with a name field?
+- Test update dashboard endpoint
+- server/routes/dashboard.ts already has get endpoints for pages, still need:
+  - HINT - Create dashboard already creates a default page in the database, can leverage this
+  - create update page endpoint
+  - create delete page endpoint
+  - create create page endpoint
 - Swap out kinde for clerke?
 - Now need to focus on the "Theme" part, where you can "install" themes, which will create a new config and related rows in the db, and also with preset values
 - Need to figure out UX from login -> editor

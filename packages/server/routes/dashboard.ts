@@ -340,16 +340,27 @@ const dashboardRoute = new Hono()
   })
   .put('/', getUser, zValidator("json", updateDashboardSchema), async (c) => {
     try {
-      // const user = c.var.user;
-      // const data = await c.req.valid('json')
-      // const [newConfig] = await db
-      //   .update(configTable)
-      //   .set({
-      //     config: data.config,
-      //   })
-      //   .returning();
-      
-      // return c.json(newConfig, 201);
+      // TODO - TEST THIS
+      const user = c.var.user;
+      const data = await c.req.valid('json');
+      if (!data.id) {
+        throw new Error('No dashboard ID provided');
+      }
+      const [newConfig] = await db
+        .update(dashboardTable)
+        .set({
+          name: data.name,
+          path: data.path,
+          data: data.data,
+          themeId: data.themeId,
+        })
+        .where(
+          and(
+            eq(dashboardTable.id, data.id),
+            eq(dashboardTable.userId, user.id)
+          )
+        )
+      return c.json(newConfig, 201);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboards Update Error', error), 400);
     }
@@ -357,14 +368,15 @@ const dashboardRoute = new Hono()
   .post('/', getUser, zValidator("json", insertDashboardSchema), async (c) => {
     try {
       const user = c.var.user;
+      const { data, name, path } = await c.req.valid('json');
       const [dashboardRecord] = await db
         .insert(dashboardTable)
         .values({
           id: generateId(),
           userId: user.id,
-          name: c.req.valid('json').name,
-          path: c.req.valid('json').path,
-          data: c.req.valid('json').data,
+          name,
+          path,
+          data,
         })
         .returning();
 

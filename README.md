@@ -58,7 +58,7 @@ When dealing with the gcloud bucket, cors may need to be updated with origins
 running with gcloud cli:
 
 ```bash
-gcloud storage buckets update gs://BUCKET_NAME --cors-file=gcloud-cors.json
+gcloud storage buckets update gs://BUCKET_NAME --cors-file=cors.json
 ```
 
 Then create the `cors.json` file:
