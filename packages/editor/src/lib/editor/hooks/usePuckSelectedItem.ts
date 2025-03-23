@@ -6,6 +6,7 @@ import { transformProps } from '../helpers/breakpoints';
 
 export function usePuckSelectedItem<T extends DefaultComponentProps>(transform?: boolean) {
   const activeBreakpoint = useActiveBreakpoint();
+  console.log('activeBreakpoint', activeBreakpoint);
   const { appState } = usePuck();
   const selectedItem = appState.ui.itemSelector;
   const item = useMemo(() => {
