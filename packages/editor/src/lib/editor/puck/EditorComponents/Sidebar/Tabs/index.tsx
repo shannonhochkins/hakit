@@ -21,8 +21,8 @@ const tabs: Tab[] = [
     icon: <LayoutDashboard size={22} />,
   },
   {
-    label: 'Outline',
-    panel: 'outline',
+    label: 'Component Tree',
+    panel: 'tree',
     icon: <MousePointerSquareDashed size={22} />,
   },
 ];
@@ -53,6 +53,7 @@ const TabButton = styled.button`
   aspect-ratio: 1/1;
   label {
     font-size: 0.75rem;
+    text-align: center;
   }
 
   .icon {

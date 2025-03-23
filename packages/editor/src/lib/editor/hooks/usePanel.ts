@@ -1,6 +1,6 @@
 import { useLocalStorage } from './useLocalStorage';
 
-export type Panel = 'components' | 'outline' | 'options' | 'background';
+export type Panel = 'components' | 'tree' | 'options' | 'background';
 
 export function usePanel() {
   const [panel, setPanel] = useLocalStorage<Panel>('panel', 'options');

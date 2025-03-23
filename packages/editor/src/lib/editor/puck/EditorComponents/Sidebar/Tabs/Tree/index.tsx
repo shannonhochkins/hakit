@@ -2,7 +2,7 @@ import { Puck } from '@measured/puck';
 import { TabHeading } from '../TabHeading';
 import { TabPadding } from '../TabPadding';
 
-export function Outline() {
+export function Tree() {
   return (
     <div>
       <TabPadding>

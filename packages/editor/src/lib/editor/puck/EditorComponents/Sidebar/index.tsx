@@ -8,7 +8,7 @@ import { Tabs } from './Tabs';
 // tabs
 import { Components } from './Tabs/Components';
 import { Options } from './Tabs/Options';
-import { Outline } from './Tabs/Outline';
+import { Tree } from './Tabs/Tree';
 // individual components
 import { ActionBar } from './ActionBar';
 import { useId, useRef } from 'react';
@@ -127,7 +127,7 @@ export const SidebarSection = () => {
           <PanelWrapper fullWidth fullHeight wrap='nowrap' alignItems='stretch' justifyContent='stretch' className={`panel-${panel}`}>
             {panel === 'components' && <Components />}
             {panel === 'options' && <Options />}
-            {panel === 'outline' && <Outline />}
+            {panel === 'tree' && <Tree />}
           </PanelWrapper>
           <Tabs />
         </Row>
