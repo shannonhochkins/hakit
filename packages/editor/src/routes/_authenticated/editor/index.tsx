@@ -28,17 +28,17 @@ function RouteComponent() {
         margin: '20px',
       }}>
         <span>name: {dashboard.name}</span>
-        {dashboard.pages?.map((page) => {
-          return <button key={page.id} onClick={() => {
+        <button onClick={() => {
             navigate({
-              to: '/editor/$dashboardPath/$pagePath',
+              to: '/editor/$dashboardPath',
               params: {
                 dashboardPath: dashboard.path,
-                pagePath: page.path,
               }
             });
           }
-          }>{page.name}</button>
+        }>Edit</button>
+        Pages: {dashboard.pages?.map((page) => {
+          return <span key={page.id}>{page.name}</span>
         })}
       </div>
     })}

@@ -14,6 +14,7 @@ export function Editor() {
 
   const [panel, setPanel] = usePanel();
   const puckPageData = useGlobalStore(state => state.puckPageData);
+  const setUnsavedPuckPageData = useGlobalStore(state => state.setUnsavedPuckPageData);
   const userConfig = useGlobalStore(state => state.userConfig);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function Editor() {
       }}
     >
       <Puck
+        onChange={setUnsavedPuckPageData}
         onAction={action => {
           if (action.type === 'insert') {
             setPanel('options');

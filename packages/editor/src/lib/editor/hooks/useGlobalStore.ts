@@ -14,6 +14,8 @@ type PuckConfigurationStore = {
   puckPageData: PuckPageData;
   // NOTE - Important that this is only triggered once when the dashboard is loading or changing pages
   setPuckPageData: (newPageData: PuckPageData) => void;
+  unsavedPuckPageData: PuckPageData;
+  setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>(set => ({
@@ -25,4 +27,6 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => ({
   setDashboard: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboard })),
   puckPageData: {} as PuckPageData,
   setPuckPageData: (puckPageData: PuckPageData) => set(state => ({ ...state, puckPageData })),
+  unsavedPuckPageData: {} as PuckPageData,
+  setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => set(state => ({ ...state, unsavedPuckPageData })),
 }));
