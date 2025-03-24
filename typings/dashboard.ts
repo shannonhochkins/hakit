@@ -1,15 +1,25 @@
 import type { PuckPageData } from "./puck";
 
-export interface DashboardPage {
+export type DashboardPageWithoutData = {
     id: string;
     name: string;
     path: string;
+}
+export type DashboardPageWithData = DashboardPageWithoutData & {
     data: PuckPageData;
 }
-export interface Dashboard {
+interface Dashboard {
     id: string;
     name: string;
     path: string;
+    themeId?: string;
     data: PuckPageData;
-    pages: DashboardPage[];
 }
+
+export type DashboardWithPageData = Dashboard & {
+    pages: DashboardPageWithData[];
+}
+
+export type DashboardWithoutPageData = Dashboard & {
+    pages: DashboardPageWithoutData[];
+};

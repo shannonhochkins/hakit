@@ -7,35 +7,29 @@ import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
 import { z } from 'zod';
-import type { PuckPageData } from '../../client/typings/puck';
+import type { PuckPageData } from '../../../typings/puck';
+import type { DashboardPageWithData, DashboardWithoutPageData, DashboardWithPageData } from '../../../typings/dashboard';
 import type { Json } from '@kinde-oss/kinde-typescript-sdk';
 import { formatErrorResponse } from "../helpers/formatErrorResponse";
 
-const DEFAULT_DASHBOARD_TITLE = 'Dashboard';
 
-type Dashboard = {
-  id: string;
-  name: string;
-  path: string;
-  data: Json;
-}
 
-type Page = {
-  id: string;
-  name: string;
-  path: string;
-  data: Json;
-}
+// type Page = {
+//   id: string;
+//   name: string;
+//   path: string;
+//   data: Json;
+// }
 
-type DashboardWithPages = Dashboard & {
-  pages: Page[];
-}
+// type DashboardWithPages = Dashboard & {
+//   pages: Page[];
+// }
 
-type DashboardWithPage = Dashboard & {
-  page: Page;
-}
+// type DashboardWithPage = Dashboard & {
+//   page: Page;
+// }
 
-type Dashboards = DashboardWithPages[];
+// type Dashboards = DashboardWithPages[];
 
 // type FullConfiguration = z.infer<typeof configZodSchema>;
 
@@ -233,7 +227,45 @@ function createDefaultPageConfiguration(): PuckPageData {
 
 
 const dashboardRoute = new Hono()
+  // get a full dashboard object without the data
   .get('/:dashboardPath', getUser, zValidator("param", z.object({
+    dashboardPath: z.string()
+  })), async (c) => {
+    try {
+      const user = c.var.user;
+      const { dashboardPath } = c.req.valid('param');
+      const dashboards = await db
+        .select({
+          id: dashboardTable.id,
+          name: dashboardTable.name,
+          path: dashboardTable.path,
+          data: dashboardTable.data,
+          pages: sql`COALESCE(
+            json_agg(
+              json_build_object(
+                'id', ${pagesTable.id},
+                'name', ${pagesTable.name},
+                'path', ${pagesTable.path}
+              )
+            ) FILTER (WHERE ${pagesTable.id} IS NOT NULL),
+            '[]'
+          )`
+        })
+        .from(dashboardTable)
+        .leftJoin(pagesTable, eq(dashboardTable.id, pagesTable.dashboardId))
+        .where(
+          and(
+            eq(dashboardTable.path, dashboardPath),
+            eq(dashboardTable.userId, user.id)
+          )
+        )
+        .groupBy(dashboardTable.id);
+      return c.json(dashboards[0] as unknown as DashboardWithoutPageData, 200);
+    } catch (error) {
+      return c.json(formatErrorResponse('Dashboard Fetch Error', error), 400);
+    }
+  })
+  .get('/:dashboardPath/data', getUser, zValidator("param", z.object({
     dashboardPath: z.string()
   })), async (c) => {
     try {
@@ -266,45 +298,74 @@ const dashboardRoute = new Hono()
           )
         )
         .groupBy(dashboardTable.id);
-      return c.json(dashboards[0] as unknown as DashboardWithPages, 200);
+      return c.json(dashboards[0] as unknown as DashboardWithPageData, 200);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboard Fetch Error', error), 400);
     }
   })
-  .get('/:dashboardPath/:pagePath', getUser, zValidator("param", z.object({
-    dashboardPath: z.string(),
-    pagePath: z.string()
+  // get a full page object with the data
+  .get('/:id/page/:pageId', getUser, zValidator("param", z.object({
+    id: z.string(),
+    pageId: z.string()
   })),  async (c) => {
     try {
       const user = c.var.user;
-      const { dashboardPath, pagePath } = c.req.valid('param');
-      const [dashboardWithPage] = await db
+      const { id, pageId } = c.req.valid('param');
+      // const [dashboardWithPage] = await db
+      //   .select({
+      //     id: dashboardTable.id,
+      //     name: dashboardTable.name,
+      //     path: dashboardTable.path,
+      //     data: dashboardTable.data,
+      //     page: {
+      //       id: pagesTable.id,
+      //       name: pagesTable.name,
+      //       path: pagesTable.path,
+      //       data: pagesTable.data
+      //     }
+      //   })
+      //   .from(dashboardTable)
+      //   .leftJoin(pagesTable, eq(dashboardTable.id, pagesTable.dashboardId))
+      //   .where(
+      //     and(
+      //       eq(dashboardTable.id, id),
+      //       eq(pagesTable.id, pageId),
+      //       eq(dashboardTable.userId, user.id)
+      //     )
+      //   );
+      // find the dashboard to get the id
+      const dashboards = await db
         .select({
-          id: dashboardTable.id,
-          name: dashboardTable.name,
-          path: dashboardTable.path,
-          data: dashboardTable.data,
-          page: {
-            id: pagesTable.id,
-            name: pagesTable.name,
-            path: pagesTable.path,
-            data: pagesTable.data
-          }
+          id: dashboardTable.id
         })
         .from(dashboardTable)
-        .leftJoin(pagesTable, eq(dashboardTable.id, pagesTable.dashboardId))
         .where(
           and(
-            eq(dashboardTable.path, dashboardPath),
-            eq(pagesTable.path, pagePath),
+            eq(dashboardTable.id, id),
             eq(dashboardTable.userId, user.id)
           )
         );
-      return c.json(dashboardWithPage as unknown as DashboardWithPage, 200);
+      // simply to validate that we're requesting by the right user
+      // we don't use dashboards at all here, as there's no connection to a page and a user
+      // we just need to check that the dashboard exists for this user
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      const [page] = await db
+        .select()
+        .from(pagesTable)
+        .where(
+          and(
+            eq(pagesTable.id, pageId),
+            eq(pagesTable.dashboardId, id)
+          )
+        );
+      return c.json(page as unknown as DashboardPageWithData, 200);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboard Page Fetch Error', error), 400);
     }
   })
+  // get all dashboards and pages without the page data
   .get('/', getUser, async (c) => {
     try {
       const user = c.var.user;
@@ -319,12 +380,11 @@ const dashboardRoute = new Hono()
               json_build_object(
                 'id', ${pagesTable.id},
                 'name', ${pagesTable.name},
-                'path', ${pagesTable.path},
-                'data', ${pagesTable.data}
+                'path', ${pagesTable.path}
               )
             ) FILTER (WHERE ${pagesTable.id} IS NOT NULL),
             '[]'
-          )`
+          )`,
         })
         .from(dashboardTable)
         .leftJoin(pagesTable, eq(dashboardTable.id, pagesTable.dashboardId))
@@ -333,17 +393,18 @@ const dashboardRoute = new Hono()
         )
         .groupBy(dashboardTable.id);
       // have to cast here as the sql function is not typed
-      return c.json(dashboards as unknown as Dashboards, 200);
+    return c.json(dashboards as unknown as DashboardWithoutPageData[], 200);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboards Fetch Error', error), 400);
     }
   })
-  .delete('/', getUser, zValidator("json", z.object({
-    id: z.string()
+  // delete a dashboard
+  .delete('/:id', getUser, zValidator("param", z.object({
+    id: z.string(),
   })), async (c) => {
     try {
       const user = c.var.user;
-      const { id } = await c.req.valid('json');
+      const { id } = c.req.valid('param');
       await db
         .delete(dashboardTable)
         .where(
@@ -352,7 +413,6 @@ const dashboardRoute = new Hono()
             eq(dashboardTable.userId, user.id)
           )
         )
-        .returning();
       return c.json({
         message: 'Dashboard deleted successfully'
       }, 200);
@@ -360,12 +420,108 @@ const dashboardRoute = new Hono()
       return c.json(formatErrorResponse('Dashboards Delete Error', error), 400);
     }
   })
-  .put('/', getUser, zValidator("json", updateDashboardSchema), async (c) => {
+  // delete a dashboard page
+  .delete('/:id/page/:pageId', getUser, zValidator("param", z.object({
+    id: z.string(),
+    pageId: z.string()
+  })), async (c) => {
     try {
-      // TODO - TEST THIS
+      const user = c.var.user;
+      const { id, pageId } = c.req.valid('param');
+      // find the dashboard to get the id
+      const dashboards = await db
+        .select({
+          id: dashboardTable.id
+        })
+        .from(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        );
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      const [dashboard] = dashboards;
+      await db
+        .delete(pagesTable)
+        .where(
+          and(
+            eq(pagesTable.id, pageId),
+            eq(pagesTable.dashboardId, dashboard.id)
+          )
+        )
+      return c.json({
+        message: 'Dashboard page deleted successfully'
+      }, 200);
+    } catch (error) {
+      return c.json(formatErrorResponse('Dashboards Delete Error', error), 400);
+    }
+  })
+  // update a dashboard page
+  .put('/:id/page/:pageId', getUser, zValidator("param", z.object({
+    id: z.string(),
+    pageId: z.string()
+  })), zValidator("json", updateDashboardSchema), async (c) => {
+    try {
       const user = c.var.user;
       const data = await c.req.valid('json');
-      if (!data.id) {
+      const { id, pageId } = c.req.valid('param');
+      
+      if (!id) {
+        throw new Error('No dashboard path provided');
+      }
+      if (!pageId) {
+        throw new Error('No page path provided');
+      }
+      const dashboards = await db
+        .select({
+          id: dashboardTable.id
+        })
+        .from(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        );
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      const [dashboard] = dashboards;
+
+      console.log('data', data, dashboard.id, pageId);
+
+      const [pageRecord] = await db
+        .update(pagesTable)
+        .set({
+          name: data.name,
+          path: data.path,
+          data: data.data,
+        })
+        .where(
+          and(
+            eq(pagesTable.dashboardId, dashboard.id),
+            eq(pagesTable.id, pageId),
+          )
+        )
+        .returning();
+      return c.json(pageRecord, 200);
+    } catch (error) {
+      return c.json(formatErrorResponse('Page Update Error', error), 400);
+    }
+  })
+  // update a dashboard
+  .put('/:id', getUser, zValidator("param", z.object({
+    id: z.string()
+  })), zValidator("json", updateDashboardSchema), async (c) => {
+    try {
+      const user = c.var.user;
+      const data = await c.req.valid('json');
+      const params = c.req.valid('param');
+      
+      if (!params.id) {
         throw new Error('No dashboard ID provided');
       }
       const [dashboardRecord] = await db
@@ -378,7 +534,7 @@ const dashboardRoute = new Hono()
         })
         .where(
           and(
-            eq(dashboardTable.id, data.id),
+            eq(dashboardTable.id, params.id),
             eq(dashboardTable.userId, user.id)
           )
         )
@@ -388,6 +544,7 @@ const dashboardRoute = new Hono()
       return c.json(formatErrorResponse('Dashboards Update Error', error), 400);
     }
   })
+  // create a new dashboard with a default page
   .post('/', getUser, zValidator("json", insertDashboardSchema), async (c) => {
     try {
       const user = c.var.user;

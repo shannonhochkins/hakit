@@ -1,4 +1,4 @@
-import { dashboardQueryOptions } from '@client/src/lib/api/dashboard';
+import { dashboardByPathWithPageDataQueryOptions } from '@client/src/lib/api/dashboard';
 import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
@@ -17,7 +17,7 @@ export function Dashboard({
   children
 }: DashboardProps) {
   // get the path param from /editor:/id with tanstack router
-  const dashboardQuery = useQuery(dashboardQueryOptions(dashboardPath));
+  const dashboardQuery = useQuery(dashboardByPathWithPageDataQueryOptions(dashboardPath));
   const setDashboard = useGlobalStore(store => store.setDashboard);
   const [hassUrl] = useLocalStorage<string | null>('hassUrl');
   const [hassToken] = useLocalStorage<string | undefined>('hassToken');

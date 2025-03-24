@@ -19,8 +19,8 @@ function NavBar() {
     <div className="p-2 flex justify-between max-w-2xl m-auto items-baseline">
       <Link to="/"><h1 className="text-2xl font-bold">Index</h1></Link>
       <div className="flex gap-2">
-        <Link to="/editor" className="[&.active]:font-bold">
-          Editor
+        <Link to="/dashboards" className="[&.active]:font-bold">
+          Dashboards
         </Link>
       </div>
     </div>

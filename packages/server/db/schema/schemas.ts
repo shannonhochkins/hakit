@@ -48,4 +48,9 @@ export const insertDashboardSchema = createInsertSchema(dashboardTable).pick({
   data: true,
 });
 
-export const updateDashboardSchema = createUpdateSchema(dashboardTable);
+export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
+  name: true,
+  path: true,
+  data: true,
+  themeId: true,
+})

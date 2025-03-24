@@ -23,6 +23,7 @@ export const dashboardTable = pgTable("dashboard", {
     .defaultNow()
     .notNull(),
 }, table => [
+  index("dashboard_user_id_idx").on(table.userId),
   // Composite unique constraint: no duplicate path per user.
   unique("unique_user_path").on(table.userId, table.path),
   // Enforces that path contains only lowercase letters, digits, and dashes.
