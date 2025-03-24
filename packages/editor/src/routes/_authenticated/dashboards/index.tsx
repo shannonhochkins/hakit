@@ -4,7 +4,7 @@ import { createDashboard, dashboardsQueryOptions, dashboardPageQueryOptions, del
 import { useCallback, useState } from 'react';
 import { DashboardPageWithoutData, DashboardWithoutPageData } from '@typings/dashboard';
 import { Column, Row } from '@hakit/components';
-import { useLocalStorage } from '@editor/hooks/useLocalStorage';
+
 
 export const Route = createFileRoute('/_authenticated/dashboards/')({
   component: RouteComponent,
@@ -22,7 +22,6 @@ function DashboardPageEditor({
 }) {
   const [pageName, setPageName] = useState<string>(page.name ?? '');
   const [pagePath, setPagePath] = useState<string>(page.path);
-  const [, setId] = useLocalStorage<string | null>('pageId');
   const navigate = useNavigate();
   const pageQuery = useQuery(dashboardPageQueryOptions(dashboard.id, page.id));
   const fullPage = pageQuery.data;
@@ -76,7 +75,6 @@ function DashboardPageEditor({
         }
       }>Delete</button>
       <button onClick={() => {
-          setId(page.id);
           navigate({
             to: '/dashboards/$dashboardPath/edit',
             params: {
@@ -111,7 +109,7 @@ function RouteComponent() {
   }, []);
 
   if (dashboardsQuery.isLoading || !dashboards) {
-    return <div>Loading...</div>
+    return <div>Loading dashboards...</div>
   }
   if (dashboardsQuery.isError) {
     return <div>Error: {dashboardsQuery.error.message}</div>

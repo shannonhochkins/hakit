@@ -16,6 +16,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedDashboardsIndexImport } from './routes/_authenticated/dashboards/index'
 import { Route as AuthenticatedPreviewDashboardPathImport } from './routes/_authenticated/preview/$dashboardPath'
 import { Route as AuthenticatedDashboardsDashboardPathEditImport } from './routes/_authenticated/dashboards/$dashboardPath/edit'
+import { Route as AuthenticatedDashboardsDashboardPathPagePathIndexImport } from './routes/_authenticated/dashboards/$dashboardPath/$pagePath/index'
 import { Route as AuthenticatedDashboardsDashboardPathPagePathEditImport } from './routes/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
 
 // Create/Update Routes
@@ -49,6 +50,13 @@ const AuthenticatedDashboardsDashboardPathEditRoute =
   AuthenticatedDashboardsDashboardPathEditImport.update({
     id: '/dashboards/$dashboardPath/edit',
     path: '/dashboards/$dashboardPath/edit',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+
+const AuthenticatedDashboardsDashboardPathPagePathIndexRoute =
+  AuthenticatedDashboardsDashboardPathPagePathIndexImport.update({
+    id: '/dashboards/$dashboardPath/$pagePath/',
+    path: '/dashboards/$dashboardPath/$pagePath/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -105,6 +113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardsDashboardPathPagePathEditImport
       parentRoute: typeof AuthenticatedImport
     }
+    '/_authenticated/dashboards/$dashboardPath/$pagePath/': {
+      id: '/_authenticated/dashboards/$dashboardPath/$pagePath/'
+      path: '/dashboards/$dashboardPath/$pagePath'
+      fullPath: '/dashboards/$dashboardPath/$pagePath'
+      preLoaderRoute: typeof AuthenticatedDashboardsDashboardPathPagePathIndexImport
+      parentRoute: typeof AuthenticatedImport
+    }
   }
 }
 
@@ -115,6 +130,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardsIndexRoute: typeof AuthenticatedDashboardsIndexRoute
   AuthenticatedDashboardsDashboardPathEditRoute: typeof AuthenticatedDashboardsDashboardPathEditRoute
   AuthenticatedDashboardsDashboardPathPagePathEditRoute: typeof AuthenticatedDashboardsDashboardPathPagePathEditRoute
+  AuthenticatedDashboardsDashboardPathPagePathIndexRoute: typeof AuthenticatedDashboardsDashboardPathPagePathIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -125,6 +141,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedDashboardsDashboardPathEditRoute,
   AuthenticatedDashboardsDashboardPathPagePathEditRoute:
     AuthenticatedDashboardsDashboardPathPagePathEditRoute,
+  AuthenticatedDashboardsDashboardPathPagePathIndexRoute:
+    AuthenticatedDashboardsDashboardPathPagePathIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -138,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/dashboards': typeof AuthenticatedDashboardsIndexRoute
   '/dashboards/$dashboardPath/edit': typeof AuthenticatedDashboardsDashboardPathEditRoute
   '/dashboards/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardsDashboardPathPagePathEditRoute
+  '/dashboards/$dashboardPath/$pagePath': typeof AuthenticatedDashboardsDashboardPathPagePathIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -147,6 +166,7 @@ export interface FileRoutesByTo {
   '/dashboards': typeof AuthenticatedDashboardsIndexRoute
   '/dashboards/$dashboardPath/edit': typeof AuthenticatedDashboardsDashboardPathEditRoute
   '/dashboards/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardsDashboardPathPagePathEditRoute
+  '/dashboards/$dashboardPath/$pagePath': typeof AuthenticatedDashboardsDashboardPathPagePathIndexRoute
 }
 
 export interface FileRoutesById {
@@ -157,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboards/': typeof AuthenticatedDashboardsIndexRoute
   '/_authenticated/dashboards/$dashboardPath/edit': typeof AuthenticatedDashboardsDashboardPathEditRoute
   '/_authenticated/dashboards/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardsDashboardPathPagePathEditRoute
+  '/_authenticated/dashboards/$dashboardPath/$pagePath/': typeof AuthenticatedDashboardsDashboardPathPagePathIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -168,6 +189,7 @@ export interface FileRouteTypes {
     | '/dashboards'
     | '/dashboards/$dashboardPath/edit'
     | '/dashboards/$dashboardPath/$pagePath/edit'
+    | '/dashboards/$dashboardPath/$pagePath'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -176,6 +198,7 @@ export interface FileRouteTypes {
     | '/dashboards'
     | '/dashboards/$dashboardPath/edit'
     | '/dashboards/$dashboardPath/$pagePath/edit'
+    | '/dashboards/$dashboardPath/$pagePath'
   id:
     | '__root__'
     | '/'
@@ -184,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboards/'
     | '/_authenticated/dashboards/$dashboardPath/edit'
     | '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+    | '/_authenticated/dashboards/$dashboardPath/$pagePath/'
   fileRoutesById: FileRoutesById
 }
 
@@ -220,7 +244,8 @@ export const routeTree = rootRoute
         "/_authenticated/preview/$dashboardPath",
         "/_authenticated/dashboards/",
         "/_authenticated/dashboards/$dashboardPath/edit",
-        "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
+        "/_authenticated/dashboards/$dashboardPath/$pagePath/edit",
+        "/_authenticated/dashboards/$dashboardPath/$pagePath/"
       ]
     },
     "/_authenticated/preview/$dashboardPath": {
@@ -237,6 +262,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/dashboards/$dashboardPath/$pagePath/edit": {
       "filePath": "_authenticated/dashboards/$dashboardPath/$pagePath/edit.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/dashboards/$dashboardPath/$pagePath/": {
+      "filePath": "_authenticated/dashboards/$dashboardPath/$pagePath/index.tsx",
       "parent": "/_authenticated"
     }
   }

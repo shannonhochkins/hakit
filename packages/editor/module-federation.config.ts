@@ -32,10 +32,10 @@ export default createModuleFederationConfig({
       eager: true,
       requiredVersion: dependencies['@measured/puck'],
     },
-    // '@emotion/react': {
-    //   singleton: true,
-    //   eager: true,
-    //   requiredVersion: dependencies['@emotion/react'],
-    // }
+    '@emotion/react': {
+      singleton: true,
+      eager: true,
+      requiredVersion: dependencies['@emotion/react'],
+    },
   },
 });

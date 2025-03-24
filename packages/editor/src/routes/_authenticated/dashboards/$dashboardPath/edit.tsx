@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { DashboardWithoutPageData } from '@typings/dashboard';
 import { updateDashboardForUser, deleteDashboard } from '@client/src/lib/api/dashboard';
 import { Row } from '@hakit/components';
-import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 
 export const Route = createFileRoute('/_authenticated/dashboards/$dashboardPath/edit')({
   component: RouteComponent,
@@ -19,9 +18,7 @@ function DashboardEditor({
 }) {
   // using this query more than once will still only fetch once!
   const [dashboardName, setDashboardName] = useState<string>(dashboard.name ?? '');
-  const [pageId] = useLocalStorage<string | null>('pageId', null);
-  const matchedPage = dashboard.pages.find(page => page.id === pageId);
-  const page = matchedPage ?? dashboard.pages[0];
+  const page = dashboard.pages[0];
   const [dashboardPath, setDashboardPath] = useState<string>(dashboard.path);
   const navigate = useNavigate();
 

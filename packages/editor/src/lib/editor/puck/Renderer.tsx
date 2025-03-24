@@ -11,6 +11,9 @@ export function Renderer() {
   if (!userConfig) {
     return <div>Loading user config...</div>;
   }
+  if (!puckPageData) {
+    return <div>Loading puck page data</div>;
+  }
   return (
     <>
       <Render config={userConfig} data={puckPageData} />

@@ -16,17 +16,20 @@ import { AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import { type PuckCategories } from '@typings/puck';
 import { usePuckFrame } from '@editor/hooks/usePuckFrame';
-import { usePuckData } from '@editor/hooks/usePuckData';
+import { useTransformedPuckData } from '@editor/hooks/useTransformedPuckData';
 import { deepCopy } from 'deep-copy-ts';
 import { DropZone } from '@measured/puck';
+
 
 // Automatic extensions
 // import { type Actions, getActionFields, resolveActionFields } from '@editor/puck/EditorComponents/form/definitions/actions';
 // import { type SizeOptions, getSizeFields, resolveSizeFields } from '@editor/puck/EditorComponents/form/definitions/size';
 import { DeepPartial } from '@typings';
 import { merge } from 'ts-deepmerge';
+import { useGlobalStore } from '@editor/hooks/useGlobalStore';
 
 type InternalFields = {
+  // breakpoint is not saved in the db, this is calculated on the fly
   breakpoint: keyof AvailableQueries;
 };
 
@@ -139,7 +142,7 @@ export function createComponent<
         return fields;
       },
       render(props) {
-        const data = usePuckData();
+        const data = useTransformedPuckData();
         const editorFrame = usePuckFrame();
         // get active breakpoint
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -164,9 +167,10 @@ export function createComponent<
             activeBreakpoint,
           };
         }, [resolvedProps, activeBreakpoint, data, editorFrame]);
+
         // Call the original render with the final single-value props
         // plus any additional props provided in the CustomComponentConfig type
-        // @ts-expect-error - This is fine, internal factory can't determine the types
+        // @ts-expect-error - This is fine, fix later
         return config.render(finalProps);
       },
     };

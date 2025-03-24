@@ -1,4 +1,3 @@
-import { callApi } from '@editor/hooks/useApi';
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ImageUp, X } from 'lucide-react';
@@ -174,24 +173,25 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
   const _onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const reader = new FileReader();
-    const [userFile] = e.target.files;
+    const [userFile] = Array.from(e.target.files);
+    debugger;
     if (userFile) {
       setLoading(true);
       reader.readAsDataURL(userFile);
       const formData = new FormData();
       formData.append('image', userFile);
-      callApi('/api/upload/image', formData)
-        .then(response => {
-          onChange(response.filename);
-        })
-        .catch(e => {
-          console.error('Error:', e);
-          setError('Error uploading image');
-        })
-        .finally(() => {
-          // TODO - Loading state?
-          setLoading(false);
-        });
+      // callApi('/api/upload/image', formData)
+      //   .then(response => {
+      //     onChange(response.filename);
+      //   })
+      //   .catch(e => {
+      //     console.error('Error:', e);
+      //     setError('Error uploading image');
+      //   })
+      //   .finally(() => {
+      //     // TODO - Loading state?
+      //     setLoading(false);
+      //   });
     }
   };
 
@@ -203,14 +203,14 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         onConfirm={() => {
           setConfirmDelete(false);
           setLoading(true);
-          callApi('/api/remove/image', { filename: value })
-            .catch(e => {
-              console.error('Error:', e);
-              setError('Error removing image');
-            })
-            .finally(() => {
-              setLoading(false);
-            });
+          // callApi('/api/remove/image', { filename: value })
+          //   .catch(e => {
+          //     console.error('Error:', e);
+          //     setError('Error removing image');
+          //   })
+          //   .finally(() => {
+          //     setLoading(false);
+          //   });
           onChange('');
         }}
         onCancel={() => {

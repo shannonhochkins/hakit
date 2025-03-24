@@ -62,7 +62,9 @@ export async function getDashboardPageForUser(id: DashboardWithPageData['id'], p
   }));
 }
 
-export async function updateDashboardPageForUser(id: DashboardWithPageData['id'], page: DashboardPageWithData) {
+export async function updateDashboardPageForUser(id: DashboardWithPageData['id'], page: Partial<DashboardPageWithData> & {
+  id: DashboardPageWithData['id'];
+}) {
   const req = api.dashboard[":id"].page[":pageId"].$put({
     json: {
       path: page.path,

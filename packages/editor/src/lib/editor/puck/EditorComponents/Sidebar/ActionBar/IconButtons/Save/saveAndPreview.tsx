@@ -1,31 +1,46 @@
-import { useLocalStorage } from '@editor/hooks/useLocalStorage';
-import { callApi } from '@editor/hooks/useApi';
 import { useCallback } from 'react';
 import { SquareArrowOutUpRight as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@editor/hooks/useGlobalStore';
-import { useEditMode } from '@editor/hooks/useEditMode';
+import { updateDashboardPageForUser } from '@client/src/lib/api/dashboard';
+import { useNavigate, useParams } from '@tanstack/react-router';
 
 export function SaveAndPreview() {
-  const [id] = useLocalStorage<string | null>('id', null);
-  const [, setEditMode] = useEditMode();
-  const data = useGlobalStore(store => store.puckPageData);
+  const navigate = useNavigate();
+  const params = useParams({
+    from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
+  });
+  const data = useGlobalStore(store => store.unsavedPuckPageData);
+  const dashboard = useGlobalStore(store => store.dashboard);
   const save = useCallback(async () => {
-    if (!id) {
-      return Promise.reject('No ID found');
+    if (!dashboard) {
+      return Promise.reject('No dashboard found');
     }
-    return callApi('/api/page/configuration/save', {
-      data,
-      id,
+    const page = dashboard.pages.find(page => page.path === params.pagePath);
+    if (!page) {
+      return Promise.reject(`No page found with path ${params.pagePath}`);
+    }
+    updateDashboardPageForUser(dashboard.id, {
+      id: page.id,
+      data
     });
-  }, [id, data]);
+  }, [params, dashboard, data]);
+
+  if (!dashboard) {
+    return null;
+  }
   return (
     <>
       <ProgressButton
         title='Save and Preview'
         onClick={() => {
           return save().then(() => {
-            setEditMode(false);
+            navigate({
+              to: '/preview/$dashboardPath',
+              params: {
+                dashboardPath: dashboard.path,
+              }
+            })
           });
         }}
       >

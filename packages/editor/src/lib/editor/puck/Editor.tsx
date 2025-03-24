@@ -1,20 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGlobalStore } from '@editor/hooks/useGlobalStore';
-import { usePanel } from '@editor/hooks/usePanel';
 import { Puck } from '@measured/puck';
 import { Column, Row } from '@hakit/components';
 import { SidebarSection } from './EditorComponents/Sidebar';
 import { ViewportControls } from './EditorComponents/ViewportControls';
 import { Preview } from './EditorComponents/Preview';
+import createCache from '@emotion/cache';
 import '@measured/puck/puck.css';
 import './puck-overrides.css';
 
-
 export function Editor() {
-
-  const [panel, setPanel] = usePanel();
+  const intervalRef = useRef<Timer | null>(null);
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const setUnsavedPuckPageData = useGlobalStore(state => state.setUnsavedPuckPageData);
+  const setEmotionCache = useGlobalStore(state => state.setEmotionCache);
   const userConfig = useGlobalStore(state => state.userConfig);
 
   useEffect(() => {
@@ -24,32 +23,49 @@ export function Editor() {
     };
   }, []);
 
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      const editorFrame = document.querySelector('iframe#preview-frame') as HTMLIFrameElement;
+      if (editorFrame && editorFrame?.contentWindow?.document.head) {
+        setEmotionCache(createCache({
+          key: 'hakit-addons',
+          container: editorFrame?.contentWindow?.document.head,
+        }));
+        if (intervalRef.current) clearInterval(intervalRef.current)
+      }
+    }, 10);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, []);
+
   if (!userConfig) {
     return <div>Loading user config...</div>;
+  }
+  if (!puckPageData) {
+    return <div>Loading puck page data</div>;
   }
 
   return (
     <div
-      onClick={() => {
-        if (panel === 'background') {
-          setPanel('options');
-        }
-      }}
       style={{
         width: '100%',
         height: '100%',
       }}
     >
       <Puck
-        onChange={setUnsavedPuckPageData}
-        onAction={action => {
-          if (action.type === 'insert') {
-            setPanel('options');
-          }
+        onChange={data => {
+          console.log('data', data);
+          setUnsavedPuckPageData(data);
         }}
+        // onAction={action => {
+          // if (action.type === 'insert') {
+          //   setPanel('options');
+          // }
+        // }}
         iframe={{
           // this was causing puck to load indefinitely
-          waitForStyles: false,
+          waitForStyles: true,
         }}
         overrides={{
           actionBar: () => {

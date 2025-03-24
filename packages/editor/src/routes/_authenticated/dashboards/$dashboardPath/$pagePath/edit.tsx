@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authenticated/dashboards/$dashboardPath/
 function RouteComponent() {
   // get the path param from /editor:/id with tanstack router
   const params = Route.useParams();
-  return <Dashboard dashboardPath={params.dashboardPath}>
+  return <Dashboard dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
     {/* <ColourTesting /> */}
     <Editor />
   </Dashboard>;

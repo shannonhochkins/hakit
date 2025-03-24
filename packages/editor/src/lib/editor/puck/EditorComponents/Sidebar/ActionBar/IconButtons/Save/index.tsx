@@ -1,22 +1,29 @@
-import { useLocalStorage } from '@editor/hooks/useLocalStorage';
-import { callApi } from '@editor/hooks/useApi';
 import { useCallback } from 'react';
 import { Save as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@editor/hooks/useGlobalStore';
+import { updateDashboardPageForUser } from '@client/src/lib/api/dashboard';
+import { useParams } from '@tanstack/react-router';
 
 export function Save() {
-  const [id] = useLocalStorage<string | null>('id', null);
-  const data = useGlobalStore(store => store.puckPageData);
-  const save = useCallback(async () => {
-    if (!id) {
-      return Promise.reject('No ID found');
-    }
-    return callApi('/api/page/configuration/save', {
-      data,
-      id,
+  const params = useParams({
+      from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
     });
-  }, [id, data]);
+  const data = useGlobalStore(store => store.unsavedPuckPageData);
+  const dashboard = useGlobalStore(store => store.dashboard);
+  const save = useCallback(async () => {
+    if (!dashboard) {
+      return Promise.reject('No dashboard found');
+    }
+    const page = dashboard.pages.find(page => page.path === params.pagePath);
+    if (!page) {
+      return Promise.reject(`No page found with path ${params.pagePath}`);
+    }
+    updateDashboardPageForUser(dashboard.id, {
+      id: page.id,
+      data
+    })
+  }, [params, dashboard, data]);
   return (
     <>
       <ProgressButton

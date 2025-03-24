@@ -43,6 +43,7 @@
       "name": "hakit-editor",
       "version": "1.0.0",
       "dependencies": {
+        "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
         "@hakit/components": "^5.0.9",

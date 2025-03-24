@@ -1,7 +1,7 @@
 import { useGlobalStore } from '@editor/hooks/useGlobalStore';
 import { AutoField } from '@measured/puck';
-import { useLocalStorage } from '@editor/hooks/useLocalStorage';
 import { useMemo } from 'react';
+import { useParams } from '@tanstack/react-router';
 
 interface NavigateFieldProps {
   value: string;
@@ -10,20 +10,23 @@ interface NavigateFieldProps {
 }
 
 export function NavigateField({ value, label, onChange }: NavigateFieldProps) {
-  const [id] = useLocalStorage<string | null>('id', null);
-  const puckPageData = useGlobalStore(store => store.puckPageData);
-  const dashboardItems = useMemo(() => puckPageData.root.dashboards ?? [], [puckPageData]);
+  const params = useParams({
+    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+  });
+  const { pagePath } = params;
+  const dashboard = useGlobalStore(store => store.dashboard);
+  const dashboardItems = useMemo(() => dashboard?.pages ?? [], [dashboard]);
   const options = useMemo(() => {
     return (
       dashboardItems
         // filter out the current dashboard from the list, no point linking to itself
-        .filter(item => item.id !== id)
+        .filter(item => item.path !== pagePath)
         .map(item => ({
           value: item.id,
-          label: item.title,
+          label: item.name,
         }))
     );
-  }, [dashboardItems, id]);
+  }, [dashboardItems, pagePath]);
 
   return (
     <AutoField

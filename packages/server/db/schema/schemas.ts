@@ -6,7 +6,10 @@ import { dashboardTable, pagesTable } from './db';
 
 export const puckObjectZodSchema = z.object({
   type: z.string(),
-  props: z.object({}).passthrough(),
+  props: z
+    .object({})
+    .passthrough()
+    .transform(({ breakpoint, ...rest }) => rest), // omit `breakpoint`,
 });
 
 export const puckDataZodSchema = z.object({

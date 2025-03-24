@@ -2,6 +2,8 @@ import { type UserConfig } from '@typings/puck';
 import { ComponentConfig, DefaultComponentProps } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
 import { createComponent, type ComponentFactoryData, type CustomComponentConfig } from './createComponent';
+import { CacheProvider, withEmotionCache } from '@emotion/react';
+import { useGlobalStore } from '@editor/hooks/useGlobalStore';
 
 interface ComponentModule {
   default: CustomComponentConfig<DefaultComponentProps>;
@@ -72,10 +74,23 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   if (!rootConfig) {
     throw new Error('No "Root" component found');
   }
+  const root = {
+    ...rootConfig,
+    render(props) {
+      const emotionCache = useGlobalStore(state => state.emotionCache);
+      if (!emotionCache) {
+        return <div>Loading emotion cache...</div>;
+      }
+      console.log('rendering rot', emotionCache)
+      return <CacheProvider value={emotionCache}>
+        {rootConfig?.render?.(props) ?? null}
+      </CacheProvider>
+    }
+  }
   const config: UserConfig = {
     components,
     categories,
-    root: rootConfig,
+    root,
   };
 
   return config;

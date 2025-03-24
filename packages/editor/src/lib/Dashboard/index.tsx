@@ -9,11 +9,13 @@ import { DynamicConfig } from './DynamicConfig';
 
 interface DashboardProps {
   dashboardPath: string;
+  pagePath?: string;
   children?: React.ReactNode;
 }
 
 export function Dashboard({
   dashboardPath,
+  pagePath,
   children
 }: DashboardProps) {
   // get the path param from /editor:/id with tanstack router
@@ -21,24 +23,19 @@ export function Dashboard({
   const setDashboard = useGlobalStore(store => store.setDashboard);
   const [hassUrl] = useLocalStorage<string | null>('hassUrl');
   const [hassToken] = useLocalStorage<string | undefined>('hassToken');
-  const [pageId, setPageId] = useLocalStorage<string | undefined>('pageId');
   const setPuckPageData = useGlobalStore(state => state.setPuckPageData);
 
   const dashboard = dashboardQuery.data;
-  const matchedPage = useMemo(() => dashboard?.pages.find(page => page.id === pageId), [dashboard, pageId]);
+  const matchedPage = useMemo(() => pagePath ?dashboard?.pages.find(page => page.path === pagePath): dashboard?.pages[0], [dashboard, pagePath]);
 
   useEffect(() => {
     if (dashboard && dashboard.pages.length) {
       setDashboard(dashboard);
-      if (!matchedPage) {
-        // if the stored ID in local storage doesn't match a page, 
-        // set the pageId to the first page in the dashboard
-        setPageId(dashboard.pages[0].id);
-      } else {
-        setPuckPageData(matchedPage?.data);
+      if (matchedPage) {
+        setPuckPageData(matchedPage.data);
       }
     }
-  }, [pageId, dashboard, matchedPage]);
+  }, [dashboard, matchedPage]);
 
 
   if (dashboardQuery.isLoading || !dashboard) {

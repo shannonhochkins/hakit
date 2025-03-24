@@ -2,7 +2,7 @@ import { Hono} from 'hono';
 import { db } from '../db';
 import { eq, and, sql } from 'drizzle-orm';
 import { pagesTable, dashboardTable } from "../db/schema/db";
-import { insertDashboardSchema, updateDashboardSchema } from "../db/schema/schemas";
+import { insertDashboardSchema, puckDataZodSchema, updateDashboardSchema } from "../db/schema/schemas";
 import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
@@ -224,6 +224,10 @@ function createDefaultPageConfiguration(): PuckPageData {
 //   return configurations;
 
 // }
+
+function sanitizePuckData(data: Json) {
+  return puckDataZodSchema.parse(data);
+}
 
 
 const dashboardRoute = new Hono()
@@ -491,14 +495,14 @@ const dashboardRoute = new Hono()
       }
       const [dashboard] = dashboards;
 
-      console.log('data', data, dashboard.id, pageId);
+      console.log('data', sanitizePuckData(data.data));
 
       const [pageRecord] = await db
         .update(pagesTable)
         .set({
           name: data.name,
           path: data.path,
-          data: data.data,
+          data: sanitizePuckData(data.data),
         })
         .where(
           and(
@@ -556,6 +560,7 @@ const dashboardRoute = new Hono()
           userId: user.id,
           name,
           path,
+          // TODO - Sanitize input data
           data,
         })
         .returning();
