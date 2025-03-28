@@ -21,7 +21,6 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
     }
   ]
 
-
   const host = init({
     name: '@hakit/editor',
     remotes: remotes,
@@ -39,12 +38,13 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
     // type guard to ensure we have the correct type when iterating modules
     if ('publicPath' in snapshot.remoteSnapshot) {
       for (const module of snapshot.remoteSnapshot.modules) {
-        const component = await loadRemote<ComponentModule>(`${remote.name}/${module.moduleName}`).then(loadedModule => {
-          if (!loadedModule) {
-            throw new Error(`No "${module.moduleName}" component found`);
-          }
-          return loadedModule.default;
-        });
+        const component = await loadRemote<ComponentModule>(`${remote.name}/${module.moduleName}`)
+          .then(loadedModule => {
+            if (!loadedModule) {
+              throw new Error(`No "${module.moduleName}" component found`);
+            }
+            return loadedModule.default;
+          });
           const componentFactory = await createComponent(component);
           const componentConfig = await componentFactory(data);
           if (componentConfig.label === 'Root') {
