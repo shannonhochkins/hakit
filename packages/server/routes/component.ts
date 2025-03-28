@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
 import t from '@babel/types';
-import { uploadFile } from '../helpers/gcloud-file';
 import { fromError } from 'zod-validation-error';
 import { componentsTable } from '../db/schema/db';
 import { v4 as uuidv4 } from 'uuid';
@@ -357,12 +356,13 @@ const componentRoute = new Hono()
       }
   
       // Upload the new file. This will create a new version in storage if using native versioning.
-      const objectKey = await uploadFile({
-        saveData: code,
-        suffix: `components/${parsed.label}`,
-        userId: user.id,
-        contentType: body.file.type,
-      });
+      // const objectKey = await uploadFile({
+      //   saveData: code,
+      //   suffix: `components/${parsed.label}`,
+      //   userId: user.id,
+      //   contentType: body.file.type,
+      // });
+      const objectKey = '';
       if (!objectKey) {
         throw new Error('Issue uploading file');
       }
@@ -407,12 +407,13 @@ const componentRoute = new Hono()
       const parsed = validateComponentCode(code, body.filename as string);
       // it's been validated, now we can "safely" upload the component, then store the reference to the object key 
       // in the database
-      const objectKey = await uploadFile({
-        saveData: code,
-        suffix: `components/${parsed.label}`,
-        userId: user.id,
-        contentType: 'application/javascript',
-      });
+      // const objectKey = await uploadFile({
+      //   saveData: code,
+      //   suffix: `components/${parsed.label}`,
+      //   userId: user.id,
+      //   contentType: 'application/javascript',
+      // });
+      const objectKey = '';
       if (!objectKey) {
         throw new Error('Failed to upload file.');
       }
@@ -512,12 +513,13 @@ const componentRoute = new Hono()
           }
 
           // upload the component, get the objectKey
-          const objectKey = await uploadFile({
-            saveData: componentCode,
-            suffix: `components/${parsed.label}`,
-            userId: user.id,
-            contentType: 'application/javascript',
-          });
+          // const objectKey = await uploadFile({
+          //   saveData: componentCode,
+          //   suffix: `components/${parsed.label}`,
+          //   userId: user.id,
+          //   contentType: 'application/javascript',
+          // });
+          const objectKey = '';
 
           if (!objectKey) {
             throw new Error('Failed to upload file');

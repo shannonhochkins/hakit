@@ -58,9 +58,10 @@ CREATE TABLE "themes" (
 --> statement-breakpoint
 ALTER TABLE "components" ADD CONSTRAINT "components_theme_id_themes_id_fk" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "dashboard" ADD CONSTRAINT "dashboard_theme_id_themes_id_fk" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "pages" ADD CONSTRAINT "pages_dashboard_id_dashboard_id_fk" FOREIGN KEY ("dashboard_id") REFERENCES "public"."dashboard"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "pages" ADD CONSTRAINT "pages_dashboard_id_dashboard_id_fk" FOREIGN KEY ("dashboard_id") REFERENCES "public"."dashboard"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "components_user_id_idx" ON "components" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "components_theme_id_idx" ON "components" USING btree ("theme_id");--> statement-breakpoint
+CREATE INDEX "dashboard_user_id_idx" ON "dashboard" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "dashboard_theme_id_idx" ON "dashboard" USING btree ("theme_id");--> statement-breakpoint
 CREATE INDEX "pages_dashboard_id_idx" ON "pages" USING btree ("dashboard_id");--> statement-breakpoint
 CREATE INDEX "themes_user_id_idx" ON "themes" USING btree ("user_id");

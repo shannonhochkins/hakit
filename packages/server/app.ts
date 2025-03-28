@@ -7,7 +7,7 @@ import { serveStatic } from "hono/bun";
 import dashboardRoute from "./routes/dashboard";
 import componentRoute from "./routes/component";
 import authRoute from "./routes/auth";
-import assetRoute from "./routes/asset";
+import uploadRoute from "./routes/upload";
 
 const app = new Hono();
 
@@ -18,7 +18,7 @@ const apiRoutes = app
   .basePath("/api")
   .route("/dashboard", dashboardRoute)
   .route("/component", componentRoute)
-  .route("/asset", assetRoute)
+  .route("/upload", uploadRoute)
   .route("/", authRoute);
 
 app.get("*", serveStatic({ root: "./packages/client/dist" }));

@@ -1,7 +1,7 @@
 import { Hono} from 'hono';
 import { getUser } from "../kinde";
 import { formatErrorResponse } from "../helpers/formatErrorResponse";
-import { uploadFile } from '../helpers/gcloud-file';
+import { uploadImage } from '../helpers/upload';
 
 const uploadRoute = new Hono()
   .post('/image', getUser, async (c) => {
@@ -15,23 +15,14 @@ const uploadRoute = new Hono()
       }
       const user = c.var.user;
       const file = body.file; // type File
-      const arrayBuffer = await file.arrayBuffer()
-      const dataAsUint8Array = new Uint8Array(arrayBuffer); 
 
-      console.log('file', file.type)
-
-      await uploadFile({
-        saveData: dataAsUint8Array,
-        userId: user.id,
-        contentType: file.type,
-        suffix: `assets/${body.filename}`,
-      })
+      const filePath = await uploadImage(user.id, file);
       return c.json({
         message: 'File uploaded successfully!',
-        filename: body.file,
+        filePath,
       }, 200);
     } catch (e) {
-      return c.json(formatErrorResponse('Upload Asset Error', e), 400);
+      return c.json(formatErrorResponse('Upload Image Error', e), 400);
     }
   });
 

@@ -36,6 +36,7 @@
     "@google-cloud/storage": "^7.15.2",
     "@hono/zod-validator": "^0.4.3",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
+    "@supabase/supabase-js": "^2.49.3",
     "deep-copy-ts": "^0.5.4",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",

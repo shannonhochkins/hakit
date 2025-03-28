@@ -4,6 +4,7 @@ import { ImageUp, X } from 'lucide-react';
 import { StyledIconButton } from '../../Sidebar/ActionBar/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@editor/puck/EditorComponents/Modal/confirm';
+import { uploadImage } from '@client/src/lib/api/upload';
 
 const FileInput = styled.input`
   position: absolute;
@@ -126,7 +127,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
     if (!value) {
       setFile(null);
     } else if ((!file && value) || (file && file.filename !== value)) {
-      const fileUrl = `/assets/${value}`;
+      const fileUrl = value;
       fetch(fileUrl)
         .then(response => {
           return response.blob();
@@ -172,27 +173,23 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
   const _onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    const reader = new FileReader();
-    const [userFile] = Array.from(e.target.files);
-    debugger;
-    if (userFile) {
-      setLoading(true);
-      reader.readAsDataURL(userFile);
-      const formData = new FormData();
-      formData.append('image', userFile);
-      // callApi('/api/upload/image', formData)
-      //   .then(response => {
-      //     onChange(response.filename);
-      //   })
-      //   .catch(e => {
-      //     console.error('Error:', e);
-      //     setError('Error uploading image');
-      //   })
-      //   .finally(() => {
-      //     // TODO - Loading state?
-      //     setLoading(false);
-      //   });
-    }
+    
+    setLoading(true);
+    uploadImage(e.target.files)
+      .then(response => {
+        if (response) {
+          onChange(response.filePath);
+        }
+      })
+      .catch(e => {
+        console.error('Error:', e);
+        setError('Error uploading image');
+      })
+      .finally(() => {
+        // TODO - Loading state?
+        setLoading(false);
+      });
+     
   };
 
   return (

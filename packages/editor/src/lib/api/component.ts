@@ -4,7 +4,7 @@ import { api, callApi } from './';
 
 export async function uploadComponent(files: FileList | null) {
   if (!files || files.length === 0) return;
-  const [componentFile] = files;
+  const componentFile = files[0];
   if (componentFile) {
       // Adjust path if you named it differently in your Hono routes
     return await callApi(api.component.upload.file.$post({

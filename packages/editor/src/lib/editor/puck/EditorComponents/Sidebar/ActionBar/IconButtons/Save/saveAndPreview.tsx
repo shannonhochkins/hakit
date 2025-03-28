@@ -36,9 +36,10 @@ export function SaveAndPreview() {
         onClick={() => {
           return save().then(() => {
             navigate({
-              to: '/preview/$dashboardPath',
+              to: '/dashboards/$dashboardPath/$pagePath',
               params: {
-                dashboardPath: dashboard.path,
+                dashboardPath: params.dashboardPath,
+                pagePath: params.pagePath
               }
             })
           });

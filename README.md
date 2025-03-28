@@ -25,9 +25,9 @@ This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) i
 - Need to attach IP address to access the DB, will be the server and any local IP needed
 
 
-## Drizzle DB
+## Subabase DB with Drizzle-kit ORM
 
-.env - DATABASE_URL= GET FROM GCLOUD
+.env - DATABASE_URL= GET FROM SUPABASE - Use Session pooler url:
 
 1. Generate sql files from schemas `bun drizzle-kit generate`
 2. Migrate the data to the gcp db table `bun run migrate.ts`
@@ -36,7 +36,7 @@ This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) i
 When adding new columns, run through all the steps again.
 
 ## Authentication
-We're using Kinde for authentication, environment variables needed from hakit.kinde.com/admin are:
+Using Kinde for authentication, environment variables needed from hakit.kinde.com/admin are:
 
 ```bash
 KINDE_DOMAIN=
@@ -45,13 +45,6 @@ KINDE_CLIENT_SECRET=
 KINDE_REDIRECT_URI=
 KINDE_LOGOUT_REDIRECT_URI=
 ```
-## dbml
-To preview the database modal, run `bun dbml` in the root directory.
-
-Install the vscode extension https://marketplace.visualstudio.com/items?itemName=nicolas-liger.dbml-viewer
-
-Open the schema.dbml and CMD + P, search for "DBML: Visualize"
-
 ## Cors
 When dealing with the gcloud bucket, cors may need to be updated with origins
 
