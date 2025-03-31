@@ -4,7 +4,7 @@ import { ImageUp, X } from 'lucide-react';
 import { StyledIconButton } from '../../Sidebar/ActionBar/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@editor/puck/EditorComponents/Modal/confirm';
-import { uploadImage } from '@client/src/lib/api/upload';
+import { deleteFile, uploadImage } from '@client/src/lib/api/upload';
 
 const FileInput = styled.input`
   position: absolute;
@@ -200,14 +200,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         onConfirm={() => {
           setConfirmDelete(false);
           setLoading(true);
-          // callApi('/api/remove/image', { filename: value })
-          //   .catch(e => {
-          //     console.error('Error:', e);
-          //     setError('Error removing image');
-          //   })
-          //   .finally(() => {
-          //     setLoading(false);
-          //   });
+          deleteFile(value);
           onChange('');
         }}
         onCancel={() => {

@@ -1,6 +1,7 @@
 import { ClientResponse, hc } from "hono/client";
 import { type ApiRoutes } from "@server/app";
 import { toast } from 'react-toastify';
+import { formatErrorResponse } from "@server/helpers/formatErrorResponse";
 
 const client = hc<ApiRoutes>("/");
 
@@ -23,6 +24,10 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
           const response = await res.json();
           if (response.error && response.message) {
             return reject(`${response.error}: ${response.message}`);
+          }
+          if (response.error && response.error.name === 'ZodError') {
+            const error = formatErrorResponse(response.error);
+            return reject(`${error.error}: ${error.message}`);
           }
           return reject('Invalid error structure');
         } catch (e) {

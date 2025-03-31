@@ -1,7 +1,9 @@
 import { Hono} from 'hono';
 import { getUser } from "../kinde";
 import { formatErrorResponse } from "../helpers/formatErrorResponse";
-import { uploadImage } from '../helpers/upload';
+import { deleteFile, uploadImage } from '../helpers/upload';
+import { zValidator } from '@hono/zod-validator';
+import { z } from 'zod';
 
 const uploadRoute = new Hono()
   .post('/image', getUser, async (c) => {
@@ -23,6 +25,19 @@ const uploadRoute = new Hono()
       }, 200);
     } catch (e) {
       return c.json(formatErrorResponse('Upload Image Error', e), 400);
+    }
+  })
+  .delete('/image', getUser, zValidator("json", z.object({
+    filePath: z.string(),
+  })), async (c) => {
+    try {
+      const { filePath } = c.req.valid('json');
+      await deleteFile(c.var.user.id, filePath);
+      return c.json({
+        message: 'File deleted successfully!',
+      }, 200);
+    } catch (e) {
+      return c.json(formatErrorResponse('Delete Image Error', e), 400);
     }
   });
 

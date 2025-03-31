@@ -7,7 +7,7 @@ function dashboardContentPrefix(userId: string, filename: string) {
   return join('dashboard-content', userId, filename);
 }
 
-async function getPublicUrl(suffix: string): Promise<string> {
+function getPublicUrl(suffix: string): string {
   const prefix = process.env.SUPABASE_BUCKET_PUBLIC_PREFIX!;
   const publicUrl = join(prefix, suffix);
   return publicUrl;
@@ -16,10 +16,9 @@ async function getPublicUrl(suffix: string): Promise<string> {
 // Upload file using standard upload
 async function uploadFile(file: File, filePath: string) {
   try {
-    console.log('filePath', filePath);
     const { data, error } = await supabase
       .storage
-      .from('hakit')
+      .from(process.env.SUPABASE_BUCKET_NAME!)
       .upload(filePath, file)
     if (error) {
       // Handle error
@@ -31,7 +30,35 @@ async function uploadFile(file: File, filePath: string) {
     console.error('Error uploading file:', e);
     throw e;
   }
-  
+}
+
+export async function deleteFile(userId: string, filePath: string) {
+  try {
+    const filePathSuffix = filePath.split(`/storage/v1/object/public/${process.env.SUPABASE_BUCKET_NAME!}/`).pop();
+    if (!filePathSuffix) {
+      throw new Error('Invalid file path');
+    }
+    if (!filePathSuffix.includes(userId)) {
+      throw new Error('File does not belong to user');
+    }
+    const asset = await supabase.storage.from(process.env.SUPABASE_BUCKET_NAME!).info(filePathSuffix);
+    if (!asset.data) {
+      throw new Error('File not found');
+    }
+    const { error } = await supabase
+      .storage
+      .from(process.env.SUPABASE_BUCKET_NAME!)
+      .remove([asset.data.name]);
+    if (error) {
+      // Handle error
+      throw new Error(error.message);
+    } else {
+      return { success: true };
+    }
+  } catch (e) {
+    console.error('Error deleting file:', e);
+    throw e;
+  }
 }
 
 export async function uploadImage(userId: string, file: File) {

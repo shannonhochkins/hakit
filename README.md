@@ -45,24 +45,3 @@ KINDE_CLIENT_SECRET=
 KINDE_REDIRECT_URI=
 KINDE_LOGOUT_REDIRECT_URI=
 ```
-## Cors
-When dealing with the gcloud bucket, cors may need to be updated with origins
-
-running with gcloud cli:
-
-```bash
-gcloud storage buckets update gs://BUCKET_NAME --cors-file=cors.json
-```
-
-Then create the `cors.json` file:
-
-```json
-[
-  {
-    "origin": ["http://localhost:5000", "ANYTHING ELSE"],
-    "method": ["GET"],
-    "responseHeader": ["Content-Type", "Authorization"],
-    "maxAgeSeconds": 3600
-  }
-]
-```

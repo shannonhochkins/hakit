@@ -14,3 +14,13 @@ export async function uploadImage(files: FileList | null) {
     throw new Error('No file provided or too many files provided');
   }
 }
+
+
+export async function deleteFile(filePath: string) {
+  // Adjust path if you named it differently in your Hono routes
+  return await callApi(api.upload.image.$delete({
+    json: {
+      filePath
+    }
+  }));
+}

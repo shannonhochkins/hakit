@@ -11,7 +11,7 @@ const Fab = styled.button<{
 }>`
   flex-shrink: 0;
   border-radius: 100%;
-  color: var(--ha-S500-contrast);
+  aspect-ratio: 1/1;
 `;
 
 const ModalContainer = styled.div`
