@@ -7,6 +7,7 @@ import type {
   AppState,
   WithId,
   WithPuckProps,
+  Fields,
 } from '@measured/puck';
 import { useEffect, useMemo } from 'react';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
@@ -26,7 +27,6 @@ import { DropZone } from '@measured/puck';
 // import { type SizeOptions, getSizeFields, resolveSizeFields } from '@lib/puck/EditorComponents/form/definitions/size';
 import { DeepPartial } from '@typings';
 import { merge } from 'ts-deepmerge';
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 
 type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly
@@ -66,6 +66,7 @@ export type ComponentFactoryData = {
   getAllEntities: () => HassEntities;
   getAllServices: () => Promise<HassServices | null>;
 };
+
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
@@ -110,12 +111,14 @@ export function createComponent<
       },
     };
     // attach internal breakpoint field
+    // @ts-expect-error - This is fine, internal factory can't determine the types
     transformedFields.breakpoint = breakpointField;
 
     return {
       ...config,
       defaultProps: newDefaultProps as ComponentConfig<P>['defaultProps'],
-      fields: Object.keys(fields).length === 0 ? {} : transformedFields,
+      // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
+      fields: Object.keys(fields).length === 0 ? {} as Fields<P> : transformedFields as Fields<P>,
       resolveFields: async (data, params) => {
         const activeBreakpoint = data.props.breakpoint ?? 'xlg';
         const newProps = merge.withOptions({
