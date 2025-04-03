@@ -10,7 +10,7 @@ describe('breakpoints', () => {
         id: {
           xlg: 'id-sm',
         },
-      };
+      } as const;
       expect(transformProps(input, 'xlg')).toEqual(input);
     });
 
@@ -22,7 +22,7 @@ describe('breakpoints', () => {
             xlg: 'column',
           },
         },
-      };
+      } as const;
       expect(transformProps(input, 'xlg')).toEqual({
         options: {
           direction: 'column',
@@ -37,7 +37,7 @@ describe('breakpoints', () => {
             xlg: 'column',
           },
         },
-      };
+      } as const;
       expect(transformProps(input, 'xxs')).toEqual({
         options: {
           direction: 'column',
@@ -58,7 +58,7 @@ describe('breakpoints', () => {
             xlg: 100,
           },
         },
-      };
+      } as const;
       expect(transformProps(input, 'xxs')).toEqual({
         options: {
           direction: 'row',
@@ -83,7 +83,7 @@ describe('breakpoints', () => {
             },
           },
         },
-      };
+      } as const;
       expect(transformProps(input, 'xlg')).toEqual({
         options: {
           direction: 'column',
@@ -112,7 +112,7 @@ describe('breakpoints', () => {
             },
           },
         ],
-      };
+      } as const;
       expect(transformProps(input, 'xlg')).toEqual({
         options: [
           {
@@ -135,7 +135,7 @@ describe('breakpoints', () => {
             direction: 'column',
           },
         ],
-      };
+      } as const;
       expect(transformProps(input, 'xlg')).toEqual({
         options: [
           {
@@ -158,21 +158,21 @@ describe('breakpoints', () => {
             xlg: 'column',
           },
         },
-      };
+      } as const;
       expect(multipleBreakpointsEnabled(input)).toBe(false);
     });
     test('should return true if multiple breakpoints are enabled', () => {
       const input = {
         sm: 100,
         xlg: 100,
-      };
+      } as const;
       expect(multipleBreakpointsEnabled(input)).toBe(true);
     });
 
     test('should return false if only one breakpoint is defined', () => {
       const input = {
         xlg: 100,
-      };
+      } as const;
       expect(multipleBreakpointsEnabled(input)).toBe(false);
     });
   });

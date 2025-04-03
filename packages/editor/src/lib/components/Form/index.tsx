@@ -154,23 +154,21 @@ export type CustomFields<
   E extends DefaultComponentProps = DefaultComponentProps,
 > =
   | ((
-      | TextField
-      | NumberField
-      | TextareaField
-      | SelectField
-      | RadioField
-      | NavigateField
-      | ServiceField
-      | ColorField
-      | CustomObjectField<Props, E>
-      | CustomArrayField<Props, E>
-      | ImageUploadField
-      | SliderField
-      | GridField
+      | (TextField & ExtendedFieldTypes & E)
+      | (NumberField & ExtendedFieldTypes & E)
+      | (TextareaField & ExtendedFieldTypes & E)
+      | (SelectField & ExtendedFieldTypes & E)
+      | (RadioField & ExtendedFieldTypes & E)
+      | (NavigateField & ExtendedFieldTypes & E)
+      | (ServiceField & ExtendedFieldTypes & E)
+      | (ColorField & ExtendedFieldTypes & E)
+      | (CustomObjectField<Props, E> & ExtendedFieldTypes & E)
+      | (CustomArrayField<Props, E> & ExtendedFieldTypes & E)
+      | (ImageUploadField & ExtendedFieldTypes & E)
+      | (SliderField & ExtendedFieldTypes & E)
+      | (GridField & ExtendedFieldTypes & E)
       | CustomField<Props, E>
-    ) &
-      ExtendedFieldTypes &
-      E)
+    ))
   | (HiddenField & E)
   | (EntityField & E);
 
@@ -235,9 +233,7 @@ const BREAKPOINT_LOGIC_DEFAULT_DISABLED = false;
  */
 export function createCustomField<Props extends DefaultComponentProps = DefaultComponentProps>(
   field: CustomFields<Props>
-): CustomField<Props> & {
-  _field: CustomFields<Props>;
-} {
+): CustomFieldsWithDefinition<Props> {
   const automaticDisableBreakpointsForTypes = ['object', 'array'];
   // default values for the field
   field.disableBreakpoints = automaticDisableBreakpointsForTypes.includes(field.type)
@@ -245,7 +241,7 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
     : (field.disableBreakpoints ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED);
   return {
     type: 'custom',
-    _field: field,
+    _field: field as CustomFieldsWithDefinition<Props>['_field'],
     render({ name, onChange: puckOnChange, value: puckValue, id }) {
       const _icon = field.icon ?? ICON_MAP[field.type];
 

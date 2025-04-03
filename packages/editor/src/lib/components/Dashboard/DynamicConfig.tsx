@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-import { getPuckConfiguration } from '@lib/puck/dynamic-puck-configuration';
+import { getPuckConfiguration } from './dynamic-puck-configuration';
 import { useHass } from '@hakit/core';
 
 
