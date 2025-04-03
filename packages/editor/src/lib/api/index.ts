@@ -15,7 +15,7 @@ type ToastMessages = {
   success?: string;
 }
 
-export async function callApi<T extends ClientResponse<unknown, number, "json">>(request: Promise<T>, toastMessages?: ToastMessages): Promise<ExtractSuccessData<T>> {
+export async function callApi<T extends ClientResponse<unknown, number, "json">>(request: Promise<T>, toastMessages?: ToastMessages | false): Promise<ExtractSuccessData<T>> {
   const promise = new Promise<ExtractSuccessData<T>>(async (resolve, reject) => {
     try {
       const res = await (request as Promise<Response>);
@@ -29,6 +29,7 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
             const error = formatErrorResponse(response.error);
             return reject(`${error.error}: ${error.message}`);
           }
+          console.log('Error response', response);
           return reject('Invalid error structure');
         } catch (e) {
           // generic error
@@ -45,6 +46,9 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
       reject(error);
     }
   });
+  if (toastMessages === false) {
+    return await promise;
+  }
   toast.promise(promise, {
     pending: toastMessages?.pending ? {
       render() {

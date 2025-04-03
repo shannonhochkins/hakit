@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Dashboard } from '@client/src/lib/Dashboard';
-import { Renderer } from '@editor/puck/Renderer';
+import { Dashboard } from '@lib/components/Dashboard';
+import { Renderer } from '@lib/components/Renderer';
 import { useEffect } from 'react';
-import { useGlobalStore } from '@editor/hooks/useGlobalStore';
+import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import createCache from '@emotion/cache';
 
 export const Route = createFileRoute(

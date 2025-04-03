@@ -22,7 +22,7 @@
       "*": ["./@mf-types/*"],
       "@typings": ["../../typings/index.ts"],
       "@typings/*": ["../../typings/*"],
-      "@editor/*": ["./src/lib/editor/*"],
+      "@lib/*": ["./src/lib/*"],
       "@client/*": ["./*"],
       "@server/*": ["../server/*"]
     }

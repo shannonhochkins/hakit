@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { api, callApi } from './';
 
 export async function getCurrentUser() {
-  return await callApi(api.me.$get());
+  return await callApi(api.me.$get(), false);
 }
 
 export const userQueryOptions = queryOptions({

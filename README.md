@@ -36,12 +36,15 @@ This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) i
 When adding new columns, run through all the steps again.
 
 ## Authentication
-Using Kinde for authentication, environment variables needed from hakit.kinde.com/admin are:
+Using Kinde for authentication locally, environment variables needed from hakit.kinde.com/admin are:
 
 ```bash
-KINDE_DOMAIN=
-KINDE_CLIENT_ID=
-KINDE_CLIENT_SECRET=
-KINDE_REDIRECT_URI=
-KINDE_LOGOUT_REDIRECT_URI=
+KINDE_DOMAIN=https://hakit.kinde.com
+KINDE_CLIENT_ID=<REDACTED>
+KINDE_CLIENT_SECRET=<REDACTED
+KINDE_REDIRECT_URI=http://localhost:3000/api/callback
+KINDE_LOGOUT_REDIRECT_URI=http://localhost:3000
 ```
+
+#### Kinde redirect urls
+May need to update the redirect urls in the application settings within the kinde dashboard if new domains are added. The redirect urls are used to redirect the user back to the application after authentication.
