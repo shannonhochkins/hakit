@@ -45,7 +45,7 @@ import { ImageUpload } from './Fields/Image';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
 
-type ExtendedFieldTypes = {
+type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
   icon?: ReactNode;
   readOnly?: boolean;
@@ -61,10 +61,12 @@ type ExtendedFieldTypes = {
     open?: boolean;
   };
   label: string;
+  /** used to determine if we want to show the current field either based on the current data or just a hard coded boolean value */
+  visible?: boolean | ((data: DataShape) => boolean);
 };
 
-type EntityField = BaseField &
-  Omit<ExtendedFieldTypes, 'default'> & {} & {
+type EntityField<DataShape = unknown> = BaseField &
+  Omit<ExtendedFieldTypes<DataShape>, 'default'> & {} & {
     type: 'entity';
     options: HassEntity[] | ((data: DefaultPropsCallbackData) => Promise<HassEntity[]> | HassEntity[]);
     default: (options: HassEntity[], data: DefaultPropsCallbackData) => Promise<string | undefined> | string | undefined;
@@ -107,29 +109,22 @@ type HiddenField = {
 type CustomObjectField<
   Props extends DefaultComponentProps = DefaultComponentProps,
   E extends DefaultComponentProps = DefaultComponentProps,
+  DataShape = unknown,
 > = Omit<ObjectField<Props>, 'objectFields'> & {
   objectFields: Props extends unknown[]
     ? never
     : {
-        [SubPropName in keyof Props]: CustomFields<Props[SubPropName], E>;
+        [SubPropName in keyof Props]: CustomFields<Props[SubPropName], E, DataShape>;
       };
 };
 
 type CustomArrayField<
   Props extends DefaultComponentProps = DefaultComponentProps,
   E extends DefaultComponentProps = DefaultComponentProps,
-> = Omit<
-  ArrayField<
-    Props extends {
-      [key: string]: any;
-    }
-      ? Props
-      : any
-  >,
-  'arrayFields'
-> & {
+  DataShape = unknown,
+> = Omit<ArrayField<Props extends { [key: string]: any } ? Props : any>, 'arrayFields'> & {
   arrayFields: {
-    [SubPropName in keyof Props[0]]: CustomFields<Props[0][SubPropName], E>;
+    [SubPropName in keyof Props[0]]: CustomFields<Props[0][SubPropName], E, DataShape>;
   };
 };
 
@@ -149,58 +144,59 @@ type CustomField<
     }) => React.ReactElement;
   };
 
-export type CustomFields<
+  export type CustomFields<
   Props extends DefaultComponentProps = DefaultComponentProps,
   E extends DefaultComponentProps = DefaultComponentProps,
+  DataShape = unknown,
 > =
   | ((
-      | (TextField & ExtendedFieldTypes & E)
-      | (NumberField & ExtendedFieldTypes & E)
-      | (TextareaField & ExtendedFieldTypes & E)
-      | (SelectField & ExtendedFieldTypes & E)
-      | (RadioField & ExtendedFieldTypes & E)
-      | (NavigateField & ExtendedFieldTypes & E)
-      | (ServiceField & ExtendedFieldTypes & E)
-      | (ColorField & ExtendedFieldTypes & E)
-      | (CustomObjectField<Props, E> & ExtendedFieldTypes & E)
-      | (CustomArrayField<Props, E> & ExtendedFieldTypes & E)
-      | (ImageUploadField & ExtendedFieldTypes & E)
-      | (SliderField & ExtendedFieldTypes & E)
-      | (GridField & ExtendedFieldTypes & E)
+      | (TextField & ExtendedFieldTypes<DataShape> & E)
+      | (NumberField & ExtendedFieldTypes<DataShape> & E)
+      | (TextareaField & ExtendedFieldTypes<DataShape> & E)
+      | (SelectField & ExtendedFieldTypes<DataShape> & E)
+      | (RadioField & ExtendedFieldTypes<DataShape> & E)
+      | (NavigateField & ExtendedFieldTypes<DataShape> & E)
+      | (ServiceField & ExtendedFieldTypes<DataShape> & E)
+      | (ColorField & ExtendedFieldTypes<DataShape> & E)
+      | (CustomObjectField<Props, E, DataShape> & ExtendedFieldTypes<DataShape> & E)
+      | (CustomArrayField<Props, E, DataShape> & ExtendedFieldTypes<DataShape> & E)
+      | (ImageUploadField & ExtendedFieldTypes<DataShape> & E)
+      | (SliderField & ExtendedFieldTypes<DataShape> & E)
+      | (GridField & ExtendedFieldTypes<DataShape> & E)
       | CustomField<Props, E>
     ))
   | (HiddenField & E)
-  | (EntityField & E);
+  | (EntityField<DataShape> & E);
 
-
-export type CustomFieldsWithDefinition<Props extends DefaultComponentProps> = CustomField<
+export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomField<
   Props,
   {
     _field: Props extends DefaultComponentProps[]
       ? {
           type: 'array';
           arrayFields: {
-            [SubPropName in keyof Props[0]]: CustomFields<Props[0][SubPropName], CustomFieldsWithDefinition<Props[0][SubPropName]>>;
+            [SubPropName in keyof Props[0]]: CustomFields<Props[0][SubPropName], CustomFieldsWithDefinition<Props[0][SubPropName], DataShape>, DataShape>;
           };
-        } & ExtendedFieldTypes
+        } & ExtendedFieldTypes<DataShape>
       : Props extends { [key: string]: any }
         ? {
             type: 'object';
             objectFields: {
-              [SubPropName in keyof Props]: CustomFields<Props[SubPropName], CustomFieldsWithDefinition<Props[SubPropName]>>;
+              [SubPropName in keyof Props]: CustomFields<Props[SubPropName], CustomFieldsWithDefinition<Props[SubPropName], DataShape>, DataShape>;
             };
-          } & ExtendedFieldTypes
-        : CustomFields<Props>;
+          } & ExtendedFieldTypes<DataShape>
+        : CustomFields<Props, {}, DataShape>;
   }
 >;
 
 export type CustomFieldsConfiguration<
   ComponentProps extends DefaultComponentProps = DefaultComponentProps,
   WithField extends boolean = false,
+  DataShape = unknown,
 > = {
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: WithField extends true
-    ? CustomFieldsWithDefinition<ComponentProps[PropName]>
-    : CustomFields<ComponentProps[PropName]>;
+    ? CustomFieldsWithDefinition<ComponentProps[PropName], DataShape>
+    : CustomFields<ComponentProps[PropName], {}, DataShape>;
 };
 
 type FieldTypes = CustomFields extends { type: infer T } ? T : never;

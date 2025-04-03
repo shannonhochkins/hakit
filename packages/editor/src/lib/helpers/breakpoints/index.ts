@@ -1,5 +1,5 @@
 import { type BreakPoint } from '@hakit/components';
-import { DefaultComponentProps } from '@measured/puck';
+import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { type CustomFields, type CustomFieldsConfiguration, type CustomFieldsWithDefinition } from '@lib/components/Form';
 import { createCustomField } from '@lib/components/Form';
 import { type UserConfig } from '@typings/puck';
@@ -127,7 +127,13 @@ export function wrapDefaults<T extends DefaultComponentProps = DefaultComponentP
       continue;
     }
 
-    const { disableBreakpoints, type } = field._field;
+    const { type } = field._field;
+
+    let disableBreakpoints = false;
+    // type guard for fields that don't support breakpoints (array/object)
+    if ('disableBreakpoints' in field._field && typeof field._field.disableBreakpoints === 'boolean') {
+      disableBreakpoints = field._field.disableBreakpoints;
+    }
 
     // If it's an object field with its own subfields:
     if (type === 'object' && field._field.objectFields && typeof value === 'object' && value !== null && !Array.isArray(value)) {
@@ -173,7 +179,7 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 }
 
-export function transformFields<P extends DefaultComponentProps>(fields: CustomFieldsConfiguration<P>): CustomFieldsConfiguration<P, true> {
+export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(fields: CustomFieldsConfiguration<P, false, DataShape>): CustomFieldsConfiguration<P, true> {
   const result = {} as CustomFieldsConfiguration<P, true>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
@@ -184,12 +190,14 @@ export function transformFields<P extends DefaultComponentProps>(fields: CustomF
     if (fieldDef.type === 'object' && fieldDef.objectFields) {
       // @ts-expect-error - Fix later
       fieldDef.objectFields = transformFields(fieldDef.objectFields);
+      // @ts-expect-error - Fix later
       result[fieldName] = createCustomField(fieldDef);
 
       // If it's an array field, recurse into arrayFields
     } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
       // @ts-expect-error - Fix later
       fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields);
+      // @ts-expect-error - Fix later
       result[fieldName] = createCustomField(fieldDef);
 
       // Otherwise it’s just a normal field, no further recursion
@@ -205,7 +213,7 @@ export function transformFields<P extends DefaultComponentProps>(fields: CustomF
  * Recursively gathers default values from fields definitions.
  */
 export async function getDefaultPropsFromFields<P extends DefaultComponentProps>(
-  fields: CustomFieldsConfiguration<P>,
+  fields: CustomFieldsConfiguration<P, false, Omit<ComponentData<P>, 'type'>>,
   data: DefaultPropsCallbackData
 ): Promise<P> {
   const result: DefaultComponentProps = {};

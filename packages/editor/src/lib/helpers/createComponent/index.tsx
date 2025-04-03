@@ -8,6 +8,7 @@ import type {
   WithId,
   WithPuckProps,
   Fields,
+  PuckContext,
 } from '@measured/puck';
 import { useEffect, useMemo } from 'react';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
@@ -43,7 +44,7 @@ export type CustomComponentConfig<
 > = Omit<ComponentConfig<Props, FieldProps, DataShape>, 'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label'> & {
   label: string;
   category: PuckCategories;
-  fields: CustomFieldsConfiguration<Props>;
+  fields: CustomFieldsConfiguration<Props, false, DataShape>;
   resolveFields?: (
     data: DeepPartial<DataShape>,
     params: {
@@ -56,8 +57,10 @@ export type CustomComponentConfig<
     }
   ) => Promise<CustomFieldsConfiguration<FieldProps, WithField>> | CustomFieldsConfiguration<FieldProps, WithField>;
   render: PuckComponent<
-  Props & {
+    Props & {
       activeBreakpoint?: string;
+      editorFrame?: HTMLIFrameElement;
+      dragRef: PuckContext['dragRef'];
     }
   >;
 };

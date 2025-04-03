@@ -211,7 +211,9 @@ describe('breakpoints', () => {
     });
 
     test('it should process default function for type entity', async () => {
-      const config: CustomComponentConfig<DefaultComponentProps> = {
+      const config: CustomComponentConfig<{
+        entity: string;
+      }> = {
         label: 'test',
         category: 'Misc',
         fields: {
@@ -219,6 +221,9 @@ describe('breakpoints', () => {
             type: 'entity',
             options(data) {
               return [data.entities['sun.sun']];
+            },
+            visible: (data) => {
+              return data.props.entity !== undefined;
             },
             disableBreakpoints: true,
             default(_options, { entities }) {
@@ -305,7 +310,9 @@ describe('breakpoints', () => {
     });
 
     test('it should transform default function back to translated value', async () => {
-      const config: CustomComponentConfig<DefaultComponentProps> = {
+      const config: CustomComponentConfig<{
+        entity: string;
+      }> = {
         label: 'test',
         category: 'Misc',
         fields: {
@@ -345,6 +352,7 @@ describe('breakpoints', () => {
       expect(defaultProps).toEqual({
         entity: 'sun.sun',
       });
+      // @ts-expect-error - this is fine, it's because of type guarding, entity in this context doesn't know which type of field it is
       expect(config.fields.entity.default).toEqual('sun.sun');
     });
 
