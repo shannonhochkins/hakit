@@ -44,6 +44,7 @@ import { GridField } from './Fields/Grid';
 import { ImageUpload } from './Fields/Image';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
+import { useTransformedUnsavedPuckData } from '@lib/hooks/useTransformedPuckData';
 
 type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
@@ -235,11 +236,20 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
   field.disableBreakpoints = automaticDisableBreakpointsForTypes.includes(field.type)
     ? true
     : (field.disableBreakpoints ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED);
+  const _field = field as CustomFieldsWithDefinition<Props>['_field'];
   return {
     type: 'custom',
-    _field: field as CustomFieldsWithDefinition<Props>['_field'],
+    _field,
     render({ name, onChange: puckOnChange, value: puckValue, id }) {
       const _icon = field.icon ?? ICON_MAP[field.type];
+      const puckData = useTransformedUnsavedPuckData();
+
+      const isVisible = useMemo(() => {
+        if (typeof _field.visible === 'function' && puckData?.content?.[0]?.props) {
+          return _field.visible(puckData.content[0].props);
+        }
+        return _field.visible ?? true;
+      }, [puckData, puckValue]);
 
       const valOrDefault = useMemo(
         () =>
@@ -283,6 +293,10 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
           puckOnChange(newValue, uiState);
         }
       };
+
+      if (!isVisible) {
+        return <></>;
+      }
 
       if (field.type === 'hidden') {
         return <input type='hidden' value={value as unknown as string} />;

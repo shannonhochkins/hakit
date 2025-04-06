@@ -44,7 +44,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
       default: {},
       label: 'Options',
       visible(data) {
-        return data.props.options.hideClock === true
+        return data.options.hideClock === true
       },
       description: 'General options for the navigation bar',
       collapsible: {
@@ -91,6 +91,10 @@ const definition: CustomComponentConfig<NavigationProps> = {
             { label: 'No', value: false },
           ],
           default: true,
+          visible(data) {
+            console.log('data', data);
+            return true;
+          },
         },
         timeEntity: {
           type: 'entity',
@@ -127,7 +131,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
           ],
           default: true,
           visible(data) {
-            const hideTime = data.props
+            const hideTime = data.clockOptions.hideTime ?? false;
             return !hideTime;
 
           }

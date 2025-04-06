@@ -213,7 +213,7 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
  * Recursively gathers default values from fields definitions.
  */
 export async function getDefaultPropsFromFields<P extends DefaultComponentProps>(
-  fields: CustomFieldsConfiguration<P, false, Omit<ComponentData<P>, 'type'>>,
+  fields: CustomFieldsConfiguration<P, false, Omit<ComponentData<P>, 'type'>['props']>,
   data: DefaultPropsCallbackData
 ): Promise<P> {
   const result: DefaultComponentProps = {};

@@ -44,7 +44,7 @@ export type CustomComponentConfig<
 > = Omit<ComponentConfig<Props, FieldProps, DataShape>, 'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label'> & {
   label: string;
   category: PuckCategories;
-  fields: CustomFieldsConfiguration<Props, false, DataShape>;
+  fields: CustomFieldsConfiguration<Props, false, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   resolveFields?: (
     data: DeepPartial<DataShape>,
     params: {
