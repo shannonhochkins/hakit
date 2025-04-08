@@ -45,6 +45,7 @@ export function Editor() {
   if (!puckPageData) {
     return <div>Loading puck page data</div>;
   }
+  console.log('re rendering editor');
 
   return (
     <div

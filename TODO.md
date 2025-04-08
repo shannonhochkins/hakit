@@ -31,3 +31,5 @@ Figure out why when navigation component is added by itself, why it doesn't upda
 
 ## Fields
 - visible - Types all setup for the visible function, implementation is missing, added visible function to the external component, but now need to actually implement it
+
+## Remove react-select - swap for mui, we're doing it, mui for forms.....

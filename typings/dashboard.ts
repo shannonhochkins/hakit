@@ -1,4 +1,5 @@
 import type { PuckPageData } from "./puck";
+import type { BreakpointItem } from "./breakpoints";
 
 export type DashboardPageWithoutData = {
     id: string;
@@ -14,6 +15,7 @@ interface Dashboard {
     path: string;
     themeId?: string;
     data: PuckPageData;
+    breakpoints: BreakpointItem[];
 }
 
 export type DashboardWithPageData = Dashboard & {

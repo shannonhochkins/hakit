@@ -14,6 +14,8 @@ export const dashboardTable = pgTable("dashboard", {
   userId: varchar("user_id", { length: 50 }).notNull(),
   // Optionally link a theme to a dashboard
   themeId: uuid("theme_id").references(() => themesTable.id),
+  // breakpoints for the dashboard as json
+  breakpoints: jsonb("breakpoints").notNull().default({}),
   // any data to store against the dashboard, basically global settings
   data: jsonb("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })

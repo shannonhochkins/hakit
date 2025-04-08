@@ -1,9 +1,9 @@
-import { type BreakPoint } from '@hakit/components';
+import { type BreakPoint, type BreakPoints } from '@hakit/components';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { type CustomFields, type CustomFieldsConfiguration, type CustomFieldsWithDefinition } from '@lib/components/Form';
 import { createCustomField } from '@lib/components/Form';
-import { type UserConfig } from '@typings/puck';
 import { DefaultPropsCallbackData } from '@typings';
+import { BreakpointItem } from '@typings/breakpoints';
 // import { DefaultPropsCallbackData } from '@typings';
 
 // Adjust or confirm your actual ordering:
@@ -207,6 +207,18 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
     }
   }
   return result;
+}
+
+export function breakpointItemToBreakPoints(breakpoints: BreakpointItem[]): BreakPoints {
+  return breakpoints
+  .filter(breakpoint => !breakpoint.disabled)
+  .reduce(
+    (acc, breakpoint) => ({
+      ...acc,
+      [breakpoint.id]: breakpoint.width,
+    }),
+    {} as BreakPoints
+  );
 }
 
 /**

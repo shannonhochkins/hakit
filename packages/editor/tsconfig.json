@@ -27,5 +27,5 @@
       "@server/*": ["../server/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../../typings/breakpoints.ts"]
 }

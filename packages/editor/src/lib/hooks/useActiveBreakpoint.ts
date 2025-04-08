@@ -1,4 +1,5 @@
 import { useBreakpoint, type BreakPoint } from '@hakit/components';
+import { useMemo } from 'react';
 
 type BreakPointMap = Record<BreakPoint, boolean>;
 
@@ -11,7 +12,7 @@ function getActiveBreakpoint(breakpoints: BreakPointMap): BreakPoint | undefined
 
 export function useActiveBreakpoint() {
   const breakpoints = useBreakpoint();
-  const activeBreakpoint = getActiveBreakpoint(breakpoints) ?? 'xlg';
   // 2. If no active breakpoint is found, we might default to `xlg`:
-  return activeBreakpoint ?? 'xlg';
+  const activeBreakpoint = useMemo(() => getActiveBreakpoint(breakpoints) ?? 'xlg', [breakpoints]);
+  return activeBreakpoint;
 }

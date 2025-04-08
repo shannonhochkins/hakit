@@ -3,9 +3,13 @@ import type { PuckPageData, UserConfig } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
 import type { DashboardWithoutPageData } from "@typings/dashboard";
 import { EmotionCache } from '@emotion/react';
+import { DEFAULT_BREAKPOINTS } from '@lib/constants';
+import { BreakpointItem } from '@typings/breakpoints';
 
 
 type PuckConfigurationStore = {
+  breakpointItems: BreakpointItem[];
+  setBreakPointItems: (breakpointItems: BreakpointItem[]) => void;
   emotionCache: EmotionCache | null;
   setEmotionCache: (emotionCache: EmotionCache | null) => void;
   userConfig: UserConfig | null;
@@ -22,6 +26,8 @@ type PuckConfigurationStore = {
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>(set => ({
+  breakpointItems: DEFAULT_BREAKPOINTS,
+  setBreakPointItems: (breakpointItems: BreakpointItem[]) => set(state => ({ ...state, breakpointItems })),
   emotionCache: null,
   setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
   userConfig: null,

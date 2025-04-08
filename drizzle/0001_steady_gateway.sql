@@ -1,0 +1,1 @@
+ALTER TABLE "dashboard" ADD COLUMN "breakpoints" jsonb DEFAULT '{}'::jsonb NOT NULL;

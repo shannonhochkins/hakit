@@ -130,6 +130,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--puck-font-family);
+  letter-spacing: 0.2px;
+  font-weight: 300;
   color: var(--puck-color-grey-02);
 }
 

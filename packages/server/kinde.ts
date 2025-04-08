@@ -7,6 +7,7 @@ import {
 import { type Context } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
+import type { CookieOptions } from "hono/utils/cookie";
 import { z } from "zod";
 
 const KindeEnv = z.object({
@@ -32,18 +33,17 @@ export const kindeClient = createKindeServerClient(
   }
 );
 
-let store: Record<string, unknown> = {};
-
 export const sessionManager = (c: Context): SessionManager => ({
   async getSessionItem(key: string) {
     const result = getCookie(c, key);
     return result;
   },
   async setSessionItem(key: string, value: unknown) {
-    const cookieOptions = {
+    const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: true,
       sameSite: "Lax",
+      maxAge: 60 * 60 * 24 * 365
     } as const;
     if (typeof value === "string") {
       setCookie(c, key, value, cookieOptions);

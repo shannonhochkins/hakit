@@ -12,6 +12,9 @@ const Fab = styled.button<{
   flex-shrink: 0;
   border-radius: 100%;
   aspect-ratio: 1/1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
 `;
 
 const ModalContainer = styled.div`
@@ -22,6 +25,7 @@ const ModalContainer = styled.div`
   left: 50%;
   display: flex;
   width: var(--modal-width);
+  font-weight: 300;
   max-width: 95%;
   transform: translate3d(-50%, -50%, 0);
   color: var(--puck-color-grey-02);
@@ -32,7 +36,7 @@ const ModalContainer = styled.div`
   flex-direction: row;
   align-items: stretch;
   justify-content: space-between;
-  background-color: var(--puck-color-grey-10);
+  background-color: var(--puck-color-grey-07);
   z-index: calc(var(--ha-modal-z-index, 10) + 1);
   box-shadow: 0px 0px 10px hsla(220, calc(100% * 0.8), 3%, 0.6);
 `;
@@ -77,6 +81,7 @@ const Title = styled.h4`
 
 const Description = styled.h4`
   margin: 0;
+  font-weight: 400;
   font-size: 0.9rem;
   color: var(--puck-color-grey-023);
 `;
@@ -90,7 +95,7 @@ const ModalBackdrop = styled.div`
   cursor: pointer;
   background: rgba(0, 0, 0, 0.3);
   z-index: var(--ha-modal-z-index, 10);
-  /* backdrop-filter: blur(2em) brightness(0.75); */
+  backdrop-filter: blur(0.25em) brightness(0.75);
 `;
 
 /** animation variant controls for the modal container */

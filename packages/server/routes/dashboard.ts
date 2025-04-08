@@ -244,6 +244,7 @@ const dashboardRoute = new Hono()
           name: dashboardTable.name,
           path: dashboardTable.path,
           data: dashboardTable.data,
+          breakpoints: dashboardTable.breakpoints,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -281,6 +282,7 @@ const dashboardRoute = new Hono()
           name: dashboardTable.name,
           path: dashboardTable.path,
           data: dashboardTable.data,
+          breakpoints: dashboardTable.breakpoints,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
