@@ -1,5 +1,5 @@
 import { Row } from '@hakit/components';
-import { Modal } from '.';
+import { Modal } from './Modal';
 import styled from '@emotion/styled';
 import { Button } from '@measured/puck';
 

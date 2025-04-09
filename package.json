@@ -50,7 +50,6 @@
     "postgres": "^3.4.5",
     "react-best-gradient-color-picker": "^3.0.14",
     "react-scan": "^0.3.3",
-    "react-select": "^5.10.1",
     "react-toastify": "^11.0.5",
     "react-use": "^17.6.0",
     "ts-deepmerge": "^7.0.2",

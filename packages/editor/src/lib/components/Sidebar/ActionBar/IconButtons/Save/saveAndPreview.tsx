@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { SquareArrowOutUpRight as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-import { updateDashboardPageForUser } from '@client/src/lib/api/dashboard';
+import { updateDashboardPageForUser, updateDashboardForUser } from '@client/src/lib/api/dashboard';
 import { useNavigate, useParams } from '@tanstack/react-router';
 
 export function SaveAndPreview() {
@@ -11,6 +11,7 @@ export function SaveAndPreview() {
     from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
   });
   const data = useGlobalStore(store => store.unsavedPuckPageData);
+  const breakpointItems = useGlobalStore(store => store.breakpointItems);
   const dashboard = useGlobalStore(store => store.dashboard);
   const save = useCallback(async () => {
     if (!dashboard) {
@@ -22,9 +23,13 @@ export function SaveAndPreview() {
     }
     updateDashboardPageForUser(dashboard.id, {
       id: page.id,
-      data
+      data,
     });
-  }, [params, dashboard, data]);
+    updateDashboardForUser({
+      ...dashboard,
+      breakpoints: breakpointItems,
+    });
+  }, [params, dashboard, data, breakpointItems]);
 
   if (!dashboard) {
     return null;

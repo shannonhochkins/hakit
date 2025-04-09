@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Save as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-import { updateDashboardPageForUser } from '@client/src/lib/api/dashboard';
+import { updateDashboardPageForUser, updateDashboardForUser } from '@client/src/lib/api/dashboard';
 import { useParams } from '@tanstack/react-router';
 
 export function Save() {
@@ -11,6 +11,7 @@ export function Save() {
     });
   const data = useGlobalStore(store => store.unsavedPuckPageData);
   const dashboard = useGlobalStore(store => store.dashboard);
+  const breakpointItems = useGlobalStore(store => store.breakpointItems);
   const save = useCallback(async () => {
     if (!dashboard) {
       return Promise.reject('No dashboard found');
@@ -22,7 +23,11 @@ export function Save() {
     updateDashboardPageForUser(dashboard.id, {
       id: page.id,
       data
-    })
+    });
+    updateDashboardForUser({
+      ...dashboard,
+      breakpoints: breakpointItems,
+    });
   }, [params, dashboard, data]);
   return (
     <>

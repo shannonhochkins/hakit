@@ -35,6 +35,9 @@ const StyledTextField = styled(TextField)`
         color: var(--puck-color-grey-04);
         -webkit-text-fill-color: var(--puck-color-grey-04);
       }
+      div:has(>svg) {
+        color: var(--puck-color-grey-04);;
+      }
     }
   }
   &.read-only {
@@ -53,6 +56,11 @@ const StyledTextField = styled(TextField)`
         color: var(--puck-color-grey-04);
         -webkit-text-fill-color: var(--puck-color-grey-04);
       }
+    }
+  }
+  &.hide-value {
+    .MuiInputBase-input {
+      opacity: 0;
     }
   }
 `;

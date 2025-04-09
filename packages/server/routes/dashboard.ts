@@ -534,6 +534,7 @@ const dashboardRoute = new Hono()
           path: data.path,
           data: data.data,
           themeId: data.themeId,
+          breakpoints: data.breakpoints,
         })
         .where(
           and(

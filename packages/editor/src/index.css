@@ -20,3 +20,7 @@ body body {
   overflow-y: initial;
   max-height: initial;
 }
+
+.MuiPaper-root.MuiPopover-paper.MuiMenu-paper {
+  background: var(--puck-color-grey-06);
+}

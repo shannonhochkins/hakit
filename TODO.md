@@ -32,4 +32,8 @@ Figure out why when navigation component is added by itself, why it doesn't upda
 ## Fields
 - visible - Types all setup for the visible function, implementation is missing, added visible function to the external component, but now need to actually implement it
 
-## Remove react-select - swap for mui, we're doing it, mui for forms.....
+## Breakpoints
+- Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error
+- Display breakpoint titles in the fields somehow without displaying too long values
+- Hide breakpoint functionality if only one breakpoint is defined/enabled
+- test the shit out of this logic

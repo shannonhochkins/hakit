@@ -1,87 +1,55 @@
-import Select, { Props as SelectProps } from "react-select";
+import { MenuItem, type MenuItemProps, Select as MuiSelect, SelectProps } from '@mui/material';
 import styled from '@emotion/styled';
+import React from 'react';
 
-// Generic wrapper type to support automatic inference
-type SelectFieldProps<Option = unknown, IsMulti extends boolean = false> = SelectProps<Option, IsMulti> & {
-  inline?: boolean;
-};
-
-const StyledSelect = styled(Select)`
-  &.react-select--inline {
-    display: inline-block;
-    margin: 0 0.25em;
+const StyledMenuItem = styled(MenuItem)`
+  background: var(--puck-color-grey-06);
+  color: var(--puck-color-grey-02);
+  &:hover, &:focus, &:active {
+    background: var(--puck-color-grey-05);
+    color: var(--puck-color-grey-02);
   }
-
-  /* Remove border, outline, box-shadow, and min-height values */
-  &.react-select--inline .react-select__control {
-    border: none;
-    outline: none;
-    box-shadow: none;
-    min-height: 0;
-    cursor: pointer;
-    background: transparent;
+  &.Mui-selected {
+    background: var(--puck-color-azure-06);
+    color: var(--puck-color-grey-01);
+    &:hover, &:focus, &:active {
+      background: var(--puck-color-azure-06);
+      color: var(--puck-color-grey-01);
+    }
   }
+`
 
-  /* Tighten up spacing */
-  &.react-select--inline .react-select__value-container {
-    padding: 0;
-  }
-
-  /* Position value relative (instead of absolute) and remove transform and max-width */
-  &.react-select--inline .react-select__single-value {
-    font-weight: inherit;
-    position: relative;
-    transform: none;
-    max-width: none;
+const StyledSelect = styled(MuiSelect)`
+  color: currentColor;
+  svg {
     color: currentColor;
   }
+` as unknown as typeof MuiSelect;
 
-  /* CSS triangle dropdown indicator next to selected value */
-  &.react-select--inline .react-select__single-value::after {
-    content: " ";
-    position: relative;
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 5px 4px 0 4px;
-    border-color: currentColor transparent transparent transparent;
-
-    margin-left: 0.25em;
-    top: -0.125em;
-  }
-
-  &.react-select--inline .react-select__menu {
-    background: var(--puck-color-grey-12);
-    min-width: 150px;
-  }
-  .react-select__option {
-    background: var(--puck-color-grey-06);
-    color: var(--puck-color-grey-02);
-    cursor: pointer;
-    &:hover, &:focus, &:active {
-      background: var(--puck-color-grey-05);
-      color: var(--puck-color-grey-01);
-    }
-    &--is-selected {
-      background: var(--puck-color-grey-05);
-      color: var(--puck-color-grey-01);
-    }
-  }
-`;
-
-export const SelectField = <Option = unknown, IsMulti extends boolean = false>(props: SelectFieldProps<Option, IsMulti>) => {
-
+export const SelectField = <Option extends unknown>({
+  getOptionValue,
+  getOptionLabel,
+  onChange,
+  value,
+  options,
+  ...props
+}: Omit<SelectProps<Option>, 'value'> & {
+  value: Option;
+  options: Option[];
+  getOptionValue: (option: Option) => MenuItemProps['value'];
+  getOptionLabel: (option: Option) => React.ReactNode;
+}) => {
   return (
     <StyledSelect
-      classNamePrefix="react-select"
-      className={`react-select--${props.inline ? 'inline' : 'block'}`}
-      components={{
-        // @ts-expect-error - fix later
-        IndicatorsContainer: () => null,
-      }}
-      isSearchable={false}
+      onChange={onChange}
+      value={value}
       {...props}
-    />
+    >
+      {options.map((option, index) => (
+        <StyledMenuItem key={index} value={option as string} selected>
+          {getOptionLabel(option)}
+        </StyledMenuItem>
+      ))}
+    </StyledSelect>
   );
 };

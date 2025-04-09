@@ -90,6 +90,7 @@ export async function updateDashboardForUser(dashboard: Omit<DashboardWithPageDa
       path: dashboard.path,
       data: dashboard.data,
       themeId: dashboard.themeId,
+      breakpoints: dashboard.breakpoints,
     }
   });
   const res = await callApi(req);

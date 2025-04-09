@@ -30,4 +30,5 @@ export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
   path: true,
   data: true,
   themeId: true,
+  breakpoints: true,
 })
