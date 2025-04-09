@@ -45,7 +45,6 @@ export function Editor() {
   if (!puckPageData) {
     return <div>Loading puck page data</div>;
   }
-  console.log('re rendering editor');
 
   return (
     <div
@@ -56,7 +55,6 @@ export function Editor() {
     >
       <Puck
         onChange={data => {
-          console.log('data', data);
           setUnsavedPuckPageData(data);
         }}
         // onAction={action => {
@@ -69,9 +67,9 @@ export function Editor() {
           waitForStyles: true,
         }}
         overrides={{
-          actionBar: () => {
-            return <></>;
-          },
+          // actionBar: () => {
+          //   return <></>;
+          // },
         }}
         config={userConfig}
         data={puckPageData}

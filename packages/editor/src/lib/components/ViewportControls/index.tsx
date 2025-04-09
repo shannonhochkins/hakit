@@ -120,12 +120,6 @@ export const ViewportControls = () => {
       return {};
     }
   }, [controlledBreakpointItems]);
-  console.log('activeViewport', {
-    breakpointItems,
-    value,
-    activeViewport,
-    queries
-  });
 
   if (!value) {
     return null;
@@ -135,7 +129,7 @@ export const ViewportControls = () => {
     <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' fullWidth wrap='nowrap'>
       Previewing:
       <SelectField
-        defaultValue={value}
+        value={value}
         options={options}
         getOptionLabel={(option) => option.title}
         getOptionValue={(option) => `${option.width}`}

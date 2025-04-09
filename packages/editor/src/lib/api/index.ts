@@ -29,7 +29,6 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
             const error = formatErrorResponse(response.error);
             return reject(`${error.error}: ${error.message}`);
           }
-          console.log('Error response', response);
           return reject('Invalid error structure');
         } catch (e) {
           // generic error

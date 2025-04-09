@@ -496,9 +496,6 @@ const dashboardRoute = new Hono()
         throw new Error(`Dashboard not found with id ${id}`);
       }
       const [dashboard] = dashboards;
-
-      console.log('data', sanitizePuckData(data.data));
-
       const [pageRecord] = await db
         .update(pagesTable)
         .set({

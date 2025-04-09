@@ -14,6 +14,7 @@ import {
   type ArrayField,
   type UiState,
   type CustomField as PuckCustomField,
+  usePuck,
 } from '@measured/puck';
 import { FieldWrapper } from './FieldWrapper';
 import { ReactNode } from 'react';
@@ -31,7 +32,7 @@ import {
   TableCellsSplit,
   ImagePlus,
 } from 'lucide-react';
-import { getResolvedBreakpointValue, multipleBreakpointsEnabled } from '@lib/helpers/breakpoints';
+import { transformProps, getResolvedBreakpointValue, multipleBreakpointsEnabled } from '@lib/helpers/breakpoints';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
 import { AvailableQueries } from '@hakit/components';
 // custom fields
@@ -242,14 +243,19 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
     _field,
     render({ name, onChange: puckOnChange, value: puckValue, id }) {
       const _icon = field.icon ?? ICON_MAP[field.type];
-      const puckData = useTransformedUnsavedPuckData();
+      const { selectedItem, appState } = usePuck();
+      // fine to use hooks here, eslint just doesn't know it's a component render, with a wrapping component it may cause more renders than necessary
+      const activeBreakpoint = useActiveBreakpoint();
 
       const isVisible = useMemo(() => {
-        if (typeof _field.visible === 'function' && puckData?.content?.[0]?.props) {
-          return _field.visible(puckData.content[0].props);
+        if (typeof _field.visible === 'function') {
+          // If there's no expected selectedItem, we can assume the root options should be shown
+          const visibleData = selectedItem ? transformProps(selectedItem.props, activeBreakpoint) : appState.data.root?.props ? transformProps(appState.data.root.props, activeBreakpoint) : null;
+          if (!visibleData) return;
+          return _field.visible(visibleData);
         }
         return _field.visible ?? true;
-      }, [puckData, puckValue]);
+      }, [appState.data.root, puckValue, selectedItem, activeBreakpoint]);
 
       const valOrDefault = useMemo(
         () =>
@@ -263,8 +269,7 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
       );
 
       const [breakpointMode, setBreakpointMode] = useState(multipleBreakpointsEnabled(valOrDefault));
-      // fine to use hooks here, eslint just doesn't know it's a component render, with a wrapping component it may cause more renders than necessary
-      const activeBreakpoint = useActiveBreakpoint();
+      
       // intentionally using any here as the value will be unknown in this context
       // and we can't use unknown as the value properties expect the shape type of the CustomField
       const value = field.disableBreakpoints ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);

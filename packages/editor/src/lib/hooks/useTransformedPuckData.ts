@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
-import { transformProps } from '../helpers/breakpoints';
+import { transformProps } from '@lib/helpers/breakpoints';
 import { PuckPageData } from '@typings/puck';
 
 export function useTransformedPuckData() {

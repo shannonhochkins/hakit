@@ -15,6 +15,7 @@ const Fab = styled.button<{
   align-items: center;
   justify-content: center;
   display: flex;
+  cursor: pointer;
 `;
 
 const ModalContainer = styled.div`

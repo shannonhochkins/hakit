@@ -115,7 +115,6 @@ function RouteComponent() {
       data,
     });
     dashboardsQuery.refetch();
-    console.log('new config', config);
   }, []);
 
   if (dashboardsQuery.isLoading || !dashboards) {

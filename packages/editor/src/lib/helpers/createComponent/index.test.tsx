@@ -92,7 +92,6 @@ const definition: CustomComponentConfig<NavigationProps> = {
           ],
           default: true,
           visible(data) {
-            console.log('data', data);
             return true;
           },
         },
