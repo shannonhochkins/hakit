@@ -43,9 +43,9 @@ import { Service } from './Fields/Service';
 import { Navigate } from './Fields/Navigate';
 import { GridField } from './Fields/Grid';
 import { ImageUpload } from './Fields/Image';
+import { InputField } from './Fields/Input';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
-import { useTransformedUnsavedPuckData } from '@lib/hooks/useTransformedPuckData';
 
 type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
@@ -242,7 +242,7 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
     type: 'custom',
     _field,
     render({ name, onChange: puckOnChange, value: puckValue, id }) {
-      const _icon = field.icon ?? ICON_MAP[field.type];
+      const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], []);
       const { selectedItem, appState } = usePuck();
       // fine to use hooks here, eslint just doesn't know it's a component render, with a wrapping component it may cause more renders than necessary
       const activeBreakpoint = useActiveBreakpoint();
@@ -257,14 +257,17 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
         return _field.visible ?? true;
       }, [appState.data.root, puckValue, selectedItem, activeBreakpoint]);
 
+
       const valOrDefault = useMemo(
-        () =>
-          puckValue ??
+        () => {
+          console.log('puckValue', puckValue);
+          return puckValue ??
           (field.disableBreakpoints
             ? field.default
             : {
                 xlg: field.default,
-              }),
+              })
+        },
         [puckValue]
       );
 
@@ -272,7 +275,9 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
       
       // intentionally using any here as the value will be unknown in this context
       // and we can't use unknown as the value properties expect the shape type of the CustomField
-      const value = field.disableBreakpoints ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);
+      const value = useMemo(() => {
+        return field.disableBreakpoints ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);
+      }, [valOrDefault, activeBreakpoint]);
       const commonAutoFieldProps = {
         name,
         id: field.id,
@@ -307,7 +312,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
         return <input type='hidden' value={value as unknown as string} />;
       }
 
-      // TODO - This is re-rendering when the sidebar is resizing, need to figure out why
       return (
         <FieldWrapper
           key={id}
