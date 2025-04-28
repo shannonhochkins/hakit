@@ -1,9 +1,12 @@
-import { ActionBar, ComponentConfig, usePuck } from '@measured/puck';
+import { ActionBar, ComponentConfig, createUsePuck } from '@measured/puck';
 import { useCallback } from 'react';
 import { Copy, Trash } from 'lucide-react';
 
+const usePuck = createUsePuck();
+
 export function Actions(permissions: ComponentConfig['permissions']) {
-  const { dispatch, appState } = usePuck();
+  const appState = usePuck(c => c.appState);
+  const dispatch = usePuck(c => c.dispatch);
   const { index, zone } = appState.ui.itemSelector ?? {};
 
   const onDelete = useCallback(() => {

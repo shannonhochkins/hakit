@@ -14,7 +14,7 @@ import {
   type ArrayField,
   type UiState,
   type CustomField as PuckCustomField,
-  usePuck,
+  createUsePuck,
 } from '@measured/puck';
 import { FieldWrapper } from './FieldWrapper';
 import { ReactNode } from 'react';
@@ -43,7 +43,6 @@ import { Service } from './Fields/Service';
 import { Navigate } from './Fields/Navigate';
 import { GridField } from './Fields/Grid';
 import { ImageUpload } from './Fields/Image';
-import { InputField } from './Fields/Input';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
 
@@ -226,6 +225,8 @@ const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
 
 const BREAKPOINT_LOGIC_DEFAULT_DISABLED = false;
 
+const usePuck = createUsePuck();
+
 /**
  * Helper function to create custom fields (cf - custom field)
  */
@@ -243,7 +244,8 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
     _field,
     render({ name, onChange: puckOnChange, value: puckValue, id }) {
       const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], []);
-      const { selectedItem, appState } = usePuck();
+      const appState = usePuck(c => c.appState);
+      const selectedItem = usePuck(c => c.selectedItem);
       // fine to use hooks here, eslint just doesn't know it's a component render, with a wrapping component it may cause more renders than necessary
       const activeBreakpoint = useActiveBreakpoint();
 

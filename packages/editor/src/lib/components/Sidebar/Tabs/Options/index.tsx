@@ -1,16 +1,17 @@
-import { Puck, usePuck } from '@measured/puck';
+import { Puck, createUsePuck } from '@measured/puck';
 import { usePuckSelectedItem } from '@lib/hooks/usePuckSelectedItem';
 import { TabHeading } from '../TabHeading';
 import { TabPadding } from '../TabPadding';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { X } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { StyledIconButton } from '../../ActionBar/IconButtons';
 
+const usePuck = createUsePuck();
+
 export function Options() {
   const selectedItem = usePuckSelectedItem();
-
-  const { dispatch } = usePuck();
+  const dispatch = usePuck(c => c.dispatch);
   const deselect = useCallback(() => {
     dispatch({
       type: 'setUi',

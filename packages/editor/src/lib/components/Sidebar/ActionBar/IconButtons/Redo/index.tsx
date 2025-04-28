@@ -1,9 +1,11 @@
-import { usePuck } from '@measured/puck';
+import { createUsePuck } from '@measured/puck';
 import { Redo2Icon } from 'lucide-react';
 import { StyledIconButton } from '..';
 
+const usePuck = createUsePuck();
+
 export function Redo() {
-  const { history } = usePuck();
+  const history = usePuck(c => c.history);
   const { hasFuture, forward } = history;
   return (
     <StyledIconButton title={hasFuture ? 'Redo' : 'No future history'} disabled={!hasFuture} onClick={forward}>
