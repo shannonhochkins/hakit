@@ -223,7 +223,7 @@ describe('breakpoints', () => {
               return [data.entities['sun.sun']];
             },
             visible: (data) => {
-              return data.props.entity !== undefined;
+              return data.entity !== undefined;
             },
             disableBreakpoints: true,
             default(_options, { entities }) {

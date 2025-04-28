@@ -52,9 +52,12 @@ type ExtendedFieldTypes<DataShape = unknown> = {
   readOnly?: boolean;
   className?: string;
   id?: string;
+  /** If the field is required or not TODO - Test this */
   required?: boolean;
-  hide?: boolean;
+  /** The default value of the field if no value is saved or present */
   default: unknown;
+  /** If enabled, a toggle will appear on the UI to switch to Jinja templates, values will be stored independently of normal field values */
+  supportsTemplates?: boolean;
   /** if enabled, the breakpoint wrapper logic will not be applied @default false */
   disableBreakpoints?: boolean;
   /** if provided, the field will be collapsible @default undefined */

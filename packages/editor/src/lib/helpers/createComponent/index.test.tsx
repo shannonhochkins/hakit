@@ -76,6 +76,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
           type: 'radio',
           label: 'Hide Time',
           description: 'Hide the time in the clock',
+          supportsTemplates: true,
           options: [
             { label: 'Yes', value: true },
             { label: 'No', value: false },
