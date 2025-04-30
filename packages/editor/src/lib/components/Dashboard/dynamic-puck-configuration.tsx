@@ -79,10 +79,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
     ...rootConfig,
     render(props) {
       const emotionCache = useGlobalStore(state => state.emotionCache);
-      if (!emotionCache) {
-        return <div>Loading emotion cache...</div>;
-      }
-      return <CacheProvider value={emotionCache}>
+      return <CacheProvider value={emotionCache ?? null}>
         {rootConfig?.render?.(props) ?? null}
       </CacheProvider>
     }

@@ -31,6 +31,7 @@ import {
   ExternalLink,
   TableCellsSplit,
   ImagePlus,
+  CodeXml,
 } from 'lucide-react';
 import { transformProps, getResolvedBreakpointValue, multipleBreakpointsEnabled } from '@lib/helpers/breakpoints';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
@@ -43,8 +44,16 @@ import { Service } from './Fields/Service';
 import { Navigate } from './Fields/Navigate';
 import { GridField } from './Fields/Grid';
 import { ImageUpload } from './Fields/Image';
+import { CodeField } from './Fields/Code';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
+import { OnValidate } from '@monaco-editor/react';
+
+export type FieldTemplateOptions = {
+  /** onValidate method to validate the value is correct before passing onto the standard onChange event */
+  onValidate?: OnValidate;
+  language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2';
+}
 
 type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
@@ -56,8 +65,8 @@ type ExtendedFieldTypes<DataShape = unknown> = {
   required?: boolean;
   /** The default value of the field if no value is saved or present */
   default: unknown;
-  /** If enabled, a toggle will appear on the UI to switch to Jinja templates, values will be stored independently of normal field values */
-  supportsTemplates?: boolean;
+  /** If provided a toggle will appear on the UI to switch to Jinja templates, values will be stored independently of normal field values */
+  templates?: FieldTemplateOptions;
   /** if enabled, the breakpoint wrapper logic will not be applied @default false */
   disableBreakpoints?: boolean;
   /** if provided, the field will be collapsible @default undefined */
@@ -91,6 +100,13 @@ type ImageUploadField = BaseField & {
 type NavigateField = BaseField & {
   type: 'navigate';
 };
+
+type CodeField = BaseField & {
+  type: 'code';
+  language: FieldTemplateOptions['language'];
+  onValidate?: FieldTemplateOptions['onValidate'];
+};
+
 
 type SliderField = BaseField & {
   type: 'slider';
@@ -167,6 +183,7 @@ type CustomField<
       | (ImageUploadField & ExtendedFieldTypes<DataShape> & E)
       | (SliderField & ExtendedFieldTypes<DataShape> & E)
       | (GridField & ExtendedFieldTypes<DataShape> & E)
+      | (CodeField & ExtendedFieldTypes<DataShape> & E)
       | CustomField<Props, E>
     ))
   | (HiddenField & E)
@@ -222,6 +239,7 @@ const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   color: <Palette size={16} />,
   slider: <Hash size={16} />,
   grid: <TableCellsSplit size={16} />,
+  code: <CodeXml size={16} />,
   // not seen anyway
   hidden: <Hash size={16} />,
 };
@@ -265,7 +283,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
 
       const valOrDefault = useMemo(
         () => {
-          console.log('puckValue', puckValue);
           return puckValue ??
           (field.disableBreakpoints
             ? field.default
@@ -442,6 +459,9 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
               onChange={onChange}
               value={value}
             />
+          )}
+          {field.type === 'code' && (
+            <CodeField value={value} language={field.language} onValidate={field.onValidate} onChange={onChange} />
           )}
         </FieldWrapper>
       );
