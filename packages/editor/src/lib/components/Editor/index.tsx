@@ -89,8 +89,10 @@ export function Editor() {
                 minWidth: 0,
               }}
             >
-              <PageSelector />
-              <ViewportControls />
+              <Row justifyContent='space-between' alignItems='center' gap='0px'>
+                <PageSelector />
+                <ViewportControls />
+              </Row>
               <Preview />
             </Column>
             <SidebarSection />

@@ -48,6 +48,8 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 ## Fields
 - Breakpoints - A way to clear an individual breakpoint from the little badge style thing that appears underneath the field
 - template - Rather than a field for templates, user can specify a "code" field of yaml, and conditionally show this field to support (https://www.home-assistant.io/docs/configuration/templating) (Jinja2), then on the consumer side when they receive the jinja2 template code, they can use the `useTemplate` hook from `hakit/core` to render the template where necessary
+- page/pages - consider default value
+- for anything using arrays/objects, we should probably automatically set a default value of `[]` or `{}` if the user doesn't specify a value, so that we don't have to check for undefined values in the code
 
 ## Breakpoints
 - Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error

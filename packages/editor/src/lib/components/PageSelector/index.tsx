@@ -16,6 +16,7 @@ import { CircleHelp, Edit } from 'lucide-react';
 import { Modal, ModalActions } from '@lib/components/Modal';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { Button } from '@lib/components/Button';
+import { createDashboardPage } from '@client/src/lib/api/dashboard';
 
 
 export function PageSelector() {
@@ -35,6 +36,7 @@ export function PageSelector() {
   const [name, setName] = useState<string>('');
   const [path, setPath] = useState<string>('');
   return <Row gap="1rem">
+    Page:
     <SelectField
       value={value}
       options={[...pages, {
@@ -55,19 +57,19 @@ export function PageSelector() {
         } else {
           navigate({
             to: '/dashboards/$dashboardPath/$pagePath/edit',
+            // quickest pathway forward to load new data
+            reloadDocument: true,
             params: {
               dashboardPath: params.dashboardPath,
               pagePath: value.path
             }
           })
         }
-        
       }}
     />
     <Modal open={newPageOpen} title="New Page" onClose={() => {
       setOpenNewPage(false);
     }}>
-      <p>Enter some information for the new page.</p>
       <Column gap="1rem" fullWidth>
         <InputField
           style={{
@@ -96,7 +98,26 @@ export function PageSelector() {
           }} />
       </Column>
       <ModalActions>
-        <Button disabled={!path || !name} onClick={() => {
+        <Button disabled={!path || !name || !dashboard} onClick={() => {
+          if (dashboard) {
+            createDashboardPage({
+              id: dashboard.id,
+              name,
+              path,
+            }).then(() => {
+              // TODO handle error
+              // TODO handle duplicate path
+              navigate({
+                to: '/dashboards/$dashboardPath/$pagePath/edit',
+                // quickest pathway forward to load new data
+                reloadDocument: true,
+                params: {
+                  dashboardPath: params.dashboardPath,
+                  pagePath: path
+                }
+              })
+            })
+          }
           
         }}>APPLY</Button>
       </ModalActions>
