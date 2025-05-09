@@ -1,10 +1,11 @@
 import { IconButton } from '@measured/puck';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ChevronDown, ChevronUp, Lock, MonitorSmartphone } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Confirm } from '../../Modal/confirm';
+import { FieldOptions, type FieldOption } from './FieldOptions';
 
 const Description = styled.div`
   font-size: 12px;
@@ -158,11 +159,31 @@ export function FieldWrapper({
       </>
     );
   }
+  const fieldOptions = useMemo(() => {
+    const options: FieldOption[] = [];
+    // don't show the breakpoint option if it's disabled
+    // TODO -  figure out why is this wrapped in collapsible?
+    if (!disableBreakpoints) {
+      options.push({
+        label: 'Enable Breakpoints',
+        description: 'Enable breakpoint values for this field',
+        onClick() {
+          if (providedBreakpointValues.length > 1) {
+            setConfirmBreakpointChange(true);
+          } else {
+            onToggleBreakpointMode();
+          }
+        },
+        selected: breakpointMode
+      });
+    }
+    return options;
+  }, [breakpointMode, providedBreakpointValues, onToggleBreakpointMode]);
   return (
     <Label
       className={`${className ?? ''} ${type ? `field-${type}` : ''} ${collapsible ? 'collapsible' : ''} ${breakpointMode && !disableBreakpoints ? 'bp-mode-enabled' : ''}`}
       onClick={() => {
-        if (collapsible) {
+        if (collapsible?.open) {
           setOpen(!open);
         }
       }}
@@ -194,20 +215,7 @@ export function FieldWrapper({
               )}
             </Row>
           </Tooltip>
-          {!disableBreakpoints && !collapsible && (
-            <IconButton
-              title='Enable Breakpoint Values'
-              onClick={() => {
-                if (providedBreakpointValues.length > 1) {
-                  setConfirmBreakpointChange(true);
-                } else {
-                  onToggleBreakpointMode();
-                }
-              }}
-            >
-              <MonitorSmartphone size={16} />
-            </IconButton>
-          )}
+          {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
           {collapsible && (
             <IconButton title='Enable Breakpoint Values' onClick={onToggleBreakpointMode}>
               {open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
