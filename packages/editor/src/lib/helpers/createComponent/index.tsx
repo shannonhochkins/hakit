@@ -28,6 +28,7 @@ import { DropZone } from '@measured/puck';
 // import { type SizeOptions, getSizeFields, resolveSizeFields } from '@lib/puck/EditorComponents/form/definitions/size';
 import { DeepPartial } from '@typings';
 import { merge } from 'ts-deepmerge';
+import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 
 type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly
@@ -150,6 +151,7 @@ export function createComponent<
       render(props) {
         const data = useTransformedPuckData();
         const editorFrame = usePuckFrame();
+        const dashboard = useGlobalStore(state => state.dashboard);
         // get active breakpoint
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const activeBreakpoint = useActiveBreakpoint();
@@ -168,12 +170,14 @@ export function createComponent<
             ...rest,
             dragRef: puck.dragRef,
             DropZone,
-            data,
-            editorFrame,
-            activeBreakpoint,
+            hakit: {
+              data,
+              editorFrame,
+              dashboard,
+              activeBreakpoint
+            }
           };
-        }, [resolvedProps, activeBreakpoint, data, editorFrame]);
-
+        }, [resolvedProps, activeBreakpoint, data, editorFrame, dashboard]);
         // Call the original render with the final single-value props
         // plus any additional props provided in the CustomComponentConfig type
         // @ts-expect-error - This is fine, fix later

@@ -19,6 +19,19 @@ export async function createDashboard({ name, path, data }: CreateDashboardPaylo
   }));
 }
 
+export async function createDashboardPage({ id, name, path, data }: { id: DashboardWithPageData['id'], name: string, path: string, data?: Json }) {
+  return await callApi(api.dashboard[":id"].page.$post({
+    param: {
+      id,
+    },
+    json: {
+      name,
+      path,
+      data,
+    }
+  }));
+}
+
 export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }) {
   
   return await callApi(api.dashboard[":id"].$delete({

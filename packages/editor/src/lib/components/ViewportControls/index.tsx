@@ -162,7 +162,7 @@ export const ViewportControls = () => {
   const valueQueryHelper = getQueries([value]);
 
   return (
-    <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' fullWidth wrap='nowrap'>
+    <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
       <SelectField
         value={value}
         options={[...options, {

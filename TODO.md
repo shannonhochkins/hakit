@@ -21,16 +21,33 @@ Consider automatically saving after a delete, or when a users tries to refresh t
     - package name should be the name of the folder in gcp
     - Should skip upload if folder already exists in gcp and just give user access
 
-## Rendering issue
-Figure out why when navigation component is added by itself, why it doesn't update, but when you add Background it does...
 
 ## UI Todos
 
 1. Figure out we can navigate to a DASHBOARD, and then be able to edit a page
+2. From the editor page, swap to other pages, potentially in the top left part of the menu
+
+## Component data - Page information/data
+- we send a 'hakit' object over to every component with some internal information/methods, we should probably expose the ability to navigate to a page programmatically
+    packages/editor/src/lib/helpers/createComponent/index.tsx -> finalProps passes this information across
+  - We should indicate on the dashboards param we send over which page is currently active
+  Shape, something like:
+  dashboards = {
+    id: '',
+    name: '',
+    path: '',
+    pages: {
+      id: '',
+      name: '',
+      path: '',
+    }
+  }[] - currently we just send the dashboard object, but we should also send maybe all dashboards, or just dashboard, undecided
+
 
 
 ## Fields
-- template - Rather than a field, user can specify a "code" field of yaml, and conditionally show this field to support (https://www.home-assistant.io/docs/configuration/templating) (Jinja2)
+- Breakpoints - A way to clear an individual breakpoint from the little badge style thing that appears underneath the field
+- template - Rather than a field for templates, user can specify a "code" field of yaml, and conditionally show this field to support (https://www.home-assistant.io/docs/configuration/templating) (Jinja2), then on the consumer side when they receive the jinja2 template code, they can use the `useTemplate` hook from `hakit/core` to render the template where necessary
 
 ## Breakpoints
 - Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error

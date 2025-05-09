@@ -4,6 +4,7 @@ import { Puck } from '@measured/puck';
 import { Column, Row } from '@hakit/components';
 import { SidebarSection } from '../Sidebar';
 import { ViewportControls } from '../ViewportControls';
+import { PageSelector } from '../PageSelector';
 import { Preview } from '../Preview';
 import createCache from '@emotion/cache';
 import '@measured/puck/puck.css';
@@ -88,6 +89,7 @@ export function Editor() {
                 minWidth: 0,
               }}
             >
+              <PageSelector />
               <ViewportControls />
               <Preview />
             </Column>

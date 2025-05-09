@@ -26,7 +26,7 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
             return reject(`${response.error}: ${response.message}`);
           }
           if (response.error && response.error.name === 'ZodError') {
-            const error = formatErrorResponse(response.error);
+            const error = formatErrorResponse('Invalid input', response.error);
             return reject(`${error.error}: ${error.message}`);
           }
           return reject('Invalid error structure');

@@ -25,6 +25,16 @@ export const insertDashboardSchema = createInsertSchema(dashboardTable).pick({
   data: true,
 });
 
+const baseSchema = createInsertSchema(dashboardTable);
+export const insertDashboardPageSchema = baseSchema.pick({
+  name: true,
+  path: true,
+  data: true,
+})
+.extend({
+  data: baseSchema.shape.data.optional(), // replace z.any() with actual type if known
+});
+
 export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
   name: true,
   path: true,

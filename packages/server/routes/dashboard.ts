@@ -2,7 +2,7 @@ import { Hono} from 'hono';
 import { db } from '../db';
 import { eq, and, sql } from 'drizzle-orm';
 import { pagesTable, dashboardTable } from "../db/schema/db";
-import { insertDashboardSchema, puckDataZodSchema, updateDashboardSchema } from "../db/schema/schemas";
+import { insertDashboardSchema, insertDashboardPageSchema, puckDataZodSchema, updateDashboardSchema } from "../db/schema/schemas";
 import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
@@ -578,6 +578,47 @@ const dashboardRoute = new Hono()
       return c.json(dashboardRecord, 201);
     } catch (error) {
       return c.json(formatErrorResponse('Dashboard Creation Error', error), 400);
+    }
+  })
+  // create a new page for a dashboard
+  .post('/:id/page', getUser, zValidator("json", insertDashboardPageSchema), zValidator('param', z.object({
+    id: z.string(),
+  })), async (c) => {
+    try {
+      const user = c.var.user;
+      // get the id from the path
+      const { id } = c.req.valid('param');
+      const { name, path, data } = await c.req.valid('json');
+      // find the dashboard to get the id
+      const dashboards = await db
+        .select({
+          id: dashboardTable.id
+        })
+        .from(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        );
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      const [dashboard] = dashboards;
+      const defaultPage = await getAvailableDefaultPage(dashboard.id);
+      const [pageRecord] = await db
+        .insert(pagesTable)
+        .values({
+          id: generateId(),
+          dashboardId: dashboard.id,
+          name: name ?? defaultPage.name,
+          path: path ?? defaultPage.path,
+          data: data ?? createDefaultPageConfiguration(),
+        })
+        .returning();
+      return c.json(pageRecord, 201);
+    } catch (error) {
+      return c.json(formatErrorResponse('Dashboard Page Creation Error', error), 400);
     }
   })
 
