@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { type EditorProps, type OnMount } from '@monaco-editor/react';
-import { FieldTemplateOptions } from '../..';
+import { CodeField as CodeFieldType } from '../..';
 import { monarchTokens, languageConfiguration } from './languages/jinja2';
 import { configureMonacoYaml } from 'monaco-yaml';
 import { editor } from 'monaco-editor';
@@ -42,8 +42,8 @@ async function loadMonaco() {
 
 interface CodeFieldProps {
   value: string;
-  language: FieldTemplateOptions['language'];
-  onValidate?: FieldTemplateOptions['onValidate'];
+  language: CodeFieldType['language'];
+  onValidate?: CodeFieldType['onValidate'];
   onChange: (value: string) => void;
 }
 

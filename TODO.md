@@ -30,7 +30,7 @@ Figure out why when navigation component is added by itself, why it doesn't upda
 
 
 ## Fields
-- template - include a feature to enable a field to convert to use teh templating language from home assistant (https://www.home-assistant.io/docs/configuration/templating) (Jinja2), this "template" value should live on the same field and retain the value saved before converting to a template field so you can easily switch back and forth
+- template - Rather than a field, user can specify a "code" field of yaml, and conditionally show this field to support (https://www.home-assistant.io/docs/configuration/templating) (Jinja2)
 
 ## Breakpoints
 - Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error

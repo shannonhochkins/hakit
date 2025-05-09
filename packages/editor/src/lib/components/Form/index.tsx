@@ -49,12 +49,6 @@ import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { OnValidate } from '@monaco-editor/react';
 
-export type FieldTemplateOptions = {
-  /** onValidate method to validate the value is correct before passing onto the standard onChange event */
-  onValidate?: OnValidate;
-  language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2';
-}
-
 type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
   icon?: ReactNode;
@@ -65,8 +59,6 @@ type ExtendedFieldTypes<DataShape = unknown> = {
   required?: boolean;
   /** The default value of the field if no value is saved or present */
   default: unknown;
-  /** If provided a toggle will appear on the UI to switch to Jinja templates, values will be stored independently of normal field values */
-  templates?: FieldTemplateOptions;
   /** if enabled, the breakpoint wrapper logic will not be applied @default false */
   disableBreakpoints?: boolean;
   /** if provided, the field will be collapsible @default undefined */
@@ -101,10 +93,10 @@ type NavigateField = BaseField & {
   type: 'navigate';
 };
 
-type CodeField = BaseField & {
+export type CodeField = BaseField & {
   type: 'code';
-  language: FieldTemplateOptions['language'];
-  onValidate?: FieldTemplateOptions['onValidate'];
+  onValidate?: OnValidate;
+  language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2';
 };
 
 
