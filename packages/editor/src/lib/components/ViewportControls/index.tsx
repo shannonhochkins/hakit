@@ -11,7 +11,7 @@ import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { SelectField } from '@lib/components/Form/Fields/Select';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
-import { CircleHelp, Edit } from 'lucide-react';
+import { CircleHelp, Edit, TabletSmartphone } from 'lucide-react';
 import { Modal, ModalActions } from '@lib/components/Modal';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { Button } from '@lib/components/Button';
@@ -21,7 +21,6 @@ const StyledViewportControls = styled(Row)`
   max-height: var(--header-height);
   display: flex;
   align-items: center;
-  padding: 0 var(--puck-space-px);
 `;
 
 const HelperText = styled.span`
@@ -174,6 +173,9 @@ export const ViewportControls = () => {
           <Edit size={16} />
           Customize
         </Row> : option.title}
+        startAdornment={<TabletSmartphone size={36} style={{
+          marginRight: '0.5rem',
+        }} />}
         getOptionValue={(option) => option.width}
         onChange={(event) => {
           const value = event?.target.value;

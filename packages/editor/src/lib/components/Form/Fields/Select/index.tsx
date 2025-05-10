@@ -32,6 +32,7 @@ export const SelectField = <Option extends unknown>({
   onChange,
   value,
   options,
+  style = {},
   ...props
 }: Omit<SelectProps<Option>, 'value'> & {
   value: Option;
@@ -43,6 +44,10 @@ export const SelectField = <Option extends unknown>({
     <StyledSelect
       onChange={onChange}
       value={value}
+      style={{
+        ...style,
+        maxWidth: style?.maxWidth ?? '100%',
+      }}
       {...props}
     >
       {options.map((option, index) => (

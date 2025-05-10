@@ -89,7 +89,9 @@ export function Editor() {
                 minWidth: 0,
               }}
             >
-              <Row justifyContent='space-between' alignItems='center' gap='0px'>
+              <Row justifyContent='space-between' alignItems='center' gap='0px' style={{
+                padding: '0 var(--puck-space-px)'
+              }}>
                 <PageSelector />
                 <ViewportControls />
               </Row>

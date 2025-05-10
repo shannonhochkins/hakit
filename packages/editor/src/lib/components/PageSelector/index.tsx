@@ -12,7 +12,7 @@ import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { SelectField } from '@lib/components/Form/Fields/Select';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
-import { CircleHelp, Edit } from 'lucide-react';
+import { CircleHelp, CirclePlus, Edit, Layers } from 'lucide-react';
 import { Modal, ModalActions } from '@lib/components/Modal';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { Button } from '@lib/components/Button';
@@ -35,8 +35,9 @@ export function PageSelector() {
   const value = pages.find(page => page.path === params.pagePath) || pages[0];
   const [name, setName] = useState<string>('');
   const [path, setPath] = useState<string>('');
-  return <Row gap="1rem">
-    Page:
+  return <Row style={{
+    maxWidth: '100%',
+  }}>
     <SelectField
       value={value}
       options={[...pages, {
@@ -44,8 +45,11 @@ export function PageSelector() {
         title: 'Customize',
         path: '__new__'
       }]}
+      startAdornment={<Layers size={36} style={{
+        marginRight: '0.5rem',
+      }} />}
       getOptionLabel={(option) => option.id === 'new' ? <Row gap="0.5rem" fullHeight>
-        <Edit size={16} />
+        <CirclePlus size={16} />
         New Page
       </Row> : option.title}
       getOptionValue={(option) => option.path}
