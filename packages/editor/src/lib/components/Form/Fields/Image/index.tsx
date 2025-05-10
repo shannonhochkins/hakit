@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ImageUp, X } from 'lucide-react';
-import { StyledIconButton } from '@lib/components/Sidebar/ActionBar/IconButtons';
+import { IconButton } from '@lib/components/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@lib/components/Modal/confirm';
 import { deleteFile, uploadImage } from '@client/src/lib/api/upload';
@@ -57,7 +57,7 @@ const PreviewImage = styled(PreloadImage)`
   border-radius: 0.25rem;
 `;
 
-const RemoveButton = styled(StyledIconButton)`
+const RemoveButton = styled(IconButton)`
   position: absolute;
   top: -10px;
   right: -10px;

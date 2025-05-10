@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const StyledIconButton = styled.button`
+export const IconButton = styled.button`
   outline: none;
   appearance: none;
   -webkit-appearance: none;

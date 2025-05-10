@@ -43,7 +43,16 @@ Consider automatically saving after a delete, or when a users tries to refresh t
     }
   }[] - currently we just send the dashboard object, but we should also send maybe all dashboards, or just dashboard, undecided
 
+### Page Selector in main UI
+- path field should be automatically populated with tthe name of the page, but we should also allow the user to change this
+- need to add validation as this will be a route path, can't have weird characters
+- need to add a way to delete a page, and also a way to duplicate a page
+- maybe the "new page" option should change to a "customize" option which shows a popup with all pages to manage them
+- What if the user renames the page they're currently on, do we just refresh the page or replace the url?
 
+### Dashboard Selector in main UI
+- Actions to delete, duplicate a dashboard
+- What if the user renames the dashboard they're currently on, do we just refresh the page or replace the url?
 
 ## Fields
 - Breakpoints - A way to clear an individual breakpoint from the little badge style thing that appears underneath the field

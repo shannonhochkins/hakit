@@ -9,6 +9,7 @@ export function ModalActions({ children, ...rest }: { children: React.ReactNode 
       style={{
         marginTop: 24,
       }}
+      gap="1rem"
       {...rest}
     >
       {children}

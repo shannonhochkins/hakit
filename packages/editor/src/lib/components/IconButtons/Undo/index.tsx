@@ -1,6 +1,6 @@
 import { createUsePuck } from '@measured/puck';
 import { Undo2Icon } from 'lucide-react';
-import { StyledIconButton } from '..';
+import { IconButton } from '@lib/components/IconButtons';
 
 const usePuck = createUsePuck();
 
@@ -8,8 +8,8 @@ export function Undo() {
   const history = usePuck(c => c.history);
   const { hasPast, back } = history;
   return (
-    <StyledIconButton title={hasPast ? 'Undo' : 'No previous history'} disabled={!hasPast} onClick={back}>
+    <IconButton title={hasPast ? 'Undo' : 'No previous history'} disabled={!hasPast} onClick={back}>
       <Undo2Icon size={21} />
-    </StyledIconButton>
+    </IconButton>
   );
 }

@@ -1,7 +1,7 @@
-import { IconButton } from '@measured/puck';
+import { IconButton } from '@lib/components/IconButtons';
 import { ReactNode, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { ChevronDown, ChevronUp, Lock, MonitorSmartphone } from 'lucide-react';
+import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Confirm } from '../../Modal/confirm';

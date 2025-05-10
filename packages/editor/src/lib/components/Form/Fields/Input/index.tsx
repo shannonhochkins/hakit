@@ -40,6 +40,15 @@ const StyledTextField = styled(TextField)`
       }
     }
   }
+  &.MuiFormControl-root.MuiTextField-root label {
+    top: 5px;
+    &.Mui-focused {
+      top: 10px;
+    }
+    &.MuiInputLabel-shrink {
+      top: 10px;
+    }
+  }
   &.read-only {
     label {
       display: none;

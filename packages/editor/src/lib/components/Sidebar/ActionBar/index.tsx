@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
-import { Undo } from './IconButtons/Undo';
-import { Redo } from './IconButtons/Redo';
-import { Save } from './IconButtons/Save';
-import { SaveAndPreview } from './IconButtons/Save/saveAndPreview';
+import { Undo } from '@lib/components/IconButtons/Undo';
+import { Redo } from '@lib/components/IconButtons/Redo';
+import { Save } from '@lib/components/IconButtons/Save';
+import { SaveAndPreview } from '@lib/components/IconButtons/Save/saveAndPreview';
 
 const ActionBarWrapper = styled.div`
   border-bottom: 3px solid var(--puck-color-grey-05);

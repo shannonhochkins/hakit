@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useState } from 'react';
 import styled from '@emotion/styled';
 import { Check, AlertOctagon, Loader2 } from 'lucide-react';
-import { StyledIconButton } from '../..';
+import { IconButton } from '@lib/components/IconButtons';
 import { Tooltip } from '@lib/components/Tooltip';
 
 interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
@@ -81,9 +81,9 @@ export function ProgressButton({ disabled = false, onClick, children, title, ...
   return (
     <Container {...rest}>
       <Tooltip title={title} placement='left'>
-        <StyledIconButton disabled={disabled || progress} onClick={handleClick}>
+        <IconButton disabled={disabled || progress} onClick={handleClick}>
           <span className={result ? 'hidden' : ''}>{children}</span>
-        </StyledIconButton>
+        </IconButton>
       </Tooltip>
 
       {overlay && (

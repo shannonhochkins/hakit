@@ -1,20 +1,11 @@
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Column, Row, type BreakPoint, getBreakpoints } from '@hakit/components';
-import styled from '@emotion/styled';
-import { getCssVariableValue, setSidebarWidth } from '../Sidebar/helpers';
-import { Tooltip } from '../Tooltip';
-import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
-import { useThemeStore } from '@hakit/components';
-import { DEFAULT_BREAKPOINTS } from '@lib/constants';
-import { BreakpointItem } from '@typings/breakpoints';
+import { useState } from 'react';
+import { Column, Row } from '@hakit/components';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { SelectField } from '@lib/components/Form/Fields/Select';
 import { InputField } from '@lib/components/Form/Fields/Input';
-import { SwitchField } from '@lib/components/Form/Fields/Switch';
-import { CircleHelp, CirclePlus, Edit, Layers } from 'lucide-react';
+import { CirclePlus, Layers } from 'lucide-react';
 import { Modal, ModalActions } from '@lib/components/Modal';
-import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { Button } from '@lib/components/Button';
 import { createDashboardPage } from '@client/src/lib/api/dashboard';
 
@@ -122,8 +113,7 @@ export function PageSelector() {
               })
             })
           }
-          
-        }}>APPLY</Button>
+        }}>CREATE</Button>
       </ModalActions>
     </Modal>
   </Row>

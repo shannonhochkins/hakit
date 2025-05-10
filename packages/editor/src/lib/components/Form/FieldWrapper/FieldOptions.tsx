@@ -2,7 +2,7 @@ import { useState, type SyntheticEvent } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
-import { IconButton } from '@measured/puck';
+import { IconButton } from '@lib/components/IconButtons';
 import styled from '@emotion/styled';
 import { EllipsisVertical } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
@@ -44,7 +44,6 @@ export function FieldOptions({ options }: FieldOptionsProps) {
     <div>
       <Tooltip title="Field Options" placement="left">
         <IconButton
-          title="Field Options"
           onClick={handleClick}
         >
           <EllipsisVertical size={16} />
@@ -63,9 +62,6 @@ export function FieldOptions({ options }: FieldOptionsProps) {
           horizontal: 'right',
         }}
         slotProps={{
-          list: {
-            'aria-labelledby': 'long-button',
-          },
           paper: {
             style: {
               maxHeight: ITEM_HEIGHT * 4.5,

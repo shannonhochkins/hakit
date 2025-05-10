@@ -9,6 +9,8 @@ import { Preview } from '../Preview';
 import createCache from '@emotion/cache';
 import '@measured/puck/puck.css';
 import './puck-overrides.css';
+import { DashboardSelector } from '../DashboardSelector';
+import { Divider } from '@mui/material';
 
 export function Editor() {
   const intervalRef = useRef<Timer | null>(null);
@@ -92,7 +94,14 @@ export function Editor() {
               <Row justifyContent='space-between' alignItems='center' gap='0px' style={{
                 padding: '0 var(--puck-space-px)'
               }}>
-                <PageSelector />
+                <Row gap="0.5rem">
+                  <DashboardSelector />
+                  <Divider orientation="vertical" variant="middle" flexItem style={{
+                    borderColor: 'var(--puck-color-grey-04)',
+                    marginLeft: 'var(--puck-space-px)',
+                  }} />
+                  <PageSelector />
+                </Row>
                 <ViewportControls />
               </Row>
               <Preview />
