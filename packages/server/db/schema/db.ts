@@ -16,6 +16,8 @@ export const dashboardTable = pgTable("dashboard", {
   themeId: uuid("theme_id").references(() => themesTable.id),
   // breakpoints for the dashboard as json
   breakpoints: jsonb("breakpoints").notNull().default({}),
+  // optional thumbnail path or URL
+  thumbnail: varchar("thumbnail", { length: 255 }),
   // any data to store against the dashboard, basically global settings
   data: jsonb("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
@@ -87,6 +89,8 @@ export const componentsTable = pgTable("components", {
   themeId: uuid("theme_id").references(() => themesTable.id),
   // the type of the theme location , should only allow zip or github
   uploadType: varchar("upload_type", { length: 10 }),
+  // optional thumbnail path or URL
+  thumbnail: varchar("thumbnail", { length: 255 }),
   // store the file reference in the bucket
   objectKey: varchar("objectKey", { length: 250 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
@@ -120,6 +124,8 @@ export const pagesTable = pgTable("pages", {
       onDelete: "cascade",
     })
     .notNull(),
+  // optional thumbnail path or URL
+  thumbnail: varchar("thumbnail", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: false })
     .defaultNow()
     .notNull(),

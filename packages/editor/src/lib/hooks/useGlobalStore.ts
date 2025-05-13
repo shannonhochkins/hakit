@@ -23,21 +23,40 @@ type PuckConfigurationStore = {
   setPuckPageData: (newPageData: PuckPageData) => void;
   unsavedPuckPageData: PuckPageData;
   setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => void;
+  modalStack: number[]; // track modal "depths" by ID or index
+  pushModal: () => number;
+  popModal: (id: number) => void;
 };
 
-export const useGlobalStore = create<PuckConfigurationStore>(set => ({
-  breakpointItems: DEFAULT_BREAKPOINTS,
-  setBreakPointItems: (breakpointItems: BreakpointItem[]) => set(state => ({ ...state, breakpointItems })),
-  emotionCache: null,
-  setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
-  userConfig: null,
-  setUserConfig: (userConfig: UserConfig | null) => set(state => ({ ...state, userConfig })),
-  services: null,
-  setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
-  dashboard: null,
-  setDashboard: (dashboard: DashboardWithoutPageData | null) => set(state => ({ ...state, dashboard })),
-  puckPageData: null,
-  setPuckPageData: (puckPageData: PuckPageData) => set(state => ({ ...state, puckPageData })),
-  unsavedPuckPageData: {} as PuckPageData,
-  setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => set(state => ({ ...state, unsavedPuckPageData })),
-}));
+export const useGlobalStore = create<PuckConfigurationStore>(set => {
+  let nextId = 0;
+  return {
+    breakpointItems: DEFAULT_BREAKPOINTS,
+    setBreakPointItems: (breakpointItems: BreakpointItem[]) => set(state => ({ ...state, breakpointItems })),
+    emotionCache: null,
+    setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
+    userConfig: null,
+    setUserConfig: (userConfig: UserConfig | null) => set(state => ({ ...state, userConfig })),
+    services: null,
+    setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
+    dashboard: null,
+    setDashboard: (dashboard: DashboardWithoutPageData | null) => set(state => ({ ...state, dashboard })),
+    puckPageData: null,
+    setPuckPageData: (puckPageData: PuckPageData) => set(state => ({ ...state, puckPageData })),
+    unsavedPuckPageData: {} as PuckPageData,
+    setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => set(state => ({ ...state, unsavedPuckPageData })),
+    modalStack: [],
+      pushModal: () => {
+        const id = nextId++;
+        set(state => ({
+          modalStack: [...state.modalStack, id],
+        }));
+        return id;
+      },
+      popModal: (id: number) => {
+        set(state => ({
+          modalStack: state.modalStack.filter(mid => mid !== id),
+        }));
+      },
+  };
+});

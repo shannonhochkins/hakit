@@ -46,6 +46,8 @@
     "drizzle-orm": "^0.40.0",
     "drizzle-zod": "^0.7.0",
     "hono": "^4.7.2",
+    "html-to-image": "^1.11.13",
+    "html2canvas": "^1.4.1",
     "pg": "^8.13.3",
     "postgres": "^3.4.5",
     "react-best-gradient-color-picker": "^3.0.14",

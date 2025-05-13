@@ -2,7 +2,7 @@
 import { Spinner } from '@lib/components/Spinner';
 import { useEffect, useState } from 'react';
 import { IconButton } from '@lib/components/IconButtons';
-import { LayoutDashboard } from 'lucide-react';
+import { ImagePlus, LayoutDashboard, Repeat, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
 import { Button } from '@lib/components/Button';
@@ -14,14 +14,16 @@ import { InputField } from '../Form/Fields/Input';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
 import { useNavigate } from '@tanstack/react-router';
-import { capitalize } from '@mui/material';
+import { capitalize, InputAdornment } from '@mui/material';
+import { ImageUpload } from '../Form/Fields/Image';
+import { FieldLabel } from '../Form/FieldWrapper/FieldLabel';
 
 interface DashboardSelectorProps {
-  open: boolean;
+  open?: boolean;
   onClose?: () => void;
 }
 
-export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
+export function DashboardSelector({ open = false, onClose }: DashboardSelectorProps) {
   const [openPopup, setOpenPopup] = useState(open);
   const [newDashboardOpen, setNewDashboardOpen] =  useState(false);
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
@@ -30,6 +32,7 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
   const [editingDashboardId, setEditingDashboardId] = useState<string | null>(null);
   const [mode, setMode] = useState<'new' | 'edit' | 'duplicate'>('new');
   const [name, setName] = useState<string>('');
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
   const previousName = usePrevious(name);
   const [path, setPath] = useState<string>('');
   const [pathTouched, setPathTouched] = useState(false);
@@ -43,21 +46,24 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
     }
   };
 
-  useEffect(() => {
-    const derivedPath = nameToPath(name);
-    const isNameEmpty = name.trim() === '';
-    const isPathInSync = previousName && path === nameToPath(previousName);
-  
-    // Case 1: Name is empty and path is still in sync → reset path
-    if (isNameEmpty && (!pathTouched || isPathInSync)) {
-      setPath('');
-    }
-  
-    // Case 2: Name is not empty, and user hasn't manually changed the path → update path
-    else if (!pathTouched || path === '' || isPathInSync) {
-      setPath(derivedPath);
-    }
-  }, [name, path, pathTouched]);
+useEffect(() => {
+  const derivedPath = nameToPath(name);
+  const isNameEmpty = name.trim() === '';
+  const isPathEmpty = path.trim() === '';
+  const isPathInSyncWithPreviousName = previousName !== undefined && path === nameToPath(previousName);
+
+  // Case 1: Name is empty and path is still in sync or empty → clear path
+  if (isNameEmpty && (!pathTouched || isPathInSyncWithPreviousName)) {
+    setPath('');
+  }
+
+  // Case 2: Name is not empty, path hasn't been touched, and either it's empty or still in sync → sync
+  else if (!pathTouched && (isPathEmpty || isPathInSyncWithPreviousName)) {
+    setPath(derivedPath);
+  }
+
+  // Else: leave path untouched (user has taken control)
+}, [name, path, pathTouched, previousName]);
 
   // Path validation
   useEffect(() => {
@@ -103,10 +109,18 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
             key={dashboard.id}
             title={dashboard.name}
             subtitle={dashboard.path}
+            image={dashboard.thumbnail}
             options={[{
-              label: 'TODO - Duplicate',
+              label: 'Duplicate',
               onClick() {
                 setMode('duplicate');
+                setEditingDashboardId(dashboard.id);
+                setName(`${dashboard.name} (duplicate)`);
+                setPath('');
+                setThumbnail(dashboard.thumbnail);
+                setPathTouched(false);
+                setNewDashboardOpen(true);
+                togglePopup();
               }
             }, {
               label: 'Delete',
@@ -119,12 +133,13 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
                 });
               }
             }, {
-              label: 'Rename',
+              label: 'Edit',
               onClick: () => {
                 setMode('edit');
                 setEditingDashboardId(dashboard.id);
                 setName(dashboard.name);
                 setPath(dashboard.path);
+                setThumbnail(dashboard.thumbnail);
                 setPathTouched(false);
                 setNewDashboardOpen(true);
                 togglePopup();
@@ -161,6 +176,7 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
         <Button variant="contained" onClick={() => {
           setName('');
           setPath('');
+          setThumbnail('');
           setMode('new');
           setNewDashboardOpen(true);
           togglePopup();
@@ -170,53 +186,80 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
     <Modal open={newDashboardOpen} title={`${capitalize(mode)} Dashboard`} onClose={() => {
       setNewDashboardOpen(false);
     }}>
-      <Column gap="1rem" fullWidth>
-        <InputField
-          style={{
-            width: '100%',
-          }}
-          helperText={'Enter a name for your dashboard'}
-          required
-          value={name}
-          label="Name"
-          type="text"
-          onChange={event => {
-            const val = event.target.value;
-            setName(val);
-        }} />
-        <InputField
-          style={{
-            width: '100%',
-          }}
-          value={path}
-          error={!!pathError}
-          helperText={pathError || 'Enter a path for your dashboard'}
-          label="Path"
-          type="text"
-          onChange={event => {
-            const val = event.target.value;
-            setPath(val);
-            setPathTouched(true);
+      <Column gap="1rem" fullWidth alignItems='stretch' justifyContent='flex-start'>
+        <div>
+          <FieldLabel label="Name" icon={<Type size={16} />} />
+          <InputField
+            style={{
+              width: '100%',
+            }}
+            helperText={'Enter a name for your dashboard'}
+            required
+            value={name}
+            type="text"
+            onChange={event => {
+              const val = event.target.value;
+              setName(val);
           }} />
+        </div>
+        <div>
+          <FieldLabel label="Path" icon={<Type size={16} />} />
+          <InputField
+            style={{
+              width: '100%',
+            }}
+            value={path}
+            error={!!pathError}
+            helperText={pathError || 'Enter a path for your dashboard'}
+            type="text"
+            slotProps={{
+              input: {
+                endAdornment: <Tooltip title="Sync with name" placement="left">
+                  <Repeat size={16} onClick={() => {
+                    setPath(nameToPath(name));
+                  }} style={{
+                    cursor: 'pointer',
+                  }} />
+                </Tooltip>
+              }
+            }}
+            onChange={event => {
+              const val = event.target.value;
+              setPath(val);
+              setPathTouched(true);
+            }} />            
+        </div>
+        <div>
+          <FieldLabel label="Thumbnail" icon={<ImagePlus size={16} />} style={{
+            marginBottom: 'var(--puck-space-px)',
+          }} />
+          <ImageUpload value={thumbnail || ''} onChange={(value) => {
+            setThumbnail(value);
+          }} />
+        </div>
       </Column>
       <ModalActions>
       <Button onClick={() => {
         setName('');
         setPath('');
+        setThumbnail('');
         setEditingDashboardId(null);
         togglePopup();
         setNewDashboardOpen(false);
       }}>CANCEL</Button>
-        {mode === 'new' && (<Button variant="contained" disabled={!path || !name} onClick={() => {
+        {(mode === 'new' || mode === 'duplicate') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          const matchedDashboard = mode === 'duplicate' ? dashboards.find(d => d.id === editingDashboardId) || {} : {};
           createDashboard({
+            ...matchedDashboard,
             name,
             path,
-            data: {},
+            thumbnail,
           }).then(() => {
             togglePopup();
             setNewDashboardOpen(false);
             setName('');
             setPath('');
+            setThumbnail('');
             setPathTouched(false);
             dashboardsQuery.refetch();
           }).catch(() => {
@@ -224,7 +267,7 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
           });
         }}>CREATE</Button>)}
 
-        {(mode === 'edit' || mode === 'duplicate') && editingDashboardId && (<Button variant="contained" disabled={!path || !name} onClick={() => {
+        {mode === 'edit' && editingDashboardId && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
           const matchedDashboard = dashboards.find(d => d.id === editingDashboardId);
           if (!matchedDashboard) {
             // TODO - handle error with toast
@@ -235,13 +278,14 @@ export function DashboardSelector({ open, onClose }: DashboardSelectorProps) {
             name,
             path,
             data: matchedDashboard.data,
-            breakpoints: matchedDashboard.breakpoints,
+            thumbnail: thumbnail,
           }).then(() => {
             togglePopup();
             setNewDashboardOpen(false);
             setEditingDashboardId(null);
             setName('');
             setPath('');
+            setThumbnail('');
             setPathTouched(false);
             dashboardsQuery.refetch();
           }).catch(() => {

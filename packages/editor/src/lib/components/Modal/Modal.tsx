@@ -4,6 +4,7 @@ import { Fragment, ReactNode, useCallback, useEffect, useId, useRef } from 'reac
 import { createPortal } from 'react-dom';
 import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
+import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 
 const Fab = styled.button<{
   size?: number;
@@ -21,7 +22,6 @@ const Fab = styled.button<{
 const ModalContainer = styled.div`
   --modal-width: 750px;
   position: absolute;
-  z-index: 1;
   top: 50%;
   left: 50%;
   display: flex;
@@ -132,6 +132,8 @@ export interface ModalProps extends Omit<Extendable, 'title'> {
   autocloseSeconds?: number;
 }
 
+const BASE_Z_INDEX = 500;
+
 export function Modal({
   open,
   id,
@@ -150,6 +152,11 @@ export function Modal({
   const prefix = id ?? _id;
   const [isPressed] = useKeyPress(event => event.key === 'Escape');
   const autocloseRef = useRef<Timer | null>(null);
+  // for pushing the last open modal in front of any previous modals
+  const stackIdRef = useRef<number | null>(null);
+  const pushModal = useGlobalStore(s => s.pushModal);
+  const popModal = useGlobalStore(s => s.popModal);
+  const modalStack = useGlobalStore(s => s.modalStack);
 
   const doClose = useCallback(() => {
     if (autocloseRef.current) {
@@ -179,6 +186,25 @@ export function Modal({
     }
   }, [isPressed, doClose, open]);
 
+  useEffect(() => {
+    if (open && stackIdRef.current === null) {
+      stackIdRef.current = pushModal();
+    }
+
+    return () => {
+      if (stackIdRef.current !== null) {
+        popModal(stackIdRef.current);
+        stackIdRef.current = null;
+      }
+    };
+  }, [open, pushModal, popModal]);
+
+  const index = modalStack.findIndex(id => id === stackIdRef.current);
+  const baseZ = BASE_Z_INDEX + index * 2;
+
+  const backdropZ = baseZ;
+  const containerZ = baseZ + 1;
+
   return createPortal(
     <>
       {open && (
@@ -192,12 +218,17 @@ export function Modal({
                 onClose();
               }
             }}
+            style={{
+              ...backdropProps?.style,
+              zIndex: backdropZ,
+            }}
             {...backdropProps}
           />
           <ModalContainer
             {...rest}
             style={{
               ...style,
+              zIndex: containerZ,
             }}
             key={`${prefix}-container`}
             className={`modal-container ${className ?? ''}`}

@@ -12,29 +12,6 @@ import type { DashboardPageWithData, DashboardWithoutPageData, DashboardWithPage
 import type { Json } from '@kinde-oss/kinde-typescript-sdk';
 import { formatErrorResponse } from "../helpers/formatErrorResponse";
 
-
-
-// type Page = {
-//   id: string;
-//   name: string;
-//   path: string;
-//   data: Json;
-// }
-
-// type DashboardWithPages = Dashboard & {
-//   pages: Page[];
-// }
-
-// type DashboardWithPage = Dashboard & {
-//   page: Page;
-// }
-
-// type Dashboards = DashboardWithPages[];
-
-// type FullConfiguration = z.infer<typeof configZodSchema>;
-
-// type PageConfiguration = FullConfiguration['pageConfigurations'][number];
-
 // Predefined default pages
 const defaultPages = [
   { name: 'Living Room', path: 'living-room' },
@@ -100,131 +77,6 @@ function createDefaultPageConfiguration(): PuckPageData {
   };
 }
 
-
-
-// async function getPageConfiguration({
-//   userId,
-//   dashboardPath,
-//   pagePath,
-// }: {
-//   userId: string;
-//   dashboardPath: string;
-//   pagePath: string;
-// }) {
-//   // Retrieve common configuration parts and verify user ownership.
-//   const { commonConfig, configSchemaId } = await getCommonConfigurationPartsForUser({
-//     userId,
-//     configId,
-//   });
-
-//   // Fetch the specific page configuration record.
-//   const pageConfigRecord = await db
-//     .select()
-//     .from(pagesTable)
-//     .where(
-//       and(
-//         eq(pagesTable.configSchemaId, configSchemaId),
-//         eq(pagesTable.path, pagePath)
-//       )
-//     )
-//     .then((rows) => rows[0]);
-
-//   if (!pageConfigRecord) {
-//     throw new Error(
-//       `Page configuration with ID ${pageId} not found for the given config schema`
-//     );
-//   }
-
-//   const config = pageConfigRecord.config as PageConfiguration["config"];
-//   const puckData: PuckPageData = {
-//     content: config.content,
-//     zones: config.zones,
-//     root: {
-//       props: commonConfig,
-//     },
-//   };
-
-//   const parsedPuckData = pageConfigurationZodSchema.shape.config.parse(puckData);
-
-//   return parsedPuckData;
-// }
-
-
-// async function getFullConfiguration({
-//   userId,
-//   configId,
-// }: {
-//   userId: string;
-//   configId: number;
-// }) {
-//   // Retrieve common configuration parts and verify user ownership.
-//   const { commonConfig, configSchemaId } = await getCommonConfigurationPartsForUser({
-//     userId,
-//     configId,
-//   });
-
-//   // Query all page configurations for the schema.
-//   const pageConfigurations = await db
-//     .select()
-//     .from(pageConfigurationsTable)
-//     .where(eq(pageConfigurationsTable.configSchemaId, configSchemaId));
-
-//   const fullConfiguration = {
-//     pageConfigurations: pageConfigurations.map((pc) => ({
-//       id: pc.id,
-//       config: pc.config, // Expected shape: { zones: {}, content: [], root?: {} }
-//     })),
-//     config: commonConfig,
-//   };
-
-//   console.log('fullConfiguration', JSON.stringify(fullConfiguration, null, 2));
-
-//   // Validate and return using your Zod schema.
-//   const parsedConfiguration = configZodSchema.parse(fullConfiguration);
-//   return parsedConfiguration;
-// }
-
-// interface Configuration {
-//   id: number;
-//   userId: string;
-//   name: string;
-//   pageConfigurationIds: string[] | null;
-// }
-
-// async function getConfigurations(userId: string): Promise<Configuration[]> {
-
-//   const pageConfigsSubquery = db
-//     .select({
-//       configSchemaId: pageConfigurationsTable.configSchemaId,
-//       // Explicitly tell TypeScript that this returns a string array.
-//       pageConfigurationIds: sql<string[]>`array_agg(${pageConfigurationsTable.id})`.as("pageConfigurationIds"),
-//     })
-//     .from(pageConfigurationsTable)
-//     .groupBy(pageConfigurationsTable.configSchemaId)
-//     .as("pageConfigs");
-
-//   // Now select all your configuration columns and join the subquery.
-//   const configurations = await db
-//     .select({
-//       // List the columns from your configTable that you need.
-//       id: configTable.id,
-//       userId: configTable.userId,
-//       name: configTable.name, // example column—replace with yours
-//       // Add the computed column from the subquery.
-//       pageConfigurationIds: pageConfigsSubquery.pageConfigurationIds,
-//     })
-//     .from(configTable)
-//     .leftJoin(
-//       pageConfigsSubquery,
-//       eq(configTable.id, pageConfigsSubquery.configSchemaId)
-//     )
-//     .where(eq(configTable.userId, userId))
-//     .execute();
-
-//   return configurations;
-
-// }
-
 function sanitizePuckData(data: Json) {
   return puckDataZodSchema.parse(data);
 }
@@ -245,6 +97,7 @@ const dashboardRoute = new Hono()
           path: dashboardTable.path,
           data: dashboardTable.data,
           breakpoints: dashboardTable.breakpoints,
+          thumbnail: dashboardTable.thumbnail,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -283,6 +136,7 @@ const dashboardRoute = new Hono()
           path: dashboardTable.path,
           data: dashboardTable.data,
           breakpoints: dashboardTable.breakpoints,
+          thumbnail: dashboardTable.thumbnail,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -317,28 +171,6 @@ const dashboardRoute = new Hono()
     try {
       const user = c.var.user;
       const { id, pageId } = c.req.valid('param');
-      // const [dashboardWithPage] = await db
-      //   .select({
-      //     id: dashboardTable.id,
-      //     name: dashboardTable.name,
-      //     path: dashboardTable.path,
-      //     data: dashboardTable.data,
-      //     page: {
-      //       id: pagesTable.id,
-      //       name: pagesTable.name,
-      //       path: pagesTable.path,
-      //       data: pagesTable.data
-      //     }
-      //   })
-      //   .from(dashboardTable)
-      //   .leftJoin(pagesTable, eq(dashboardTable.id, pagesTable.dashboardId))
-      //   .where(
-      //     and(
-      //       eq(dashboardTable.id, id),
-      //       eq(pagesTable.id, pageId),
-      //       eq(dashboardTable.userId, user.id)
-      //     )
-      //   );
       // find the dashboard to get the id
       const dashboards = await db
         .select({
@@ -381,6 +213,8 @@ const dashboardRoute = new Hono()
           name: dashboardTable.name,
           path: dashboardTable.path,
           data: dashboardTable.data,
+          breakpoints: dashboardTable.breakpoints,
+          thumbnail: dashboardTable.thumbnail,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -501,6 +335,7 @@ const dashboardRoute = new Hono()
         .set({
           name: data.name,
           path: data.path,
+          thumbnail: data.thumbnail || null,
           data: sanitizePuckData(data.data),
         })
         .where(
@@ -535,6 +370,7 @@ const dashboardRoute = new Hono()
           data: data.data,
           themeId: data.themeId,
           breakpoints: data.breakpoints,
+          thumbnail: data.thumbnail || null,
         })
         .where(
           and(
@@ -552,7 +388,7 @@ const dashboardRoute = new Hono()
   .post('/', getUser, zValidator("json", insertDashboardSchema), async (c) => {
     try {
       const user = c.var.user;
-      const { data, name, path } = await c.req.valid('json');
+      const { data = {}, name, path, thumbnail } = await c.req.valid('json');
       const [dashboardRecord] = await db
         .insert(dashboardTable)
         .values({
@@ -562,6 +398,7 @@ const dashboardRoute = new Hono()
           path,
           // TODO - Sanitize input data
           data,
+          thumbnail: thumbnail || null,
         })
         .returning();
 
@@ -588,7 +425,7 @@ const dashboardRoute = new Hono()
       const user = c.var.user;
       // get the id from the path
       const { id } = c.req.valid('param');
-      const { name, path, data } = await c.req.valid('json');
+      const { name, path, data, thumbnail } = await c.req.valid('json');
       // find the dashboard to get the id
       const dashboards = await db
         .select({
@@ -614,6 +451,7 @@ const dashboardRoute = new Hono()
           name: name ?? defaultPage.name,
           path: path ?? defaultPage.path,
           data: data ?? createDefaultPageConfiguration(),
+          thumbnail: thumbnail || null,
         })
         .returning();
       return c.json(pageRecord, 201);

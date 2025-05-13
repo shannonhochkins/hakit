@@ -43,6 +43,10 @@ Consider automatically saving after a delete, or when a users tries to refresh t
     }
   }[] - currently we just send the dashboard object, but we should also send maybe all dashboards, or just dashboard, undecided
 
+### Generate Thumbnails
+- When saving a dashboard, in the background we should generate a thumbnail of the current page, and save it to the database against the entity (page or dashboard), dashboard will just be the first page as we can't really generate a thumbnail of the dashboard as a whole, or show all images in a slider or something?
+- Needs to be a background task, something like puppeteer, or a headless browser to generate the image as client side, you can only use canvas realistically and its never accurate enough to get a good image of the page
+
 ### Page Selector in main UI
 - path field should be automatically populated with tthe name of the page, but we should also allow the user to change this
 - need to add validation as this will be a route path, can't have weird characters
@@ -51,8 +55,10 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - What if the user renames the page they're currently on, do we just refresh the page or replace the url?
 
 ### Dashboard Selector in main UI
-- Actions to delete, duplicate a dashboard
+- duplicate a dashboard - currently only does this, doesn't duplicate related pages which it probably should
+- delete a dashboard - needs confirmation
 - What if the user renames the dashboard they're currently on, do we just refresh the page or replace the url?
+- What if a user deletes the current dashboard, need a seamless way to handle this so routes/requests don't fetch on entities that no longer exist
 
 ## Fields
 - Breakpoints - A way to clear an individual breakpoint from the little badge style thing that appears underneath the field
@@ -61,7 +67,7 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - for anything using arrays/objects, we should probably automatically set a default value of `[]` or `{}` if the user doesn't specify a value, so that we don't have to check for undefined values in the code
 
 ## Breakpoints
-- Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error
+- Change hakit/components getBreakpoints so that it doesn't throw an error on an empty breakpoint object (excluding xlg) and just add `xlg` as 1 in this case to get rid of the `At least one breakpoint must be defined.` error (I think this is done)
 - Display breakpoint titles in the fields somehow without displaying too long values
 - Hide breakpoint functionality if only one breakpoint is defined/enabled
 - test the shit out of this logic

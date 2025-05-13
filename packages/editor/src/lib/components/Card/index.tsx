@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { Tooltip } from '../Tooltip';
 
 interface CardProps extends React.ComponentPropsWithoutRef<'div'> {
-  image?: string;
+  image?: string | null;
   title: string;
   subtitle: string;
   onClick?: (event: SyntheticEvent) => void;

@@ -101,6 +101,9 @@ export function Editor() {
                     marginLeft: 'var(--puck-space-px)',
                   }} />
                   <PageSelector />
+                  <button onClick={() => {
+                    
+                  }}>TEST</button>
                 </Row>
                 <ViewportControls />
               </Row>

@@ -1,11 +1,12 @@
 import { IconButton } from '@lib/components/IconButtons';
 import { ReactNode, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Confirm } from '../../Modal/confirm';
 import { FieldOptions, type FieldOption } from './FieldOptions';
+import { FieldLabel } from './FieldLabel';
 
 const Description = styled.div`
   font-size: 12px;
@@ -104,25 +105,6 @@ const Field = styled.div`
     display: none;
   }
 `;
-
-const LabelRow = styled.span`
-  align-items: center;
-  display: flex;
-  font-size: var(--puck-font-size-xxs);
-  font-weight: 400;
-  padding: 4px 0;
-`;
-
-const LabelIcon = styled.div`
-  display: flex;
-  margin-inline-end: 4px;
-  padding-inline-start: 4px;
-`;
-const DisabledIcon = styled.div`
-  color: var(--puck-color-grey-05);
-  margin-inline-start: auto;
-`;
-
 const Mark = styled.div`
   color: var(--puck-color-grey-04);
   background-color: var(--puck-color-grey-11);
@@ -202,27 +184,20 @@ export function FieldWrapper({
           You have saved values on one or more breakpoints, confirming this action will only keep the <b>xlg</b> value.
         </p>
       </Confirm>
-      <LabelRow>
-        <Row fullWidth alignItems='center' justifyContent='space-between'>
-          <Tooltip title={description} placement='left'>
-            <Row alignItems='center' wrap='nowrap'>
-              {icon ? <LabelIcon>{icon}</LabelIcon> : <></>}
-              {label}
-              {readOnly && (
-                <DisabledIcon title='Read-only'>
-                  <Lock size='12' />
-                </DisabledIcon>
-              )}
-            </Row>
-          </Tooltip>
+      <FieldLabel
+        label={label}
+        description={description}
+        icon={icon}
+        readOnly={readOnly}
+        endAdornment={<>
           {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
           {collapsible && (
             <IconButton title='Enable Breakpoint Values' onClick={onToggleBreakpointMode}>
               {open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
             </IconButton>
           )}
-        </Row>
-      </LabelRow>
+        </>}
+        />
       <Field className={`puck-field ${!open && collapsible ? 'collapsed' : ''} `}>{children}</Field>
       {breakpointMode && !disableBreakpoints && (
         <>

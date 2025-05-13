@@ -1,6 +1,6 @@
 import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { z } from "zod";
-import { dashboardTable } from './db';
+import { dashboardTable, pagesTable } from './db';
 
 export const puckObjectZodSchema = z.object({
   type: z.string(),
@@ -19,20 +19,16 @@ export const puckDataZodSchema = z.object({
 })
 
 // Zod schemas for inserts & selects, no payload for creation, we use defaults in this case, maybe this needs a "theme" input one day?
-export const insertDashboardSchema = createInsertSchema(dashboardTable).pick({
+const dashboardSchema = createInsertSchema(dashboardTable);
+export const insertDashboardSchema = dashboardSchema.pick({
   name: true,
   path: true,
   data: true,
-});
-
-const baseSchema = createInsertSchema(dashboardTable);
-export const insertDashboardPageSchema = baseSchema.pick({
-  name: true,
-  path: true,
-  data: true,
+  thumbnail: true,
 })
 .extend({
-  data: baseSchema.shape.data.optional(), // replace z.any() with actual type if known
+  data: dashboardSchema.shape.data.optional(),
+  thumbnail: dashboardSchema.shape.thumbnail.optional(),
 });
 
 export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
@@ -41,4 +37,21 @@ export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
   data: true,
   themeId: true,
   breakpoints: true,
+  thumbnail: true,
+}).extend({
+  breakpoints: dashboardSchema.shape.breakpoints.optional(),
+  data: dashboardSchema.shape.data.optional(),
+  thumbnail: dashboardSchema.shape.thumbnail.optional(),
+});
+
+const dashboardPageSchema = createInsertSchema(pagesTable);
+export const insertDashboardPageSchema = dashboardPageSchema.pick({
+  name: true,
+  path: true,
+  data: true,
+  thumbnail: true,
 })
+.extend({
+  data: dashboardPageSchema.shape.data.optional(),
+  thumbnail: dashboardSchema.shape.thumbnail.optional(),
+});

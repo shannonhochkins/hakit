@@ -5,6 +5,7 @@ import { IconButton } from '@lib/components/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@lib/components/Modal/confirm';
 import { deleteFile, uploadImage } from '@client/src/lib/api/upload';
+import { Spinner } from '@lib/components/Spinner';
 
 const FileInput = styled.input`
   position: absolute;
@@ -156,6 +157,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
             img.onerror = e => {
               console.error('Error:', e);
               setError('Saved image no longer exists.');
+              setLoading(false);
             };
             img.src = dataUrl;
           };
@@ -164,12 +166,16 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         .catch(e => {
           console.error('Error:', e);
           setError('Error loading image');
-        })
-        .finally(() => {
           setLoading(false);
         });
     }
   }, [value, file]);
+
+  useEffect(() => {
+    if (file && file.fileimage) {
+      setLoading(false);
+    }
+  }, [file]);
 
   const _onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -200,8 +206,12 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         onConfirm={() => {
           setConfirmDelete(false);
           setLoading(true);
-          deleteFile(value);
-          onChange('');
+          deleteFile(value).finally(() => {
+            setLoading(false);
+            setFile(null);
+            setError(null);
+            onChange('');
+          });
         }}
         onCancel={() => {
           setConfirmDelete(false);
@@ -209,7 +219,9 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
       >
         <p>Are you sure you want to remove this image?</p>
       </Confirm>
-      {file && file.fileimage ? (
+      {loading ? <FileUploadBox>
+          <Spinner />
+      </FileUploadBox> : file && file.fileimage ? (
         <PreviewBox>
           <RemoveButton
             onClick={() => {

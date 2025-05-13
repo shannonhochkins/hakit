@@ -15,6 +15,13 @@
       "when": 1744105584939,
       "tag": "0001_steady_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747025791977,
+      "tag": "0002_swift_gamora",
+      "breakpoints": true
     }
   ]
 }

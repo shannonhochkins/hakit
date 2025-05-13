@@ -6,15 +6,17 @@ import { DashboardWithPageData, DashboardPageWithData } from "@typings/dashboard
 type CreateDashboardPayload = {
   name: string;
   path: string;
-  data: Json;
+  data?: Json;
+  thumbnail?: string | null;
 }
-export async function createDashboard({ name, path, data }: CreateDashboardPayload) {
+export async function createDashboard({ name, path, data, thumbnail }: CreateDashboardPayload) {
   // Adjust path if you named it differently in your Hono routes
   return await callApi(api.dashboard.$post({ 
     json: {
       name,
       path,
       data,
+      thumbnail
     },
   }));
 }
@@ -74,7 +76,6 @@ export async function getDashboardPageForUser(id: DashboardWithPageData['id'], p
     }
   }));
 }
-
 export async function updateDashboardPageForUser(id: DashboardWithPageData['id'], page: Partial<DashboardPageWithData> & {
   id: DashboardPageWithData['id'];
 }) {
@@ -83,6 +84,7 @@ export async function updateDashboardPageForUser(id: DashboardWithPageData['id']
       path: page.path,
       name: page.name,
       data: page.data,
+      thumbnail: page.thumbnail,
     },
     param: {
       id,
@@ -93,7 +95,9 @@ export async function updateDashboardPageForUser(id: DashboardWithPageData['id']
   return res;
 }
 
-export async function updateDashboardForUser(dashboard: Omit<DashboardWithPageData, 'pages'>) {
+type DashboardUpdateInput = { id: DashboardWithPageData['id'] } & Partial<Omit<DashboardWithPageData, 'pages' | 'id'>>;
+
+export async function updateDashboardForUser(dashboard: DashboardUpdateInput) {
   const req = api.dashboard[":id"].$put({
     param: {
       id: dashboard.id,
@@ -104,6 +108,7 @@ export async function updateDashboardForUser(dashboard: Omit<DashboardWithPageDa
       data: dashboard.data,
       themeId: dashboard.themeId,
       breakpoints: dashboard.breakpoints,
+      thumbnail: dashboard.thumbnail,
     }
   });
   const res = await callApi(req);

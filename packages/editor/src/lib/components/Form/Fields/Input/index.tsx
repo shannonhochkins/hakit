@@ -13,6 +13,9 @@ const StyledTextField = styled(TextField)`
       color: var(--puck-color-grey-04);
     }
   }
+  .MuiInputAdornment-root {
+    color: var(--puck-color-grey-02);
+  }
   .MuiFormHelperText-root {
     &:not(.Mui-error) {
       color: var(--puck-color-grey-04);
@@ -80,6 +83,13 @@ export const InputField = ({
 }: TextFieldProps & {
   readOnly?: boolean
 }) => {
+  console.log('xxx', {
+    ...props.slotProps,
+    input: {
+      readOnly: props.readOnly,
+      ...(props.slotProps?.input ?? {}),
+    },
+  })
   return (
     <StyledTextField
       className={`${className ?? ''} ${props.readOnly ? 'read-only' : ''}`}
