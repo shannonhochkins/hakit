@@ -67,7 +67,7 @@ export function Editor() {
         // }}
         iframe={{
           // this was causing puck to load indefinitely
-          waitForStyles: true,
+          waitForStyles: false,
         }}
         overrides={{
           // actionBar: () => {
@@ -101,9 +101,6 @@ export function Editor() {
                     marginLeft: 'var(--puck-space-px)',
                   }} />
                   <PageSelector />
-                  <button onClick={() => {
-                    
-                  }}>TEST</button>
                 </Row>
                 <ViewportControls />
               </Row>
