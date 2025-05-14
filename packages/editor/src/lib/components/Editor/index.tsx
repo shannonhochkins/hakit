@@ -11,42 +11,69 @@ import '@measured/puck/puck.css';
 import './puck-overrides.css';
 import { DashboardSelector } from '../DashboardSelector';
 import { Divider } from '@mui/material';
+import { Spinner } from '../Spinner';
 
 export function Editor() {
-  const intervalRef = useRef<Timer | null>(null);
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const setUnsavedPuckPageData = useGlobalStore(state => state.setUnsavedPuckPageData);
   const setEmotionCache = useGlobalStore(state => state.setEmotionCache);
   const userConfig = useGlobalStore(state => state.userConfig);
-
+  const setEditorMode = useGlobalStore(state => state.setEditorMode);
+  const observerRef = useRef<MutationObserver | null>(null);
+  const emotionCache = useGlobalStore(state => state.emotionCache);
+  
   useEffect(() => {
-    document.body.classList.add('edit-mode');
-    return () => {
-      document.body.classList.remove('edit-mode');
-    };
+    setEditorMode(true);
   }, []);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      const editorFrame = document.querySelector('iframe#preview-frame') as HTMLIFrameElement;
-      if (editorFrame && editorFrame?.contentWindow?.document.head) {
-        setEmotionCache(createCache({
-          key: 'hakit-addons',
-          container: editorFrame?.contentWindow?.document.head,
-        }));
-        if (intervalRef.current) clearInterval(intervalRef.current)
+    const handleIframe = (iframe: HTMLIFrameElement) => {
+      const applyCache = () => {
+        const head = iframe.contentWindow?.document?.head;
+        if (head) {
+          setEmotionCache(createCache({
+            key: 'hakit-editor',
+            container: head,
+          }));
+        }
+      };
+
+      // If already loaded
+      if (iframe.contentWindow?.document?.readyState === 'complete') {
+        applyCache();
+      } else {
+        iframe.addEventListener('load', applyCache, { once: true });
       }
-    }, 10);
+    };
+
+    const checkAndBind = () => {
+      const iframe = document.querySelector('iframe#preview-frame') as HTMLIFrameElement | null;
+      if (iframe) handleIframe(iframe);
+    };
+
+    // Initial check
+    checkAndBind();
+
+    // Observe DOM changes to catch future iframe insertions
+    observerRef.current = new MutationObserver(() => {
+      checkAndBind();
+    });
+
+    observerRef.current.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, []);
+      observerRef.current?.disconnect();
+    };
+  }, [setEmotionCache]);
 
   if (!userConfig) {
-    return <div>Loading user config...</div>;
+    return <Spinner absolute text="Loading user data" />;
   }
   if (!puckPageData) {
-    return <div>Loading puck page data</div>;
+    return <Spinner absolute text="Loading data" />;
   }
 
   return (
@@ -89,6 +116,7 @@ export function Editor() {
               style={{
                 flex: '1 1 0',
                 minWidth: 0,
+                opacity: emotionCache ? 1 : 0,
               }}
             >
               <Row justifyContent='space-between' alignItems='center' gap='0px' style={{

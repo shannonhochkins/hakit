@@ -26,6 +26,8 @@ type PuckConfigurationStore = {
   modalStack: number[]; // track modal "depths" by ID or index
   pushModal: () => number;
   popModal: (id: number) => void;
+  editorMode: boolean;
+  setEditorMode: (editorMode: boolean) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>(set => {
@@ -46,17 +48,19 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     unsavedPuckPageData: {} as PuckPageData,
     setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData) => set(state => ({ ...state, unsavedPuckPageData })),
     modalStack: [],
-      pushModal: () => {
-        const id = nextId++;
-        set(state => ({
-          modalStack: [...state.modalStack, id],
-        }));
-        return id;
-      },
-      popModal: (id: number) => {
-        set(state => ({
-          modalStack: state.modalStack.filter(mid => mid !== id),
-        }));
-      },
+    pushModal: () => {
+      const id = nextId++;
+      set(state => ({
+        modalStack: [...state.modalStack, id],
+      }));
+      return id;
+    },
+    popModal: (id: number) => {
+      set(state => ({
+        modalStack: state.modalStack.filter(mid => mid !== id),
+      }));
+    },
+    setEditorMode: (editorMode: boolean) => set(state => ({ ...state, editorMode })),
+    editorMode: false,
   };
 });

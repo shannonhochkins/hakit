@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { getPuckConfiguration } from './dynamic-puck-configuration';
 import { useHass } from '@hakit/core';
+import { Spinner } from '../Spinner';
 
 
 interface DynamicConfigProps {
@@ -13,7 +14,7 @@ export function DynamicConfig({ children }: DynamicConfigProps) {
   // get the path param from /editor:/id with tanstack router
   const setUserConfig = useGlobalStore(store => store.setUserConfig);
   // const setServices = useGlobalStore(state => state.setServices);
-  const userConfig = useGlobalStore(store => store.userConfig);
+  const userConfig = useGlobalStore(store => store.userConfig);  
 
   useEffect(() => {
     getPuckConfiguration({
@@ -33,8 +34,9 @@ export function DynamicConfig({ children }: DynamicConfigProps) {
   // }, [getServices, setServices]);
 
   if (!userConfig) {
-    return <div>Loading user config...</div>
+    return <Spinner absolute />;
   }
+
 
   return children;
 }

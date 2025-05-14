@@ -17,7 +17,7 @@ function RouteComponent() {
   const setEmotionCache = useGlobalStore(state => state.setEmotionCache);
   useEffect(() => {
     setEmotionCache(createCache({
-      key: 'hakit-addons',
+      key: 'hakit-editor',
       container: document.head,
     }));
   }, []);

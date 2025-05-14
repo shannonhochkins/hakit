@@ -13,6 +13,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const components: UserConfig['components'] = {};
   let rootConfig: UserConfig['root'] | undefined;
   const categories: NonNullable<UserConfig['categories']> = {} as NonNullable<UserConfig['categories']>;
+  
 
   const remotes = [
     {
@@ -72,9 +73,12 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   }
 
 
+
+
   if (!rootConfig) {
     throw new Error('No "Root" component found');
   }
+
   const root: UserConfig['root'] = {
     ...rootConfig,
     render(props) {

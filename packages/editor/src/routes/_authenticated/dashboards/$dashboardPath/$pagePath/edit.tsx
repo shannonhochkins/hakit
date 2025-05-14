@@ -10,7 +10,6 @@ function RouteComponent() {
   // get the path param from /editor:/id with tanstack router
   const params = Route.useParams();
   return <Dashboard dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
-    {/* <ColourTesting /> */}
     <Editor />
   </Dashboard>;
 }

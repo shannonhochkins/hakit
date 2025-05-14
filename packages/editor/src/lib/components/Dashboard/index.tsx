@@ -9,6 +9,7 @@ import { DynamicConfig } from './DynamicConfig';
 import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@lib/constants';
+import { Spinner } from '../Spinner';
 
 interface DashboardProps {
   dashboardPath: string;
@@ -29,9 +30,14 @@ export function Dashboard({
   const [hassUrl] = useLocalStorage<string | null>('hassUrl');
   const [hassToken] = useLocalStorage<string | undefined>('hassToken');
   const setPuckPageData = useGlobalStore(state => state.setPuckPageData);
+  const setEditorMode = useGlobalStore(state => state.setEditorMode);
 
   const dashboard = dashboardQuery.data;
-  const matchedPage = useMemo(() => pagePath ?dashboard?.pages.find(page => page.path === pagePath): dashboard?.pages[0], [dashboard, pagePath]);
+  const matchedPage = useMemo(() => pagePath ? dashboard?.pages.find(page => page.path === pagePath) : dashboard?.pages[0], [dashboard, pagePath]);
+
+  useEffect(() => {
+    setEditorMode(true);
+  }, []);
 
   useEffect(() => {
     if (dashboard && dashboard.pages.length) {
@@ -46,11 +52,11 @@ export function Dashboard({
     }
   }, [dashboard, matchedPage]);
 
-
   if (dashboardQuery.isLoading || !dashboard) {
-    return <div>Loading dashboard data...</div>
+    return <Spinner absolute text="Loading dashboard data" />
   }
   if (dashboardQuery.isError) {
+    // TODO - Error component
     return <div>Error: {dashboardQuery.error.message}</div>
   }
   if (!dashboard.pages.length) {
@@ -59,6 +65,7 @@ export function Dashboard({
   if (!matchedPage) {
     return <div>No page found</div>
   }
+
   if (!hassUrl) {
     // ask the user for their Home Assistant URL
     return <HassModal />

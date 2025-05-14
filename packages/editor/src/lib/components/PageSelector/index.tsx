@@ -20,7 +20,6 @@ export function PageSelector() {
     from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
   });
   const navigate = useNavigate();
-  console.log('params', params);
   const pages = dashboard?.pages.map(page => ({
     id: page.id,
     title: page.name,
