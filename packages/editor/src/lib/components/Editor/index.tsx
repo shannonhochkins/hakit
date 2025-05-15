@@ -14,6 +14,7 @@ import { Divider } from '@mui/material';
 import { Spinner } from '../Spinner';
 import { NavigationSidebar } from '../NavigationSidebar';
 
+
 export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const setUnsavedPuckPageData = useGlobalStore(state => state.setUnsavedPuckPageData);

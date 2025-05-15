@@ -9,7 +9,7 @@ type CreateDashboardPayload = {
   data?: Json;
   thumbnail?: string | null;
 }
-export async function createDashboard({ name, path, data, thumbnail }: CreateDashboardPayload) {
+export async function createDashboard({ name, path, data, thumbnail }: CreateDashboardPayload, toastMessage?: ToastMessages): Promise<DashboardWithPageData> {
   // Adjust path if you named it differently in your Hono routes
   return await callApi(api.dashboard.$post({ 
     json: {
@@ -18,10 +18,10 @@ export async function createDashboard({ name, path, data, thumbnail }: CreateDas
       data,
       thumbnail
     },
-  }));
+  }), toastMessage);
 }
 
-export async function createDashboardPage({ id, name, path, data }: { id: DashboardWithPageData['id'], name: string, path: string, data?: Json }) {
+export async function createDashboardPage({ id, name, path, data }: { id: DashboardWithPageData['id'], name: string, path: string, data?: Json }, toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].page.$post({
     param: {
       id,
@@ -31,7 +31,7 @@ export async function createDashboardPage({ id, name, path, data }: { id: Dashbo
       path,
       data,
     }
-  }));
+  }), toastMessage);
 }
 
 export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }, toastMessage?: ToastMessages) {
@@ -51,33 +51,33 @@ export async function deleteDashboardPage({ id, pageId }: { id: DashboardWithPag
   }), toastMessage);
 }
 
-export async function getDashboardByPath(dashboardPath: DashboardWithPageData['path']) {
+export async function getDashboardByPath(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":dashboardPath"].$get({
     param: {
       dashboardPath,
     }
-  }));
+  }), toastMessage);
 }
 
-export async function getDashboardByPathWithData(dashboardPath: DashboardWithPageData['path']) {
+export async function getDashboardByPathWithData(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":dashboardPath"].data.$get({
     param: {
       dashboardPath,
     }
-  }));
+  }), toastMessage);
 }
 
-export async function getDashboardPageForUser(id: DashboardWithPageData['id'], pageId: DashboardPageWithData['id']) {
+export async function getDashboardPageForUser(id: DashboardWithPageData['id'], pageId: DashboardPageWithData['id'], toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].page[":pageId"].$get({
     param: {
       id,
       pageId,
     }
-  }));
+  }), toastMessage);
 }
 export async function updateDashboardPageForUser(id: DashboardWithPageData['id'], page: Partial<DashboardPageWithData> & {
   id: DashboardPageWithData['id'];
-}) {
+}, toastMessage?: ToastMessages) {
   const req = api.dashboard[":id"].page[":pageId"].$put({
     json: {
       path: page.path,
@@ -90,13 +90,13 @@ export async function updateDashboardPageForUser(id: DashboardWithPageData['id']
       pageId: page.id,
     }
   });
-  const res = await callApi(req);
+  const res = await callApi(req, toastMessage);
   return res;
 }
 
 type DashboardUpdateInput = { id: DashboardWithPageData['id'] } & Partial<Omit<DashboardWithPageData, 'pages' | 'id'>>;
 
-export async function updateDashboardForUser(dashboard: DashboardUpdateInput) {
+export async function updateDashboardForUser(dashboard: DashboardUpdateInput, toastMessage?: ToastMessages) {
   const req = api.dashboard[":id"].$put({
     param: {
       id: dashboard.id,
@@ -110,7 +110,7 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput) {
       thumbnail: dashboard.thumbnail,
     }
   });
-  const res = await callApi(req);
+  const res = await callApi(req, toastMessage);
   return res; 
 }
 
@@ -124,22 +124,26 @@ export async function getDashboardsForUser() {
 export const dashboardByPathQueryOptions = (dashboardPath: DashboardWithPageData['path']) => queryOptions({
   queryKey: ["get-dashboard-by-path-for-user", dashboardPath],
   queryFn: () => getDashboardByPath(dashboardPath),
+  retry: false,
   staleTime: Infinity,
 });
 export const dashboardByPathWithPageDataQueryOptions = (dashboardPath: DashboardWithPageData['path']) => queryOptions({
   queryKey: ["get-dashboard-by-path-with-page-for-user", dashboardPath],
   queryFn: () => getDashboardByPathWithData(dashboardPath),
+  retry: false,
   staleTime: Infinity,
 });
 // get a dashboard page with data
 export const dashboardPageQueryOptions = (dashboardId: DashboardWithPageData['id'], pageId: DashboardPageWithData['id']) => queryOptions({
   queryKey: ["get-dashboard-page-for-user", dashboardId, pageId],
   queryFn: () => getDashboardPageForUser(dashboardId, pageId),
+  retry: false,
   staleTime: Infinity,
 });
 // get all dashboards including pages, pages don't have data
 export const dashboardsQueryOptions = queryOptions({
   queryKey: ["get-dashboards-for-user"],
   queryFn: getDashboardsForUser,
+  retry: false,
   staleTime: Infinity,
 });

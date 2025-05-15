@@ -6,7 +6,7 @@ import { Column, Row } from '@hakit/components';
 import { Button } from '@lib/components/Button';
 import { Modal, ModalActions } from '@lib/components/Modal';
 import { useQuery } from '@tanstack/react-query';
-import { createDashboard, dashboardByPathWithPageDataQueryOptions, dashboardsQueryOptions, deleteDashboard, updateDashboardForUser } from '@lib/api/dashboard';
+import { createDashboardPage, dashboardByPathWithPageDataQueryOptions, dashboardsQueryOptions, deleteDashboardPage, updateDashboardPageForUser } from '@lib/api/dashboard';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
@@ -18,27 +18,25 @@ import { Confirm } from '@lib/components/Modal/confirm';
 
 interface DashboardSelectorProps {
   open?: boolean;
-  dashboard?: DashboardPageWithoutData | null;
+  dashboard: DashboardPageWithoutData;
+  page?: DashboardPageWithoutData | null;
   onClose: () => void;
   mode: 'new' | 'edit' | 'duplicate';
 }
 
-export function DashboardEditor({ open = false, mode, dashboard, onClose }: DashboardSelectorProps) {
+export function DashboardPageEditor({ open = false, mode, dashboard, page, onClose }: DashboardSelectorProps) {
   const navigate = useNavigate();
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
-  const [name, setName] = useState<string>(dashboard?.name || '');
+  const [name, setName] = useState<string>(page?.name || '');
   const previousName = usePrevious(name);
-  const [path, setPath] = useState<string>(dashboard?.path || '');
+  const [path, setPath] = useState<string>(page?.path || '');
   const [pathTouched, setPathTouched] = useState(false);
   const [pathError, setPathError] = useState('');
   const params = useParams({
     from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
   });
   // get the path param from /editor:/id with tanstack router
-  const dashboardQuery = useQuery({
-    ...dashboardByPathWithPageDataQueryOptions(params.dashboardPath),
-    enabled: false,
-  });
+  const dashboardQuery = useQuery(dashboardByPathWithPageDataQueryOptions(params.dashboardPath));
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const reset = useCallback(() => {
@@ -78,7 +76,7 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
   }, [path]);
 
   return (<>
-    <Modal open={open} title={`${capitalize(mode)} Dashboard`} onClose={() => {
+    <Modal open={open} title={`${capitalize(mode)} Page`} onClose={() => {
       onClose();
     }}>
       <Column gap="1rem" fullWidth alignItems='stretch' justifyContent='flex-start'>
@@ -89,7 +87,7 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
             style={{
               width: '100%',
             }}
-            helperText={'Enter a name for your dashboard'}
+            helperText={'Enter a name for your page'}
             required
             value={name}
             type="text"
@@ -106,7 +104,7 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
             }}
             value={path}
             error={!!pathError}
-            helperText={pathError || 'Enter a path for your dashboard'}
+            helperText={pathError || 'Enter a path for your page'}
             type="text"
             slotProps={{
               input: {
@@ -127,36 +125,26 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
         </div>
       </Column>
       <ModalActions wrap="nowrap" fullWidth alignItems='center' justifyContent='space-between'>
-        {dashboard?.id && <>
+        {page?.id && <>
           <Button color="error" variant="contained" onClick={() => {
             setConfirmDelete(true);
           }}>DELETE</Button>
           <Confirm
-            title='Confirm delete dashboard'
+            title='Confirm delete page'
             open={confirmDelete}
             onConfirm={() => {
-              return deleteDashboard({
-                id: dashboard.id
+              return deleteDashboardPage({
+                id: dashboard.id,
+                pageId: page.id,
               }, {
-                pending: 'Deleting dashboard',
-                success: 'Deleted dashboard',
+                pending: 'Deleting page',
+                success: 'Deleted page',
               })
                 .then(() => {
                   setConfirmDelete(false);
                   reset();
                   dashboardsQuery.refetch();
-                  // don't reload the data for the current dashboard as it's been deleted
-                  const currentDashboard = params.dashboardPath === dashboard.path;
-                  if (!currentDashboard) {
-                    dashboardQuery.refetch();
-                  } else {
-                    navigate({
-                      from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                      to: `/dashboards/$dashboardPath/$pagePath/edit`,
-                      reloadDocument: true,
-                      params
-                    });
-                  }
+                  dashboardQuery.refetch();
                 })
                 .catch(() => {
                   setConfirmDelete(false);
@@ -166,53 +154,44 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
               setConfirmDelete(false);
             }}
           >
-            <p>Are you sure you want to remove this dashboard?</p>
+            <p>Are you sure you want to remove this page?</p>
           </Confirm>
         </>}
         <Row gap="1rem">
           <Button onClick={reset}>CANCEL</Button>
             {(mode === 'new' || mode === 'duplicate') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
-              createDashboard({
-                ...dashboard,
+              createDashboardPage({
+                id: dashboard?.id,
                 name,
                 path,
               }, {
-                success: 'Created dashboard',
+                success: 'Created page',
                 error(err) {
-                  if (err?.includes('unique_user_path')) {
-                    return 'Dashboard with this path already exists';
+                  if (err?.includes('unique_dashboard_page_path')) {
+                    return 'Page with this path already exists';
                   }
                   return err;
                 }
-              }).then((newDashboard) => {
+              }).then(() => {
                 reset();
                 dashboardsQuery.refetch();
                 dashboardQuery.refetch();
-                navigate({
-                  from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                  to: `/dashboards/$dashboardPath/$pagePath/edit`,
-                  replace: true,
-                  params: {
-                    dashboardPath: newDashboard.path,
-                    pagePath: newDashboard.pages[0].path
-                  },
-                });
               });
           }}>CREATE</Button>)}
 
-          {mode === 'edit' && dashboard?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
-              // if the paths match before we update from the original dashboard, and the paths have changed
-              // we should update the current path so if the user refreshes it loads the correct dashboard
-              const currentDashboard = path !== dashboard.path && params.dashboardPath === dashboard.path;
-              updateDashboardForUser({
-                ...dashboard,
+          {mode === 'edit' && page?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+              // if the paths match before we update from the original page, and the paths have changed
+              // we should update the current path so if the user refreshes it loads the correct page
+              const currentDashboard = path !== page.path && params.pagePath === page.path;
+              updateDashboardPageForUser(dashboard.id, {
+                ...page,
                 name,
                 path,
               }, {
                 success: 'Updated dashboard',
                 error(err) {
-                  if (err?.includes('unique_user_path')) {
-                    return 'Dashboard with this path already exists';
+                  if (err?.includes('unique_dashboard_page_path')) {
+                    return 'Page with this path already exists';
                   }
                   return err;
                 }
@@ -227,8 +206,8 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
                     to: `/dashboards/$dashboardPath/$pagePath/edit`,
                     replace: true,
                     params: {
-                      dashboardPath: path,
-                      pagePath: params.pagePath
+                      dashboardPath: params.dashboardPath,
+                      pagePath: path
                     },
                   });
                 }

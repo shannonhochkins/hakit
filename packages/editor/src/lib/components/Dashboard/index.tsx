@@ -7,6 +7,8 @@ import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@lib/constants';
 import { Spinner } from '../Spinner';
+import { NavigationSidebar } from '../NavigationSidebar';
+
 
 interface DashboardProps {
   dashboardPath: string;
@@ -48,21 +50,32 @@ export function Dashboard({
     }
   }, [dashboard, matchedPage, setBreakPointItems, setBreakpoints, setDashboard, setPuckPageData]);
 
-  if (dashboardQuery.isLoading || !dashboard) {
+  if (dashboardQuery.isLoading) {
     return <Spinner absolute text="Loading dashboard data" />
   }
-  if (dashboardQuery.isError) {
-    // TODO - Error component
-    return <div>Error: {dashboardQuery.error.message}</div>
-  }
-  if (!dashboard.pages.length) {
-    return <div>No pages found</div>
-  }
-  if (!matchedPage) {
-    return <div>No page found</div>
+  let errorTitle = '';
+  let errorMessage = '';
+
+  if (!dashboard) {
+    errorTitle = 'Not found';
+    errorMessage = `Dashboard "${dashboardPath}" does not exist, select/create a dashboard above.`;
+  } else if (!dashboard.pages.length) {
+    errorTitle = 'No pages found';
+    errorMessage = `Active dashboard "${dashboard.name}" has no pages, select/create a page above.`;
+  } else if (!matchedPage) {
+    errorTitle = 'Page not found';
+    errorMessage = `Active dashboard "${dashboard.name}" does not have a page with path "${pagePath}". select/create a page above.`;
   }
 
-  return <DynamicConfig>
-    {children}
-  </DynamicConfig>
+  return <>
+    {errorTitle && errorMessage && <NavigationSidebar closeable={false} open error={{
+      title: errorTitle,
+      message: errorMessage,
+    }} />}
+    {dashboard && dashboard.pages.length > 0 && matchedPage && <>
+      <DynamicConfig>
+        {children}
+      </DynamicConfig>
+    </>}
+  </>
 }

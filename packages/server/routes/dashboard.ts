@@ -118,9 +118,12 @@ const dashboardRoute = new Hono()
           )
         )
         .groupBy(dashboardTable.id);
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with path ${dashboardPath}`);
+      }
       return c.json(dashboards[0] as unknown as DashboardWithoutPageData, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboard Fetch Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   .get('/:dashboardPath/data', getUser, zValidator("param", z.object({
@@ -158,9 +161,12 @@ const dashboardRoute = new Hono()
           )
         )
         .groupBy(dashboardTable.id);
+      if (!dashboards.length) {
+        throw new Error(`Dashboard not found with path ${dashboardPath}`);
+      }
       return c.json(dashboards[0] as unknown as DashboardWithPageData, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboard Fetch Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // get a full page object with the data
@@ -200,7 +206,7 @@ const dashboardRoute = new Hono()
         );
       return c.json(page as unknown as DashboardPageWithData, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboard Page Fetch Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // get all dashboards and pages without the page data
@@ -235,7 +241,7 @@ const dashboardRoute = new Hono()
       // have to cast here as the sql function is not typed
     return c.json(dashboards as unknown as DashboardWithoutPageData[], 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboards Fetch Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // delete a dashboard
@@ -257,7 +263,7 @@ const dashboardRoute = new Hono()
         message: 'Dashboard deleted successfully'
       }, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboards Delete Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // delete a dashboard page
@@ -296,7 +302,7 @@ const dashboardRoute = new Hono()
         message: 'Dashboard page deleted successfully'
       }, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboards Delete Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // update a dashboard page
@@ -347,7 +353,7 @@ const dashboardRoute = new Hono()
         .returning();
       return c.json(pageRecord, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Page Update Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // update a dashboard
@@ -381,7 +387,7 @@ const dashboardRoute = new Hono()
         .returning();
       return c.json(dashboardRecord, 200);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboards Update Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // create a new dashboard with a default page
@@ -404,17 +410,23 @@ const dashboardRoute = new Hono()
 
       const defaultPage = await getAvailableDefaultPage(dashboardRecord.id);
 
-      await db.insert(pagesTable).values({
-        id: generateId(),
-        dashboardId: dashboardRecord.id,
-        name: defaultPage.name,
-        path: defaultPage.path,
-        data: createDefaultPageConfiguration(),
-      });
+      const [page] = await db
+        .insert(pagesTable)
+        .values({
+          id: generateId(),
+          dashboardId: dashboardRecord.id,
+          name: defaultPage.name,
+          path: defaultPage.path,
+          data: createDefaultPageConfiguration(),
+        })
+        .returning();
+      // TODO - Fix this mess
+      const dashboard = dashboardRecord as unknown as DashboardWithPageData;
+      dashboard.pages = [page as unknown as DashboardPageWithData];
       
-      return c.json(dashboardRecord, 201);
+      return c.json(dashboard, 201);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboard Creation Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
   // create a new page for a dashboard
@@ -456,7 +468,7 @@ const dashboardRoute = new Hono()
         .returning();
       return c.json(pageRecord, 201);
     } catch (error) {
-      return c.json(formatErrorResponse('Dashboard Page Creation Error', error), 400);
+      return c.json(formatErrorResponse('Error', error), 400);
     }
   })
 

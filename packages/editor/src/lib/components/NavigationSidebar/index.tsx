@@ -8,11 +8,13 @@ import { IconButton } from '../IconButtons';
 import { ChevronDown, ChevronUp, Layers, LayoutDashboard, PlusCircle, SquarePen } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import { Spinner } from '../Spinner';
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { Row } from '@hakit/components';
 import { DashboardEditor } from './DashboardEditor';
 import { DashboardPageWithoutData } from '@typings/dashboard';
+import { DashboardPageEditor } from './DashboardPageEditor';
+import { Alert, AlertTitle } from '@mui/material'
+
 
 
 const OrderedList = styled.ol`
@@ -41,17 +43,25 @@ const ListItem = styled.li`
     width: 100%;
   }
   cursor: pointer;
-  &:hover, &:focus, &:active {
-    background-color: var(--puck-color-grey-08);
-    color: var(--puck-color-grey-02);
-    border-color: var(--puck-color-grey-05);
+  &.disable-hover {
+    cursor: default;
+    background-color: transparent;
+    color: var(--puck-color-grey-03);
+    border-color: transparent;
   }
-  &.active {
-    background-color: var(--puck-color-grey-06);
-    color: var(--puck-color-grey-01);
-    border-color: var(--puck-color-azure-07);
+  &:not(.disable-hover) {
     &:hover, &:focus, &:active {
-      border-color: var(--puck-color-azure-05);
+      background-color: var(--puck-color-grey-08);
+      color: var(--puck-color-grey-02);
+      border-color: var(--puck-color-grey-05);
+    }
+    &.active {
+      background-color: var(--puck-color-grey-06);
+      color: var(--puck-color-grey-01);
+      border-color: var(--puck-color-azure-07);
+      &:hover, &:focus, &:active {
+        border-color: var(--puck-color-azure-05);
+      }
     }
   }
 `;
@@ -88,18 +98,36 @@ const FieldsetInnerList = styled.li`
 `;
 
 
-export function NavigationSidebar() {
-  const [open, setOpen] = useState(true);
+export function NavigationSidebar({
+  open: defaultOpen = true,
+  closeable = true,
+  error,
+}: {
+  closeable?: boolean;
+  error?: {
+    title: string;
+    message: string;
+  },
+  open?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   const [dashboardEditorMode, setDashboardEditorMode] = useState<{
     mode: 'new' | 'edit' | 'duplicate' | null;
     dashboard?: DashboardPageWithoutData | null;
   } | null>(null);
+  const [dashboardPageEditorMode, setDashboardPageEditorMode] = useState<{
+    mode: 'new' | 'edit' | 'duplicate' | null;
+    dashboard: DashboardPageWithoutData | null;
+    page?: DashboardPageWithoutData | null;
+  } | null>(null);
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
-  const currentDashboard = useGlobalStore(state => state.dashboard);
   const params = useParams({
     from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
   });
+
+  const currentDashboard = useMemo(() => dashboards?.find((dashboard) => dashboard.path === params?.dashboardPath), [dashboards, params?.dashboardPath]);
+
   const navigate = useNavigate();
   // maintain state of each dashboard and if they're collapsed or not, the current dashboard should be open by default
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -112,15 +140,22 @@ export function NavigationSidebar() {
       }, {} as Record<string, boolean>);
       setCollapsed(newCollapsed);
     }
-  }, [currentDashboard, dashboards])
+  }, [currentDashboard, dashboards]);
+
+  // TODO
+  // If a page or a dashbaord is deleted and either the page/dashboard is currently active, we'll need to make an active decision on what to do here
+  // do we block the user from closing the sidebar until a new page is selected?
 
 
   return <>
     {dashboardEditorMode?.mode && <DashboardEditor mode={dashboardEditorMode.mode} open={true} onClose={() => {
       setDashboardEditorMode(null);
     }} dashboard={dashboardEditorMode.dashboard} />}
-    <NavigationSidebarToggle open={open} onToggle={() => setOpen((prev) => !prev)} />
-    <NavigationSidebarContainer open={open} onClose={() => setOpen(false)}>
+    {dashboardPageEditorMode?.mode && dashboardPageEditorMode.dashboard && <DashboardPageEditor mode={dashboardPageEditorMode.mode} open={true} onClose={() => {
+      setDashboardPageEditorMode(null);
+    }} dashboard={dashboardPageEditorMode.dashboard} page={dashboardPageEditorMode.page} />}
+    {closeable && <NavigationSidebarToggle open={open} onToggle={() => setOpen((prev) => !prev)} />}
+    <NavigationSidebarContainer open={open} onClose={() => closeable && setOpen(false)}>
       <Title>
         <Row>
           <LayoutDashboard size={24} style={{
@@ -202,7 +237,12 @@ export function NavigationSidebar() {
                     marginRight: `var(--puck-space-px)`,
                   }}>
                     <IconButton className="disable-bg-hover">
-                      <PlusCircle size={20} />
+                      <PlusCircle size={20} onClick={() => {
+                        setDashboardPageEditorMode({
+                          mode: 'new',
+                          dashboard,
+                        });
+                      }} />
                     </IconButton>
                   </Tooltip>
                 </Title>
@@ -228,14 +268,22 @@ export function NavigationSidebar() {
                         <IconButton className="disable-bg-hover" style={{
                           marginRight: `var(--puck-space-px)`,
                         }}>
-                          <SquarePen size={20}/>
+                          <SquarePen size={20} onClick={() => {
+                            setDashboardPageEditorMode({
+                              mode: 'edit',
+                              dashboard,
+                              page,
+                            });
+                          }} />
                         </IconButton>
                       </Tooltip>
                     </ListItem>
                   ))}
                   {dashboard.pages?.length === 0 && (
-                    <ListItem>
-                      No pages found
+                    <ListItem className="disable-hover">
+                      <span style={{
+                        paddingLeft: `var(--puck-space-px)`,
+                      }}>No pages found</span>
                     </ListItem>
                   )}
                 </OrderedList>
@@ -244,16 +292,19 @@ export function NavigationSidebar() {
           </Fieldset>
         ))}
         {!dashboardsQuery.isLoading && dashboards?.length === 0 && (
-          <ListItem>
-            No dashboards found
-          </ListItem>
-        )}
-        {dashboardsQuery.isError && (
-          <ListItem>
-            Error: {dashboardsQuery.error.message}
+          <ListItem className="disable-hover">
+            <span style={{
+              paddingLeft: `var(--puck-space-px)`,
+            }}>No dashboards found</span>
           </ListItem>
         )}
       </OrderedList>
+      {error?.title && <Alert severity='error' style={{
+        marginTop: 'var(--puck-space-px)',
+      }}>
+        <AlertTitle>{error.title}</AlertTitle>
+        {error.message}
+      </Alert>}
     </NavigationSidebarContainer>
   </>
 };

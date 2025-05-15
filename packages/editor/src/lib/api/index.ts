@@ -10,10 +10,10 @@ export const api = client.api;
 // dodgey helper to extract the 200 response out as this is the only response that can be returned
 type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200, "json"> ? Data : never;
 
-type ToastMessages = {
+export type ToastMessages = {
   pending?: string;
   success?: string;
-  error?: string | ((err: unknown) => string);
+  error?: string | ((err: string) => string);
 };
 
 export async function callApi<T extends ClientResponse<unknown, number, "json">>(request: Promise<T>, toastMessages?: ToastMessages | false): Promise<ExtractSuccessData<T>> {
@@ -61,7 +61,7 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
       if (typeof toastMessages?.error === 'function') {
         return toastMessages.error(err);
       }
-      return toastMessages?.error || 'Something went wrong';
+      return toastMessages?.error || err || 'Something went wrong';
     }
   });
   return await promise;

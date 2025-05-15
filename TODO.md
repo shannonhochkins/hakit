@@ -74,3 +74,11 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 
 ## Thumbnails 
 Currently, dashboards/pages support thumbnails, but consider removing this as they're not displayed or used
+
+## Navigation Sidebar
+- Hamburger menu should move when sidebar is open
+- May need duplicate functionality to duplicate a dashboard and all pages underneath it
+- no XX found in sidebar doesn't have the right padding, should probably not have a different background color either
+- Design isn't great, but it's okay for now
+- Determine if we should include the "resize" handle for this sidebar too
+- When there's no dashboards, and we create one, there's a request that's fired causing an error
