@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
@@ -12,27 +12,13 @@ type Props = {
 export const NavigationSidebarContainer: React.FC<Props> = ({ open, onClose, children }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [open, onClose]);
-
   return createPortal(
-    <Overlay visible={open}>
+    <>
       <SidebarContainer ref={sidebarRef} visible={open}>
         {children}
       </SidebarContainer>
-    </Overlay>,
+      <Overlay visible={open} onClick={onClose}/>
+    </>,
     document.body
   );
 };
@@ -56,6 +42,7 @@ const Overlay = styled.div<{ visible: boolean }>`
   z-index: calc(var(--ha-modal-z-index, 10) - 1);
   backdrop-filter: blur(0.25em) brightness(0.75);
   display: ${({ visible }) => (visible ? 'block' : 'none')};
+  cursor: pointer;
 `;
 
 const SidebarContainer = styled.div<{ visible: boolean }>`

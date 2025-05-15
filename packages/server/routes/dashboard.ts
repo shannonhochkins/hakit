@@ -335,8 +335,8 @@ const dashboardRoute = new Hono()
         .set({
           name: data.name,
           path: data.path,
-          thumbnail: data.thumbnail || null,
-          data: sanitizePuckData(data.data),
+          thumbnail: data.thumbnail,
+          data: data.data ? sanitizePuckData(data.data) : undefined,
         })
         .where(
           and(
@@ -370,7 +370,7 @@ const dashboardRoute = new Hono()
           data: data.data,
           themeId: data.themeId,
           breakpoints: data.breakpoints,
-          thumbnail: data.thumbnail || null,
+          thumbnail: data.thumbnail,
         })
         .where(
           and(
@@ -398,7 +398,7 @@ const dashboardRoute = new Hono()
           path,
           // TODO - Sanitize input data
           data,
-          thumbnail: thumbnail || null,
+          thumbnail: thumbnail,
         })
         .returning();
 

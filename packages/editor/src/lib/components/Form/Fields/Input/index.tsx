@@ -83,13 +83,6 @@ export const InputField = ({
 }: TextFieldProps & {
   readOnly?: boolean
 }) => {
-  console.log('xxx', {
-    ...props.slotProps,
-    input: {
-      readOnly: props.readOnly,
-      ...(props.slotProps?.input ?? {}),
-    },
-  })
   return (
     <StyledTextField
       className={`${className ?? ''} ${props.readOnly ? 'read-only' : ''}`}

@@ -9,8 +9,10 @@ import { ChevronDown, ChevronUp, Layers, LayoutDashboard, PlusCircle, SquarePen 
 import { Tooltip } from '../Tooltip';
 import { Spinner } from '../Spinner';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-import { useParams } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { Row } from '@hakit/components';
+import { DashboardEditor } from './DashboardEditor';
+import { DashboardPageWithoutData } from '@typings/dashboard';
 
 
 const OrderedList = styled.ol`
@@ -37,10 +39,6 @@ const ListItem = styled.li`
     display: block;
     padding: var(--puck-space-px) var(--puck-space-px) var(--puck-space-px) 0;
     width: 100%;
-    // hjandle ellipsis overflow
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   cursor: pointer;
   &:hover, &:focus, &:active {
@@ -92,12 +90,17 @@ const FieldsetInnerList = styled.li`
 
 export function NavigationSidebar() {
   const [open, setOpen] = useState(true);
+  const [dashboardEditorMode, setDashboardEditorMode] = useState<{
+    mode: 'new' | 'edit' | 'duplicate' | null;
+    dashboard?: DashboardPageWithoutData | null;
+  } | null>(null);
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
   const currentDashboard = useGlobalStore(state => state.dashboard);
   const params = useParams({
-      from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
   });
+  const navigate = useNavigate();
   // maintain state of each dashboard and if they're collapsed or not, the current dashboard should be open by default
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -113,6 +116,9 @@ export function NavigationSidebar() {
 
 
   return <>
+    {dashboardEditorMode?.mode && <DashboardEditor mode={dashboardEditorMode.mode} open={true} onClose={() => {
+      setDashboardEditorMode(null);
+    }} dashboard={dashboardEditorMode.dashboard} />}
     <NavigationSidebarToggle open={open} onToggle={() => setOpen((prev) => !prev)} />
     <NavigationSidebarContainer open={open} onClose={() => setOpen(false)}>
       <Title>
@@ -126,6 +132,11 @@ export function NavigationSidebar() {
           <IconButton className="disable-bg-hover">
             <PlusCircle size={20} style={{
               marginRight: `var(--puck-space-px)`,
+            }} onClick={() => {
+              setDashboardEditorMode({
+                mode: 'new',
+                dashboard: null
+              });
             }} />
           </IconButton>
         </Tooltip>
@@ -151,19 +162,28 @@ export function NavigationSidebar() {
               }}>
                 {!collapsed[dashboard.id] ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
               </IconButton>
-              <Tooltip title="Select Dashboard" placement="bottom" style={{
+              <Tooltip title="View Pages" placement="bottom" style={{
                 width: '100%',
                 display: 'flex',
                 alignItems: 'stretch',
                 justifyContent: 'space-between',
-              }} onClick={() => {
-                setOpen(false);
+              }} onClick={(e) => {                
+                e.stopPropagation();
+                setCollapsed((prev) => ({
+                  ...prev,
+                  [dashboard.id]: !prev[dashboard.id]
+                }));
               }}>                
                 <span>{dashboard.name}{currentDashboard?.id === dashboard.id ? ' (current)' : ''}</span>
               </Tooltip>
               <Tooltip placement="left" title="Edit">
                 <IconButton className="disable-bg-hover" style={{
                   marginRight: `var(--puck-space-px)`,
+                }} onClick={() => {
+                  setDashboardEditorMode({
+                    mode: 'edit',
+                    dashboard
+                  });
                 }}>
                   <SquarePen size={20} />
                 </IconButton>
@@ -193,7 +213,14 @@ export function NavigationSidebar() {
                         width: '100%',
                         paddingLeft: `var(--puck-space-px)`,
                       }} onClick={() => {
-                        setOpen(false);
+                        navigate({
+                          from: `/dashboards/$dashboardPath/$pagePath/edit`,
+                          to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                          params: {
+                            dashboardPath: dashboard.path,
+                            pagePath: page.path
+                          }
+                        });
                       }}>
                         <span>{page.name}{currentDashboard?.id === dashboard.id && params?.pagePath === page.path ? ' (current)' : ''}</span>
                       </Tooltip>

@@ -1,5 +1,10 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { userQueryOptions } from "../lib/api/user";
+import { useLocalStorage } from "@lib/hooks/useLocalStorage";
+// TODO - move this to a better place
+import { HassModal } from '@lib/components/Dashboard/HassModal';
+import { HassConnect } from "@hakit/core";
+
 
 const Login = () => {
   return (
@@ -16,12 +21,21 @@ const Login = () => {
 };
 
 const Component = () => {
-  const { user } = Route.useRouteContext();
-  if (!user) {
+  const context = Route.useRouteContext();
+  const [hassUrl] = useLocalStorage<string | null>('hassUrl');
+  const [hassToken] = useLocalStorage<string | undefined>('hassToken');
+  if (!context.user) {
     return <Login />;
   }
 
-  return <Outlet />;
+  if (!hassUrl) {
+    // ask the user for their Home Assistant URL
+    return <HassModal />
+  }
+
+  return <HassConnect hassUrl={hassUrl} hassToken={hassToken}>
+    <Outlet />
+  </HassConnect>
 };
 
 // src/routes/_authenticated.tsx

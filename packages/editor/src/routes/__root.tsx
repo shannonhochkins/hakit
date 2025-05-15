@@ -42,6 +42,7 @@ function Root() {
       document.body.classList.remove('edit-mode');
     };
   }, [editorMode]);
+  console.log('editorMode', editorMode);
   return (
     <>
       {/* <NavBar />

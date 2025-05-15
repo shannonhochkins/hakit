@@ -1,9 +1,6 @@
 import { dashboardByPathWithPageDataQueryOptions } from '@client/src/lib/api/dashboard';
-import { useLocalStorage } from '@lib/hooks/useLocalStorage';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { HassConnect } from '@hakit/core';
-import { HassModal } from './HassModal';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { DynamicConfig } from './DynamicConfig';
 import { useThemeStore } from '@hakit/components';
@@ -27,8 +24,7 @@ export function Dashboard({
   const setDashboard = useGlobalStore(store => store.setDashboard);
   const setBreakpoints = useThemeStore(store => store.setBreakpoints);
   const setBreakPointItems = useGlobalStore(store => store.setBreakPointItems);
-  const [hassUrl] = useLocalStorage<string | null>('hassUrl');
-  const [hassToken] = useLocalStorage<string | undefined>('hassToken');
+  
   const setPuckPageData = useGlobalStore(state => state.setPuckPageData);
   const setEditorMode = useGlobalStore(state => state.setEditorMode);
 
@@ -66,14 +62,7 @@ export function Dashboard({
     return <div>No page found</div>
   }
 
-  if (!hassUrl) {
-    // ask the user for their Home Assistant URL
-    return <HassModal />
-  }
-
-  return <HassConnect hassUrl={hassUrl} hassToken={hassToken}>
-    <DynamicConfig>
-      {children}
-    </DynamicConfig>
-  </HassConnect>;
+  return <DynamicConfig>
+    {children}
+  </DynamicConfig>
 }

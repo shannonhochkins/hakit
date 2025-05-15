@@ -126,7 +126,7 @@ export const ViewportControls = () => {
       }
       return getBreakpoints(breakpoints)
     } catch (e) {
-      console.log('e', e);
+      console.error('Get queries error', e);
       // ignore the error, validation will show errors in the fields
       return null;
     }

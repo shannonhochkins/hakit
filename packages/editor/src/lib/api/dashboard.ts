@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { Json } from "@kinde-oss/kinde-typescript-sdk";
-import { api, callApi } from './';
+import { api, callApi, ToastMessages } from './';
 import { DashboardWithPageData, DashboardPageWithData } from "@typings/dashboard";
 
 type CreateDashboardPayload = {
@@ -34,22 +34,21 @@ export async function createDashboardPage({ id, name, path, data }: { id: Dashbo
   }));
 }
 
-export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }) {
-  
+export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }, toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].$delete({
     param: {
       id,
     },
-  }));
+  }), toastMessage);
 }
 
-export async function deleteDashboardPage({ id, pageId }: { id: DashboardWithPageData['id'], pageId: DashboardPageWithData['id'] }) {
+export async function deleteDashboardPage({ id, pageId }: { id: DashboardWithPageData['id'], pageId: DashboardPageWithData['id'] }, toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].page[':pageId'].$delete({
     param: {
       id,
       pageId,
     },
-  }));
+  }), toastMessage);
 }
 
 export async function getDashboardByPath(dashboardPath: DashboardWithPageData['path']) {
