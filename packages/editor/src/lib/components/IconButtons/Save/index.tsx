@@ -28,7 +28,7 @@ export function Save() {
       ...dashboard,
       breakpoints: breakpointItems,
     });
-  }, [params, dashboard, data]);
+  }, [dashboard, data, breakpointItems, params.pagePath]);
   return (
     <>
       <ProgressButton

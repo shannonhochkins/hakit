@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { Puck } from '@measured/puck';
 import { Column, Row } from '@hakit/components';
-import { SidebarSection } from '../Sidebar';
+import { OptionsSidebar } from '../OptionsSidebar';
 import { ViewportControls } from '../ViewportControls';
 import { PageSelector } from '../PageSelector';
 import { Preview } from '../Preview';
@@ -12,6 +12,7 @@ import './puck-overrides.css';
 import { DashboardSelector } from '../DashboardSelector';
 import { Divider } from '@mui/material';
 import { Spinner } from '../Spinner';
+import { NavigationSidebar } from '../NavigationSidebar';
 
 export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
@@ -24,7 +25,7 @@ export function Editor() {
   
   useEffect(() => {
     setEditorMode(true);
-  }, []);
+  }, [setEditorMode]);
 
   useEffect(() => {
     const handleIframe = (iframe: HTMLIFrameElement) => {
@@ -123,6 +124,7 @@ export function Editor() {
                 padding: '0 var(--puck-space-px)'
               }}>
                 <Row gap="0.5rem">
+                  <NavigationSidebar />
                   <DashboardSelector />
                   <Divider orientation="vertical" variant="middle" flexItem style={{
                     borderColor: 'var(--puck-color-grey-04)',
@@ -134,7 +136,7 @@ export function Editor() {
               </Row>
               <Preview />
             </Column>
-            <SidebarSection />
+            <OptionsSidebar />
           </Row>
         </Column>
       </Puck>

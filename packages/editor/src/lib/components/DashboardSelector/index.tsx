@@ -1,8 +1,8 @@
 
 import { Spinner } from '@lib/components/Spinner';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IconButton } from '@lib/components/IconButtons';
-import { ImagePlus, LayoutDashboard, Repeat, Type } from 'lucide-react';
+import { CirclePlus, ImagePlus, LayoutDashboard, Repeat, SquarePen, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
 import { Button } from '@lib/components/Button';
@@ -14,9 +14,10 @@ import { InputField } from '../Form/Fields/Input';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
 import { useNavigate } from '@tanstack/react-router';
-import { capitalize, InputAdornment } from '@mui/material';
+import { capitalize } from '@mui/material';
 import { ImageUpload } from '../Form/Fields/Image';
 import { FieldLabel } from '../Form/FieldWrapper/FieldLabel';
+import { SelectField } from '../Form/Fields/Select';
 
 interface DashboardSelectorProps {
   open?: boolean;
@@ -27,7 +28,7 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
   const [openPopup, setOpenPopup] = useState(open);
   const [newDashboardOpen, setNewDashboardOpen] =  useState(false);
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
-  const dashboards = dashboardsQuery.data;
+  const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
   const navigate = useNavigate();
   const [editingDashboardId, setEditingDashboardId] = useState<string | null>(null);
   const [mode, setMode] = useState<'new' | 'edit' | 'duplicate'>('new');
@@ -37,39 +38,60 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
   const [path, setPath] = useState<string>('');
   const [pathTouched, setPathTouched] = useState(false);
   const [pathError, setPathError] = useState('');
+  const currentDashboard = useMemo(() => dashboards?.find(d => d.id === editingDashboardId), [dashboards, editingDashboardId]);
 
-  const togglePopup = () => {
+  const togglePopup = useCallback(() => {
     setOpenPopup(!openPopup);
     // Close the popup if it was open
     if (openPopup) {
       onClose?.();
     }
-  };
+  }, [onClose, openPopup]);
 
-useEffect(() => {
-  const derivedPath = nameToPath(name);
-  const isNameEmpty = name.trim() === '';
-  const isPathEmpty = path.trim() === '';
-  const isPathInSyncWithPreviousName = previousName !== undefined && path === nameToPath(previousName);
+  useEffect(() => {
+    const derivedPath = nameToPath(name);
+    const isNameEmpty = name.trim() === '';
+    const isPathEmpty = path.trim() === '';
+    const isPathInSyncWithPreviousName = previousName !== undefined && path === nameToPath(previousName);
 
-  // Case 1: Name is empty and path is still in sync or empty → clear path
-  if (isNameEmpty && (!pathTouched || isPathInSyncWithPreviousName)) {
-    setPath('');
-  }
+    // Case 1: Name is empty and path is still in sync or empty → clear path
+    if (isNameEmpty && (!pathTouched || isPathInSyncWithPreviousName)) {
+      setPath('');
+    }
 
-  // Case 2: Name is not empty, path hasn't been touched, and either it's empty or still in sync → sync
-  else if (!pathTouched && (isPathEmpty || isPathInSyncWithPreviousName)) {
-    setPath(derivedPath);
-  }
+    // Case 2: Name is not empty, path hasn't been touched, and either it's empty or still in sync → sync
+    else if (!pathTouched && (isPathEmpty || isPathInSyncWithPreviousName)) {
+      setPath(derivedPath);
+    }
 
   // Else: leave path untouched (user has taken control)
-}, [name, path, pathTouched, previousName]);
+  }, [name, path, pathTouched, previousName]);
 
   // Path validation
   useEffect(() => {
     const valid = /^[a-z0-9-]+$/.test(path);
     setPathError(valid || path.length === 0 ? '' : 'Only lowercase letters, numbers and dashes allowed');
   }, [path]);
+
+  const editDashboard = useCallback((dashboardId: string) => {
+    if (!dashboards) {
+      console.error('No dashboards found');
+      return;
+    }
+    const dashboard = dashboards.find(d => d.id === dashboardId);
+    if (!dashboard) {
+      console.error('Dashboard not found');
+      return;
+    }
+    setMode('edit');
+    setEditingDashboardId(dashboard.id);
+    setName(dashboard.name);
+    setPath(dashboard.path);
+    setThumbnail(dashboard.thumbnail);
+    setPathTouched(false);
+    setNewDashboardOpen(true);
+    setOpenPopup(true);
+  }, [dashboards, setOpenPopup]);
 
   if (dashboardsQuery.isLoading || !dashboards) {
     return <Spinner />
@@ -78,14 +100,57 @@ useEffect(() => {
     return <div>Error: {dashboardsQuery.error.message}</div>
   }
   return (<>
-    <Tooltip title="Dashboard Options" placement="right">
+    {/* <Tooltip title="Dashboard Options" placement="right">
       <IconButton
         title="Dashboard Options"
         onClick={togglePopup}
       >
         <LayoutDashboard size={32} />
       </IconButton>
-    </Tooltip>
+    </Tooltip> */}
+    <SelectField
+      value={currentDashboard ?? dashboards[0]}
+      options={[...dashboards, {
+        id: 'new',
+        name: 'Customize',
+        path: '__new__'
+      }]}
+      startAdornment={<LayoutDashboard size={36} style={{
+        marginRight: '0.5rem',
+      }} />}
+      renderValue={(option) => {
+        return option.name;
+      }}
+      getOptionLabel={(option) => option.id === 'new' ? <Row gap="0.5rem" fullHeight>
+        <CirclePlus size={16} />
+        New Page
+      </Row> : <Row gap="0.5rem" fullWidth justifyContent="space-between" fullHeight>
+        {option.name}
+        <IconButton onClick={() => {
+          editDashboard(option.id);
+        }}>
+          <SquarePen size={16} />
+        </IconButton>
+      </Row>}
+      // getOptionValue={(option) => option.path}
+      onChange={(event) => {
+        const value = event?.target.value;
+        if (typeof value === 'string' || value.id === 'new') {
+          // empty value, consider we've hit the "edit" option
+          // setOpenNewPage(true);
+        } else {
+          // navigate({
+          //   to: '/dashboards/$dashboardPath/$pagePath/edit',
+          //   // quickest pathway forward to load new data
+          //   reloadDocument: true,
+          //   params: {
+          //     dashboardPath: params.dashboardPath,
+          //     pagePath: value.path
+          //   }
+          // })
+        }
+      }}
+    />
     <Modal title="Dashboard Options" open={openPopup} onClose={togglePopup} style={{
       maxWidth: '100%',
     }}>
@@ -135,14 +200,7 @@ useEffect(() => {
             }, {
               label: 'Edit',
               onClick: () => {
-                setMode('edit');
-                setEditingDashboardId(dashboard.id);
-                setName(dashboard.name);
-                setPath(dashboard.path);
-                setThumbnail(dashboard.thumbnail);
-                setPathTouched(false);
-                setNewDashboardOpen(true);
-                togglePopup();
+                editDashboard(dashboard.id);
               }
             }, {
               label: 'View',

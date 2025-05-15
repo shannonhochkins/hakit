@@ -1,4 +1,4 @@
-import { Settings, LayoutDashboard, MousePointerSquareDashed, Image } from 'lucide-react';
+import { Settings, LayoutDashboard, MousePointerSquareDashed } from 'lucide-react';
 import { Column } from '@hakit/components';
 import { usePanel, type Panel } from '@lib/hooks/usePanel';
 import styled from '@emotion/styled';

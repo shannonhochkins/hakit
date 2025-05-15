@@ -71,3 +71,6 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - Display breakpoint titles in the fields somehow without displaying too long values
 - Hide breakpoint functionality if only one breakpoint is defined/enabled
 - test the shit out of this logic
+
+## Thumbnails 
+Currently, dashboards/pages support thumbnails, but consider removing this as they're not displayed or used

@@ -16,6 +16,9 @@ type ToastMessages = {
 }
 
 export async function callApi<T extends ClientResponse<unknown, number, "json">>(request: Promise<T>, toastMessages?: ToastMessages | false): Promise<ExtractSuccessData<T>> {
+  // if the promise executor throws an error, it will be lost if not caught properly
+  // ensure all logic is caught in the promise executor if we're going to disable this rule
+  // eslint-disable-next-line no-async-promise-executor
   const promise = new Promise<ExtractSuccessData<T>>(async (resolve, reject) => {
     try {
       const res = await (request as Promise<Response>);
@@ -31,8 +34,9 @@ export async function callApi<T extends ClientResponse<unknown, number, "json">>
           }
           return reject('Invalid error structure');
         } catch (e) {
+          const { error, message } = formatErrorResponse('Server error', e);
           // generic error
-          return reject("Server error");
+          return reject(`${error}: ${message}`);
         }
       }
       const data = await res.json();

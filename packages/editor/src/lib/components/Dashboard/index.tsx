@@ -37,7 +37,7 @@ export function Dashboard({
 
   useEffect(() => {
     setEditorMode(true);
-  }, []);
+  }, [setEditorMode]);
 
   useEffect(() => {
     if (dashboard && dashboard.pages.length) {
@@ -50,7 +50,7 @@ export function Dashboard({
         setPuckPageData(matchedPage.data);
       }
     }
-  }, [dashboard, matchedPage]);
+  }, [dashboard, matchedPage, setBreakPointItems, setBreakpoints, setDashboard, setPuckPageData]);
 
   if (dashboardQuery.isLoading || !dashboard) {
     return <Spinner absolute text="Loading dashboard data" />

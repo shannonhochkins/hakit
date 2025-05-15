@@ -204,7 +204,7 @@ export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, Data
               [SubPropName in keyof Props]: CustomFields<Props[SubPropName], CustomFieldsWithDefinition<Props[SubPropName], DataShape>, DataShape>;
             };
           } & ExtendedFieldTypes<DataShape>
-        : CustomFields<Props, {}, DataShape>;
+        : CustomFields<Props, object, DataShape>;
   }
 >;
 
@@ -215,7 +215,7 @@ export type CustomFieldsConfiguration<
 > = {
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: WithField extends true
     ? CustomFieldsWithDefinition<ComponentProps[PropName], DataShape>
-    : CustomFields<ComponentProps[PropName], {}, DataShape>;
+    : CustomFields<ComponentProps[PropName], object, DataShape>;
 };
 
 type FieldTypes = CustomFields extends { type: infer T } ? T : never;
@@ -277,7 +277,13 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
           return _field.visible(visibleData);
         }
         return _field.visible ?? true;
-      }, [appState.data.root, puckValue, selectedItem, activeBreakpoint]);
+      }, [
+        appState.data.root,
+        // TODO test this visible logic, If this stopps working when values change, add the puckValue back in
+        // puckValue,
+        selectedItem,
+        activeBreakpoint
+      ]);
 
 
       const valOrDefault = useMemo(

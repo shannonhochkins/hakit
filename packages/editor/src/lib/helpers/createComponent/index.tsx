@@ -149,8 +149,11 @@ export function createComponent<
         return fields;
       },
       render(props) {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const data = useTransformedPuckData();
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const editorFrame = usePuckFrame();
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const dashboard = useGlobalStore(state => state.dashboard);
         // get active breakpoint
         // eslint-disable-next-line react-hooks/rules-of-hooks

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query';
 import { createDashboardPage, dashboardByPathQueryOptions } from '@client/src/lib/api/dashboard';
-import { useCallback, useState } from 'react';
+import React,{ useCallback, useState } from 'react';
 import { DashboardWithoutPageData } from '@typings/dashboard';
 import { updateDashboardForUser, deleteDashboard } from '@client/src/lib/api/dashboard';
 import { Row } from '@hakit/components';
@@ -37,7 +37,7 @@ function DashboardEditor({
       // data: {} // maybe used for cloning?
     });
     dashboardQuery.refetch();
-  }, [dashboard]);
+  }, [dashboard, dashboardQuery]);
 
   return <div {...rest} style={{
     display: 'flex',
@@ -91,7 +91,7 @@ function DashboardEditor({
     
     <Row alignItems='flex-start' justifyContent='flex-start' gap="1rem">
       {pages.map((page) => {
-        return <button onClick={() => {
+        return <button key={page.id} onClick={() => {
           navigate({
             to: '/dashboards/$dashboardPath/$pagePath/edit',
             params: {

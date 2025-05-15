@@ -1,7 +1,5 @@
 {
   "eslint.useFlatConfig": true,
-  "eslint.runtime": "bun",
-  "eslint.execArgv": ["--bun"],
   "eslint.trace.server": "messages",
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,

@@ -33,6 +33,7 @@ export const Route = createFileRoute("/_authenticated")({
       const data = await queryClient.fetchQuery(userQueryOptions);
       return data;
     } catch (e) {
+      console.error("Error fetching user data", e);
       return { user: null };
     }
   },

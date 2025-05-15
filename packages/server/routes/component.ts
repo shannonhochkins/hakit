@@ -127,8 +127,9 @@ function parseGitHubUrl(url: string): { owner: string; repo: string; branch: str
       branch = pathParts[treeIndex + 1];
     }
     return { owner, repo, branch };
-  } catch (error) {
-    throw new Error('Invalid GitHub URL format.');
+  } catch (err) {
+    const { error, message } = formatErrorResponse('Invalid GitHub URL', err);
+    throw new Error(`${error} - ${message}`);
   }
 }
 
@@ -487,7 +488,7 @@ const componentRoute = new Hono()
       // Validate the manifest.json content.
       const validatedManifest = manifestSchema.parse(manifestJson);
 
-      let additionalComponents: Array<string[]> = [];
+      const additionalComponents: Array<string[]> = [];
       if (validatedManifest.componentPaths && validatedManifest.componentPaths.length > 0) {
         const fetchPromises = validatedManifest.componentPaths.map(async (path) => {
           const response = await fetchFile(owner, repo, branch, path);

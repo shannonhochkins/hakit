@@ -14,9 +14,12 @@
     "dev:client": "bun --filter 'hakit-client' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
     "dbml": "bun run ./packages/server/db/schema/dbml.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "devDependencies": {
+    "@eslint/js": "^9.26.0",
     "@happy-dom/global-registrator": "^17.4.4",
     "@originjs/vite-plugin-federation": "^1.4.0",
     "@types/bun": "latest",
@@ -25,7 +28,12 @@
     "concurrently": "^9.1.2",
     "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.30.5",
-    "tsx": "^4.19.3"
+    "eslint": "^9.26.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.1.0",
+    "tsx": "^4.19.3",
+    "typescript-eslint": "^8.32.1"
   },
   "peerDependencies": {
     "typescript": "^5"

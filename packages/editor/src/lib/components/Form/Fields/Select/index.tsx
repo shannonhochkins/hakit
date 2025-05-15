@@ -1,4 +1,9 @@
-import { MenuItem, type MenuItemProps, Select as MuiSelect, SelectProps } from '@mui/material';
+import {
+  MenuItem,
+  // type MenuItemProps,
+  Select as MuiSelect,
+  SelectProps
+} from '@mui/material';
 import styled from '@emotion/styled';
 import React from 'react';
 
@@ -26,8 +31,8 @@ const StyledSelect = styled(MuiSelect)`
   }
 ` as unknown as typeof MuiSelect;
 
-export const SelectField = <Option extends unknown>({
-  getOptionValue,
+export const SelectField = <Option,>({
+  // getOptionValue,
   getOptionLabel,
   onChange,
   value,
@@ -37,7 +42,7 @@ export const SelectField = <Option extends unknown>({
 }: Omit<SelectProps<Option>, 'value'> & {
   value: Option;
   options: Option[];
-  getOptionValue: (option: Option) => MenuItemProps['value'];
+  // getOptionValue: (option: Option) => MenuItemProps['value'];
   getOptionLabel: (option: Option) => React.ReactNode;
 }) => {
   return (

@@ -4,7 +4,7 @@ import { fromZodError, fromZodIssue } from 'zod-validation-error';
 
 export function formatErrorResponse(
   title: string,
-  error?: unknown
+  error?: unknown,
 ): { error: string; message: string } {
   // Handle full ZodError
   if (error instanceof z.ZodError) {

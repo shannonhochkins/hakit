@@ -133,14 +133,7 @@ export function FieldWrapper({
 }: FieldWrapperProps) {
   const [open, setOpen] = useState(collapsible ? (collapsible?.open ?? false) : true);
   const [confirmBreakpointChange, setConfirmBreakpointChange] = useState(false);
-  if (omitLabel) {
-    return (
-      <>
-        {children}
-        <Description>{description}</Description>
-      </>
-    );
-  }
+
   const fieldOptions = useMemo(() => {
     const options: FieldOption[] = [];
     // don't show the breakpoint option if it's disabled
@@ -160,7 +153,16 @@ export function FieldWrapper({
       });
     }
     return options;
-  }, [breakpointMode, providedBreakpointValues, onToggleBreakpointMode]);
+  }, [disableBreakpoints, breakpointMode, providedBreakpointValues.length, onToggleBreakpointMode]);
+  
+  if (omitLabel) {
+    return (
+      <>
+        {children}
+        <Description>{description}</Description>
+      </>
+    );
+  }
   return (
     <Label
       className={`${className ?? ''} ${type ? `field-${type}` : ''} ${collapsible ? 'collapsible' : ''} ${breakpointMode && !disableBreakpoints ? 'bp-mode-enabled' : ''}`}
@@ -192,9 +194,11 @@ export function FieldWrapper({
         endAdornment={<>
           {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
           {collapsible && (
-            <IconButton title='Enable Breakpoint Values' onClick={onToggleBreakpointMode}>
-              {open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-            </IconButton>
+            <Tooltip placement="left" title={open ? 'Collapse' : 'Expand'}>
+              <IconButton onClick={onToggleBreakpointMode}>
+                {open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              </IconButton>
+            </Tooltip>
           )}
         </>}
         />

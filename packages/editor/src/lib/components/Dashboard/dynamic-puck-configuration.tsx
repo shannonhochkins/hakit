@@ -82,6 +82,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const root: UserConfig['root'] = {
     ...rootConfig,
     render(props) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const emotionCache = useGlobalStore(state => state.emotionCache);
       return <CacheProvider value={emotionCache ?? null}>
         {rootConfig?.render?.(props) ?? null}

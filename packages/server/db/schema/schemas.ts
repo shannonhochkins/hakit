@@ -7,7 +7,12 @@ export const puckObjectZodSchema = z.object({
   props: z
     .object({})
     .passthrough()
-    .transform(({ breakpoint, ...rest }) => rest), // omit `breakpoint`,
+    .transform(({
+      // we are intentionally omitting the `breakpoint` property from the props
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      breakpoint,
+      ...rest
+    }) => rest), // omit `breakpoint`,
 });
 
 export const puckDataZodSchema = z.object({

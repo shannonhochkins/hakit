@@ -71,7 +71,7 @@ export function PageSelector() {
         <CirclePlus size={16} />
         New Page
       </Row> : option.title}
-      getOptionValue={(option) => option.path}
+      // getOptionValue={(option) => option.path}
       onChange={(event) => {
         const value = event?.target.value;
         if (typeof value === 'string' || value.id === 'new') {

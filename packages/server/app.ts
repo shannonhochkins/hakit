@@ -14,7 +14,7 @@ const app = new Hono();
 app.use("*", logger());
 app.use("*", cors());
 
-const apiRoutes = app
+export const apiRoutes = app
   .basePath("/api")
   .route("/dashboard", dashboardRoute)
   .route("/component", componentRoute)

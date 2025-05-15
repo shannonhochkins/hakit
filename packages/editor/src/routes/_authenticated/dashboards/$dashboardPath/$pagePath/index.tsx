@@ -20,7 +20,7 @@ function RouteComponent() {
       key: 'hakit-editor',
       container: document.head,
     }));
-  }, []);
+  }, [setEmotionCache]);
 
   return <Dashboard dashboardPath={params.dashboardPath}>
     <Renderer />

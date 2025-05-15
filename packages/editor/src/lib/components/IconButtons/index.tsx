@@ -47,7 +47,9 @@ export const IconButton = styled.button`
   &:active {
     &:not(:disabled) {
       color: var(--puck-color-grey-01);
-      background-color: var(--puck-color-grey-04);
+      &:not(.disable-bg-hover) {
+        background-color: var(--puck-color-grey-04);
+      }
     }
   }
 `;

@@ -100,7 +100,7 @@ function Draggable() {
   );
 }
 
-export const SidebarSection = () => {
+export const OptionsSidebar = () => {
   const width = useRef(SIDEBAR_PANEL_WIDTH);
   const [panel] = usePanel();
 
