@@ -12,9 +12,9 @@ import { SelectField } from '@lib/components/Form/Fields/Select';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { CircleHelp, Edit, TabletSmartphone } from 'lucide-react';
-import { Modal, ModalActions } from '@lib/components/Modal';
+import { Modal, ModalActions } from '@lib/page/shared/Modal';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
-import { Button } from '@lib/components/Button';
+import { PrimaryButton } from '@lib/page/shared/Button';
 
 const StyledViewportControls = styled(Row)`
   min-height: var(--header-height);
@@ -317,13 +317,13 @@ export const ViewportControls = () => {
           })}
         </Column>
         <ModalActions>
-          <Button disabled={!validBreakpoints} onClick={() => {
+          <PrimaryButton disabled={!validBreakpoints} onClick={() => {
             if (validBreakpoints) {
               setBreakPointItems(controlledBreakpointItems);
               setEditingBreakpoints(false);
               setBreakpoints(breakpointItemToBreakPoints(validBreakpoints));
             }
-          }}>APPLY</Button>
+          }}>APPLY</PrimaryButton>
         </ModalActions>
       </Modal>
     </StyledViewportControls>

@@ -18,6 +18,5 @@ export type FullConfiguration = {
   config: NonNullable<PuckPageData['root']['props']>;
 };
 
-export type PuckCategories = 'Misc' | 'Layout' | 'Cards' | 'other';
 
-export type UserConfig = Config<Props, RootProps, PuckCategories>;
+export type UserConfig = Config;

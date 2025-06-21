@@ -1,6 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { userQueryOptions } from '../lib/api/user';
-import { useQuery } from '@tanstack/react-query';
+import { Header } from '@lib/page/shared/Header';
+import { HeroSection } from '@lib/page/home/HeroSection';
+import { FeaturesSection } from '@lib/page/home/Features';
+import { DemoSection } from '@lib/page/home/DemoSection';
+import { CTASection } from '@lib/page/home/CTASection';
+import { Footer } from '@lib/page/shared/Footer';
+import { BenefitsSection } from '@lib/page/home/BenefitsSection';
 
 
 export const Route = createFileRoute('/')({
@@ -8,12 +13,18 @@ export const Route = createFileRoute('/')({
 })
 
 function RouteComponent() {
-  const user = useQuery(userQueryOptions);
   
-
-  return <div>
-    {user.data && <button onClick={() => fetch('/api/logout')}>LOGOUT</button>}
-    {!user.data && <a href="/api/login">Login!</a>}
-    {user.data && <pre>{JSON.stringify(user.data, null, 2)}</pre>}
-  </div>
+  
+  return <>
+    <Header />
+    <main>
+      <HeroSection />
+      <FeaturesSection />
+      <DemoSection />
+      <BenefitsSection />
+      <CTASection />
+    </main>
+    <Footer />
+  </>
+ 
 }

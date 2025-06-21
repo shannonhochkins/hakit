@@ -103,7 +103,6 @@
 
   --ha-transition-duration: var(--transition-duration);
   --ha-easing: var(--easing);
-
 }
 
 * {
@@ -141,15 +140,6 @@ body {
 input, select {
   color: var(--puck-color-grey-02);
   background-color: var(--puck-color-grey-12);
-}
-
-
-#root {
-  width: 100%;
-  height: 100%;
-}
-body.edit-mode #root {
-  background: var(--puck-color-grey-12);
 }
 
 .not-used-dotted-background {

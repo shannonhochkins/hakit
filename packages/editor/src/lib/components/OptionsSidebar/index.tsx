@@ -13,6 +13,7 @@ import { Tree } from './Tabs/Tree';
 import { ActionBar } from './ActionBar';
 import { useId, useRef } from 'react';
 import { getSidebarWidth, setSidebarWidth } from './helpers';
+import { useIsPageEditMode } from '@lib/hooks/useIsPageEditMode';
 
 const PanelWrapper = styled(Row)`
   max-height: calc(100% - 8px);
@@ -82,7 +83,7 @@ function Draggable() {
     <>
       <ResizeHandle
         style={{
-          pointerEvents: 'none',
+          // pointerEvents: 'none',
         }}
       >
         <Row className='resize-handle-wrapper'>
@@ -100,9 +101,18 @@ function Draggable() {
   );
 }
 
+
 export const OptionsSidebar = () => {
   const width = useRef(SIDEBAR_PANEL_WIDTH);
   const [panel] = usePanel();
+  const isPageEditMode = useIsPageEditMode();
+
+  if (!isPageEditMode) {
+    return <Sidebar>
+      TEST
+    </Sidebar>
+  }
+
 
   return (
     <Sidebar>
@@ -112,8 +122,9 @@ export const OptionsSidebar = () => {
           width.current = currentWidth;
         }}
         onDragMove={({ operation }) => {
-          // The delta from the library
-          const { x } = operation.position.delta;
+          console.log('operation', operation.position);
+          // The current from the library
+          const { x } = operation.position.current;
           // Add x to the original width from onDragStart, capping at the minimum width
           const newWidth = Math.max(width.current + x * -1, SIDEBAR_PANEL_WIDTH);
           setSidebarWidth(newWidth);

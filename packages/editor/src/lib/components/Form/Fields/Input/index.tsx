@@ -2,56 +2,99 @@ import styled from '@emotion/styled';
 import { TextField, type TextFieldProps } from '@mui/material';
 
 const StyledTextField = styled(TextField)`
-  padding-top: 12px;
+  padding-top: var(--space-3);
+  
   label {
-    color: var(--puck-color-grey-04);
-    top: 10px;
+    color: var(--color-text-primary);
+    top: var(--space-2);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    
     &.Mui-focused {
-      color: var(--puck-color-azure-05);
+      color: var(--color-primary-500);
     }
     &.Mui-disabled {
-      color: var(--puck-color-grey-04);
+      color: var(--color-text-muted);
     }
   }
+  
   .MuiInputAdornment-root {
-    color: var(--puck-color-grey-02);
+    color: var(--color-text-muted);
   }
+  
   .MuiFormHelperText-root {
+    font-size: var(--font-size-xs);
+    margin-top: var(--space-1);
+    
     &:not(.Mui-error) {
-      color: var(--puck-color-grey-04);
+      color: var(--color-text-muted);
     }
     &.Mui-disabled {
-      color: var(--puck-color-grey-05);
+      color: var(--color-text-muted);
     }
   }
+  
   .MuiInputBase-root {
-    color: var(--puck-color-grey-02);
-    background: var(--puck-color-grey-12);    
+    color: var(--color-text-primary);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    
     input[type="text"], input[type="number"] {
-      padding: 8px 14px;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
     }
+    
+    fieldset {
+      border-color: var(--color-border);
+      transition: all var(--transition-normal);
+    }
+    
+    &:hover:not(.Mui-disabled) fieldset {
+      border-color: var(--color-border-hover);
+    }
+    
     &.Mui-focused fieldset {
-      border-color: var(--puck-color-azure-05);
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-    &.Mui-disabled.MuiOutlinedInput-root  {
+    
+    &.Mui-error fieldset {
+      border-color: var(--color-error-500);
+    }
+    
+    &.Mui-error.Mui-focused fieldset {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    &.Mui-disabled.MuiOutlinedInput-root {
+      background: var(--color-surface-muted);
+      
       input {
-        color: var(--puck-color-grey-04);
-        -webkit-text-fill-color: var(--puck-color-grey-04);
+        color: var(--color-text-muted);
+        -webkit-text-fill-color: var(--color-text-muted);
       }
+      
       div:has(>svg) {
-        color: var(--puck-color-grey-04);;
+        color: var(--color-text-muted);
+      }
+      
+      fieldset {
+        border-color: var(--color-border-subtle);
       }
     }
   }
+  
   &.MuiFormControl-root.MuiTextField-root label {
-    top: 5px;
+    top: var(--space-1);
+    
     &.Mui-focused {
-      top: 10px;
+      top: var(--space-2);
     }
     &.MuiInputLabel-shrink {
-      top: 10px;
+      top: var(--space-2);
     }
   }
+  
   &.read-only {
     label {
       display: none;
@@ -65,11 +108,12 @@ const StyledTextField = styled(TextField)`
         border-color: transparent;
       }
       input {
-        color: var(--puck-color-grey-04);
-        -webkit-text-fill-color: var(--puck-color-grey-04);
+        color: var(--color-text-muted);
+        -webkit-text-fill-color: var(--color-text-muted);
       }
     }
   }
+  
   &.hide-value {
     .MuiInputBase-input {
       opacity: 0;

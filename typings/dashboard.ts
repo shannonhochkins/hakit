@@ -17,6 +17,9 @@ interface Dashboard {
     themeId?: string;
     data: PuckPageData;
     thumbnail: string | null;
+    createdAt: string;
+    updatedAt: string;
+    isEnabled: boolean;
     breakpoints: BreakpointItem[];
 }
 

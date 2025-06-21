@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
-import { Confirm } from '../../Modal/confirm';
+import { Confirm } from '../../../page/shared/Modal/confirm';
 import { FieldOptions, type FieldOption } from './FieldOptions';
 import { FieldLabel } from './FieldLabel';
 

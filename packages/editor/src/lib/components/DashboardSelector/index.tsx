@@ -5,9 +5,9 @@ import { IconButton } from '@lib/components/IconButtons';
 import { CirclePlus, ImagePlus, LayoutDashboard, Repeat, SquarePen, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
-import { Button } from '@lib/components/Button';
+import { PrimaryButton } from '@lib/page/shared/Button';
 import { Card } from '@lib/components/Card';
-import { Modal, ModalActions } from '../Modal';
+import { Modal, ModalActions } from '../../page/shared/Modal';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboard, dashboardsQueryOptions, deleteDashboard, updateDashboardForUser } from '@lib/api/dashboard';
 import { InputField } from '../Form/Fields/Input';
@@ -230,15 +230,15 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
         ))}
       </Row>)}
       <ModalActions>
-        <Button onClick={togglePopup}>CANCEL</Button>
-        <Button variant="contained" onClick={() => {
+        <PrimaryButton onClick={togglePopup}>CANCEL</PrimaryButton>
+        <PrimaryButton onClick={() => {
           setName('');
           setPath('');
           setThumbnail('');
           setMode('new');
           setNewDashboardOpen(true);
           togglePopup();
-        }}>NEW</Button>
+        }}>NEW</PrimaryButton>
       </ModalActions>
     </Modal>
     <Modal open={newDashboardOpen} title={`${capitalize(mode)} Dashboard`} onClose={() => {
@@ -297,15 +297,15 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
         </div>
       </Column>
       <ModalActions>
-      <Button onClick={() => {
+      <PrimaryButton onClick={() => {
         setName('');
         setPath('');
         setThumbnail('');
         setEditingDashboardId(null);
         togglePopup();
         setNewDashboardOpen(false);
-      }}>CANCEL</Button>
-        {(mode === 'new' || mode === 'duplicate') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+      }}>CANCEL</PrimaryButton>
+        {(mode === 'new' || mode === 'duplicate') && (<PrimaryButton disabled={!path || !name || !!pathError} onClick={() => {
           const matchedDashboard = mode === 'duplicate' ? dashboards.find(d => d.id === editingDashboardId) || {} : {};
           createDashboard({
             ...matchedDashboard,
@@ -323,9 +323,9 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
           }).catch(() => {
             // TODO - handle error
           });
-        }}>CREATE</Button>)}
+        }}>CREATE</PrimaryButton>)}
 
-        {mode === 'edit' && editingDashboardId && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+        {mode === 'edit' && editingDashboardId && (<PrimaryButton disabled={!path || !name || !!pathError} onClick={() => {
           const matchedDashboard = dashboards.find(d => d.id === editingDashboardId);
           if (!matchedDashboard) {
             // TODO - handle error with toast
@@ -349,7 +349,7 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
           }).catch(() => {
             // TODO - handle error
           })
-        }}>SAVE</Button>)}
+        }}>SAVE</PrimaryButton>)}
       </ModalActions>
     </Modal>
   </>)

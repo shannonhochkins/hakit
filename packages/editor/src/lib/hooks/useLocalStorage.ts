@@ -30,7 +30,7 @@ const getLocalStorageServerSnapshot = () => {
   throw Error('useLocalStorage is a client-only hook');
 };
 
-type ValidStorageKeys = 'hassUrl' | 'hassToken' | 'panel';
+type ValidStorageKeys = 'hassUrl' | 'hassToken' | 'panel' | 'hasCreatedAccount';
 
 export function useLocalStorage<T>(key: ValidStorageKeys, initialValue?: T): [T, (v: T) => void] {
   const getSnapshot = () => getLocalStorageItem(key);

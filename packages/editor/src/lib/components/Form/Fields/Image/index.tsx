@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { ImageUp, X } from 'lucide-react';
 import { IconButton } from '@lib/components/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
-import { Confirm } from '@lib/components/Modal/confirm';
+import { Confirm } from '@lib/page/shared/Modal/confirm';
 import { deleteFile, uploadImage } from '@client/src/lib/api/upload';
 import { Spinner } from '@lib/components/Spinner';
 

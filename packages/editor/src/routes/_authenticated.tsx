@@ -4,17 +4,21 @@ import { useLocalStorage } from "@lib/hooks/useLocalStorage";
 // TODO - move this to a better place
 import { HassModal } from '@lib/components/Dashboard/HassModal';
 import { HassConnect } from "@hakit/core";
+import { useEffect } from "react";
+import { useAuthButtonState } from "@lib/hooks/useAuthButtonState";
 
 
 const Login = () => {
+  const { buttonState } = useAuthButtonState();
+  
   return (
     <div>
-      <p>You have to login or register</p>
+      <p>You need to {buttonState.type === 'sign-in' ? 'sign in' : 'create an account'} to continue</p>
       <button>
-        <a href="/api/login">Login!</a>
+        <a href="/api/login">Sign In</a>
       </button>
       <button>
-        <a href="/api/register">Register!</a>
+        <a href="/api/register">Create Account</a>
       </button>
     </div>
   );
@@ -24,6 +28,15 @@ const Component = () => {
   const context = Route.useRouteContext();
   const [hassUrl] = useLocalStorage<string | null>('hassUrl');
   const [hassToken] = useLocalStorage<string | undefined>('hassToken');
+  const { markAccountCreated } = useAuthButtonState();
+
+  // Mark that user has created an account when they successfully authenticate
+  useEffect(() => {
+    if (context.user) {
+      markAccountCreated();
+    }
+  }, [context.user, markAccountCreated]);
+
   if (!context.user) {
     return <Login />;
   }

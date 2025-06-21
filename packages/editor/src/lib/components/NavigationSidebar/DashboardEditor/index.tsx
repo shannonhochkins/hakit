@@ -1,42 +1,40 @@
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Repeat, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
-import { Button } from '@lib/components/Button';
-import { Modal, ModalActions } from '@lib/components/Modal';
+import { PrimaryButton } from '@lib/page/shared/Button';
+import { Modal, ModalActions } from '@lib/page/shared/Modal';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboard, dashboardByPathWithPageDataQueryOptions, dashboardsQueryOptions, deleteDashboard, updateDashboardForUser } from '@lib/api/dashboard';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { capitalize } from '@mui/material';
 import { FieldLabel } from '@lib/components/Form/FieldWrapper/FieldLabel';
-import { DashboardPageWithoutData } from '@typings/dashboard';
-import { Confirm } from '@lib/components/Modal/confirm';
+import { Confirm } from '@lib/page/shared/Modal/confirm';
+import { useIsPageEditMode } from '@lib/hooks/useIsPageEditMode';
 
-interface DashboardSelectorProps {
+export interface DashboardSelectorProps {
   open?: boolean;
-  dashboard?: DashboardPageWithoutData | null;
+  dashboardPath?: string;
+  pagePath?: string;
   onClose: () => void;
-  mode: 'new' | 'edit' | 'duplicate';
+  mode: 'dashboard-new' | 'dashboard-edit' | 'dashboard-duplicate';
 }
 
-export function DashboardEditor({ open = false, mode, dashboard, onClose }: DashboardSelectorProps) {
+export function DashboardEditor({ open = false, mode, dashboardPath, pagePath, onClose }: DashboardSelectorProps) {
   const navigate = useNavigate();
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
-  const [name, setName] = useState<string>(dashboard?.name || '');
+  const [name, setName] = useState<string>('');
   const previousName = usePrevious(name);
-  const [path, setPath] = useState<string>(dashboard?.path || '');
+  const [path, setPath] = useState<string>(dashboardPath || '');
   const [pathTouched, setPathTouched] = useState(false);
   const [pathError, setPathError] = useState('');
-  const params = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
-  });
   // get the path param from /editor:/id with tanstack router
   const dashboardQuery = useQuery({
-    ...dashboardByPathWithPageDataQueryOptions(params.dashboardPath),
+    ...dashboardByPathWithPageDataQueryOptions(dashboardPath),
     enabled: false,
   });
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -47,6 +45,15 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
     setPathTouched(false);
     onClose();
   }, [onClose]);
+
+  const dashboard = useMemo(() => dashboardQuery.data, [dashboardQuery.data]);
+  const isPageEditMode = useIsPageEditMode();
+
+  useEffect(() => {
+    if (mode === 'dashboard-edit' && dashboard && dashboardPath && !name) {
+      setName(dashboard.name);
+    }
+  }, [dashboardPath, dashboard, mode, name])
 
   useEffect(() => {
     const derivedPath = nameToPath(name);
@@ -78,7 +85,7 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
   }, [path]);
 
   return (<>
-    <Modal open={open} title={`${capitalize(mode)} Dashboard`} onClose={() => {
+    <Modal open={open} title={`${capitalize(mode.replace('dashboard-', ''))} Dashboard`} onClose={() => {
       onClose();
     }}>
       <Column gap="1rem" fullWidth alignItems='stretch' justifyContent='flex-start'>
@@ -128,9 +135,9 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
       </Column>
       <ModalActions wrap="nowrap" fullWidth alignItems='center' justifyContent='space-between'>
         {dashboard?.id && <>
-          <Button color="error" variant="contained" onClick={() => {
+          <PrimaryButton color="error" onClick={() => {
             setConfirmDelete(true);
-          }}>DELETE</Button>
+          }}>DELETE</PrimaryButton>
           <Confirm
             title='Confirm delete dashboard'
             open={confirmDelete}
@@ -146,15 +153,18 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
                   reset();
                   dashboardsQuery.refetch();
                   // don't reload the data for the current dashboard as it's been deleted
-                  const currentDashboard = params.dashboardPath === dashboard.path;
+                  const currentDashboard = dashboardPath === dashboard.path;
                   if (!currentDashboard) {
                     dashboardQuery.refetch();
                   } else {
+                    // CHECK THIS, seems wrong for dashboard, need to check this
                     navigate({
                       from: `/dashboards/$dashboardPath/$pagePath/edit`,
                       to: `/dashboards/$dashboardPath/$pagePath/edit`,
                       reloadDocument: true,
-                      params
+                      params: {
+                        dashboardPath,
+                      }
                     });
                   }
                 })
@@ -170,8 +180,8 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
           </Confirm>
         </>}
         <Row gap="1rem">
-          <Button onClick={reset}>CANCEL</Button>
-            {(mode === 'new' || mode === 'duplicate') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          <PrimaryButton onClick={reset}>CANCEL</PrimaryButton>
+            {(mode === 'dashboard-new' || mode === 'dashboard-duplicate') && (<PrimaryButton disabled={!path || !name || !!pathError} onClick={() => {
               createDashboard({
                 ...dashboard,
                 name,
@@ -198,12 +208,12 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
                   },
                 });
               });
-          }}>CREATE</Button>)}
+          }}>CREATE</PrimaryButton>)}
 
-          {mode === 'edit' && dashboard?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          {mode === 'dashboard-edit' && dashboard?.id && (<PrimaryButton disabled={!path || !name || !!pathError} onClick={() => {
               // if the paths match before we update from the original dashboard, and the paths have changed
               // we should update the current path so if the user refreshes it loads the correct dashboard
-              const currentDashboard = path !== dashboard.path && params.dashboardPath === dashboard.path;
+              const currentDashboard = path !== dashboard.path && dashboardPath === dashboard.path;
               updateDashboardForUser({
                 ...dashboard,
                 name,
@@ -222,18 +232,30 @@ export function DashboardEditor({ open = false, mode, dashboard, onClose }: Dash
                 dashboardQuery.refetch();
                 // now update the url
                 if (currentDashboard) {
-                  navigate({
-                    from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                    to: `/dashboards/$dashboardPath/$pagePath/edit`,
-                    replace: true,
-                    params: {
-                      dashboardPath: path,
-                      pagePath: params.pagePath
-                    },
-                  });
+                  if (isPageEditMode) {
+                    navigate({
+                      from: `/dashboards/$dashboardPath/$pagePath/edit`,
+                      to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                      replace: isPageEditMode,
+                      params: {
+                        dashboardPath: path,
+                        pagePath: isPageEditMode ? pagePath : dashboard?.pages[0].path,
+                      },
+                    });
+                  } else {
+                    // if we're not in page edit mode, we should navigate to the dashboard edit page
+                    navigate({
+                      from: `/dashboards/$dashboardPath/edit`,
+                      to: `/dashboards/$dashboardPath/edit`,
+                      replace: true,
+                      params: {
+                        dashboardPath: path,
+                      },
+                    });
+                  }
                 }
               });
-              }}>SAVE</Button>)}
+            }}>SAVE</PrimaryButton>)}
         </Row>
       </ModalActions>
     </Modal>

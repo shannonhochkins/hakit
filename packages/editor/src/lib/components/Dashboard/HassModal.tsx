@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@lib/hooks/useLocalStorage';
-import { Modal } from '@lib/components/Modal';
+import { Modal } from '@lib/page/shared/Modal';
 import { useRef } from 'react';
 
 export function HassModal() {

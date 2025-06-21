@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Repeat, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
-import { Button } from '@lib/components/Button';
-import { Modal, ModalActions } from '@lib/components/Modal';
+import { Button } from '@lib/page/shared/Button';
+import { Modal, ModalActions } from '@lib/page/shared/Modal';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboardPage, dashboardByPathWithPageDataQueryOptions, dashboardsQueryOptions, deleteDashboardPage, updateDashboardPageForUser } from '@lib/api/dashboard';
 import { InputField } from '@lib/components/Form/Fields/Input';
@@ -14,17 +14,17 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { capitalize } from '@mui/material';
 import { FieldLabel } from '@lib/components/Form/FieldWrapper/FieldLabel';
 import { DashboardPageWithoutData } from '@typings/dashboard';
-import { Confirm } from '@lib/components/Modal/confirm';
+import { Confirm } from '@lib/page/shared/Modal/confirm';
 
-interface DashboardSelectorProps {
+export interface DashboardPageSelectorProps {
   open?: boolean;
   dashboard: DashboardPageWithoutData;
   page?: DashboardPageWithoutData | null;
   onClose: () => void;
-  mode: 'new' | 'edit' | 'duplicate';
+  mode: 'new-page' | 'edit-page' | 'duplicate-page';
 }
 
-export function DashboardPageEditor({ open = false, mode, dashboard, page, onClose }: DashboardSelectorProps) {
+export function DashboardPageEditor({ open = false, mode, dashboard, page, onClose }: DashboardPageSelectorProps) {
   const navigate = useNavigate();
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const [name, setName] = useState<string>(page?.name || '');
@@ -159,7 +159,7 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
         </>}
         <Row gap="1rem">
           <Button onClick={reset}>CANCEL</Button>
-            {(mode === 'new' || mode === 'duplicate') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+            {(mode === 'new-page' || mode === 'duplicate-page') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
               createDashboardPage({
                 id: dashboard?.id,
                 name,
@@ -179,7 +179,7 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
               });
           }}>CREATE</Button>)}
 
-          {mode === 'edit' && page?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          {mode === 'edit-page' && page?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
               // if the paths match before we update from the original page, and the paths have changed
               // we should update the current path so if the user refreshes it loads the correct page
               const currentDashboard = path !== page.path && params.pagePath === page.path;

@@ -108,6 +108,7 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput, to
       themeId: dashboard.themeId,
       breakpoints: dashboard.breakpoints,
       thumbnail: dashboard.thumbnail,
+      isEnabled: dashboard.isEnabled,
     }
   });
   const res = await callApi(req, toastMessage);
@@ -127,9 +128,9 @@ export const dashboardByPathQueryOptions = (dashboardPath: DashboardWithPageData
   retry: false,
   staleTime: Infinity,
 });
-export const dashboardByPathWithPageDataQueryOptions = (dashboardPath: DashboardWithPageData['path']) => queryOptions({
+export const dashboardByPathWithPageDataQueryOptions = (dashboardPath?: DashboardWithPageData['path']) => queryOptions({
   queryKey: ["get-dashboard-by-path-with-page-for-user", dashboardPath],
-  queryFn: () => getDashboardByPathWithData(dashboardPath),
+  queryFn: () => getDashboardByPathWithData(dashboardPath!),
   retry: false,
   staleTime: Infinity,
 });

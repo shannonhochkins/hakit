@@ -8,11 +8,11 @@ import { IconButton } from '../IconButtons';
 import { ChevronDown, ChevronUp, Layers, LayoutDashboard, PlusCircle, SquarePen } from 'lucide-react';
 import { Tooltip } from '../Tooltip';
 import { Spinner } from '../Spinner';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Row } from '@hakit/components';
-import { DashboardEditor } from './DashboardEditor';
-import { DashboardPageWithoutData } from '@typings/dashboard';
-import { DashboardPageEditor } from './DashboardPageEditor';
+// import { DashboardEditor, type DashboardSelectorProps } from './DashboardEditor';
+// import { DashboardPageWithoutData } from '@typings/dashboard';
+// import { DashboardPageEditor, DashboardPageSelectorProps } from './DashboardPageEditor';
 import { Alert, AlertTitle } from '@mui/material'
 
 
@@ -97,36 +97,133 @@ const FieldsetInnerList = styled.li`
   margin: 0;
 `;
 
+type MsgType = 'error' | 'info';
+
+interface StatusMessage {
+  title: string;
+  message: string;
+  type: MsgType;
+}
+
+export function getStatusMessage(opts: {
+  dashboards: Array<{ name: string; pages: unknown[] }> | undefined;
+  currentDashboard: { name: string; pages: unknown[] } | undefined;
+  currentPage: unknown | undefined;
+  dashboardPath?: string;
+  pagePath?: string;
+}): StatusMessage | undefined {
+  const {
+    dashboards = [],
+    currentDashboard,
+    currentPage,
+    dashboardPath,
+    pagePath,
+  } = opts;
+
+  //
+  // 1. No dashboards exist at all
+  //
+  if (!dashboards.length) {
+    return {
+      title: 'No dashboards found',
+      message: 'Create a dashboard above to start editing.',
+      type: 'info',
+    };
+  }
+
+  //
+  // 2. dashboardPath in the URL but no matching dashboard in state
+  //
+  if (dashboardPath && !currentDashboard) {
+    return {
+      title: 'Dashboard not found',
+      message: `Dashboard "${dashboardPath}" doesn’t exist..`,
+      type: 'error',
+    };
+  }
+
+  //
+  // 3. We have a dashboard selected, but it contains no pages
+  //
+  if (currentDashboard && currentDashboard.pages.length === 0) {
+    return {
+      title: 'No pages found',
+      message: `Dashboard "${currentDashboard.name}" has no pages. Create one above to continue.`,
+      type: 'error',
+    };
+  }
+
+  //
+  // 4. URL points at pagePath but that page doesn’t exist on the current dashboard
+  //
+  if (currentDashboard && pagePath && !currentPage) {
+    return {
+      title: 'Page not found',
+      message: `Dashboard "${currentDashboard.name}" has no page with path "${pagePath}".`,
+      type: 'error',
+    };
+  }
+
+  //
+  // 5. A dashboard is selected, but no pagePath present (or no currentPage)
+  //
+  if (currentDashboard && !pagePath && !currentPage) {
+    return {
+      title: 'No page selected',
+      message: 'Select a page above to start editing.',
+      type: 'info',
+    };
+  }
+
+  //
+  // 6. Nothing selected at all (default landing state)
+  //
+  if (!dashboardPath && !pagePath && !currentDashboard) {
+    return {
+      title: 'No dashboard selected',
+      message: 'Select or create a dashboard above to start.',
+      type: 'info',
+    };
+  }
+
+  // If we reach here, everything looks good – no message required.
+  return;
+}
+
 
 export function NavigationSidebar({
-  open: defaultOpen = true,
-  closeable = true,
-  error,
+  open: defaultOpen = false,
+  closable = true,
+  dashboardPath,
+  pagePath,
 }: {
-  closeable?: boolean;
-  error?: {
-    title: string;
-    message: string;
-  },
+  closable?: boolean;
   open?: boolean;
+  dashboardPath?: string;
+  pagePath?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const [dashboardEditorMode, setDashboardEditorMode] = useState<{
-    mode: 'new' | 'edit' | 'duplicate' | null;
-    dashboard?: DashboardPageWithoutData | null;
-  } | null>(null);
-  const [dashboardPageEditorMode, setDashboardPageEditorMode] = useState<{
-    mode: 'new' | 'edit' | 'duplicate' | null;
-    dashboard: DashboardPageWithoutData | null;
-    page?: DashboardPageWithoutData | null;
-  } | null>(null);
+  // const [dashboardEditorMode, setDashboardEditorMode] = useState<{
+  //   mode: DashboardSelectorProps['mode'] | null;
+  //   dashboard?: DashboardPageWithoutData | null;
+  // } | null>({
+  //   mode: mode?.startsWith('dashboard-') ? (mode as DashboardSelectorProps['mode']) : null,
+  //   dashboard: null,
+  // });
+  // const [dashboardPageEditorMode, setDashboardPageEditorMode] = useState<{
+  //   mode: DashboardPageSelectorProps['mode'] | null;
+  //   dashboard: DashboardPageWithoutData | null;
+  //   page?: DashboardPageWithoutData | null;
+  // } | null>({
+  //   mode: mode?.startsWith('page-') ? (mode as DashboardPageSelectorProps['mode']) : null,
+  //   dashboard: null,
+  //   page: null,
+  // });
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
-  const params = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
-  });
 
-  const currentDashboard = useMemo(() => dashboards?.find((dashboard) => dashboard.path === params?.dashboardPath), [dashboards, params?.dashboardPath]);
+  const currentDashboard = useMemo(() => dashboards?.find((dashboard) => dashboard.path === dashboardPath), [dashboards, dashboardPath]);
+  const currentPage = useMemo(() => currentDashboard?.pages.find((page) => page.path === pagePath), [currentDashboard, pagePath]);
 
   const navigate = useNavigate();
   // maintain state of each dashboard and if they're collapsed or not, the current dashboard should be open by default
@@ -142,20 +239,18 @@ export function NavigationSidebar({
     }
   }, [currentDashboard, dashboards]);
 
-  // TODO
-  // If a page or a dashbaord is deleted and either the page/dashboard is currently active, we'll need to make an active decision on what to do here
-  // do we block the user from closing the sidebar until a new page is selected?
+  const message = getStatusMessage({
+    dashboards,
+    currentDashboard,
+    currentPage,
+    dashboardPath,
+    pagePath,
+  });
 
 
   return <>
-    {dashboardEditorMode?.mode && <DashboardEditor mode={dashboardEditorMode.mode} open={true} onClose={() => {
-      setDashboardEditorMode(null);
-    }} dashboard={dashboardEditorMode.dashboard} />}
-    {dashboardPageEditorMode?.mode && dashboardPageEditorMode.dashboard && <DashboardPageEditor mode={dashboardPageEditorMode.mode} open={true} onClose={() => {
-      setDashboardPageEditorMode(null);
-    }} dashboard={dashboardPageEditorMode.dashboard} page={dashboardPageEditorMode.page} />}
-    {closeable && <NavigationSidebarToggle open={open} onToggle={() => setOpen((prev) => !prev)} />}
-    <NavigationSidebarContainer open={open} onClose={() => closeable && setOpen(false)}>
+    {closable && <NavigationSidebarToggle open={open} onToggle={() => setOpen((prev) => !prev)} />}
+    <NavigationSidebarContainer open={open} onClose={() => closable && setOpen(false)}>
       <Title>
         <Row>
           <LayoutDashboard size={24} style={{
@@ -168,10 +263,10 @@ export function NavigationSidebar({
             <PlusCircle size={20} style={{
               marginRight: `var(--puck-space-px)`,
             }} onClick={() => {
-              setDashboardEditorMode({
-                mode: 'new',
-                dashboard: null
-              });
+              // setDashboardEditorMode({
+              //   mode: 'dashboard-new',
+              //   dashboard: null
+              // });
             }} />
           </IconButton>
         </Tooltip>
@@ -215,10 +310,17 @@ export function NavigationSidebar({
                 <IconButton className="disable-bg-hover" style={{
                   marginRight: `var(--puck-space-px)`,
                 }} onClick={() => {
-                  setDashboardEditorMode({
-                    mode: 'edit',
-                    dashboard
+                  navigate({
+                    to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                    params: {
+                      dashboardPath: dashboard.path,
+                      pagePath: dashboard.pages[0].path
+                    }
                   });
+                  // setDashboardEditorMode({
+                  //   mode: 'edit',
+                  //   dashboard
+                  // });
                 }}>
                   <SquarePen size={20} />
                 </IconButton>
@@ -238,17 +340,17 @@ export function NavigationSidebar({
                   }}>
                     <IconButton className="disable-bg-hover">
                       <PlusCircle size={20} onClick={() => {
-                        setDashboardPageEditorMode({
-                          mode: 'new',
-                          dashboard,
-                        });
+                        // setDashboardPageEditorMode({
+                        //   mode: 'new-page',
+                        //   dashboard,
+                        // });
                       }} />
                     </IconButton>
                   </Tooltip>
                 </Title>
                 <OrderedList>
                   {dashboard.pages.map((page) => (
-                    <ListItem key={page.id} className={currentDashboard?.id === dashboard.id && params?.pagePath === page.path ? 'active' : ''}>
+                    <ListItem key={page.id} className={currentDashboard?.id === dashboard.id && pagePath === page.path ? 'active' : ''}>
                       <Tooltip title="Select Page" placement="bottom" style={{
                         width: '100%',
                         paddingLeft: `var(--puck-space-px)`,
@@ -262,18 +364,18 @@ export function NavigationSidebar({
                           }
                         });
                       }}>
-                        <span>{page.name}{currentDashboard?.id === dashboard.id && params?.pagePath === page.path ? ' (current)' : ''}</span>
+                        <span>{page.name}{currentDashboard?.id === dashboard.id && pagePath === page.path ? ' (current)' : ''}</span>
                       </Tooltip>
                       <Tooltip placement="left" title="Edit">
                         <IconButton className="disable-bg-hover" style={{
                           marginRight: `var(--puck-space-px)`,
                         }}>
                           <SquarePen size={20} onClick={() => {
-                            setDashboardPageEditorMode({
-                              mode: 'edit',
-                              dashboard,
-                              page,
-                            });
+                            // setDashboardPageEditorMode({
+                            //   mode: 'edit-page',
+                            //   dashboard,
+                            //   page,
+                            // });
                           }} />
                         </IconButton>
                       </Tooltip>
@@ -299,11 +401,11 @@ export function NavigationSidebar({
           </ListItem>
         )}
       </OrderedList>
-      {error?.title && <Alert severity='error' style={{
+      {message?.title && !dashboardsQuery.isLoading && <Alert severity={message.type} style={{
         marginTop: 'var(--puck-space-px)',
       }}>
-        <AlertTitle>{error.title}</AlertTitle>
-        {error.message}
+        <AlertTitle>{message.title}</AlertTitle>
+        {message.message}
       </Alert>}
     </NavigationSidebarContainer>
   </>

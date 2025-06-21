@@ -98,6 +98,9 @@ const dashboardRoute = new Hono()
           data: dashboardTable.data,
           breakpoints: dashboardTable.breakpoints,
           thumbnail: dashboardTable.thumbnail,
+          createdAt: dashboardTable.createdAt,
+          updatedAt: dashboardTable.updatedAt,
+          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -140,6 +143,9 @@ const dashboardRoute = new Hono()
           data: dashboardTable.data,
           breakpoints: dashboardTable.breakpoints,
           thumbnail: dashboardTable.thumbnail,
+          createdAt: dashboardTable.createdAt,
+          updatedAt: dashboardTable.updatedAt,
+          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -221,6 +227,9 @@ const dashboardRoute = new Hono()
           data: dashboardTable.data,
           breakpoints: dashboardTable.breakpoints,
           thumbnail: dashboardTable.thumbnail,
+          createdAt: dashboardTable.createdAt,
+          updatedAt: dashboardTable.updatedAt,
+          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -377,6 +386,7 @@ const dashboardRoute = new Hono()
           themeId: data.themeId,
           breakpoints: data.breakpoints,
           thumbnail: data.thumbnail,
+          isEnabled: data.isEnabled,
         })
         .where(
           and(
@@ -402,6 +412,7 @@ const dashboardRoute = new Hono()
           userId: user.id,
           name,
           path,
+          isEnabled: true,
           // TODO - Sanitize input data
           data,
           thumbnail: thumbnail,

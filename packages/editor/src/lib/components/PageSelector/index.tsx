@@ -5,8 +5,8 @@ import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { SelectField } from '@lib/components/Form/Fields/Select';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { CirclePlus, Type, Layers } from 'lucide-react';
-import { Modal, ModalActions } from '@lib/components/Modal';
-import { Button } from '@lib/components/Button';
+import { Modal, ModalActions } from '@lib/page/shared/Modal';
+import { PrimaryButton } from '@lib/page/shared/Button';
 import { createDashboardPage } from '@client/src/lib/api/dashboard';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
@@ -127,7 +127,7 @@ export function PageSelector() {
         </div>
       </Column>
       <ModalActions>
-        <Button disabled={!path || !name || !dashboard || !!pathError} onClick={() => {
+        <PrimaryButton disabled={!path || !name || !dashboard || !!pathError} onClick={() => {
           if (dashboard) {
             createDashboardPage({
               id: dashboard.id,
@@ -148,7 +148,7 @@ export function PageSelector() {
               })
             })
           }
-        }}>CREATE</Button>
+        }}>CREATE</PrimaryButton>
       </ModalActions>
     </Modal>
   </Row>

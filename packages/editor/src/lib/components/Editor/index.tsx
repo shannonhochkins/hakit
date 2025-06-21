@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-import { Puck } from '@measured/puck';
+import { Config, Puck } from '@measured/puck';
 import { Column, Row } from '@hakit/components';
 import { OptionsSidebar } from '../OptionsSidebar';
 import { ViewportControls } from '../ViewportControls';
@@ -103,7 +103,10 @@ export function Editor() {
           //   return <></>;
           // },
         }}
-        config={userConfig}
+        dnd={{
+          disableAutoScroll: false,
+        }}
+        config={userConfig as Config}
         data={puckPageData}
       >
         <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' className='puck-editor-wrapper'>

@@ -43,6 +43,7 @@ export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
   themeId: true,
   breakpoints: true,
   thumbnail: true,
+  isEnabled: true,
 }).extend({
   breakpoints: dashboardSchema.shape.breakpoints.optional(),
   data: dashboardSchema.shape.data.optional(),

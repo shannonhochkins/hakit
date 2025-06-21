@@ -16,7 +16,6 @@ import { type CustomFieldsConfiguration } from '@lib/components/Form';
 import { getDefaultPropsFromFields, transformFields, wrapDefaults, transformProps } from '@lib/helpers/breakpoints';
 import { AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import { type PuckCategories } from '@typings/puck';
 import { usePuckFrame } from '@lib/hooks/usePuckFrame';
 import { useTransformedPuckData } from '@lib/hooks/useTransformedPuckData';
 import { deepCopy } from 'deep-copy-ts';
@@ -44,7 +43,7 @@ export type CustomComponentConfig<
   DataShape = Omit<ComponentData<FieldProps>, 'type'>,
 > = Omit<ComponentConfig<Props, FieldProps, DataShape>, 'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label'> & {
   label: string;
-  category: PuckCategories;
+  category: string;
   fields: CustomFieldsConfiguration<Props, false, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   resolveFields?: (
     data: DeepPartial<DataShape>,
