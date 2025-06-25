@@ -47,6 +47,7 @@ export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
 }).extend({
   breakpoints: dashboardSchema.shape.breakpoints.optional(),
   data: dashboardSchema.shape.data.optional(),
+  isEnabled: dashboardSchema.shape.isEnabled.optional(),
   thumbnail: dashboardSchema.shape.thumbnail.optional(),
 });
 
@@ -59,5 +60,18 @@ export const insertDashboardPageSchema = dashboardPageSchema.pick({
 })
 .extend({
   data: dashboardPageSchema.shape.data.optional(),
-  thumbnail: dashboardSchema.shape.thumbnail.optional(),
+  thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
+});
+
+export const updateDashboardPageSchema = createUpdateSchema(pagesTable).pick({
+  name: true,
+  path: true,
+  isEnabled: true,
+  data: true,
+  thumbnail: true,
+})
+.extend({
+  data: dashboardPageSchema.shape.data.optional(),
+  isEnabled: dashboardPageSchema.shape.isEnabled.optional(),
+  thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
 });

@@ -2,14 +2,14 @@ import styled from '@emotion/styled';
 import { Row } from '@lib/page/shared/Layout';
 import { Tooltip } from '@lib/components/Tooltip';
 import { ReactNode } from '@tanstack/react-router';
-import { Lock } from 'lucide-react';
+import { InfoIcon, Lock } from 'lucide-react';
 
-const LabelRow = styled.span`
+const LabelContainer = styled.span`
   align-items: center;
   display: flex;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  padding: var(--space-1) 0;
+  padding: 0;
   color: var(--color-text-primary);
 `;
 
@@ -36,19 +36,19 @@ type FieldLabelProps = {
 export function FieldLabel({
   label,
   description,
-  icon,
+  icon = null,
   readOnly,
   startAdornment,
   endAdornment,
   ...rest
 }: FieldLabelProps) {
   return (
-    <LabelRow {...rest}>
+    <LabelContainer {...rest}>
       <Row fullWidth alignItems='center' justifyContent='space-between'>
         {startAdornment}
         <Tooltip title={description} placement='left'>
           <Row alignItems='center' wrap='nowrap'>
-            {icon ? <LabelIcon>{icon}</LabelIcon> : null}
+            {(icon || description) ? <LabelIcon>{icon || <InfoIcon size={16} />}</LabelIcon> : null}
             {label}
             {readOnly && (
               <DisabledIcon title='Read-only'>
@@ -59,6 +59,6 @@ export function FieldLabel({
         </Tooltip>
         {endAdornment}
       </Row>
-    </LabelRow>
+    </LabelContainer>
   );
 }

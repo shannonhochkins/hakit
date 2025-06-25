@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { Json } from "@kinde-oss/kinde-typescript-sdk";
 import { api, callApi, ToastMessages } from './';
-import { DashboardWithPageData, DashboardPageWithData } from "@typings/dashboard";
+import { DashboardWithPageData, DashboardPageWithData, DashboardWithoutPageData } from "@typings/dashboard";
 
 type CreateDashboardPayload = {
   name: string;
@@ -21,7 +21,7 @@ export async function createDashboard({ name, path, data, thumbnail }: CreateDas
   }), toastMessage);
 }
 
-export async function createDashboardPage({ id, name, path, data }: { id: DashboardWithPageData['id'], name: string, path: string, data?: Json }, toastMessage?: ToastMessages) {
+export async function createDashboardPage({ id, name, path, data, thumbnail }: { id: DashboardWithPageData['id'], name: string, path: string, data?: Json, thumbnail?: string }, toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].page.$post({
     param: {
       id,
@@ -30,6 +30,7 @@ export async function createDashboardPage({ id, name, path, data }: { id: Dashbo
       name,
       path,
       data,
+      thumbnail,
     }
   }), toastMessage);
 }
@@ -83,6 +84,7 @@ export async function updateDashboardPageForUser(id: DashboardWithPageData['id']
       path: page.path,
       name: page.name,
       data: page.data,
+      isEnabled: page.isEnabled,
       thumbnail: page.thumbnail,
     },
     param: {
@@ -115,7 +117,7 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput, to
   return res; 
 }
 
-export async function getDashboardsForUser() {
+export async function getDashboardsForUser(): Promise<DashboardWithoutPageData[]> {
   const req = api.dashboard.$get();
   const res = await callApi(req);
   return res; 

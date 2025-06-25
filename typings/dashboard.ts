@@ -5,6 +5,9 @@ export type DashboardPageWithoutData = {
     id: string;
     name: string;
     path: string;
+    createdAt: string;
+    updatedAt: string;
+    isEnabled: boolean;
     thumbnail: string | null;
 }
 export type DashboardPageWithData = DashboardPageWithoutData & {

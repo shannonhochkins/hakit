@@ -11,6 +11,10 @@ export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   loading?: boolean;
   /** Whether the button should take full width */
   fullWidth?: boolean;
+  /** Wether the button should span full height */
+  fullHeight?: boolean;
+  /** auto width should be applied */
+  autoWidth?: boolean;
   /** Custom icon to display before text */
   startIcon?: React.ReactNode;
   /** Custom icon to display after text */
@@ -225,6 +229,20 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
     width: 100%;
     min-width: auto;
   `}
+  ${props => props.fullHeight && css`
+    height: 100%;
+    min-height: auto;
+  `}
+
+  ${props => props.autoWidth && css`
+    width: auto;
+    min-width: 0;
+  `}
+
+  svg {
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+  }
 
   /* High contrast mode support */
   @media (prefers-contrast: high) {
@@ -252,6 +270,8 @@ export const BaseButton: React.FC<BaseButtonProps> = ({
   disabled,
   size = 'md',
   fullWidth = false,
+  fullHeight = false,
+  autoWidth,
   ...props 
 }) => {
   return (
@@ -259,12 +279,14 @@ export const BaseButton: React.FC<BaseButtonProps> = ({
       size={size}
       loading={loading}
       fullWidth={fullWidth}
+      fullHeight={fullHeight}
       disabled={disabled || loading}
+      autoWidth={autoWidth}
       {...props}
     >
-      {startIcon && !loading && <span>{startIcon}</span>}
+      {startIcon && !loading && <>{startIcon}</>}
       {children}
-      {endIcon && !loading && <span>{endIcon}</span>}
+      {endIcon && !loading && <>{endIcon}</>}
     </StyledBaseButton>
   );
 };

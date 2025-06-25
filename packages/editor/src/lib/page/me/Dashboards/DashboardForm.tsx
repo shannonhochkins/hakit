@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
-import { CheckIcon, XIcon, ImageIcon } from 'lucide-react';
+import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboard, dashboardsQueryOptions, updateDashboardForUser } from '@lib/api/dashboard';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
@@ -10,92 +10,10 @@ import { SecondaryButton } from '@lib/page/shared/Button/Secondary';
 import { FieldGroup } from '@lib/components/Form/FieldWrapper/FieldGroup';
 import { FieldLabel } from '@lib/components/Form/FieldWrapper/FieldLabel';
 import { InputField } from '@lib/components/Form/Fields/Input';
+import { ImageUpload } from '@lib/components/Form/Fields/Image';
+import { Modal } from '@lib/page/shared/Modal';
 
 // Styled Components
-const FormContainer = styled.div`
-  background-color: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  margin-bottom: var(--space-6);
-`;
-
-const FormHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-4);
-`;
-
-const FormTitle = styled.h2`
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const CloseButton = styled.button`
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  transition: color var(--transition-normal);
-  
-  &:hover {
-    color: var(--color-text-primary);
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-`;
-
-const ThumbnailContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-`;
-
-const ThumbnailPreview = styled.div`
-  width: 96px;
-  height: 96px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const ThumbnailPlaceholder = styled.div`
-  color: var(--color-text-muted);
-`;
-
-const UploadButton = styled.button`
-  padding: var(--space-2) var(--space-4);
-  background-color: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-normal);
-  
-  &:hover {
-    background-color: var(--color-border);
-  }
-`;
-
 const FormActions = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -145,9 +63,31 @@ export function DashboardForm({
 
   // Path validation
   useEffect(() => {
+    if (path.length === 0) {
+      setPathError('');
+      return;
+    }
+
+    // Format validation
     const valid = /^[a-z0-9-]+$/.test(path);
-    setPathError(valid || path.length === 0 ? '' : 'Only lowercase letters, numbers and dashes allowed');
-  }, [path]);
+    if (!valid) {
+      setPathError('Only lowercase letters, numbers and dashes allowed');
+      return;
+    }
+
+    // Uniqueness validation
+    if (dashboards) {
+      const existingDashboard = dashboards.find(d => 
+        d.path === path && d.id !== dashboardId
+      );
+      if (existingDashboard) {
+        setPathError('A dashboard with this path already exists');
+        return;
+      }
+    }
+
+    setPathError('');
+  }, [path, dashboards, dashboardId]);
 
   // Name validation
   useEffect(() => {
@@ -235,11 +175,6 @@ export function DashboardForm({
     }
   }, [mode, name, path, thumbnail, dashboardId, currentDashboard, validateForm, isSubmitting, dashboardsQuery, onSuccess, onClose]);
 
-  const handleThumbnailUpload = useCallback(() => {
-    // TODO: Implement thumbnail upload logic
-    console.log('Upload thumbnail clicked');
-  }, []);
-
   if (!isOpen) return null;
 
   const getTitle = () => {
@@ -261,23 +196,18 @@ export function DashboardForm({
   };
 
   return (
-    <FormContainer>
-      <FormHeader>
-        <FormTitle>{getTitle()}</FormTitle>
-        <CloseButton onClick={onClose} aria-label="Close form">
-          <XIcon size={20} />
-        </CloseButton>
-      </FormHeader>
-      
-      <Form onSubmit={handleSubmit}>
+    <Modal open={isOpen} onClose={onClose} title={getTitle()}>
+      <form onSubmit={handleSubmit} style={{
+        width: '100%',
+      }}>
         <FieldGroup>
+          <FieldLabel label="Dashboard Name" description="The name of the dashboard." />
           <InputField
             id="dashboard-name"
-            label="Dashboard Name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Home Dashboard"
+            placeholder="Home"
             error={!!nameError}
             helperText={nameError}
             fullWidth
@@ -285,16 +215,16 @@ export function DashboardForm({
         </FieldGroup>
 
         <FieldGroup>
+          <FieldLabel label="Dashboard Path" description="The path is used to identify the dashboard in the URL." />
           <InputField
             id="dashboard-path"
-            label="Path"
             type="text"
             value={path}
             onChange={(e) => {
               setPath(e.target.value);
               setPathTouched(true);
             }}
-            placeholder="/home-dashboard"
+            placeholder="home"
             error={!!pathError}
             helperText={pathError}
             fullWidth
@@ -302,37 +232,28 @@ export function DashboardForm({
         </FieldGroup>
 
         <FieldGroup>
-          <FieldLabel label="Thumbnail (optional)" />
-          <ThumbnailContainer>
-            <ThumbnailPreview>
-              {thumbnail ? (
-                <img src={thumbnail} alt="Dashboard thumbnail" />
-              ) : (
-                <ThumbnailPlaceholder>
-                  <ImageIcon size={24} />
-                </ThumbnailPlaceholder>
-              )}
-            </ThumbnailPreview>
-            <UploadButton type="button" onClick={handleThumbnailUpload}>
-              Upload Image
-            </UploadButton>
-          </ThumbnailContainer>
+          <FieldLabel label="Thumbnail (optional)" description="Upload an image thumbnail for this dashboard." />
+          <ImageUpload
+            value={thumbnail || ''}
+            onChange={setThumbnail}
+          />
         </FieldGroup>
 
         <FormActions>
           <SecondaryButton type="button" onClick={onClose}>
+            <XIcon size={16} />
             Cancel
           </SecondaryButton>
           <PrimaryButton 
             type="submit" 
             disabled={!validateForm() || isSubmitting}
             loading={isSubmitting}
-            startIcon={<CheckIcon size={16} />}
           >
+            {validateForm() ? <CheckIcon size={16} /> : null}
             {getSubmitLabel()}
           </PrimaryButton>
         </FormActions>
-      </Form>
-    </FormContainer>
+      </form>
+    </Modal>
   );
 }

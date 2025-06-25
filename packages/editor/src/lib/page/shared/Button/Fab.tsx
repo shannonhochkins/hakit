@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { ButtonHTMLAttributes } from 'react';
 import { focusRing } from '@lib/styles/utils';
+import { Tooltip, TooltipProps } from '@lib/components/Tooltip';
 
 // Props interface for the FAB
 export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,7 +12,7 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Size variant of the FAB */
   size?: 'sm' | 'md' | 'lg';
   /** Color variant of the FAB */
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'transparent';
   /** Whether the FAB should pulse to draw attention */
   pulse?: boolean;
   /** Whether the FAB is in a loading state */
@@ -20,6 +21,8 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'relative';
   /** Custom label for accessibility */
   'aria-label': string;
+  /** override the tooltip props */
+  tooltipProps?: Partial<TooltipProps>;
 }
 
 const getFabSize = (size: 'sm' | 'md' | 'lg') => {
@@ -87,7 +90,7 @@ const getFabPosition = (position: FabProps['position']) => {
   }
 };
 
-const getFabVariant = (variant: 'primary' | 'secondary') => {
+const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
   if (variant === 'secondary') {
     return css`
       background: var(--color-surface-elevated);
@@ -107,6 +110,29 @@ const getFabVariant = (variant: 'primary' | 'secondary') => {
       &:active:not(:disabled) {
         &::before {
           background: var(--color-gray-700);
+        }
+      }
+    `;
+  }
+
+  if (variant === 'transparent') {
+    return css`
+      background: transparent;
+      color: var(--color-text-primary);
+      border: none;
+      box-shadow: none;
+      
+      &::before {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      &:hover:not(:disabled) {
+        box-shadow: var(--shadow-lg);
+      }
+      
+      &:active:not(:disabled) {
+        &::before {
+          background: rgba(255, 255, 255, 0.2);
         }
       }
     `;
@@ -281,21 +307,25 @@ export const Fab: React.FC<FabProps> = ({
   position = 'relative',
   pulse = false,
   children,
+  tooltipProps = {},
   ...props 
 }) => {
+  console.log('props', props);
   return (
-    <StyledFab
-      size={size}
-      variant={variant}
-      position={position}
-      pulse={pulse && !loading}
-      loading={loading}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {loading ? null : icon}
-      {children}
-    </StyledFab>
+    <Tooltip title={props['aria-label'] || ''} placement="top" {...tooltipProps}>
+      <StyledFab
+        size={size}
+        variant={variant}
+        position={position}
+        pulse={pulse && !loading}
+        loading={loading}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {loading ? null : icon}
+        {children}
+      </StyledFab>
+    </Tooltip>
   );
 };
 

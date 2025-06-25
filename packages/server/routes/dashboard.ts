@@ -2,7 +2,7 @@ import { Hono} from 'hono';
 import { db } from '../db';
 import { eq, and, sql } from 'drizzle-orm';
 import { pagesTable, dashboardTable } from "../db/schema/db";
-import { insertDashboardSchema, insertDashboardPageSchema, puckDataZodSchema, updateDashboardSchema } from "../db/schema/schemas";
+import { insertDashboardSchema, insertDashboardPageSchema, updateDashboardPageSchema, puckDataZodSchema, updateDashboardSchema } from "../db/schema/schemas";
 import { zValidator } from "@hono/zod-validator";
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from "../kinde";
@@ -106,6 +106,10 @@ const dashboardRoute = new Hono()
               json_build_object(
                 'id', ${pagesTable.id},
                 'name', ${pagesTable.name},
+                'updatedAt', ${pagesTable.updatedAt},
+                'createdAt', ${pagesTable.createdAt},
+                'isEnabled', ${pagesTable.isEnabled},
+                'thumbnail', ${pagesTable.thumbnail},
                 'path', ${pagesTable.path}
               )
             ) FILTER (WHERE ${pagesTable.id} IS NOT NULL),
@@ -151,6 +155,10 @@ const dashboardRoute = new Hono()
               json_build_object(
                 'id', ${pagesTable.id},
                 'name', ${pagesTable.name},
+                'thumbnail', ${pagesTable.thumbnail},
+                'updatedAt', ${pagesTable.updatedAt},
+                'createdAt', ${pagesTable.createdAt},
+                'isEnabled', ${pagesTable.isEnabled},
                 'path', ${pagesTable.path},
                 'data', ${pagesTable.data}
               )
@@ -235,6 +243,10 @@ const dashboardRoute = new Hono()
               json_build_object(
                 'id', ${pagesTable.id},
                 'name', ${pagesTable.name},
+                'updatedAt', ${pagesTable.updatedAt},
+                'createdAt', ${pagesTable.createdAt},
+                'isEnabled', ${pagesTable.isEnabled},
+                'thumbnail', ${pagesTable.thumbnail},
                 'path', ${pagesTable.path}
               )
             ) FILTER (WHERE ${pagesTable.id} IS NOT NULL),
@@ -318,7 +330,7 @@ const dashboardRoute = new Hono()
   .put('/:id/page/:pageId', getUser, zValidator("param", z.object({
     id: z.string(),
     pageId: z.string()
-  })), zValidator("json", updateDashboardSchema), async (c) => {
+  })), zValidator("json", updateDashboardPageSchema), async (c) => {
     try {
       const user = c.var.user;
       const data = await c.req.valid('json');
@@ -351,6 +363,7 @@ const dashboardRoute = new Hono()
           name: data.name,
           path: data.path,
           thumbnail: data.thumbnail,
+          isEnabled: data.isEnabled,
           data: data.data ? sanitizePuckData(data.data) : undefined,
         })
         .where(
@@ -474,6 +487,7 @@ const dashboardRoute = new Hono()
           name: name ?? defaultPage.name,
           path: path ?? defaultPage.path,
           data: data ?? createDefaultPageConfiguration(),
+          isEnabled: true,
           thumbnail: thumbnail || null,
         })
         .returning();

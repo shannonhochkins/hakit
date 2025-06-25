@@ -1,19 +1,45 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { PlusIcon, SlidersIcon, TrashIcon, EditIcon, LayoutDashboardIcon, SearchIcon } from 'lucide-react';
+import { PlusIcon, SlidersIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { dashboardsQueryOptions, deleteDashboard, updateDashboardForUser } from '@lib/api/dashboard';
+import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage, updateDashboardForUser, updateDashboardPageForUser } from '@lib/api/dashboard';
 import { Spinner } from '@lib/components/Spinner';
 import { PrimaryButton } from '@lib/page/shared/Button/Primary';
 import { EmptyState } from '../shared/EmptyState';
 import { DashboardForm } from './DashboardForm';
+import { PageForm } from './PageForm';
 import { Confirm } from '@lib/page/shared/Modal/confirm';
-import { Row } from '@lib/page/shared/Layout';
+import { Column, Row } from '@lib/page/shared/Layout';
 import { toReadableDate } from '@lib/page/shared/helpers';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
-import { InputAdornment } from '@mui/material';
+import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Tooltip } from '@lib/components/Tooltip';
+import { DashboardWithoutPageData, DashboardPageWithoutData } from '@typings/dashboard';
+import {
+  TableContainer as StyledTableContainer,
+  Table as StyledTable,
+  TableHead as StyledTableHead,
+  TableBody as StyledTableBody,
+  TableRow as StyledTableRow,
+  TableHeaderCell,
+  TableCell as StyledTableCell,
+  CollapsibleRow,
+  ChildTableRow,
+  ExpandIcon,
+} from '@lib/components/Table';
+import { Fab, SecondaryButton } from '@lib/page/shared/Button';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'react-toastify';
+
+// Table column configuration
+const TABLE_COLUMNS = {
+  DASHBOARD: { width: '100%', minWidth: '300px' },
+  PATH: { width: '200px' },
+  CREATED: { width: '150px' },
+  STATUS: { width: '120px' },
+  ACTIONS: { width: '240px' },
+} as const;
 
 // Styled Components
 const Container = styled.div`
@@ -64,7 +90,6 @@ const SearchAndFilter = styled.div`
   }
 `;
 
-
 const FilterButton = styled.button`
   display: flex;
   align-items: center;
@@ -82,68 +107,17 @@ const FilterButton = styled.button`
   }
 `;
 
-const DashboardTable = styled.div`
-  background-color: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const TableHead = styled.thead`
-  background-color: var(--color-surface-elevated);
-  border-bottom: 1px solid var(--color-border);
-`;
-
-const TableHeaderRow = styled.tr`
-  border-bottom: 1px solid var(--color-border);
-`;
-
-const TableHeader = styled.th<{ hiddenBelow?: 'md' | 'lg' }>`
-  padding: var(--space-3) var(--space-6);
-  text-align: left;
+const SearchFilterIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-primary-500);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
-  
-  ${props => props.hiddenBelow && `
-    @media (max-width: ${props.hiddenBelow === 'md' ? 'var(--breakpoint-md)' : 'var(--breakpoint-lg)'}) {
-      display: none;
-    }
-  `}
-  
-  &:last-child {
-    text-align: right;
-  }
-`;
-
-const TableBody = styled.tbody``;
-
-const TableRow = styled.tr`
-  border-bottom: 1px solid var(--color-border);
-  transition: background-color var(--transition-normal);
-  
-  &:hover {
-    background-color: var(--color-border-subtle);
-  }
-`;
-
-const TableCell = styled.td<{ hiddenBelow?: 'md' | 'lg' }>`
-  padding: var(--space-4) var(--space-6);
-  
-  ${props => props.hiddenBelow && `
-    @media (max-width: ${props.hiddenBelow === 'md' ? 'var(--breakpoint-md)' : 'var(--breakpoint-lg)'}) {
-      display: none;
-    }
-  `}
-  
-  &:last-child {
-    text-align: right;
-  }
+  color: white;
 `;
 
 const DashboardInfo = styled.div`
@@ -152,10 +126,46 @@ const DashboardInfo = styled.div`
   gap: var(--space-3);
 `;
 
+const DashboardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  transition: all var(--transition-normal);
+`;
+
+const PageInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-10); /* Align with dashboard content after expand button */
+  padding-left: var(--space-1); /* Small padding to account for the pseudo-element border */
+  width: 100%;
+  transition: all var(--transition-normal);
+`;
+
 const ThumbnailContainer = styled.div`
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-surface-elevated);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const PageThumbnailContainer = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   background-color: var(--color-surface-elevated);
   flex-shrink: 0;
@@ -184,8 +194,19 @@ const DashboardName = styled.span`
   color: var(--color-text-primary);
 `;
 
+const PageName = styled.span`
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+`;
+
 const PathText = styled.span`
   color: var(--color-text-muted);
+`;
+
+const PagePathText = styled.span`
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 `;
 
 const DateText = styled.span`
@@ -200,34 +221,62 @@ const StatusContainer = styled.div`
 
 const ActionButtons = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-end;
   gap: var(--space-2);
 `;
 
-const ActionButton = styled.button<{ variant?: 'danger' }>`
-  padding: var(--space-1);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-normal);
-  
-  &:hover {
-    color: ${props => props.variant === 'danger' ? 'var(--color-error-500)' : 'var(--color-text-primary)'};
-  }
+const PageCount = styled.span<{ isEmpty?: boolean }>`
+  font-size: var(--font-size-xs);
+  color: ${props => props.isEmpty ? 'var(--color-text-muted)' : 'var(--color-text-muted)'};
+  font-style: ${props => props.isEmpty ? 'italic' : 'normal'};
 `;
+
+const ChildTable = styled(StyledTable)`
+  table-layout: fixed;
+  width: 100%;
+  
+  /* Force column widths to match parent table */
+  colgroup col:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
+  colgroup col:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
+  colgroup col:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
+  colgroup col:nth-child(4) { width: ${TABLE_COLUMNS.STATUS.width}; }
+  colgroup col:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+  
+  /* Ensure cells respect the column widths */
+  td:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
+  td:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
+  td:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
+  td:nth-child(4) { width: ${TABLE_COLUMNS.STATUS.width}; }
+  td:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+`;
+
+function getDashboardById(dashboards: DashboardWithoutPageData[], id: string) {
+  return dashboards.find(dashboard => dashboard.id === id) || null;
+}
 
 export function MyDashboards() {
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
   const [formMode, setFormMode] = useState<'new' | 'edit' | 'duplicate' | null>(null);
+  const [pageFormMode, setPageFormMode] = useState<'new' | 'edit' | null>(null);
   const [editingDashboardId, setEditingDashboardId] = useState<string | null>(null);
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [selectedDashboardId, setSelectedDashboardId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [previousSearchQuery, setPreviousSearchQuery] = useState('');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingDashboardId, setDeletingDashboardId] = useState<string | null>(null);
+  const [deletingPageId, setDeletingPageId] = useState<string | null>(null);
+  const [deletingPageDashboardId, setDeletingPageDashboardId] = useState<string | null>(null);
   const [togglingDashboardId, setTogglingDashboardId] = useState<string | null>(null);
+  const [togglingPageId, setTogglingPageId] = useState<string | null>(null);
+  const [expandedDashboards, setExpandedDashboards] = useState<Set<string>>(new Set());
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuDashboardId, setMenuDashboardId] = useState<string | null>(null);
+  const [menuPageId, setMenuPageId] = useState<string | null>(null);
+  const [menuType, setMenuType] = useState<'dashboard' | 'page' | null>(null);
+  const navigate = useNavigate();
 
   // Mutation for toggling dashboard enabled status
   const toggleDashboardMutation = useMutation({
@@ -251,6 +300,28 @@ export function MyDashboards() {
     },
   });
 
+  // Mutation for toggling page enabled status
+  const togglePageMutation = useMutation({
+    mutationFn: async ({ dashboardId, pageId, isEnabled }: { dashboardId: string; pageId: string; isEnabled: boolean }) => {
+      return updateDashboardPageForUser(dashboardId, { id: pageId, isEnabled });
+    },
+    onMutate: ({ pageId }) => {
+      // Set the loading state for this specific page
+      setTogglingPageId(pageId);
+    },
+    onSuccess: () => {
+      // Clear loading state and refetch dashboards
+      setTogglingPageId(null);
+      dashboardsQuery.refetch();
+    },
+    onError: (error) => {
+      console.error('Error toggling page:', error);
+      // Clear loading state and refetch to revert optimistic update
+      setTogglingPageId(null);
+      dashboardsQuery.refetch();
+    },
+  });
+
   const handleToggle = async (id: string) => {
     const dashboard = dashboards?.find(d => d.id === id);
     if (!dashboard || togglingDashboardId === id) return;
@@ -262,33 +333,175 @@ export function MyDashboards() {
     });
   };
 
-  const handleDelete = (id: string) => {
-    setDeletingDashboardId(id);
-    setDeleteConfirmOpen(true);
+  const handlePageToggle = async (dashboardId: string, pageId: string) => {
+    const dashboard = dashboards?.find(d => d.id === dashboardId);
+    const page = dashboard?.pages.find(p => p.id === pageId);
+    if (!page || togglingPageId === pageId) return;
+    
+    // Toggle the enabled status
+    togglePageMutation.mutate({
+      dashboardId,
+      pageId,
+      isEnabled: !page.isEnabled,
+    });
+  };
+
+  const toggleExpanded = (dashboardId: string) => {
+    setExpandedDashboards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dashboardId)) {
+        newSet.delete(dashboardId);
+      } else {
+        newSet.add(dashboardId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, dashboardId: string) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+    setMenuDashboardId(dashboardId);
+    setMenuPageId(null);
+    setMenuType('dashboard');
+  };
+
+  const handlePageMenuOpen = (event: React.MouseEvent<HTMLElement>, dashboardId: string, pageId: string) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+    setMenuDashboardId(dashboardId);
+    setMenuPageId(pageId);
+    setMenuType('page');
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setMenuDashboardId(null);
+    setMenuPageId(null);
+    setMenuType(null);
+  };
+
+  const handleViewDashboard = (dashboardId: string) => {
+    handleMenuClose();
+    const dashboard = getDashboardById(dashboards || [], dashboardId);
+    if (dashboard) {
+      const pagePath = dashboard.pages.length > 0 ? dashboard.pages[0].path : '';
+      // if there's no path, show a warning toast indicating they need to create a page first
+      if (!pagePath) {
+        toast('Please create a page first.', {
+          type: 'info',
+          isLoading: true,
+          theme: 'dark',
+        });
+        return;
+      }
+      // else, navigate them!
+      navigate({
+        to: '/me/$dashboardPath/$pagePath',
+        params: {
+          dashboardPath: dashboard.path,
+          // just navigate to the first page if available
+          pagePath,
+        },
+      });
+    }
+  };
+
+  const handleViewAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    if (type === 'dashboard') {
+      handleViewDashboard(id);
+    } else {
+      // Handle page view
+      const dashboard = getDashboardById(dashboards || [], dashboardId!);
+      const page = dashboard?.pages.find(p => p.id === id);
+      if (dashboard && page) {
+        navigate({
+          to: '/me/$dashboardPath/$pagePath',
+          params: {
+            dashboardPath: dashboard.path,
+            pagePath: page.path,
+          },
+        });
+      }
+    }
+  };
+
+  const handleEditAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    if (type === 'dashboard') {
+      handleEdit(id);
+    } else {
+      // Handle page edit - set up page form for editing
+      setSelectedDashboardId(dashboardId!);
+      setEditingPageId(id);
+      setPageFormMode('edit');
+    }
+  };
+
+  const handleDeleteAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    if (type === 'dashboard') {
+      handleDelete(id);
+    } else {
+      // Handle page delete
+      setDeletingPageId(id);
+      setDeletingPageDashboardId(dashboardId!);
+      setDeleteConfirmOpen(true);
+    }
   };
 
   const confirmDelete = async () => {
-    if (!deletingDashboardId) return;
-    
-    try {
-      await deleteDashboard({ id: deletingDashboardId });
-      dashboardsQuery.refetch();
-      setDeleteConfirmOpen(false);
-      setDeletingDashboardId(null);
-    } catch (error) {
-      console.error('Error deleting dashboard:', error);
-      // TODO: Show error toast
-      setDeleteConfirmOpen(false);
-      setDeletingDashboardId(null);
+    if (deletingDashboardId) {
+      // Delete dashboard
+      try {
+        await deleteDashboard({ id: deletingDashboardId });
+        dashboardsQuery.refetch();
+        setDeleteConfirmOpen(false);
+        setDeletingDashboardId(null);
+      } catch (error) {
+        console.error('Error deleting dashboard:', error);
+        setDeleteConfirmOpen(false);
+        setDeletingDashboardId(null);
+      }
+    } else if (deletingPageId && deletingPageDashboardId) {
+      // Delete page
+      try {
+        await deleteDashboardPage({ id: deletingPageDashboardId, pageId: deletingPageId }, {
+          success: 'Page deleted successfully',
+          error: 'Failed to delete page',
+        });
+        dashboardsQuery.refetch();
+        setDeleteConfirmOpen(false);
+        setDeletingPageId(null);
+        setDeletingPageDashboardId(null);
+      } catch (error) {
+        console.error('Error deleting page:', error);
+        setDeleteConfirmOpen(false);
+        setDeletingPageId(null);
+        setDeletingPageDashboardId(null);
+      }
     }
   };
 
   const cancelDelete = () => {
     setDeleteConfirmOpen(false);
     setDeletingDashboardId(null);
+    setDeletingPageId(null);
+    setDeletingPageDashboardId(null);
+  };
+
+  const handleDelete = (id: string) => {
+    handleMenuClose();
+    setDeletingDashboardId(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleCreatePage = (dashboardId: string) => {
+    handleMenuClose();
+    setSelectedDashboardId(dashboardId);
+    setPageFormMode('new');
   };
 
   const handleEdit = (id: string) => {
+    handleMenuClose();
     setEditingDashboardId(id);
     setFormMode('edit');
   };
@@ -303,18 +516,90 @@ export function MyDashboards() {
     handleCloseForm();
   };
 
+  // Type for dashboard with optional matched pages
+  type DashboardWithMatching = DashboardWithoutPageData & {
+    matchedPages?: DashboardPageWithoutData[];
+    hasPageMatch?: boolean;
+  };
+
+  // Enhanced filtering logic for dashboards and pages
+  const filteredData = useMemo(() => {
+    if (!dashboards || !searchQuery.trim()) {
+      return { dashboards: dashboards || [], hasMatches: false, matchType: null, dashboardsToExpand: [] };
+    }
+
+    const query = searchQuery.toLowerCase();
+    const matchedDashboards: DashboardWithMatching[] = [];
+    const dashboardsToExpand: string[] = [];
+    let hasPageMatches = false;
+
+    for (const dashboard of dashboards) {
+      const dashboardNameMatch = dashboard.name.toLowerCase().includes(query);
+      const dashboardPathMatch = dashboard.path.toLowerCase().includes(query);
+      
+      const matchedPages = dashboard.pages.filter(page => 
+        page.name.toLowerCase().includes(query) || 
+        page.path.toLowerCase().includes(query)
+      );
+
+      if (dashboardNameMatch || dashboardPathMatch || matchedPages.length > 0) {
+        matchedDashboards.push({
+          ...dashboard,
+          matchedPages: matchedPages.length > 0 ? matchedPages : dashboard.pages,
+          hasPageMatch: matchedPages.length > 0
+        });
+        
+        if (matchedPages.length > 0) {
+          hasPageMatches = true;
+          dashboardsToExpand.push(dashboard.id);
+        }
+      }
+    }
+
+    return {
+      dashboards: matchedDashboards,
+      hasMatches: matchedDashboards.length > 0,
+      matchType: hasPageMatches ? 'pages' : 'dashboards' as 'pages' | 'dashboards' | null,
+      dashboardsToExpand
+    };
+  }, [dashboards, searchQuery]);
+
+  const { dashboards: filteredDashboards, hasMatches, matchType, dashboardsToExpand } = filteredData;
+
+  // Auto-expand dashboards when search matches pages within them
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      // When searching, expand dashboards with matching pages
+      if (dashboardsToExpand.length > 0) {
+        setExpandedDashboards(prev => {
+          const newSet = new Set(prev);
+          dashboardsToExpand.forEach(id => newSet.add(id));
+          return newSet;
+        });
+      }
+    }
+    // Note: We only collapse when search is explicitly cleared, not on every data refresh
+  }, [dashboardsToExpand, searchQuery]);
+
+  // Separate effect to handle search clearing
+  useEffect(() => {
+    // Only collapse if we went from having a search to no search
+    if (previousSearchQuery.trim() && !searchQuery.trim()) {
+      setExpandedDashboards(new Set());
+    }
+    setPreviousSearchQuery(searchQuery);
+  }, [searchQuery, previousSearchQuery, setPreviousSearchQuery]);
+
   if (!dashboards) {
     return <Spinner absolute text="Loading user data" />;
   }
 
-  const filteredDashboards = dashboards.filter(dashboard => 
-    dashboard.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    dashboard.path.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   console.log('filteredDashboards', filteredDashboards);
 
   const deletingDashboard = dashboards?.find(d => d.id === deletingDashboardId);
+  const deletingPage = deletingPageDashboardId && deletingPageId ? 
+    dashboards?.find(d => d.id === deletingPageDashboardId)?.pages.find(p => p.id === deletingPageId) : 
+    null;
 
   return (
     <Container>
@@ -364,6 +649,20 @@ export function MyDashboards() {
         </Row>
       </SearchAndFilter>
 
+      {searchQuery && hasMatches && (
+        <SearchFilterIndicator>
+          <Row gap="var(--space-3)" alignItems="center">
+            <InfoIcon size={14} />
+            <span>
+              Filtering {matchType === 'pages' ? 'pages and dashboards' : 'dashboards'} by &ldquo;{searchQuery}&rdquo;
+            </span>
+          </Row>
+          <Fab tooltipProps={{
+            placement: 'left'
+          }} variant="transparent" size="sm" icon={<X size={16} onClick={() => setSearchQuery('')} />} aria-label="Clear search term" />
+        </SearchFilterIndicator>
+      )}
+
       <DashboardForm
         mode={formMode || 'new'}
         dashboardId={editingDashboardId || undefined}
@@ -372,24 +671,45 @@ export function MyDashboards() {
         onSuccess={handleFormSuccess}
       />
 
+      <PageForm
+        mode={pageFormMode || 'new'}
+        dashboardId={selectedDashboardId || undefined}
+        pageId={editingPageId || undefined}
+        isOpen={pageFormMode !== null}
+        onClose={() => {
+          setPageFormMode(null);
+          setSelectedDashboardId(null);
+          setEditingPageId(null);
+        }}
+        onSuccess={() => {
+          setPageFormMode(null);
+          setSelectedDashboardId(null);
+          setEditingPageId(null);
+          dashboardsQuery.refetch();
+        }}
+      />
+
       <Confirm
         open={deleteConfirmOpen}
-        title="Delete Dashboard"
+        title={deletingDashboard ? "Delete Dashboard" : "Delete Page"}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       >
         <p>
-          Are you sure you want to delete <strong>&ldquo;{deletingDashboard?.name}&rdquo;</strong>? This action cannot be undone.
+          Are you sure you want to delete{' '}
+          <strong>
+            &ldquo;{deletingDashboard ? deletingDashboard.name : deletingPage?.name}&rdquo;
+          </strong>? This action cannot be undone.
         </p>
       </Confirm>
 
       {filteredDashboards.length === 0 ? (
         <EmptyState
           icon={<LayoutDashboardIcon size={64} />}
-          title={searchQuery ? "No dashboards found" : "No dashboards yet"}
+          title={searchQuery ? "No results found" : "No dashboards yet"}
           description={
             searchQuery 
-              ? `No dashboards match "${searchQuery}". Try adjusting your search terms.`
+              ? `No dashboards or pages match "${searchQuery}". Try adjusting your search terms.`
               : "Create your first dashboard to get started with building custom Home Assistant interfaces."
           }
           actions={
@@ -404,45 +724,191 @@ export function MyDashboards() {
           }
         />
       ) : (
-        <DashboardTable>
-          <Table>
-            <TableHead>
-              <TableHeaderRow>
-                <TableHeader>Dashboard</TableHeader>
-                <TableHeader hiddenBelow="md">Path</TableHeader>
-                <TableHeader hiddenBelow="md">Pages</TableHeader>
-                <TableHeader hiddenBelow="lg">Created</TableHeader>
-                <TableHeader>Status</TableHeader>
-                <TableHeader>Actions</TableHeader>
-              </TableHeaderRow>
-            </TableHead>
-            <TableBody>
-              {filteredDashboards.map(dashboard => (
-                <TableRow key={dashboard.id}>
-                  <TableCell>
-                    <DashboardInfo>
-                      <ThumbnailContainer>
-                        {dashboard.thumbnail ? (
-                          <img src={dashboard.thumbnail} alt={dashboard.name} />
-                        ) : (
-                          <ThumbnailPlaceholder>
-                            <LayoutDashboardIcon size={16} />
-                          </ThumbnailPlaceholder>
-                        )}
-                      </ThumbnailContainer>
-                      <DashboardName>{dashboard.name}</DashboardName>
-                    </DashboardInfo>
-                  </TableCell>
-                  <TableCell hiddenBelow="md">
+        <StyledTableContainer>
+          <StyledTable>
+            <colgroup>
+              <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
+              <col style={{ width: TABLE_COLUMNS.PATH.width }} />
+              <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
+              <col style={{ width: TABLE_COLUMNS.STATUS.width }} />
+              <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
+            </colgroup>
+            <StyledTableHead>
+              <StyledTableRow>
+                <TableHeaderCell 
+                  width={TABLE_COLUMNS.DASHBOARD.width}
+                  minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
+                >
+                  Dashboard
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.PATH.width}>
+                  Path
+                </TableHeaderCell>
+                <TableHeaderCell 
+                  width={TABLE_COLUMNS.CREATED.width}
+                  hiddenBelow="lg"
+                >
+                  Created
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.STATUS.width}>
+                  Status
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.ACTIONS.width}>
+                  Actions
+                </TableHeaderCell>
+              </StyledTableRow>
+            </StyledTableHead>
+            <StyledTableBody>
+              {filteredDashboards.map((dashboard: DashboardWithMatching) => (
+                <CollapsibleRow
+                  key={dashboard.id}
+                  expanded={expandedDashboards.has(dashboard.id)}
+                  onToggle={() => toggleExpanded(dashboard.id)}
+                  colSpan={5}
+                  expandedContent={
+                    <>
+                      <ChildTable>
+                        <colgroup>
+                          <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
+                          <col style={{ width: TABLE_COLUMNS.PATH.width }} />
+                          <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
+                          <col style={{ width: TABLE_COLUMNS.STATUS.width }} />
+                          <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
+                        </colgroup>
+                        <StyledTableBody>
+                          <ChildTableRow>
+                            <StyledTableCell colSpan={5}>
+                              <Row fullWidth justifyContent="space-between" alignItems="center">
+                                <span>
+                                  {(dashboard.matchedPages || dashboard.pages).length > 0 
+                                    ? 'PAGES'
+                                    : 'No pages found'}
+                                </span>
+                                <PrimaryButton 
+                                  size="sm"
+                                  onClick={() => handleCreatePage(dashboard.id)}
+                                  startIcon={<PlusIcon size={16} />}
+                                >
+                                  Create Page
+                                </PrimaryButton>
+                              </Row>
+                            </StyledTableCell>
+                          </ChildTableRow>
+                          
+                          {(dashboard.matchedPages || dashboard.pages).map((page: DashboardPageWithoutData) => (
+                            <ChildTableRow key={page.id}>
+                              <StyledTableCell>
+                                <PageInfo>
+                                  <PageThumbnailContainer>
+                                    {page.thumbnail ? (
+                                      <img src={page.thumbnail} alt={page.name} />
+                                    ) : (
+                                      <ThumbnailPlaceholder>
+                                        <FileTextIcon size={16} />
+                                      </ThumbnailPlaceholder>
+                                    )}
+                                  </PageThumbnailContainer>
+                                  <PageName>{page.name}</PageName>
+                                </PageInfo>
+                              </StyledTableCell>
+                              <StyledTableCell>
+                                <PagePathText>{page.path}</PagePathText>
+                              </StyledTableCell>
+                              <StyledTableCell hiddenBelow="lg">
+                                <DateText>-</DateText>
+                              </StyledTableCell>
+                              <StyledTableCell>
+                                <StatusContainer>
+                                  <Tooltip title={page.isEnabled ? 'Enabled' : 'Disabled'} placement="top">
+                                    <SwitchField
+                                      checked={page.isEnabled}
+                                      loading={togglingPageId === page.id}
+                                      onChange={() => handlePageToggle(dashboard.id, page.id)}
+                                      style={{ paddingTop: 0 }}
+                                    />
+                                  </Tooltip>
+                                </StatusContainer>
+                              </StyledTableCell>
+                              <StyledTableCell>
+                                <ActionButtons>
+                                  <Tooltip title="View Page">
+                                    <SecondaryButton fullHeight size="sm" startIcon={<EyeIcon size={14} />}>
+                                      View
+                                    </SecondaryButton>
+                                  </Tooltip>
+                                  <Tooltip title="Edit Page">
+                                    <SecondaryButton fullHeight size="sm" startIcon={<EditIcon size={14} />}>
+                                      Edit
+                                    </SecondaryButton>
+                                  </Tooltip>
+                                  <Tooltip title="Actions">
+                                    <SecondaryButton fullHeight autoWidth size="sm" onClick={(e) => handlePageMenuOpen(e, dashboard.id, page.id)}>
+                                      <MoreVertical size={14} />
+                                    </SecondaryButton>
+                                  </Tooltip>
+                                </ActionButtons>
+                              </StyledTableCell>
+                            </ChildTableRow>
+                          ))}
+                        </StyledTableBody>
+                      </ChildTable>
+                    </>
+                  }
+                >
+                  <StyledTableCell 
+                    width={TABLE_COLUMNS.DASHBOARD.width}
+                    minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
+                  >
+                    <DashboardHeader>
+                      <Tooltip 
+                        title={
+                          expandedDashboards.has(dashboard.id) 
+                              ? "Collapse pages" 
+                              : "Expand to view pages"
+                        } 
+                        placement="top"
+                      >
+                        <span>
+                          <ExpandIcon
+                            expanded={expandedDashboards.has(dashboard.id)}
+                            onClick={() => toggleExpanded(dashboard.id)}
+                          />
+                        </span>
+                      </Tooltip>
+                      <DashboardInfo>
+                        <ThumbnailContainer>
+                          {dashboard.thumbnail ? (
+                            <img src={dashboard.thumbnail} alt={dashboard.name} width={100} />
+                          ) : (
+                            <ThumbnailPlaceholder>
+                              <LayoutDashboardIcon size={50} />
+                            </ThumbnailPlaceholder>
+                          )}
+                        </ThumbnailContainer>
+                        <Column>
+                          <DashboardName>{dashboard.name}</DashboardName>
+                          <PageCount isEmpty={dashboard.pages.length === 0}>
+                            {dashboard.pages.length === 0 ? 'No pages' : `${dashboard.pages.length} page${dashboard.pages.length !== 1 ? 's' : ''}`}
+                          </PageCount>
+                        </Column>
+                      </DashboardInfo>
+                    </DashboardHeader>
+                  </StyledTableCell>
+                  <StyledTableCell width={TABLE_COLUMNS.PATH.width}>
                     <PathText>{dashboard.path}</PathText>
-                  </TableCell>
-                  <TableCell hiddenBelow="md">
-                    <PathText>{dashboard.pages.length}</PathText>
-                  </TableCell>
-                  <TableCell hiddenBelow="lg">
-                    <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell 
+                    width={TABLE_COLUMNS.CREATED.width}
+                    hiddenBelow="lg"
+                  >
+                    <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt)}`}>
+                      <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
+                    </Tooltip>
+                  </StyledTableCell>
+                  <StyledTableCell 
+                    width={TABLE_COLUMNS.STATUS.width}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <StatusContainer>
                       <Tooltip title={dashboard.isEnabled ? 'Enabled' : 'Disabled'} placement="top">
                         <SwitchField
@@ -453,26 +919,142 @@ export function MyDashboards() {
                         />
                       </Tooltip>
                     </StatusContainer>
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell 
+                    width={TABLE_COLUMNS.ACTIONS.width}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <ActionButtons>
-                      <ActionButton onClick={() => handleEdit(dashboard.id)}>
-                        <EditIcon size={16} />
-                      </ActionButton>
-                      <ActionButton 
-                        variant="danger" 
-                        onClick={() => handleDelete(dashboard.id)}
-                      >
-                        <TrashIcon size={16} />
-                      </ActionButton>
+                      <Tooltip title="View Dashboard">
+                        <SecondaryButton fullHeight size="sm" startIcon={<EyeIcon size={14} />}>
+                          View
+                        </SecondaryButton>
+                      </Tooltip>
+                      <Tooltip title="Edit Dashboard">
+                        <SecondaryButton fullHeight size="sm" startIcon={<EditIcon size={14} />} onClick={() => handleEdit(dashboard.id)}>
+                          Edit
+                        </SecondaryButton>
+                      </Tooltip>
+                      <Tooltip title="Actions">
+                        <SecondaryButton fullHeight autoWidth size="sm" onClick={(e) => handleMenuOpen(e, dashboard.id)}>
+                          <MoreVertical size={14} />
+                        </SecondaryButton>
+                      </Tooltip>
                     </ActionButtons>
-                  </TableCell>
-                </TableRow>
+                  </StyledTableCell>
+                </CollapsibleRow>
               ))}
-            </TableBody>
-          </Table>
-        </DashboardTable>
+            </StyledTableBody>
+          </StyledTable>
+        </StyledTableContainer>
       )}
+      
+      <ActionsMenu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        {...(menuType === 'dashboard' ? {
+          type: 'dashboard' as const,
+          id: menuDashboardId || '',
+          onView: handleViewAction,
+          onEdit: handleEditAction,
+          onCreatePage: handleCreatePage,
+          onDelete: handleDeleteAction,
+        } : {
+          type: 'page' as const,
+          id: menuPageId || '',
+          dashboardId: menuDashboardId || '',
+          onView: handleViewAction,
+          onEdit: handleEditAction,
+          onDelete: handleDeleteAction,
+        })}
+      />
     </Container>
   );
 }
+
+// Types for ActionsMenu
+type DashboardMenuProps = {
+  type: 'dashboard';
+  id: string;
+  onView: (type: 'dashboard', id: string) => void;
+  onEdit: (type: 'dashboard', id: string) => void;
+  onCreatePage: (dashboardId: string) => void;
+  onDelete: (type: 'dashboard', id: string) => void;
+};
+
+type PageMenuProps = {
+  type: 'page';
+  id: string;
+  dashboardId: string;
+  onView: (type: 'page', id: string, dashboardId: string) => void;
+  onEdit: (type: 'page', id: string, dashboardId: string) => void;
+  onDelete: (type: 'page', id: string, dashboardId: string) => void;
+};
+
+type ActionsMenuProps = {
+  anchorEl: HTMLElement | null;
+  open: boolean;
+  onClose: () => void;
+} & (DashboardMenuProps | PageMenuProps);
+
+// Add the Menu component for actions
+const ActionsMenu = (props: ActionsMenuProps) => {
+  const { anchorEl, open, onClose, type, id } = props;
+
+  return (
+    <Menu
+      anchorEl={anchorEl}
+      open={open}
+      onClose={onClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+    >
+      <MenuItem onClick={() => {
+        if (type === 'dashboard') {
+          props.onView('dashboard', id);
+        } else {
+          props.onView('page', id, props.dashboardId);
+        }
+      }}>
+        <EyeIcon size={16} style={{ marginRight: 8 }} />
+        {type === 'dashboard' ? 'View Dashboard' : 'View Page'}
+      </MenuItem>
+      <MenuItem onClick={() => {
+        if (type === 'dashboard') {
+          props.onEdit('dashboard', id);
+        } else {
+          props.onEdit('page', id, props.dashboardId);
+        }
+      }}>
+        <EditIcon size={16} style={{ marginRight: 8 }} />
+        {type === 'dashboard' ? 'Rename Dashboard' : 'Edit Page'}
+      </MenuItem>
+      {type === 'dashboard' && (
+        <MenuItem onClick={() => props.onCreatePage(id)}>
+          <PlusIcon size={16} style={{ marginRight: 8 }} />
+          Add Page
+        </MenuItem>
+      )}
+      <MenuItem 
+        onClick={() => {
+          if (type === 'dashboard') {
+            props.onDelete('dashboard', id);
+          } else {
+            props.onDelete('page', id, props.dashboardId);
+          }
+        }} 
+        style={{ color: 'var(--color-error-500)' }}
+      >
+        <LayoutDashboardIcon size={16} style={{ marginRight: 8 }} />
+        {type === 'dashboard' ? 'Delete Dashboard' : 'Delete Page'}
+      </MenuItem>
+    </Menu>
+  );
+};

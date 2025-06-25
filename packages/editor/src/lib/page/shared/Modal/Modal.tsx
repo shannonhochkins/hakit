@@ -31,7 +31,7 @@ const ModalContainer = styled.div`
 `;
 const ModalInner = styled.div`
   display: flex;
-  padding: 0rem var(--space-4) var(--space-8);
+  padding: var(--space-4);
   align-items: flex-start;
   flex-direction: column;
 `;
