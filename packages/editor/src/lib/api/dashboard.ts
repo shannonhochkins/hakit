@@ -35,6 +35,33 @@ export async function createDashboardPage({ id, name, path, data, thumbnail }: {
   }), toastMessage);
 }
 
+export async function duplicateDashboard({ id, name, path, thumbnail }: { id: DashboardWithPageData['id'], name: string, path: string, thumbnail?: string | null }, toastMessage?: ToastMessages): Promise<DashboardWithPageData> {
+  return await callApi(api.dashboard[":id"].duplicate.$post({
+    param: {
+      id,
+    },
+    json: {
+      name,
+      path,
+      thumbnail,
+    }
+  }), toastMessage);
+}
+
+export async function duplicateDashboardPage({ id, pageId, name, path, thumbnail }: { id: DashboardWithPageData['id'], pageId: DashboardPageWithData['id'], name: string, path: string, thumbnail?: string | null }, toastMessage?: ToastMessages) {
+  return await callApi(api.dashboard[":id"].page[":pageId"].duplicate.$post({
+    param: {
+      id,
+      pageId,
+    },
+    json: {
+      name,
+      path,
+      thumbnail,
+    }
+  }), toastMessage);
+}
+
 export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }, toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":id"].$delete({
     param: {

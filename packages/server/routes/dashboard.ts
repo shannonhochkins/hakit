@@ -496,5 +496,144 @@ const dashboardRoute = new Hono()
       return c.json(formatErrorResponse('Error', error), 400);
     }
   })
+  // duplicate a dashboard with all its pages
+  .post('/:id/duplicate', getUser, zValidator("param", z.object({
+    id: z.string()
+  })), zValidator("json", z.object({
+    name: z.string(),
+    path: z.string(),
+    thumbnail: z.string().nullable().optional(),
+  })), async (c) => {
+    try {
+      const user = c.var.user;
+      const { id } = c.req.valid('param');
+      const { name, path, thumbnail } = await c.req.valid('json');
+      
+      // Get the original dashboard with its pages
+      const [originalDashboard] = await db
+        .select()
+        .from(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        );
+      
+      if (!originalDashboard) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      
+      const originalPages = await db
+        .select()
+        .from(pagesTable)
+        .where(eq(pagesTable.dashboardId, id));
+      
+      // Create the new dashboard
+      const [newDashboard] = await db
+        .insert(dashboardTable)
+        .values({
+          id: generateId(),
+          userId: user.id,
+          name,
+          path,
+          isEnabled: true,
+          data: originalDashboard.data,
+          breakpoints: originalDashboard.breakpoints,
+          thumbnail: thumbnail || originalDashboard.thumbnail,
+          themeId: originalDashboard.themeId,
+        })
+        .returning();
+      
+      // Duplicate all pages
+      const newPages = [];
+      for (const page of originalPages) {
+        const [newPage] = await db
+          .insert(pagesTable)
+          .values({
+            id: generateId(),
+            dashboardId: newDashboard.id,
+            name: page.name,
+            path: page.path,
+            data: page.data,
+            isEnabled: page.isEnabled,
+            thumbnail: page.thumbnail,
+          })
+          .returning();
+        newPages.push(newPage);
+      }
+      
+      // Return the new dashboard with its pages
+      const dashboard = newDashboard as unknown as DashboardWithPageData;
+      dashboard.pages = newPages as unknown as DashboardPageWithData[];
+      
+      return c.json(dashboard, 201);
+    } catch (error) {
+      return c.json(formatErrorResponse('Error', error), 400);
+    }
+  })
+  // duplicate a page within the same dashboard
+  .post('/:id/page/:pageId/duplicate', getUser, zValidator("param", z.object({
+    id: z.string(),
+    pageId: z.string()
+  })), zValidator("json", z.object({
+    name: z.string(),
+    path: z.string(),
+    thumbnail: z.string().nullable().optional(),
+  })), async (c) => {
+    try {
+      const user = c.var.user;
+      const { id, pageId } = c.req.valid('param');
+      const { name, path, thumbnail } = await c.req.valid('json');
+      
+      // Verify dashboard ownership
+      const [dashboard] = await db
+        .select()
+        .from(dashboardTable)
+        .where(
+          and(
+            eq(dashboardTable.id, id),
+            eq(dashboardTable.userId, user.id)
+          )
+        );
+      
+      if (!dashboard) {
+        throw new Error(`Dashboard not found with id ${id}`);
+      }
+      
+      // Get the original page
+      const [originalPage] = await db
+        .select()
+        .from(pagesTable)
+        .where(
+          and(
+            eq(pagesTable.id, pageId),
+            eq(pagesTable.dashboardId, id)
+          )
+        );
+      
+      if (!originalPage) {
+        throw new Error(`Page not found with id ${pageId}`);
+      }
+      
+      // Create the duplicate page
+      const [newPage] = await db
+        .insert(pagesTable)
+        .values({
+          id: generateId(),
+          dashboardId: id,
+          name,
+          path,
+          data: originalPage.data,
+          isEnabled: originalPage.isEnabled,
+          thumbnail: thumbnail || originalPage.thumbnail,
+        })
+        .returning();
+      
+      return c.json(newPage, 201);
+    } catch (error) {
+      return c.json(formatErrorResponse('Error', error), 400);
+    }
+  })
 
 export default dashboardRoute;

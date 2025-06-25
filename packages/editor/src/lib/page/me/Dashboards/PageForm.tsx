@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { dashboardsQueryOptions, createDashboardPage, updateDashboardPageForUser } from '@lib/api/dashboard';
+import { dashboardsQueryOptions, createDashboardPage, updateDashboardPageForUser, duplicateDashboardPage } from '@lib/api/dashboard';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { PrimaryButton } from '@lib/page/shared/Button/Primary';
 import { SecondaryButton } from '@lib/page/shared/Button/Secondary';
@@ -33,7 +33,7 @@ const CompactInputAdornment = styled(InputAdornment)`
 `;
 
 interface PageFormProps {
-  mode: 'new' | 'edit';
+  mode: 'new' | 'edit' | 'duplicate';
   dashboardId?: string;
   pageId?: string;
   isOpen: boolean;
@@ -61,6 +61,11 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
       if (mode === 'edit' && existingPage) {
         setName(existingPage.name);
         setPath(nameToPath(existingPage.name));
+        setThumbnail(existingPage.thumbnail || '');
+        setPathTouched(false);
+      } else if (mode === 'duplicate' && existingPage) {
+        setName(`${existingPage.name} (Copy)`);
+        setPath('');
         setThumbnail(existingPage.thumbnail || '');
         setPathTouched(false);
       } else {
@@ -164,6 +169,14 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           path: path.trim(),
           thumbnail: thumbnail || undefined,
         });
+      } else if (mode === 'duplicate') {
+        await duplicateDashboardPage({
+          id: dashboardId!,
+          pageId: pageId!,
+          name: name.trim(),
+          path: path.trim(),
+          thumbnail: thumbnail || undefined,
+        });
       } else {
         await updateDashboardPageForUser(dashboardId!, {
           id: pageId!,
@@ -190,7 +203,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
     }
   };
 
-  const formTitle = mode === 'new' ? 'Create New Page' : 'Edit Page';
+  const formTitle = mode === 'new' ? 'Create New Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Edit Page';
 
   const isInvalid = !name.trim() || !path.trim() || !!nameError || !!pathError;
 
@@ -208,6 +221,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
             placeholder="Enter page name"
             error={!!nameError}
             helperText={nameError}
+            required
             disabled={isSubmitting}
             autoFocus
           />
@@ -222,6 +236,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
               setPath(e.target.value);
               setPathTouched(true);
             }}
+            required
             placeholder="page-name"
             error={!!pathError}
             helperText={pathError || "The path is automatically generated from the page name"}

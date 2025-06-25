@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { createDashboard, dashboardsQueryOptions, updateDashboardForUser } from '@lib/api/dashboard';
+import { createDashboard, dashboardsQueryOptions, updateDashboardForUser, duplicateDashboard } from '@lib/api/dashboard';
 import { nameToPath } from '@lib/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
 import { PrimaryButton } from '@lib/page/shared/Button/Primary';
@@ -146,10 +146,15 @@ export function DashboardForm({
     setIsSubmitting(true);
     
     try {
-      if (mode === 'new' || mode === 'duplicate') {
-        const matchedDashboard = mode === 'duplicate' && currentDashboard ? currentDashboard : {};
+      if (mode === 'new') {
         await createDashboard({
-          ...matchedDashboard,
+          name,
+          path,
+          thumbnail,
+        });
+      } else if (mode === 'duplicate' && dashboardId) {
+        await duplicateDashboard({
+          id: dashboardId,
           name,
           path,
           thumbnail,
@@ -201,11 +206,12 @@ export function DashboardForm({
         width: '100%',
       }}>
         <FieldGroup>
-          <FieldLabel label="Dashboard Name" description="The name of the dashboard." />
+          <FieldLabel label="Dashboard Name *" description="The name of the dashboard." />
           <InputField
             id="dashboard-name"
             type="text"
             value={name}
+            required
             onChange={(e) => setName(e.target.value)}
             placeholder="Home"
             error={!!nameError}
@@ -215,18 +221,19 @@ export function DashboardForm({
         </FieldGroup>
 
         <FieldGroup>
-          <FieldLabel label="Dashboard Path" description="The path is used to identify the dashboard in the URL." />
+          <FieldLabel label="Dashboard Path *" description="The path is used to identify the dashboard in the URL." />
           <InputField
             id="dashboard-path"
             type="text"
             value={path}
+            required
             onChange={(e) => {
               setPath(e.target.value);
               setPathTouched(true);
             }}
             placeholder="home"
             error={!!pathError}
-            helperText={pathError}
+            helperText={pathError || "The path is automatically generated from the dashboard name"}
             fullWidth
           />
         </FieldGroup>

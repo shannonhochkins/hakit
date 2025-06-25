@@ -259,7 +259,7 @@ export function MyDashboards() {
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
   const [formMode, setFormMode] = useState<'new' | 'edit' | 'duplicate' | null>(null);
-  const [pageFormMode, setPageFormMode] = useState<'new' | 'edit' | null>(null);
+  const [pageFormMode, setPageFormMode] = useState<'new' | 'edit' | 'duplicate' | null>(null);
   const [editingDashboardId, setEditingDashboardId] = useState<string | null>(null);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [selectedDashboardId, setSelectedDashboardId] = useState<string | null>(null);
@@ -358,20 +358,18 @@ export function MyDashboards() {
     });
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, dashboardId: string) => {
+  // Unified action handlers with type discrimination
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>, 
+    type: 'dashboard' | 'page', 
+    dashboardId: string, 
+    pageId?: string
+  ) => {
     event.stopPropagation();
     setMenuAnchorEl(event.currentTarget);
     setMenuDashboardId(dashboardId);
-    setMenuPageId(null);
-    setMenuType('dashboard');
-  };
-
-  const handlePageMenuOpen = (event: React.MouseEvent<HTMLElement>, dashboardId: string, pageId: string) => {
-    event.stopPropagation();
-    setMenuAnchorEl(event.currentTarget);
-    setMenuDashboardId(dashboardId);
-    setMenuPageId(pageId);
-    setMenuType('page');
+    setMenuPageId(pageId || null);
+    setMenuType(type);
   };
 
   const handleMenuClose = () => {
@@ -381,35 +379,28 @@ export function MyDashboards() {
     setMenuType(null);
   };
 
-  const handleViewDashboard = (dashboardId: string) => {
+  const handleView = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
-    const dashboard = getDashboardById(dashboards || [], dashboardId);
-    if (dashboard) {
-      const pagePath = dashboard.pages.length > 0 ? dashboard.pages[0].path : '';
-      // if there's no path, show a warning toast indicating they need to create a page first
-      if (!pagePath) {
-        toast('Please create a page first.', {
-          type: 'info',
-          isLoading: true,
-          theme: 'dark',
-        });
-        return;
-      }
-      // else, navigate them!
-      navigate({
-        to: '/me/$dashboardPath/$pagePath',
-        params: {
-          dashboardPath: dashboard.path,
-          // just navigate to the first page if available
-          pagePath,
-        },
-      });
-    }
-  };
-
-  const handleViewAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    
     if (type === 'dashboard') {
-      handleViewDashboard(id);
+      const dashboard = getDashboardById(dashboards || [], id);
+      if (dashboard) {
+        const pagePath = dashboard.pages.length > 0 ? dashboard.pages[0].path : '';
+        if (!pagePath) {
+          toast('Please create a page first.', {
+            type: 'info',
+            theme: 'dark',
+          });
+          return;
+        }
+        navigate({
+          to: '/me/$dashboardPath/$pagePath',
+          params: {
+            dashboardPath: dashboard.path,
+            pagePath,
+          },
+        });
+      }
     } else {
       // Handle page view
       const dashboard = getDashboardById(dashboards || [], dashboardId!);
@@ -426,20 +417,62 @@ export function MyDashboards() {
     }
   };
 
-  const handleEditAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+  const handleEdit = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    handleMenuClose();
+    
     if (type === 'dashboard') {
-      handleEdit(id);
+      setEditingDashboardId(id);
+      setFormMode('edit');
     } else {
-      // Handle page edit - set up page form for editing
+      // Handle page edit
       setSelectedDashboardId(dashboardId!);
       setEditingPageId(id);
       setPageFormMode('edit');
     }
   };
 
-  const handleDeleteAction = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+  const handleDesign = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     if (type === 'dashboard') {
-      handleDelete(id);
+      const dashboard = getDashboardById(dashboards || [], id);
+      if (dashboard) {
+        const pagePath = dashboard.pages.length > 0 ? dashboard.pages[0].path : '';
+        if (!pagePath) {
+          toast('Please create a page first.', {
+            type: 'info',
+            theme: 'dark',
+          });
+          return;
+        }
+        navigate({
+          to: '/me/$dashboardPath/$pagePath/edit',
+          params: {
+            dashboardPath: dashboard.path,
+            pagePath,
+          },
+        });
+      }
+    } else {
+      // Handle page view
+      const dashboard = getDashboardById(dashboards || [], dashboardId!);
+      const page = dashboard?.pages.find(p => p.id === id);
+      if (dashboard && page) {
+        navigate({
+          to: '/me/$dashboardPath/$pagePath/edit',
+          params: {
+            dashboardPath: dashboard.path,
+            pagePath: page.path,
+          },
+        });
+      }
+    }
+  };
+
+  const handleDelete = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    handleMenuClose();
+    
+    if (type === 'dashboard') {
+      setDeletingDashboardId(id);
+      setDeleteConfirmOpen(true);
     } else {
       // Handle page delete
       setDeletingPageId(id);
@@ -448,11 +481,34 @@ export function MyDashboards() {
     }
   };
 
+  const handleCreatePage = (dashboardId: string) => {
+    handleMenuClose();
+    setSelectedDashboardId(dashboardId);
+    setPageFormMode('new');
+  };
+
+  const handleDuplicate = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
+    handleMenuClose();
+    
+    if (type === 'dashboard') {
+      setEditingDashboardId(id);
+      setFormMode('duplicate');
+    } else {
+      // Handle page duplicate
+      setSelectedDashboardId(dashboardId!);
+      setEditingPageId(id);
+      setPageFormMode('duplicate');
+    }
+  };
+
   const confirmDelete = async () => {
     if (deletingDashboardId) {
       // Delete dashboard
       try {
-        await deleteDashboard({ id: deletingDashboardId });
+        await deleteDashboard({ id: deletingDashboardId }, {
+          success: 'Dashboard deleted',
+          error: 'Failed to delete dashboard'
+        });
         dashboardsQuery.refetch();
         setDeleteConfirmOpen(false);
         setDeletingDashboardId(null);
@@ -465,7 +521,7 @@ export function MyDashboards() {
       // Delete page
       try {
         await deleteDashboardPage({ id: deletingPageDashboardId, pageId: deletingPageId }, {
-          success: 'Page deleted successfully',
+          success: 'Page deleted',
           error: 'Failed to delete page',
         });
         dashboardsQuery.refetch();
@@ -486,24 +542,6 @@ export function MyDashboards() {
     setDeletingDashboardId(null);
     setDeletingPageId(null);
     setDeletingPageDashboardId(null);
-  };
-
-  const handleDelete = (id: string) => {
-    handleMenuClose();
-    setDeletingDashboardId(id);
-    setDeleteConfirmOpen(true);
-  };
-
-  const handleCreatePage = (dashboardId: string) => {
-    handleMenuClose();
-    setSelectedDashboardId(dashboardId);
-    setPageFormMode('new');
-  };
-
-  const handleEdit = (id: string) => {
-    handleMenuClose();
-    setEditingDashboardId(id);
-    setFormMode('edit');
   };
 
   const handleCloseForm = () => {
@@ -832,17 +870,32 @@ export function MyDashboards() {
                               <StyledTableCell>
                                 <ActionButtons>
                                   <Tooltip title="View Page">
-                                    <SecondaryButton fullHeight size="sm" startIcon={<EyeIcon size={14} />}>
+                                    <SecondaryButton 
+                                      fullHeight 
+                                      size="sm" 
+                                      startIcon={<EyeIcon size={14} />}
+                                      onClick={() => handleView('page', page.id, dashboard.id)}
+                                    >
                                       View
                                     </SecondaryButton>
                                   </Tooltip>
-                                  <Tooltip title="Edit Page">
-                                    <SecondaryButton fullHeight size="sm" startIcon={<EditIcon size={14} />}>
-                                      Edit
+                                  <Tooltip title="Design Page">
+                                    <SecondaryButton 
+                                      fullHeight 
+                                      size="sm" 
+                                      startIcon={<LayoutDashboardIcon size={14} />}
+                                      onClick={() => handleDesign('page', page.id, dashboard.id)}
+                                    >
+                                      Design
                                     </SecondaryButton>
                                   </Tooltip>
                                   <Tooltip title="Actions">
-                                    <SecondaryButton fullHeight autoWidth size="sm" onClick={(e) => handlePageMenuOpen(e, dashboard.id, page.id)}>
+                                    <SecondaryButton 
+                                      fullHeight 
+                                      autoWidth 
+                                      size="sm" 
+                                      onClick={(e) => handleMenuOpen(e, 'page', dashboard.id, page.id)}
+                                    >
                                       <MoreVertical size={14} />
                                     </SecondaryButton>
                                   </Tooltip>
@@ -863,7 +916,9 @@ export function MyDashboards() {
                       <Tooltip 
                         title={
                           expandedDashboards.has(dashboard.id) 
-                              ? "Collapse pages" 
+                            ? "Collapse" 
+                            : (dashboard.matchedPages || dashboard.pages).length === 0
+                              ? "Expand to create page"
                               : "Expand to view pages"
                         } 
                         placement="top"
@@ -926,17 +981,32 @@ export function MyDashboards() {
                   >
                     <ActionButtons>
                       <Tooltip title="View Dashboard">
-                        <SecondaryButton fullHeight size="sm" startIcon={<EyeIcon size={14} />}>
+                        <SecondaryButton 
+                          fullHeight 
+                          size="sm" 
+                          startIcon={<EyeIcon size={14} />}
+                          onClick={() => handleView('dashboard', dashboard.id)}
+                        >
                           View
                         </SecondaryButton>
                       </Tooltip>
-                      <Tooltip title="Edit Dashboard">
-                        <SecondaryButton fullHeight size="sm" startIcon={<EditIcon size={14} />} onClick={() => handleEdit(dashboard.id)}>
-                          Edit
+                      <Tooltip title="Design Dashboard">
+                        <SecondaryButton 
+                          fullHeight 
+                          size="sm" 
+                          startIcon={<LayoutDashboardIcon size={14} />} 
+                          onClick={() => handleDesign('dashboard', dashboard.id)}
+                        >
+                          Design
                         </SecondaryButton>
                       </Tooltip>
                       <Tooltip title="Actions">
-                        <SecondaryButton fullHeight autoWidth size="sm" onClick={(e) => handleMenuOpen(e, dashboard.id)}>
+                        <SecondaryButton 
+                          fullHeight 
+                          autoWidth 
+                          size="sm" 
+                          onClick={(e) => handleMenuOpen(e, 'dashboard', dashboard.id)}
+                        >
                           <MoreVertical size={14} />
                         </SecondaryButton>
                       </Tooltip>
@@ -956,17 +1026,19 @@ export function MyDashboards() {
         {...(menuType === 'dashboard' ? {
           type: 'dashboard' as const,
           id: menuDashboardId || '',
-          onView: handleViewAction,
-          onEdit: handleEditAction,
+          onView: handleView,
+          onEdit: handleEdit,
+          onDuplicate: handleDuplicate,
           onCreatePage: handleCreatePage,
-          onDelete: handleDeleteAction,
+          onDelete: handleDelete,
         } : {
           type: 'page' as const,
           id: menuPageId || '',
           dashboardId: menuDashboardId || '',
-          onView: handleViewAction,
-          onEdit: handleEditAction,
-          onDelete: handleDeleteAction,
+          onView: handleView,
+          onEdit: handleEdit,
+          onDuplicate: handleDuplicate,
+          onDelete: handleDelete,
         })}
       />
     </Container>
@@ -979,6 +1051,7 @@ type DashboardMenuProps = {
   id: string;
   onView: (type: 'dashboard', id: string) => void;
   onEdit: (type: 'dashboard', id: string) => void;
+  onDuplicate: (type: 'dashboard', id: string) => void;
   onCreatePage: (dashboardId: string) => void;
   onDelete: (type: 'dashboard', id: string) => void;
 };
@@ -989,6 +1062,7 @@ type PageMenuProps = {
   dashboardId: string;
   onView: (type: 'page', id: string, dashboardId: string) => void;
   onEdit: (type: 'page', id: string, dashboardId: string) => void;
+  onDuplicate: (type: 'page', id: string, dashboardId: string) => void;
   onDelete: (type: 'page', id: string, dashboardId: string) => void;
 };
 
@@ -1035,6 +1109,16 @@ const ActionsMenu = (props: ActionsMenuProps) => {
       }}>
         <EditIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'Rename Dashboard' : 'Edit Page'}
+      </MenuItem>
+      <MenuItem onClick={() => {
+        if (type === 'dashboard') {
+          props.onDuplicate('dashboard', id);
+        } else {
+          props.onDuplicate('page', id, props.dashboardId);
+        }
+      }}>
+        <FileTextIcon size={16} style={{ marginRight: 8 }} />
+        {type === 'dashboard' ? 'Duplicate Dashboard' : 'Duplicate Page'}
       </MenuItem>
       {type === 'dashboard' && (
         <MenuItem onClick={() => props.onCreatePage(id)}>
