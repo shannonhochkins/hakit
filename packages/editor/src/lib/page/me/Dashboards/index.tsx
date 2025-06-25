@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { PlusIcon, SlidersIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical } from 'lucide-react';
+import { PlusIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage, updateDashboardForUser, updateDashboardPageForUser } from '@lib/api/dashboard';
 import { Spinner } from '@lib/components/Spinner';
@@ -82,29 +82,6 @@ const SearchAndFilter = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  align-items: flex-start;
-  
-  @media (min-width: var(--breakpoint-md)) {
-    flex-direction: row;
-    align-items: center;
-  }
-`;
-
-const FilterButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  background-color: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: background-color var(--transition-normal);
-  
-  &:hover {
-    background-color: var(--color-border);
-  }
 `;
 
 const SearchFilterIndicator = styled.div`
@@ -632,8 +609,6 @@ export function MyDashboards() {
     return <Spinner absolute text="Loading user data" />;
   }
 
-  console.log('filteredDashboards', filteredDashboards);
-
   const deletingDashboard = dashboards?.find(d => d.id === deletingDashboardId);
   const deletingPage = deletingPageDashboardId && deletingPageId ? 
     dashboards?.find(d => d.id === deletingPageDashboardId)?.pages.find(p => p.id === deletingPageId) : 
@@ -657,34 +632,28 @@ export function MyDashboards() {
       </PageHeader>
 
       <SearchAndFilter>
-        <Row fullWidth gap="var(--space-4)">
-          <InputField
-            style={{
-              width: '100%',
-              paddingTop: '0',
-            }}
-            type="text"
-            placeholder="Search dashboards..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            variant="outlined"
-            size="small"
-            fullWidth
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon size={18} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-          <FilterButton>
-            <SlidersIcon size={16} />
-            <span>Filter</span>
-          </FilterButton>
-        </Row>
+        <InputField
+          style={{
+            width: '100%',
+            paddingTop: '0',
+          }}
+          type="text"
+          placeholder="Search dashboards and pages..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          variant="outlined"
+          size="small"
+          fullWidth
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon size={18} />
+                </InputAdornment>
+              ),
+                        },
+          }}
+        />
       </SearchAndFilter>
 
       {searchQuery && hasMatches && (
