@@ -282,7 +282,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
             disabled={isInvalid}
           >
             {!isInvalid && <CheckIcon size={16} />}
-            {mode === 'new' ? 'Create Page' : 'Update Page'}
+            {mode === 'new' ? 'Create Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Save Changes'}
           </PrimaryButton>
         </FormActions>
       </form>
