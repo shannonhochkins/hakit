@@ -168,6 +168,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           name: name.trim(),
           path: path.trim(),
           thumbnail: thumbnail || undefined,
+        }, {
+          success: 'Page created successfully',
+          error: 'Failed to create page',
         });
       } else if (mode === 'duplicate') {
         await duplicateDashboardPage({
@@ -176,6 +179,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           name: name.trim(),
           path: path.trim(),
           thumbnail: thumbnail || undefined,
+        }, {
+          success: 'Page duplicated successfully',
+          error: 'Failed to duplicate page',
         });
       } else {
         await updateDashboardPageForUser(dashboardId!, {
@@ -183,6 +189,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           name: name.trim(),
           path: path.trim(),
           thumbnail: thumbnail || undefined,
+        }, {
+          success: 'Page updated successfully',
+          error: 'Failed to update page',
         });
       }
       
@@ -208,7 +217,10 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
   const isInvalid = !name.trim() || !path.trim() || !!nameError || !!pathError;
 
   return (
-    <Modal open={isOpen} onClose={handleClose} title={formTitle}>
+    <Modal open={isOpen} onClose={handleClose} title={<>
+      {formTitle}
+      {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}> in {dashboard.name}</span>}
+    </>}>
       <form onSubmit={handleSubmit} style={{
         width: '100%',
       }}>

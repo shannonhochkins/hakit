@@ -151,6 +151,9 @@ export function DashboardForm({
           name,
           path,
           thumbnail,
+        }, {
+          success: 'Dashboard created successfully',
+          error: 'Failed to create dashboard',
         });
       } else if (mode === 'duplicate' && dashboardId) {
         await duplicateDashboard({
@@ -158,6 +161,9 @@ export function DashboardForm({
           name,
           path,
           thumbnail,
+        }, {
+          success: 'Dashboard duplicated successfully',
+          error: 'Failed to duplicate dashboard',
         });
       } else if (mode === 'edit' && dashboardId && currentDashboard) {
         await updateDashboardForUser({
@@ -166,6 +172,9 @@ export function DashboardForm({
           path,
           data: currentDashboard.data,
           thumbnail: thumbnail,
+        }, {
+          success: 'Dashboard updated successfully',
+          error: 'Failed to update dashboard',
         });
       }
 

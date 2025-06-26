@@ -36,7 +36,7 @@ const TABLE_COLUMNS = {
   DASHBOARD: { width: '100%', minWidth: '300px' },
   PATH: { width: '200px' },
   CREATED: { width: '150px' },
-  ACTIONS: { width: '240px' },
+  ACTIONS: { width: '300px' },
 } as const;
 
 // Sorting configuration
@@ -218,13 +218,13 @@ const ChildTable = styled(StyledTable)`
   colgroup col:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
   colgroup col:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
   colgroup col:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  colgroup col:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+  colgroup col:nth-child(4) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
   
   /* Ensure cells respect the column widths */
   td:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
   td:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
   td:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  td:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+  td:nth-child(4) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
 `;
 
 // Sortable Header Component
@@ -800,7 +800,7 @@ export function MyDashboards() {
                   key={dashboard.id}
                   expanded={expandedDashboards.has(dashboard.id)}
                   onToggle={() => toggleExpanded(dashboard.id)}
-                  colSpan={5}
+                  colSpan={Object.keys(TABLE_COLUMNS).length}
                   expandedContent={
                     <>
                       <ChildTable>
@@ -812,7 +812,7 @@ export function MyDashboards() {
                         </colgroup>
                         <StyledTableBody>
                           <ChildTableRow>
-                            <StyledTableCell colSpan={5}>
+                            <StyledTableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
                               <Row fullWidth justifyContent="space-between" alignItems="center">
                                 <span>
                                   {(dashboard.matchedPages || dashboard.pages).length > 0 
@@ -850,7 +850,9 @@ export function MyDashboards() {
                                 <PagePathText>{page.path}</PagePathText>
                               </StyledTableCell>
                               <StyledTableCell hiddenBelow="lg">
-                                <DateText>-</DateText>
+                                <Tooltip title={`Updated on ${toReadableDate(page.updatedAt, true)}`}>
+                                  <DateText>{toReadableDate(page.createdAt)}</DateText>
+                                </Tooltip>
                               </StyledTableCell>
                               <StyledTableCell>
                                 <ActionButtons>
@@ -941,7 +943,7 @@ export function MyDashboards() {
                     width={TABLE_COLUMNS.CREATED.width}
                     hiddenBelow="lg"
                   >
-                    <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt)}`}>
+                    <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt, true)}`}>
                       <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
                     </Tooltip>
                   </StyledTableCell>
