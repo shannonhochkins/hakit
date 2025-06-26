@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { PlusIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical } from 'lucide-react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage, updateDashboardForUser, updateDashboardPageForUser } from '@lib/api/dashboard';
+import { PlusIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage } from '@lib/api/dashboard';
 import { Spinner } from '@lib/components/Spinner';
 import { PrimaryButton } from '@lib/page/shared/Button/Primary';
 import { EmptyState } from '../shared/EmptyState';
@@ -12,7 +12,6 @@ import { Confirm } from '@lib/page/shared/Modal/confirm';
 import { Column, Row } from '@lib/page/shared/Layout';
 import { toReadableDate } from '@lib/page/shared/helpers';
 import { InputField } from '@lib/components/Form/Fields/Input';
-import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Tooltip } from '@lib/components/Tooltip';
 import { DashboardWithoutPageData, DashboardPageWithoutData } from '@typings/dashboard';
@@ -37,9 +36,17 @@ const TABLE_COLUMNS = {
   DASHBOARD: { width: '100%', minWidth: '300px' },
   PATH: { width: '200px' },
   CREATED: { width: '150px' },
-  STATUS: { width: '120px' },
   ACTIONS: { width: '240px' },
 } as const;
+
+// Sorting configuration
+type SortColumn = 'name' | 'path' | 'created' | 'status';
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  column: SortColumn;
+  direction: SortDirection;
+}
 
 // Styled Components
 const Container = styled.div`
@@ -190,12 +197,6 @@ const DateText = styled.span`
   color: var(--color-text-muted);
 `;
 
-const StatusContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-`;
-
 const ActionButtons = styled.div`
   display: flex;
   align-items: stretch;
@@ -217,15 +218,37 @@ const ChildTable = styled(StyledTable)`
   colgroup col:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
   colgroup col:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
   colgroup col:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  colgroup col:nth-child(4) { width: ${TABLE_COLUMNS.STATUS.width}; }
   colgroup col:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
   
   /* Ensure cells respect the column widths */
   td:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
   td:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
   td:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  td:nth-child(4) { width: ${TABLE_COLUMNS.STATUS.width}; }
   td:nth-child(5) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+`;
+
+// Sortable Header Component
+const SortableHeaderCell = styled(TableHeaderCell)<{ sortable?: boolean }>`
+  cursor: ${props => props.sortable ? 'pointer' : 'default'};
+  user-select: none;
+  transition: background-color var(--transition-normal);
+  
+  &:hover {
+    background-color: ${props => props.sortable ? 'var(--color-gray-700)' : 'transparent'};
+  }
+`;
+
+const SortHeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+`;
+
+const SortIcon = styled.div<{ direction?: 'asc' | 'desc' }>`
+  display: flex;
+  align-items: center;
+  opacity: ${props => props.direction ? 1 : 0.5};
+  transition: opacity var(--transition-normal);
 `;
 
 function getDashboardById(dashboards: DashboardWithoutPageData[], id: string) {
@@ -246,82 +269,13 @@ export function MyDashboards() {
   const [deletingDashboardId, setDeletingDashboardId] = useState<string | null>(null);
   const [deletingPageId, setDeletingPageId] = useState<string | null>(null);
   const [deletingPageDashboardId, setDeletingPageDashboardId] = useState<string | null>(null);
-  const [togglingDashboardId, setTogglingDashboardId] = useState<string | null>(null);
-  const [togglingPageId, setTogglingPageId] = useState<string | null>(null);
   const [expandedDashboards, setExpandedDashboards] = useState<Set<string>>(new Set());
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [menuDashboardId, setMenuDashboardId] = useState<string | null>(null);
   const [menuPageId, setMenuPageId] = useState<string | null>(null);
   const [menuType, setMenuType] = useState<'dashboard' | 'page' | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'name', direction: 'asc' });
   const navigate = useNavigate();
-
-  // Mutation for toggling dashboard enabled status
-  const toggleDashboardMutation = useMutation({
-    mutationFn: async ({ id, isEnabled }: { id: string; isEnabled: boolean }) => {
-      return updateDashboardForUser({ id, isEnabled });
-    },
-    onMutate: ({ id }) => {
-      // Set the loading state for this specific dashboard
-      setTogglingDashboardId(id);
-    },
-    onSuccess: () => {
-      // Clear loading state and refetch dashboards
-      setTogglingDashboardId(null);
-      dashboardsQuery.refetch();
-    },
-    onError: (error) => {
-      console.error('Error toggling dashboard:', error);
-      // Clear loading state and refetch to revert optimistic update
-      setTogglingDashboardId(null);
-      dashboardsQuery.refetch();
-    },
-  });
-
-  // Mutation for toggling page enabled status
-  const togglePageMutation = useMutation({
-    mutationFn: async ({ dashboardId, pageId, isEnabled }: { dashboardId: string; pageId: string; isEnabled: boolean }) => {
-      return updateDashboardPageForUser(dashboardId, { id: pageId, isEnabled });
-    },
-    onMutate: ({ pageId }) => {
-      // Set the loading state for this specific page
-      setTogglingPageId(pageId);
-    },
-    onSuccess: () => {
-      // Clear loading state and refetch dashboards
-      setTogglingPageId(null);
-      dashboardsQuery.refetch();
-    },
-    onError: (error) => {
-      console.error('Error toggling page:', error);
-      // Clear loading state and refetch to revert optimistic update
-      setTogglingPageId(null);
-      dashboardsQuery.refetch();
-    },
-  });
-
-  const handleToggle = async (id: string) => {
-    const dashboard = dashboards?.find(d => d.id === id);
-    if (!dashboard || togglingDashboardId === id) return;
-    
-    // Toggle the enabled status
-    toggleDashboardMutation.mutate({
-      id,
-      isEnabled: !dashboard.isEnabled,
-    });
-  };
-
-  const handlePageToggle = async (dashboardId: string, pageId: string) => {
-    const dashboard = dashboards?.find(d => d.id === dashboardId);
-    const page = dashboard?.pages.find(p => p.id === pageId);
-    if (!page || togglingPageId === pageId) return;
-    
-    // Toggle the enabled status
-    togglePageMutation.mutate({
-      dashboardId,
-      pageId,
-      isEnabled: !page.isEnabled,
-    });
-  };
 
   const toggleExpanded = (dashboardId: string) => {
     setExpandedDashboards(prev => {
@@ -464,6 +418,13 @@ export function MyDashboards() {
     setPageFormMode('new');
   };
 
+  const handleSort = (column: SortColumn) => {
+    setSortConfig(prev => ({
+      column,
+      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
   const handleDuplicate = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
     
@@ -537,47 +498,82 @@ export function MyDashboards() {
     hasPageMatch?: boolean;
   };
 
-  // Enhanced filtering logic for dashboards and pages
+  // Enhanced filtering and sorting logic for dashboards and pages
   const filteredData = useMemo(() => {
-    if (!dashboards || !searchQuery.trim()) {
-      return { dashboards: dashboards || [], hasMatches: false, matchType: null, dashboardsToExpand: [] };
-    }
+    let dashboardsToProcess = dashboards || [];
 
-    const query = searchQuery.toLowerCase();
-    const matchedDashboards: DashboardWithMatching[] = [];
-    const dashboardsToExpand: string[] = [];
-    let hasPageMatches = false;
+    // Apply search filtering
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchedDashboards: DashboardWithMatching[] = [];
+      const dashboardsToExpandLocal: string[] = [];
 
-    for (const dashboard of dashboards) {
-      const dashboardNameMatch = dashboard.name.toLowerCase().includes(query);
-      const dashboardPathMatch = dashboard.path.toLowerCase().includes(query);
-      
-      const matchedPages = dashboard.pages.filter(page => 
-        page.name.toLowerCase().includes(query) || 
-        page.path.toLowerCase().includes(query)
-      );
-
-      if (dashboardNameMatch || dashboardPathMatch || matchedPages.length > 0) {
-        matchedDashboards.push({
-          ...dashboard,
-          matchedPages: matchedPages.length > 0 ? matchedPages : dashboard.pages,
-          hasPageMatch: matchedPages.length > 0
-        });
+      for (const dashboard of dashboardsToProcess) {
+        const dashboardNameMatch = dashboard.name.toLowerCase().includes(query);
+        const dashboardPathMatch = dashboard.path.toLowerCase().includes(query);
         
-        if (matchedPages.length > 0) {
-          hasPageMatches = true;
-          dashboardsToExpand.push(dashboard.id);
+        const matchedPages = dashboard.pages.filter(page => 
+          page.name.toLowerCase().includes(query) || 
+          page.path.toLowerCase().includes(query)
+        );
+
+        if (dashboardNameMatch || dashboardPathMatch || matchedPages.length > 0) {
+          const hasPageMatch = matchedPages.length > 0;
+          matchedDashboards.push({
+            ...dashboard,
+            matchedPages: hasPageMatch ? matchedPages : dashboard.pages,
+            hasPageMatch
+          });
+          
+          if (hasPageMatch) {
+            dashboardsToExpandLocal.push(dashboard.id);
+          }
         }
       }
+      
+      dashboardsToProcess = matchedDashboards;
     }
 
+    // Apply sorting
+    const sortedDashboards = [...dashboardsToProcess].sort((a, b) => {
+      const { column, direction } = sortConfig;
+      let aValue: string | number | Date;
+      let bValue: string | number | Date;
+
+      switch (column) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'path':
+          aValue = a.path.toLowerCase();
+          bValue = b.path.toLowerCase();
+          break;
+        case 'created':
+          aValue = new Date(a.createdAt);
+          bValue = new Date(b.createdAt);
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
     return {
-      dashboards: matchedDashboards,
-      hasMatches: matchedDashboards.length > 0,
-      matchType: hasPageMatches ? 'pages' : 'dashboards' as 'pages' | 'dashboards' | null,
-      dashboardsToExpand
+      dashboards: sortedDashboards,
+      hasMatches: searchQuery.trim() ? sortedDashboards.length > 0 : true,
+      matchType: searchQuery.trim() && sortedDashboards.some(d => (d as DashboardWithMatching).hasPageMatch) ? 'pages' : 'dashboards' as 'pages' | 'dashboards' | null,
+      dashboardsToExpand: searchQuery.trim() ? sortedDashboards.filter(d => (d as DashboardWithMatching).hasPageMatch).map(d => d.id) : []
     };
-  }, [dashboards, searchQuery]);
+  }, [dashboards, searchQuery, sortConfig]);
 
   const { dashboards: filteredDashboards, hasMatches, matchType, dashboardsToExpand } = filteredData;
 
@@ -737,32 +733,65 @@ export function MyDashboards() {
               <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
               <col style={{ width: TABLE_COLUMNS.PATH.width }} />
               <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
-              <col style={{ width: TABLE_COLUMNS.STATUS.width }} />
               <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
             </colgroup>
             <StyledTableHead>
               <StyledTableRow>
-                <TableHeaderCell 
+                <SortableHeaderCell 
                   width={TABLE_COLUMNS.DASHBOARD.width}
                   minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
+                  sortable
+                  onClick={() => handleSort('name')}
                 >
-                  Dashboard
-                </TableHeaderCell>
-                <TableHeaderCell width={TABLE_COLUMNS.PATH.width}>
-                  Path
-                </TableHeaderCell>
-                <TableHeaderCell 
+                  <SortHeaderContent>
+                    <span>Dashboard</span>
+                    <SortIcon direction={sortConfig.column === 'name' ? sortConfig.direction : undefined}>
+                      {sortConfig.column === 'name' ? (
+                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                      ) : (
+                        <ArrowUpDown size={16} />
+                      )}
+                    </SortIcon>
+                  </SortHeaderContent>
+                </SortableHeaderCell>
+                <SortableHeaderCell 
+                  width={TABLE_COLUMNS.PATH.width}
+                  sortable
+                  onClick={() => handleSort('path')}
+                >
+                  <SortHeaderContent>
+                    <span>Path</span>
+                    <SortIcon direction={sortConfig.column === 'path' ? sortConfig.direction : undefined}>
+                      {sortConfig.column === 'path' ? (
+                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                      ) : (
+                        <ArrowUpDown size={16} />
+                      )}
+                    </SortIcon>
+                  </SortHeaderContent>
+                </SortableHeaderCell>
+                <SortableHeaderCell 
                   width={TABLE_COLUMNS.CREATED.width}
                   hiddenBelow="lg"
+                  sortable
+                  onClick={() => handleSort('created')}
                 >
-                  Created
-                </TableHeaderCell>
-                <TableHeaderCell width={TABLE_COLUMNS.STATUS.width}>
-                  Status
-                </TableHeaderCell>
-                <TableHeaderCell width={TABLE_COLUMNS.ACTIONS.width}>
-                  Actions
-                </TableHeaderCell>
+                  <SortHeaderContent>
+                    <span>Created</span>
+                    <SortIcon direction={sortConfig.column === 'created' ? sortConfig.direction : undefined}>
+                      {sortConfig.column === 'created' ? (
+                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                      ) : (
+                        <ArrowUpDown size={16} />
+                      )}
+                    </SortIcon>
+                  </SortHeaderContent>
+                </SortableHeaderCell>
+                <SortableHeaderCell width={TABLE_COLUMNS.ACTIONS.width}>
+                  <SortHeaderContent>
+                    <span>Actions</span>
+                  </SortHeaderContent>
+                </SortableHeaderCell>
               </StyledTableRow>
             </StyledTableHead>
             <StyledTableBody>
@@ -779,7 +808,6 @@ export function MyDashboards() {
                           <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
                           <col style={{ width: TABLE_COLUMNS.PATH.width }} />
                           <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
-                          <col style={{ width: TABLE_COLUMNS.STATUS.width }} />
                           <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
                         </colgroup>
                         <StyledTableBody>
@@ -823,18 +851,6 @@ export function MyDashboards() {
                               </StyledTableCell>
                               <StyledTableCell hiddenBelow="lg">
                                 <DateText>-</DateText>
-                              </StyledTableCell>
-                              <StyledTableCell>
-                                <StatusContainer>
-                                  <Tooltip title={page.isEnabled ? 'Enabled' : 'Disabled'} placement="top">
-                                    <SwitchField
-                                      checked={page.isEnabled}
-                                      loading={togglingPageId === page.id}
-                                      onChange={() => handlePageToggle(dashboard.id, page.id)}
-                                      style={{ paddingTop: 0 }}
-                                    />
-                                  </Tooltip>
-                                </StatusContainer>
                               </StyledTableCell>
                               <StyledTableCell>
                                 <ActionButtons>
@@ -928,21 +944,6 @@ export function MyDashboards() {
                     <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt)}`}>
                       <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
                     </Tooltip>
-                  </StyledTableCell>
-                  <StyledTableCell 
-                    width={TABLE_COLUMNS.STATUS.width}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <StatusContainer>
-                      <Tooltip title={dashboard.isEnabled ? 'Enabled' : 'Disabled'} placement="top">
-                        <SwitchField
-                          checked={dashboard.isEnabled}
-                          loading={togglingDashboardId === dashboard.id}
-                          onChange={() => handleToggle(dashboard.id)}
-                          style={{ paddingTop: 0 }}
-                        />
-                      </Tooltip>
-                    </StatusContainer>
                   </StyledTableCell>
                   <StyledTableCell 
                     width={TABLE_COLUMNS.ACTIONS.width}

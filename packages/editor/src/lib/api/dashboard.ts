@@ -111,7 +111,6 @@ export async function updateDashboardPageForUser(id: DashboardWithPageData['id']
       path: page.path,
       name: page.name,
       data: page.data,
-      isEnabled: page.isEnabled,
       thumbnail: page.thumbnail,
     },
     param: {
@@ -137,7 +136,6 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput, to
       themeId: dashboard.themeId,
       breakpoints: dashboard.breakpoints,
       thumbnail: dashboard.thumbnail,
-      isEnabled: dashboard.isEnabled,
     }
   });
   const res = await callApi(req, toastMessage);

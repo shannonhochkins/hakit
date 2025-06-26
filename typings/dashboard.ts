@@ -7,7 +7,6 @@ export type DashboardPageWithoutData = {
     path: string;
     createdAt: string;
     updatedAt: string;
-    isEnabled: boolean;
     thumbnail: string | null;
 }
 export type DashboardPageWithData = DashboardPageWithoutData & {
@@ -22,7 +21,6 @@ interface Dashboard {
     thumbnail: string | null;
     createdAt: string;
     updatedAt: string;
-    isEnabled: boolean;
     breakpoints: BreakpointItem[];
 }
 

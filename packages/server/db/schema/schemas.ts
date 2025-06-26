@@ -43,11 +43,9 @@ export const updateDashboardSchema = createUpdateSchema(dashboardTable).pick({
   themeId: true,
   breakpoints: true,
   thumbnail: true,
-  isEnabled: true,
 }).extend({
   breakpoints: dashboardSchema.shape.breakpoints.optional(),
   data: dashboardSchema.shape.data.optional(),
-  isEnabled: dashboardSchema.shape.isEnabled.optional(),
   thumbnail: dashboardSchema.shape.thumbnail.optional(),
 });
 
@@ -66,12 +64,10 @@ export const insertDashboardPageSchema = dashboardPageSchema.pick({
 export const updateDashboardPageSchema = createUpdateSchema(pagesTable).pick({
   name: true,
   path: true,
-  isEnabled: true,
   data: true,
   thumbnail: true,
 })
 .extend({
   data: dashboardPageSchema.shape.data.optional(),
-  isEnabled: dashboardPageSchema.shape.isEnabled.optional(),
   thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
 });

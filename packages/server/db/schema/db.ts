@@ -18,8 +18,6 @@ export const dashboardTable = pgTable("dashboard", {
   breakpoints: jsonb("breakpoints").notNull().default({}),
   // optional thumbnail path or URL
   thumbnail: varchar("thumbnail", { length: 255 }),
-  // is the dashbaord enabled
-  isEnabled: boolean("is_enabled").default(true).notNull(),
   // any data to store against the dashboard, basically global settings
   data: jsonb("data").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
@@ -128,8 +126,6 @@ export const pagesTable = pgTable("pages", {
       onDelete: "cascade",
     })
     .notNull(),
-  // is the page enabled
-  isEnabled: boolean("is_enabled").default(true).notNull(),
   // optional thumbnail path or URL
   thumbnail: varchar("thumbnail", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: false })

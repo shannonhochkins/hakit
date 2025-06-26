@@ -100,7 +100,6 @@ const dashboardRoute = new Hono()
           thumbnail: dashboardTable.thumbnail,
           createdAt: dashboardTable.createdAt,
           updatedAt: dashboardTable.updatedAt,
-          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -108,7 +107,6 @@ const dashboardRoute = new Hono()
                 'name', ${pagesTable.name},
                 'updatedAt', ${pagesTable.updatedAt},
                 'createdAt', ${pagesTable.createdAt},
-                'isEnabled', ${pagesTable.isEnabled},
                 'thumbnail', ${pagesTable.thumbnail},
                 'path', ${pagesTable.path}
               )
@@ -149,7 +147,6 @@ const dashboardRoute = new Hono()
           thumbnail: dashboardTable.thumbnail,
           createdAt: dashboardTable.createdAt,
           updatedAt: dashboardTable.updatedAt,
-          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -158,7 +155,6 @@ const dashboardRoute = new Hono()
                 'thumbnail', ${pagesTable.thumbnail},
                 'updatedAt', ${pagesTable.updatedAt},
                 'createdAt', ${pagesTable.createdAt},
-                'isEnabled', ${pagesTable.isEnabled},
                 'path', ${pagesTable.path},
                 'data', ${pagesTable.data}
               )
@@ -237,7 +233,6 @@ const dashboardRoute = new Hono()
           thumbnail: dashboardTable.thumbnail,
           createdAt: dashboardTable.createdAt,
           updatedAt: dashboardTable.updatedAt,
-          isEnabled: dashboardTable.isEnabled,
           pages: sql`COALESCE(
             json_agg(
               json_build_object(
@@ -245,7 +240,6 @@ const dashboardRoute = new Hono()
                 'name', ${pagesTable.name},
                 'updatedAt', ${pagesTable.updatedAt},
                 'createdAt', ${pagesTable.createdAt},
-                'isEnabled', ${pagesTable.isEnabled},
                 'thumbnail', ${pagesTable.thumbnail},
                 'path', ${pagesTable.path}
               )
@@ -363,7 +357,6 @@ const dashboardRoute = new Hono()
           name: data.name,
           path: data.path,
           thumbnail: data.thumbnail,
-          isEnabled: data.isEnabled,
           data: data.data ? sanitizePuckData(data.data) : undefined,
         })
         .where(
@@ -399,7 +392,6 @@ const dashboardRoute = new Hono()
           themeId: data.themeId,
           breakpoints: data.breakpoints,
           thumbnail: data.thumbnail,
-          isEnabled: data.isEnabled,
         })
         .where(
           and(
@@ -425,7 +417,6 @@ const dashboardRoute = new Hono()
           userId: user.id,
           name,
           path,
-          isEnabled: true,
           // TODO - Sanitize input data
           data,
           thumbnail: thumbnail,
@@ -487,7 +478,6 @@ const dashboardRoute = new Hono()
           name: name ?? defaultPage.name,
           path: path ?? defaultPage.path,
           data: data ?? createDefaultPageConfiguration(),
-          isEnabled: true,
           thumbnail: thumbnail || null,
         })
         .returning();
@@ -537,7 +527,6 @@ const dashboardRoute = new Hono()
           userId: user.id,
           name,
           path,
-          isEnabled: true,
           data: originalDashboard.data,
           breakpoints: originalDashboard.breakpoints,
           thumbnail: thumbnail || originalDashboard.thumbnail,
@@ -556,7 +545,6 @@ const dashboardRoute = new Hono()
             name: page.name,
             path: page.path,
             data: page.data,
-            isEnabled: page.isEnabled,
             thumbnail: page.thumbnail,
           })
           .returning();
@@ -625,7 +613,6 @@ const dashboardRoute = new Hono()
           name,
           path,
           data: originalPage.data,
-          isEnabled: originalPage.isEnabled,
           thumbnail: thumbnail || originalPage.thumbnail,
         })
         .returning();
