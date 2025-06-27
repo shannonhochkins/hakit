@@ -13,7 +13,7 @@ const Label = styled.span`
 `;
 const Description = styled.span`
   font-size: 0.75rem;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
 `;
 
 
@@ -65,8 +65,8 @@ export function FieldOptions({ options }: FieldOptionsProps) {
           paper: {
             style: {
               maxHeight: ITEM_HEIGHT * 4.5,
-              background: 'var(--puck-color-grey-05)',
-              color: 'var(--puck-color-grey-02)',
+              background: 'var(--color-gray-400)',
+              color: 'var(--color-gray-100)',
             },
           },
         }}
@@ -84,7 +84,7 @@ export function FieldOptions({ options }: FieldOptionsProps) {
                     style: {
                       padding: 0,
                       marginRight: '0.5rem',
-                      color: 'var(--puck-color-grey-02)',
+                      color: 'var(--color-gray-100)',
                     },
                   },
                 }} />

@@ -51,7 +51,7 @@ const ResizeHandle = styled.div`
     &:hover,
     &:active {
       .resize-handle {
-        color: var(--puck-color-grey-05);
+        color: var(--color-gray-400);
       }
     }
   }
@@ -60,7 +60,7 @@ const ResizeHandle = styled.div`
     top: 50%;
     transform: translate(0%, -50%);
     left: 0px;
-    color: var(--puck-color-grey-03);
+    color: var(--color-gray-200);
     transition: color var(--transition-normal);
   }
 `;
@@ -68,9 +68,9 @@ const ResizeHandle = styled.div`
 const Sidebar = styled.div`
   width: var(--sidebar-panel-width, ${SIDEBAR_PANEL_WIDTH}px);
   min-height: 100%;
-  border-left: 3px solid var(--puck-color-grey-05);
+  border-left: 3px solid var(--color-gray-400);
   position: relative;
-  background-color: var(--puck-color-grey-06);
+  background-color: var(--color-gray-500);
 `;
 
 function Draggable() {

@@ -78,7 +78,7 @@
   --puck-color-grey-07: var(--color-gray-600);
   --puck-color-grey-08: var(--color-gray-700);
   --puck-color-grey-09: var(--color-gray-800);
-  --color-gray-900: var(--color-gray-900);
+  --puck-color-grey-10: var(--color-gray-900);
   --puck-color-grey-11: var(--color-gray-950);
   --puck-color-grey-12: var(--color-gray-950);
   /* Map semantic colors to design system (inverted for dark theme) */

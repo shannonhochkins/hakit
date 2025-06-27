@@ -26,8 +26,8 @@ const OrderedList = styled.ol`
   gap: calc(var(--space-4) / 2);
 `;
 const ListItem = styled.li`
-  background-color: var(--puck-color-grey-10);
-  color: var(--puck-color-grey-03);
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-200);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,21 +46,21 @@ const ListItem = styled.li`
   &.disable-hover {
     cursor: default;
     background-color: transparent;
-    color: var(--puck-color-grey-03);
+    color: var(--color-gray-200);
     border-color: transparent;
   }
   &:not(.disable-hover) {
     &:hover, &:focus, &:active {
-      background-color: var(--puck-color-grey-08);
-      color: var(--puck-color-grey-02);
-      border-color: var(--puck-color-grey-05);
+      background-color: var(--color-gray-700);
+      color: var(--color-gray-100);
+      border-color: var(--color-gray-400);
     }
     &.active {
-      background-color: var(--puck-color-grey-06);
-      color: var(--puck-color-grey-01);
-      border-color: var(--puck-color-azure-07);
+      background-color: var(--color-gray-500);
+      color: var(--color-gray-50);
+      border-color: var(--color-secondary-600);
       &:hover, &:focus, &:active {
-        border-color: var(--puck-color-azure-05);
+        border-color: var(--color-secondary-400);
       }
     }
   }
@@ -73,12 +73,12 @@ const Title = styled.h3`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--puck-color-grey-01);
+  color: var(--color-gray-50);
   &.secondary {
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5rem;
-    color: var(--puck-color-grey-02);
+    color: var(--color-gray-100);
     margin-top: 0;
   }
 `;

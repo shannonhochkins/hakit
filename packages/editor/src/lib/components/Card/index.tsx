@@ -59,7 +59,7 @@ const Title = styled.div`
 
 const Subtitle = styled.div`
   font-size: 12px;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
   width: 100%;
   text-align: left;
   margin-top: calc(var(--space-4) / 4);
@@ -133,8 +133,8 @@ export function Card({
                 paper: {
                   style: {
                     maxHeight: ITEM_HEIGHT * 4.5,
-                    background: 'var(--puck-color-grey-05)',
-                    color: 'var(--puck-color-grey-02)',
+                    background: 'var(--color-gray-400)',
+                    color: 'var(--color-gray-100)',
                   },
                 },
               }}

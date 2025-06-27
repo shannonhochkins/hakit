@@ -48,7 +48,7 @@ const Overlay = styled.div<{ visible: boolean }>`
 const SidebarContainer = styled.div<{ visible: boolean }>`
   width: 400px;
   height: 100%;
-  background: var(--puck-color-grey-12);
+  background: var(--color-gray-950);
   color: white;
   position: absolute;
   left: 0;

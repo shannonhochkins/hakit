@@ -28,8 +28,8 @@ const tabs: Tab[] = [
 ];
 
 const TabContainer = styled(Column)`
-  border-left: 1px solid var(--puck-color-grey-05);
-  background-color: var(--puck-color-grey-08);
+  border-left: 1px solid var(--color-gray-400);
+  background-color: var(--color-gray-700);
 `;
 
 const TabButton = styled.button`
@@ -40,7 +40,7 @@ const TabButton = styled.button`
   flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
   gap: 0.5rem;
   font-size: 1rem;
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
@@ -71,10 +71,10 @@ const TabButton = styled.button`
   }
   &:not(.disabled):not(:disabled):hover,
   &.active {
-    background-color: var(--puck-color-grey-04);
-    color: var(--puck-color-grey-01);
+    background-color: var(--color-gray-300);
+    color: var(--color-gray-50);
     &:hover:not(.active) {
-      background-color: var(--puck-color-grey-05);
+      background-color: var(--color-gray-400);
     }
   }
 `;

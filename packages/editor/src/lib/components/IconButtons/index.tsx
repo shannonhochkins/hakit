@@ -4,7 +4,7 @@ export const IconButton = styled.button`
   outline: none;
   appearance: none;
   -webkit-appearance: none;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
   background-color: transparent;
   border: none;
   display: flex;
@@ -21,7 +21,7 @@ export const IconButton = styled.button`
   /* Success state */
   &.success {
     background-color: var(--color-success-500);
-    color: var(--puck-color-grey-01);
+    color: var(--color-gray-50);
     transition: none;
     pointer-events: none; /* prevent further clicks while in success state */
   }
@@ -29,7 +29,7 @@ export const IconButton = styled.button`
   /* Error state */
   &.error {
     background-color: var(--color-error-500);
-    color: var(--puck-color-grey-01);
+    color: var(--color-gray-50);
     transition: none;
     pointer-events: none; /* prevent further clicks while in error state */
   }
@@ -46,9 +46,9 @@ export const IconButton = styled.button`
   &:hover,
   &:active {
     &:not(:disabled) {
-      color: var(--puck-color-grey-01);
+      color: var(--color-gray-50);
       &:not(.disable-bg-hover) {
-        background-color: var(--puck-color-grey-04);
+        background-color: var(--color-gray-300);
       }
     }
   }

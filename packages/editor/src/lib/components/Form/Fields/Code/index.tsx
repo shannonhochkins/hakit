@@ -112,12 +112,12 @@ export const CodeField = ({
             break;
 
         }
-        domNode.style.background = "var(--puck-color-grey-06)";
+        domNode.style.background = "var(--color-gray-500)";
         domNode.style.padding = "4px 8px";
         domNode.style.borderRadius = "6px";
         domNode.style.fontSize = "12px";
         domNode.style.fontFamily = "monospace";
-        domNode.style.color = "var(--puck-color-grey-03)";
+        domNode.style.color = "var(--color-gray-200)";
 
 
         const widget: editor.IOverlayWidget = {
@@ -137,7 +137,7 @@ export const CodeField = ({
         inherit: true,
         rules: [],
         colors: {
-          'editor.background': getCssVariable('--puck-color-grey-12'),
+          'editor.background': getCssVariable('--color-gray-950'),
         },
       });
     };

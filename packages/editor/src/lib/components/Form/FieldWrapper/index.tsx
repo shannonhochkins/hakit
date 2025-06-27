@@ -42,18 +42,18 @@ const Label = styled.fieldset`
   border: none;
   padding: 0;
   margin: 0;
-  color: var(--puck-color-grey-04);
+  color: var(--color-gray-300);
   &.collapsible {
     padding-top: 12px;
     padding: 12px;
-    background-color: var(--puck-color-grey-11);
-    color: var(--puck-color-grey-03);
+    background-color: var(--color-gray-950);
+    color: var(--color-gray-200);
   }
   &.bp-mode-enabled {
     position: relative;
     [class*='_IconButton_'] {
-      color: var(--puck-color-grey-01);
-      background-color: var(--puck-color-grey-10);
+      color: var(--color-gray-50);
+      background-color: var(--color-gray-900);
     }
   }
 `;
@@ -64,12 +64,12 @@ const Field = styled.div`
   gap: 0.5rem;
   margin-top: 12px;
   [class*='_Input-input_'] {
-    background-color: var(--puck-color-grey-12) !important;
+    background-color: var(--color-gray-950) !important;
   }
   [class*='_ObjectField_'],
   [class*='_ArrayField_'],
   [class*='_ArrayFieldItem-summary'] {
-    background-color: var(--puck-color-grey-06);
+    background-color: var(--color-gray-500);
   }
   // nested objects
   [class*='_ObjectField_']:has([class*='_ObjectField_']) {
@@ -82,7 +82,7 @@ const Field = styled.div`
     }
     .field-object:has([class*='_ObjectField_']) {
       padding: 12px 0 0 0;
-      border-top: 1px solid var(--puck-color-grey-06);
+      border-top: 1px solid var(--color-gray-500);
     }
   }
   [class*='_ArrayFieldItem_'] {
@@ -90,13 +90,13 @@ const Field = styled.div`
   }
   [class*='_ArrayField-addButton_'] {
     margin-top: 1px;
-    background-color: var(--puck-color-grey-06);
+    background-color: var(--color-gray-500);
   }
   [class*='_ArrayFieldItem--isExpanded'] > [class*='_ArrayFieldItem-summary'] {
-    color: var(--puck-color-grey-01);
+    color: var(--color-gray-50);
   }
   [class*='_ArrayFieldItem-body_'] {
-    background-color: var(--puck-color-grey-09);
+    background-color: var(--color-gray-800);
   }
   [class*='_Input-labelIcon_'] {
     color: currentColor;
@@ -106,8 +106,8 @@ const Field = styled.div`
   }
 `;
 const Mark = styled.div`
-  color: var(--puck-color-grey-04);
-  background-color: var(--puck-color-grey-11);
+  color: var(--color-gray-300);
+  background-color: var(--color-gray-950);
   padding: 4px 6px;
   font-size: 12px;
   font-weight: 500;

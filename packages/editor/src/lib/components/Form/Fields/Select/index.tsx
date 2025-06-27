@@ -8,18 +8,18 @@ import styled from '@emotion/styled';
 import React from 'react';
 
 const StyledMenuItem = styled(MenuItem)`
-  background: var(--puck-color-grey-06);
-  color: var(--puck-color-grey-02);
+  background: var(--color-gray-500);
+  color: var(--color-gray-100);
   &:hover, &:focus, &:active {
-    background: var(--puck-color-grey-05);
-    color: var(--puck-color-grey-02);
+    background: var(--color-gray-400);
+    color: var(--color-gray-100);
   }
   &.Mui-selected {
-    background: var(--puck-color-azure-06);
-    color: var(--puck-color-grey-01);
+    background: var(--color-secondary-500);
+    color: var(--color-gray-50);
     &:hover, &:focus, &:active {
-      background: var(--puck-color-azure-06);
-      color: var(--puck-color-grey-01);
+      background: var(--color-secondary-500);
+      color: var(--color-gray-50);
     }
   }
 `

@@ -24,7 +24,7 @@ const StyledViewportControls = styled(Row)`
 `;
 
 const HelperText = styled.span`
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
   font-size: 0.85rem;
   font-weight: 400;
   margin-left: var(--space-4);
@@ -226,7 +226,7 @@ export const ViewportControls = () => {
             const isWidthValue = previousWidth < item.width;
             const isTitleValid = item.title.length > 0;
             return <Row key={item.id} alignItems='flex-start' justifyContent='space-between' gap="1rem" wrap='nowrap' fullWidth style={{
-              backgroundColor: 'var(--puck-color-grey-10)',
+              backgroundColor: 'var(--color-gray-900)',
               padding: item.disabled ? '0 0 0.5rem 1rem' : '0.5rem 1rem 1rem',
               borderRadius: '8px',
             }}>

@@ -6,7 +6,7 @@ const CanvasWrapper = styled(Row)`
   width: 100%;
   max-width: 100%;
   padding: var(--space-4);
-  /* outline: 2px dashed var(--puck-color-grey-06); */
+  /* outline: 2px dashed var(--color-gray-500); */
   /* outline-offset: 2px; */
   border-radius: 4px;
 `;

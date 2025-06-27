@@ -37,7 +37,7 @@ const SpinnerContainer = styled.div<SpinnerProps>`
     height: ${props => props.size};
     border: 0.15rem solid transparent;
     border-radius: 50%;
-    border-right-color: ${props => props.dark ? 'var(--puck-color-grey-12)' : 'var(--puck-color-grey-1)'};
+    border-right-color: ${props => props.dark ? 'var(--color-gray-950)' : 'var(--color-gray-50)'};
     animation: ${spin} 0.8s linear infinite;
   }
   > div {

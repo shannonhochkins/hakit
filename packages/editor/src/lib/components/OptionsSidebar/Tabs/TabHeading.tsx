@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 export const TabHeading = styled.h2`
   font-size: var(--puck-font-size-s);
-  color: var(--puck-color-grey-01);
+  color: var(--color-gray-50);
   font-weight: 700;
   margin: 0;
   display: flex;

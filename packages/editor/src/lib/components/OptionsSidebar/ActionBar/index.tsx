@@ -6,8 +6,8 @@ import { Save } from '@lib/components/IconButtons/Save';
 import { SaveAndPreview } from '@lib/components/IconButtons/Save/saveAndPreview';
 
 const ActionBarWrapper = styled.div`
-  border-bottom: 3px solid var(--puck-color-grey-05);
-  color: var(--puck-color-black);
+  border-bottom: 3px solid var(--color-gray-400);
+  color: var(--color-gray-950);
   width: 100%;
   padding: var(--space-4);
   display: flex;

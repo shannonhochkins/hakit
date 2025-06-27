@@ -102,7 +102,7 @@ export function Editor() {
               }}>
                 <Row gap="0.5rem">
                   <Divider orientation="vertical" variant="middle" flexItem style={{
-                    borderColor: 'var(--puck-color-grey-04)',
+                    borderColor: 'var(--color-gray-300)',
                     marginLeft: 'var(--space-4)',
                   }} />
                   <PageSelector />
