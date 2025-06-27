@@ -100,7 +100,7 @@ export function RightSidebar() {
             <SidebarTitle>
               {tabHeading}
               {selectedItem && (
-                <IconButton onClick={deselect} icon={<X size={16} />} aria-label="Deselect Component" tooltipProps={{
+                <IconButton variant="transparent" onClick={deselect} icon={<X size={16} />} aria-label="Deselect Component" tooltipProps={{
                   placement: 'left'
                 }}  />
               )}

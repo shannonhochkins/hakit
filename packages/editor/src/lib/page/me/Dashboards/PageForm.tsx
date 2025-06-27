@@ -12,6 +12,7 @@ import { InputField } from '@lib/components/Form/Fields/Input';
 import { ImageUpload } from '@lib/components/Form/Fields/Image';
 import { Modal } from '@lib/page/shared/Modal';
 import { InputAdornment } from '@mui/material';
+import { DashboardPageWithoutData } from '@typings/dashboard';
 
 // Styled Components
 const FormActions = styled.div`
@@ -38,7 +39,7 @@ interface PageFormProps {
   pageId?: string;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (page: DashboardPageWithoutData) => void;
 }
 
 export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, onSuccess }: PageFormProps) {
@@ -162,8 +163,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
     setIsSubmitting(true);
 
     try {
+      let result: DashboardPageWithoutData | undefined;
       if (mode === 'new') {
-        await createDashboardPage({
+        result = await createDashboardPage({
           id: dashboardId!,
           name: name.trim(),
           path: path.trim(),
@@ -173,7 +175,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           error: 'Failed to create page',
         });
       } else if (mode === 'duplicate') {
-        await duplicateDashboardPage({
+        result = await duplicateDashboardPage({
           id: dashboardId!,
           pageId: pageId!,
           name: name.trim(),
@@ -184,7 +186,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           error: 'Failed to duplicate page',
         });
       } else {
-        await updateDashboardPageForUser(dashboardId!, {
+        result = await updateDashboardPageForUser(dashboardId!, {
           id: pageId!,
           name: name.trim(),
           path: path.trim(),
@@ -197,7 +199,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
       
       // Refetch dashboards to update the UI
       dashboardsQuery.refetch();
-      onSuccess();
+      onSuccess(result);
     } catch (error) {
       console.error('Error saving page:', error);
       // TODO: Show error toast

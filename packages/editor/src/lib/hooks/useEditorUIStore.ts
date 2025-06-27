@@ -3,12 +3,17 @@ import { persist } from 'zustand/middleware';
 
 type LeftSidebarTab = 'components' | 'outline';
 
+interface CanvasPreview {
+  width: number;
+  height: number;
+  isResponsive: boolean;
+}
+
 type EditorUIStore = {
   // Left Sidebar State
   leftSidebar: {
     isCollapsed: boolean;
     activeTab: LeftSidebarTab;
-    searchQuery: string;
   };
   
   // Right Sidebar State
@@ -19,14 +24,18 @@ type EditorUIStore = {
   // Fullscreen State
   isFullscreen: boolean;
   
+  // Canvas Preview State
+  canvasPreview: CanvasPreview;
+  
   // Actions
   setLeftSidebarCollapsed: (collapsed: boolean) => void;
   setLeftSidebarTab: (tab: LeftSidebarTab) => void;
-  setLeftSidebarSearchQuery: (query: string) => void;
   
   setRightSidebarCollapsed: (collapsed: boolean) => void;
   
   setFullscreen: (fullscreen: boolean) => void;
+  
+  setCanvasPreview: (preview: Partial<CanvasPreview>) => void;
   
   // Reset methods
   resetLeftSidebar: () => void;
@@ -36,11 +45,16 @@ type EditorUIStore = {
 const initialLeftSidebarState = {
   isCollapsed: false,
   activeTab: 'components' as LeftSidebarTab,
-  searchQuery: '',
 };
 
 const initialRightSidebarState = {
   isCollapsed: false,
+};
+
+const initialCanvasPreviewState: CanvasPreview = {
+  width: 0,
+  height: 0,
+  isResponsive: true,
 };
 
 export const useEditorUIStore = create<EditorUIStore>()(
@@ -49,6 +63,7 @@ export const useEditorUIStore = create<EditorUIStore>()(
       leftSidebar: initialLeftSidebarState,
       rightSidebar: initialRightSidebarState,
       isFullscreen: false,
+      canvasPreview: initialCanvasPreviewState,
       
       setLeftSidebarCollapsed: (collapsed: boolean) =>
         set((state) => ({
@@ -68,14 +83,6 @@ export const useEditorUIStore = create<EditorUIStore>()(
           },
         })),
       
-      setLeftSidebarSearchQuery: (query: string) =>
-        set((state) => ({
-          leftSidebar: {
-            ...state.leftSidebar,
-            searchQuery: query,
-          },
-        })),
-      
       setRightSidebarCollapsed: (collapsed: boolean) =>
         set((state) => ({
           rightSidebar: {
@@ -87,6 +94,14 @@ export const useEditorUIStore = create<EditorUIStore>()(
       setFullscreen: (fullscreen: boolean) =>
         set(() => ({
           isFullscreen: fullscreen,
+        })),
+      
+      setCanvasPreview: (preview: Partial<CanvasPreview>) =>
+        set((state) => ({
+          canvasPreview: {
+            ...state.canvasPreview,
+            ...preview,
+          },
         })),
       
       resetLeftSidebar: () =>
@@ -105,7 +120,6 @@ export const useEditorUIStore = create<EditorUIStore>()(
         leftSidebar: {
           isCollapsed: state.leftSidebar.isCollapsed,
           activeTab: state.leftSidebar.activeTab,
-          // Don't persist search query
         },
         rightSidebar: {
           isCollapsed: state.rightSidebar.isCollapsed,

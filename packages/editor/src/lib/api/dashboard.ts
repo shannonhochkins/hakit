@@ -78,7 +78,7 @@ export async function deleteDashboardPage({ id, pageId }: { id: DashboardWithPag
     },
   }), toastMessage);
 }
-
+// dashboard paths are unique between dashboards, so this is a safe request
 export async function getDashboardByPath(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":dashboardPath"].$get({
     param: {
@@ -86,7 +86,7 @@ export async function getDashboardByPath(dashboardPath: DashboardWithPageData['p
     }
   }), toastMessage);
 }
-
+// dashboard paths are unique between dashboards, so this is a safe request
 export async function getDashboardByPathWithData(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
   return await callApi(api.dashboard[":dashboardPath"].data.$get({
     param: {

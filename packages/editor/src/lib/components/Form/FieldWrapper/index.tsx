@@ -43,10 +43,10 @@ const Label = styled.fieldset`
   padding: 0;
   margin: 0;
   color: var(--color-gray-300);
+  background: transparent;
   &.collapsible {
     padding-top: 12px;
-    padding: 12px;
-    background-color: var(--color-gray-950);
+    cursor: pointer;
     color: var(--color-gray-200);
   }
   &.bp-mode-enabled {
@@ -69,7 +69,7 @@ const Field = styled.div`
   [class*='_ObjectField_'],
   [class*='_ArrayField_'],
   [class*='_ArrayFieldItem-summary'] {
-    background-color: var(--color-gray-500);
+    background-color: transparent;
   }
   // nested objects
   [class*='_ObjectField_']:has([class*='_ObjectField_']) {
@@ -191,6 +191,7 @@ export function FieldWrapper({
         description={description}
         icon={icon}
         readOnly={readOnly}
+        className={`puck-field-label ${!open && collapsible ? 'collapsed' : ''}`}
         endAdornment={<>
           {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
           {collapsible && (

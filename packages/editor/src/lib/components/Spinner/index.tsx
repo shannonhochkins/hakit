@@ -42,7 +42,7 @@ const SpinnerContainer = styled.div<SpinnerProps>`
   }
   > div {
     white-space: nowrap;
-    font-size: 0.75rem;
+    font-size: 1rem;
     position: absolute;
     top: 100%;
     left: 50%;

@@ -208,7 +208,7 @@ body.edit-mode body {
 }
 
 .MuiPaper-root.MuiPopover-paper.MuiMenu-paper {
-  background: var(--color-gray-500);
+  background: var(--color-gray-800);
 }
 
 body.edit-mode #root {

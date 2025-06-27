@@ -1,17 +1,9 @@
-import { memo, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { Config, Puck } from '@measured/puck';
 import { Column, Row } from '@hakit/components';
-import { OptionsSidebar } from '../../../components/OptionsSidebar';
-import { ViewportControls } from '../../../components/ViewportControls';
-import { PageSelector } from '../../../components/PageSelector';
 import { Preview } from './Preview';
-import createCache from '@emotion/cache';
-// import './puck-overrides.css';
-import { DashboardSelector } from '../../../components/DashboardSelector';
-import { Divider } from '@mui/material';
 import { Spinner } from '../../../components/Spinner';
-import { NavigationSidebar } from '../../../components/NavigationSidebar';
 import { Header } from './Header';
 import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
@@ -22,7 +14,6 @@ import { Toolbar } from './Preview/Toolbar';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
-
 
 export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
@@ -86,43 +77,7 @@ export function Editor() {
             <RightSidebar />
           </Row>
         </Column>
-        {/* <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' className='puck-editor-wrapper'>
-          <Row fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px' data-floating-panel-restriction>
-            <Column
-              fullWidth
-              fullHeight
-              alignItems='stretch'
-              justifyContent='stretch'
-              wrap='nowrap'
-              gap='0px'
-              style={{
-                flex: '1 1 0',
-                minWidth: 0,
-                opacity: emotionCache ? 1 : 0,
-              }}
-            >
-              <Row justifyContent='space-between' alignItems='center' gap='0px' style={{
-                padding: '0 var(--space-4)'
-              }}>
-                <Row gap="0.5rem">
-                  <Divider orientation="vertical" variant="middle" flexItem style={{
-                    borderColor: 'var(--color-gray-300)',
-                    marginLeft: 'var(--space-4)',
-                  }} />
-                  <PageSelector />
-                </Row>
-                <ViewportControls />
-              </Row>
-              <Preview />
-            </Column>
-            <OptionsSidebar />
-          </Row>
-        </Column> */}
       </Puck>
     </div>
   );
 }
-
-
-                  {/* <NavigationSidebar />
-                  <DashboardSelector /> */}

@@ -179,6 +179,7 @@ function mergeRootConfigurations(rootConfigs: Array<UserConfig['root'] & { _remo
                 puck: props.puck,
                 editMode: props.editMode,
               };
+              console.log('rendering root', rootConfig._remoteName || index, mergedProps);
               return (
                 <React.Fragment key={rootConfig._remoteName || index}>
                   {rootConfig.render(mergedProps as typeof props)}

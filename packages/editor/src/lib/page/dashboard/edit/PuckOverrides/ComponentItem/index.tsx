@@ -1,11 +1,11 @@
 import { PropsOf } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Column, Row } from '@hakit/components';
+import { splitComponentNameByRemote } from '@lib/helpers/components';
 import { Overrides } from '@measured/puck';
 import { GripIcon } from 'lucide-react';
 
-const ComponentItemWrapper = styled.div`
-  display: flex;
-  align-items: center;
+const ComponentItemWrapper = styled(Row)`
   gap: var(--space-3);
   padding: var(--space-2);
   background-color: var(--color-surface-elevated);
@@ -36,6 +36,11 @@ const ComponentName = styled.span`
   color: var(--color-text-primary);
 `;
 
+const RemoteName = styled.span`
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+`;
+
 
 // const ComponentThumbnail = styled.div`
 //   margin-left: auto;
@@ -55,12 +60,16 @@ export function ComponentItem({
   name,
   // children
 }: PropsOf<Overrides['componentItem']>) {
+  const { remoteName, componentName } = splitComponentNameByRemote(name);
   return (
-     <ComponentItemWrapper key={name} draggable>
+     <ComponentItemWrapper key={name} draggable wrap="nowrap" fullWidth alignItems='center' justifyContent='start'>
         <GripIconWrapper className="grip-icon">
-          <GripIcon size={12} />
+          <GripIcon size={20} />
         </GripIconWrapper>
-        <ComponentName>{name}</ComponentName>
+        <Column fullWidth alignItems='start' gap={0} justifyContent='start'>
+          <ComponentName>{componentName}</ComponentName>
+          {remoteName && <RemoteName>{remoteName}</RemoteName>}
+        </Column>
         {/* {component.thumbnail && (
           <ComponentThumbnail>
             <img src={component.thumbnail} alt={component.name} />

@@ -1,4 +1,4 @@
-import { BoxIcon, Layers2Icon, PanelLeftIcon, PanelRightIcon, SearchIcon } from "lucide-react";
+import { BoxIcon, Layers2Icon, PanelLeftIcon, PanelRightIcon } from "lucide-react";
 import styled from '@emotion/styled';
 import { Tabs, Tab } from '@mui/material';
 import { useEditorUIStore } from '@lib/hooks/useEditorUIStore';
@@ -85,44 +85,6 @@ const TabContent = styled.div`
   height: 100%;
 `;
 
-const SearchContainer = styled.div`
-  padding: var(--space-3);
-`;
-
-const SearchInputWrapper = styled.div`
-  position: relative;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: var(--space-2) var(--space-3) var(--space-2) 36px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  transition: all 0.2s ease;
-  
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary-500);
-    box-shadow: var(--shadow-primary-focus);
-  }
-`;
-
-const SearchIconStyled = styled(SearchIcon)`
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-muted);
-  pointer-events: none;
-`;
-
 const ComponentsList = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -144,20 +106,9 @@ export function LeftSidebar() {
     leftSidebar,
     setLeftSidebarCollapsed,
     setLeftSidebarTab,
-    setLeftSidebarSearchQuery,
   } = useEditorUIStore();
 
-  const { isCollapsed, activeTab, searchQuery } = leftSidebar;
-
-  // const filteredComponents = [
-  //   { id: '1', name: 'Button', icon: <button style={{ padding: '8px', backgroundColor: 'var(--color-primary-500)', color: 'white', borderRadius: '4px', border: 'none' }}>Button</button>, thumbnail: null },
-  //   { id: '2', name: 'Input', icon: <input type="text" style={{ padding: '8px', border: '1px solid var(--color-border)', borderRadius: '4px', backgroundColor: 'transparent', color: 'var(--color-text-primary)' }} placeholder="Input" />, thumbnail: null },
-  //   { id: '3', name: 'Card', icon: <div style={{ padding: '16px', backgroundColor: 'var(--color-surface-elevated)', borderRadius: '4px', fontSize: '12px', color: 'var(--color-text-primary)' }}>Card</div>, thumbnail: null },
-  //   { id: '4', name: 'Modal', icon: <div style={{ padding: '16px', backgroundColor: 'var(--color-surface-muted)', borderRadius: '4px', fontSize: '12px', color: 'var(--color-text-primary)' }}>Modal</div>, thumbnail: null },
-  //   { id: '5', name: 'Dropdown', icon: <div style={{ padding: '8px', backgroundColor: 'var(--color-gray-700)', color: 'white', borderRadius: '4px', fontSize: '12px' }}>Dropdown</div>, thumbnail: null },
-  // ].filter(component => 
-  //   component.name.toLowerCase().includes((searchQuery || '').toLowerCase())
-  // );
+  const { isCollapsed, activeTab } = leftSidebar;
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
     setLeftSidebarTab(newValue as 'components' | 'outline');
@@ -220,17 +171,6 @@ export function LeftSidebar() {
 
           {activeTab === 'components' && (
             <TabContent>
-              <SearchContainer>
-                <SearchInputWrapper>
-                  <SearchIconStyled size={16} />
-                  <SearchInput
-                    type="text"
-                    placeholder="Search components..."
-                    value={searchQuery}
-                    onChange={(e) => setLeftSidebarSearchQuery(e.target.value)}
-                  />
-                </SearchInputWrapper>
-              </SearchContainer>
               <ComponentsList>
                 <Puck.Components />
               </ComponentsList>

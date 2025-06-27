@@ -7,6 +7,7 @@ import { Redo } from "./Redo";
 import { Save } from "./Save";
 import { SaveAndPreview } from "./Save/saveAndPreview";
 import { IconButton } from "@lib/page/shared/Button/IconButton";
+import { PageSelector } from "./PageSelector";
 
 // Styled Components
 const StyledHeader = styled.header<{ $hidden?: boolean }>`
@@ -31,42 +32,6 @@ const PageControls = styled.div`
   gap: var(--space-2);
 `;
 
-const PageSelect = styled.select`
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    border-color: var(--color-border-hover);
-  }
-  
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary-500);
-    box-shadow: var(--shadow-primary-focus);
-  }
-`;
-
-const AddPageButton = styled.button`
-  padding: var(--space-1);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
-`;
-
 const HeaderRight = styled.div`
   display: flex;
   align-items: center;
@@ -83,12 +48,6 @@ const UndoRedoGroup = styled.div`
 export function Header() {
   const navigate = useNavigate();
   const { isFullscreen } = useEditorUIStore();
-  
-  const pages = [
-    { id: 'page1', name: 'Page 1' },
-    { id: 'page2', name: 'Page 2' },
-    { id: 'page3', name: 'Page 3' },
-  ];
 
   function handleBackToDashboards() {
     navigate({
@@ -97,22 +56,24 @@ export function Header() {
     });
   }
 
-
   return (
     <StyledHeader $hidden={isFullscreen}>
       <HeaderLeft>
-        <IconButton icon={<ArrowLeftIcon size={18} />} onClick={handleBackToDashboards} aria-label="Back to dashboards" />
+        <IconButton
+          variant="transparent"
+          icon={<ArrowLeftIcon size={18} />}
+          onClick={handleBackToDashboards}
+          tooltipProps={{ placement: 'right' }}
+          aria-label="Back to dashboards" />
         <PageControls>
-          <PageSelect>
-            {pages.map(page => (
-              <option key={page.id} value={page.id}>
-                {page.name}
-              </option>
-            ))}
-          </PageSelect>
-          <AddPageButton aria-label="Add new page">
-            <PlusIcon size={16} />
-          </AddPageButton>
+          <PageSelector />
+          <IconButton
+            variant="transparent"
+            tooltipProps={{
+              placement: 'right'
+            }}
+            icon={<PlusIcon size={16} />}
+            aria-label="BAdd new page" />
         </PageControls>
       </HeaderLeft>
       

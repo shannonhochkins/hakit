@@ -6,6 +6,7 @@ import { HassModal } from '@lib/components/Dashboard/HassModal';
 import { HassConnect } from "@hakit/core";
 import { useEffect } from "react";
 import { useAuthButtonState } from "@lib/hooks/useAuthButtonState";
+import { Spinner } from "@lib/components/Spinner";
 
 
 const Login = () => {
@@ -46,7 +47,10 @@ const Component = () => {
     return <HassModal />
   }
 
-  return <HassConnect hassUrl={hassUrl} hassToken={hassToken}>
+  return <HassConnect
+    loading={<Spinner absolute text="Connecting to Home Assistant" />}
+    hassUrl={hassUrl}
+    hassToken={hassToken}>
     <Outlet />
   </HassConnect>
 };

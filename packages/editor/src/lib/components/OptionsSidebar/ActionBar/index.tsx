@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
-import { Undo } from '@lib/components/IconButtons/Undo';
-import { Redo } from '@lib/components/IconButtons/Redo';
-import { Save } from '@lib/components/IconButtons/Save';
-import { SaveAndPreview } from '@lib/components/IconButtons/Save/saveAndPreview';
+import { Undo } from '@lib/page/dashboard/edit/Header/Undo';
+import { Redo } from '@lib/page/dashboard/edit/Header/Redo';
+import { Save } from '@lib/page/dashboard/edit/Header/Save';
+import { SaveAndPreview } from '@lib/page/dashboard/edit/Header/Save/saveAndPreview';
 
 const ActionBarWrapper = styled.div`
   border-bottom: 3px solid var(--color-gray-400);

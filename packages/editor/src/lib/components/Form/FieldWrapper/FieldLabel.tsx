@@ -11,6 +11,10 @@ const LabelContainer = styled.span`
   font-weight: var(--font-weight-medium);
   padding: 0;
   color: var(--color-text-primary);
+  &.collapsed {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-gray-800);
+  }
 `;
 
 const LabelIcon = styled.div`
