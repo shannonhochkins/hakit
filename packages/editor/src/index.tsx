@@ -156,6 +156,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           --shadow-primary-focus: 0 0 0 3px rgba(59, 130, 246, 0.4);
           
           /* === TYPOGRAPHY === */
+          --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
           /* Font Sizes */
           --font-size-xs: 0.75rem;     /* 12px */
           --font-size-sm: 0.875rem;    /* 14px */
@@ -240,7 +241,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         
         /* Base styles for consistent typography */
         body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+          font-family: var(--font-family);
           color: var(--color-text-primary);
           background-color: var(--color-gray-950);
         }

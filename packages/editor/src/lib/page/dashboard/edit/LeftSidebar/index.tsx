@@ -18,6 +18,7 @@ const CollapsedSidebar = styled.div`
 const ExpandedSidebar = styled.div`
   width: 256px;
   flex-shrink: 0;
+  flex-grow: 0;
   background-color: var(--color-gray-900);
   border-right: 1px solid var(--color-border);
   display: flex;

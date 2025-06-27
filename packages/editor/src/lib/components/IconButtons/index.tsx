@@ -12,7 +12,7 @@ export const IconButton = styled.button`
   justify-content: center;
   padding: 0.25rem;
   border-radius: 0.25rem;
-  font-family: var(--puck-font-family);
+  font-family: var(--font-family);
   cursor: pointer;
   transition:
     background-color var(--transition-normal),

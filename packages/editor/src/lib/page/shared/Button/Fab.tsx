@@ -15,6 +15,8 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'transparent';
   /** Whether the FAB should pulse to draw attention */
   pulse?: boolean;
+  /** Custom border radius for the FAB */
+  borderRadius?: string;
   /** Whether the FAB is in a loading state */
   loading?: boolean;
   /** Position variant for floating placement */
@@ -166,7 +168,7 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: ${props => props.borderRadius || '50%'};
   cursor: pointer;
   font-family: inherit;
   font-weight: var(--font-weight-medium);

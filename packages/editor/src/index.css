@@ -84,7 +84,54 @@
   /* Map semantic colors to design system (inverted for dark theme) */
   --puck-color-black: var(--color-gray-950);
   --puck-color-white: var(--color-text-primary);
+  
+  /* === TYPOGRAPHY MAPPINGS === */
+  /* Map Puck font sizes to design system */
+  --puck-font-size-scale-base-unitless: 12;
+  --puck-font-size-xxxs-unitless: 12;
+  --puck-font-size-xxs-unitless: 14;
+  --puck-font-size-xs-unitless: 16;
+  --puck-font-size-s-unitless: 18;
+  --puck-font-size-m-unitless: 20;
+  --puck-font-size-l-unitless: 24;
+  --puck-font-size-xl-unitless: 30;
+  --puck-font-size-xxl-unitless: 36;
+  --puck-font-size-xxxl-unitless: 48;
+  --puck-font-size-xxxxl-unitless: 60;
+
+  /* Map Puck descriptive font sizes to design system */
+  --puck-font-size-xxxs: var(--font-size-xs);    /* 12px */
+  --puck-font-size-xxs: var(--font-size-sm);     /* 14px */
+  --puck-font-size-xs: var(--font-size-base);    /* 16px */
+  --puck-font-size-s: var(--font-size-lg);       /* 18px */
+  --puck-font-size-m: var(--font-size-xl);       /* 20px */
+  --puck-font-size-l: var(--font-size-2xl);      /* 24px */
+  --puck-font-size-xl: var(--font-size-3xl);     /* 30px */
+  --puck-font-size-xxl: var(--font-size-4xl);    /* 36px */
+  --puck-font-size-xxxl: var(--font-size-5xl);   /* 48px */
+  --puck-font-size-xxxxl: var(--font-size-6xl);  /* 60px */
+
+  /* Map Puck functional font sizes */
+  --puck-font-size-base: var(--font-size-base);
+
+  /* Map Puck line heights to design system */
+  --line-height-reset: 1;
+  --line-height-xs: var(--line-height-tight);
+  --line-height-s: var(--line-height-tight);
+  --line-height-m: var(--line-height-normal);
+  --line-height-l: var(--line-height-normal);
+  --line-height-xl: var(--line-height-relaxed);
+
+  /* Map Puck functional line heights */
+  --line-height-base: var(--line-height-normal);
+
+  /* Map Puck font families to design system */
+  --fallback-font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   --puck-font-family: inherit;
+  --puck-font-family-monospaced: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  
+  /* Map Puck spacing to design system */
+  --space-m-unitless: 24;
 
 }
 
