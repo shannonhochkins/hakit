@@ -6,11 +6,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import '@measured/puck/puck.css';
 import './index.css';
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { ToastContainer } from 'react-toastify';
-import '@measured/puck/puck.css';
-import './puck-overrides.css';
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -231,6 +230,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           --z-modal: 1050;
           --z-popover: 1060;
           --z-tooltip: 1070;
+
+          --header-height: var(--space-16);
         }
         
         #root {

@@ -1,4 +1,4 @@
-import { Row } from '@lib/page/shared/Layout';
+import { Row } from '@hakit/components';
 import { PrimaryButton, SecondaryButton } from '@lib/page/shared/Button';
 import { Modal } from './Modal';
 import styled from '@emotion/styled';

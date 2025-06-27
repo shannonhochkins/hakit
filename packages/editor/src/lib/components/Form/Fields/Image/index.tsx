@@ -24,8 +24,6 @@ const FileInput = styled.input`
 `;
 
 const ErrorMessage = styled(Alert)`
-  --ha-error-color: var(--error-color);
-  --ha-error-color-a1: var(--error-color-alpha);
   color: var(--color-text-primary);
 `;
 

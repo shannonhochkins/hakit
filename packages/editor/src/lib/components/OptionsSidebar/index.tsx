@@ -47,7 +47,7 @@ const ResizeHandle = styled.div`
     border-radius: 7px;
     left: 0;
     z-index: 13;
-    transition: background-color var(--transition-duration) var(--easing);
+    transition: background-color var(--transition-normal);
     &:hover,
     &:active {
       .resize-handle {
@@ -61,7 +61,7 @@ const ResizeHandle = styled.div`
     transform: translate(0%, -50%);
     left: 0px;
     color: var(--puck-color-grey-03);
-    transition: color var(--transition-duration) var(--easing);
+    transition: color var(--transition-normal);
   }
 `;
 

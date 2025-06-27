@@ -80,8 +80,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const root: UserConfig['root'] = {
     ...rootConfig,
     render(props) {
-      console.log('props', props);
-      return rootConfig?.render?.(props) ?? null;
+      return <>{rootConfig?.render?.(props) ?? null}</>;
     }
   }
   const config: UserConfig = {

@@ -7,7 +7,7 @@ const SliderWrapper = styled(RangeSlider)`
 
     &::-webkit-slider-thumb {
       background: var(--puck-color-grey-05) !important;
-      transition: background var(--transition-duration) var(--easing) !important;
+      transition: background var(--transition-normal) !important;
       &:hover {
         background: var(--puck-color-azure-05) !important;
       }
@@ -19,7 +19,7 @@ const SliderWrapper = styled(RangeSlider)`
 
     &::-moz-range-thumb {
       background: var(--puck-color-grey-05) !important;
-      transition: background var(--transition-duration) var(--easing) !important;
+      transition: background var(--transition-normal) !important;
       &:hover {
         background: var(--puck-color-azure-05) !important;
       }

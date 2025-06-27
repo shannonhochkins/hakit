@@ -46,7 +46,7 @@ const TabButton = styled.button`
   box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
   outline: none;
   transform: scale(1) translate3d(0, 0, 0);
-  transition: var(--transition-duration) var(--easing);
+  transition: var(--transition-normal);
   transition-property: background-color, background-image;
   background-color: transparent;
   padding: 1rem;

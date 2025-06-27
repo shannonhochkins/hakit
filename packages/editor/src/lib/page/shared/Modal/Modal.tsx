@@ -1,4 +1,4 @@
-import { Column, Row } from '@lib/page/shared/Layout';
+import { Column, Row } from '@hakit/components';
 import { Fab } from '@lib/page/shared/Button';
 import styled from '@emotion/styled';
 import { Fragment, ReactNode, useCallback, useEffect, useId, useRef } from 'react';

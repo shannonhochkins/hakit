@@ -34,7 +34,7 @@ const ListItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition:var(--ha-transition-duration) var(--ha-easing);
+  transition:var(--transition-normal);
   transition-property: background-color, color, border-color;
   flex-wrap: nowrap;
   border-radius: 4px;

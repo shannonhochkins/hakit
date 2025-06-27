@@ -1,7 +1,7 @@
+import { PropsOf } from '@emotion/react';
 import styled from '@emotion/styled';
 import { Overrides } from '@measured/puck';
 import { GripIcon } from 'lucide-react';
-import { PropsOf } from '../Plugins/types';
 
 const ComponentItemWrapper = styled.div`
   display: flex;
@@ -37,23 +37,23 @@ const ComponentName = styled.span`
 `;
 
 
-const ComponentThumbnail = styled.div`
-  margin-left: auto;
-  width: 40px;
-  height: 24px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+// const ComponentThumbnail = styled.div`
+//   margin-left: auto;
+//   width: 40px;
+//   height: 24px;
+//   border-radius: var(--radius-sm);
+//   overflow: hidden;
   
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
+//   img {
+//     width: 100%;
+//     height: 100%;
+//     object-fit: cover;
+//   }
+// `;
 
 export function ComponentItem({
   name,
-  children
+  // children
 }: PropsOf<Overrides['componentItem']>) {
   return (
      <ComponentItemWrapper key={name} draggable>

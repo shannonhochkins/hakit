@@ -24,7 +24,7 @@ const CardContainer = styled.div<React.ComponentPropsWithoutRef<'div'>>`
   flex-direction: column;
   align-items: center;
   transform: scale(1) translate3d(0, 0, 0);
-  transition: var(--ha-transition-duration) var(--ha-easing);
+  transition: var(--transition-normal);
   transition-property: transform, background-color, background-image;
   &:hover, &:focus {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);

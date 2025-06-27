@@ -170,6 +170,7 @@ export function createComponent<
           return {
             ...rest,
             dragRef: puck.dragRef,
+            renderDropZone: puck.renderDropZone,
             hakit: {
               data,
               editorFrame,

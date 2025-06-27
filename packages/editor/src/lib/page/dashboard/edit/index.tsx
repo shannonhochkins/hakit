@@ -5,7 +5,7 @@ import { Column, Row } from '@hakit/components';
 import { OptionsSidebar } from '../../../components/OptionsSidebar';
 import { ViewportControls } from '../../../components/ViewportControls';
 import { PageSelector } from '../../../components/PageSelector';
-import { Preview } from '../../../components/Preview';
+import { Preview } from './Preview';
 import createCache from '@emotion/cache';
 // import './puck-overrides.css';
 import { DashboardSelector } from '../../../components/DashboardSelector';
@@ -19,18 +19,7 @@ import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 
 
-
-
-const MyPlugin = {
-  overrides: {
-    // eslint-disable-next-line react/display-name
-    components: memo(({ children }) => (
-      <div style={{ backgroundColor: "hotpink" }}>{children}</div>
-    )),
-  },
-};
-
-const emotionCachePlugin = createEmotionCachePlugin('hakit');
+const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
 
 
@@ -46,49 +35,6 @@ export function Editor() {
   useEffect(() => {
     setEditorMode(true);
   }, [setEditorMode]);
-
-  // useEffect(() => {
-  //   const handleIframe = (iframe: HTMLIFrameElement) => {
-  //     const applyCache = () => {
-  //       const head = iframe.contentWindow?.document?.head;
-  //       if (head) {
-  //         setEmotionCache(createCache({
-  //           key: 'hakit-editor',
-  //           container: head,
-  //         }));
-  //       }
-  //     };
-
-  //     // If already loaded
-  //     if (iframe.contentWindow?.document?.readyState === 'complete') {
-  //       applyCache();
-  //     } else {
-  //       iframe.addEventListener('load', applyCache, { once: true });
-  //     }
-  //   };
-
-  //   const checkAndBind = () => {
-  //     const iframe = document.querySelector('iframe#preview-frame') as HTMLIFrameElement | null;
-  //     if (iframe) handleIframe(iframe);
-  //   };
-
-  //   // Initial check
-  //   checkAndBind();
-
-  //   // Observe DOM changes to catch future iframe insertions
-  //   observerRef.current = new MutationObserver(() => {
-  //     checkAndBind();
-  //   });
-
-  //   observerRef.current.observe(document.body, {
-  //     childList: true,
-  //     subtree: true,
-  //   });
-
-  //   return () => {
-  //     observerRef.current?.disconnect();
-  //   };
-  // }, [setEmotionCache]);
 
   if (!userConfig) {
     return <Spinner absolute text="Loading user data" />;
@@ -118,20 +64,14 @@ export function Editor() {
           waitForStyles: false,
         }}
         plugins={[emotionCachePlugin, overridesPlugin]}
-        // overrides={{
-          // componentItem: ({ name }) => <div>asdf{name}</div>,
-          // actionBar: () => {
-          //   return <></>;
-          // },
-        // }}
         dnd={{
           disableAutoScroll: false,
         }}
         config={userConfig as Config}
         data={puckPageData}
       >
-        <Header />
         <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' className='puck-editor-wrapper'>
+          <Header />
           <Row fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px' style={{
             flex: '1 1 0',
             minWidth: 0,

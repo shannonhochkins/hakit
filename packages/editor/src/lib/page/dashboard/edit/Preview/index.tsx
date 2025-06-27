@@ -5,9 +5,9 @@ import styled from '@emotion/styled';
 const CanvasWrapper = styled(Row)`
   width: 100%;
   max-width: 100%;
-  margin: var(--space-4);
-  outline: 2px dashed var(--puck-color-grey-06);
-  outline-offset: 2px;
+  padding: var(--space-4);
+  /* outline: 2px dashed var(--puck-color-grey-06); */
+  /* outline-offset: 2px; */
   border-radius: 4px;
 `;
 

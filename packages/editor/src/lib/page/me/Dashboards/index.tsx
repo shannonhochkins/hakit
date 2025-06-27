@@ -9,7 +9,7 @@ import { EmptyState } from '../shared/EmptyState';
 import { DashboardForm } from './DashboardForm';
 import { PageForm } from './PageForm';
 import { Confirm } from '@lib/page/shared/Modal/confirm';
-import { Column, Row } from '@lib/page/shared/Layout';
+import { Column, Row } from '@hakit/components';
 import { toReadableDate } from '@lib/page/shared/helpers';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
