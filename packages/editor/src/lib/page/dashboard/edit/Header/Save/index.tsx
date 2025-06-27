@@ -38,6 +38,9 @@ export function Save() {
         }}
       >
         <SaveIcon size={21} />
+        <span style={{
+          lineHeight: '21px',
+        }}>SAVE</span>
       </ProgressButton>
     </>
   );

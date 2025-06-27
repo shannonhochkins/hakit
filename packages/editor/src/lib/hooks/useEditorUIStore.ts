@@ -16,12 +16,17 @@ type EditorUIStore = {
     isCollapsed: boolean;
   };
   
+  // Fullscreen State
+  isFullscreen: boolean;
+  
   // Actions
   setLeftSidebarCollapsed: (collapsed: boolean) => void;
   setLeftSidebarTab: (tab: LeftSidebarTab) => void;
   setLeftSidebarSearchQuery: (query: string) => void;
   
   setRightSidebarCollapsed: (collapsed: boolean) => void;
+  
+  setFullscreen: (fullscreen: boolean) => void;
   
   // Reset methods
   resetLeftSidebar: () => void;
@@ -43,6 +48,7 @@ export const useEditorUIStore = create<EditorUIStore>()(
     (set) => ({
       leftSidebar: initialLeftSidebarState,
       rightSidebar: initialRightSidebarState,
+      isFullscreen: false,
       
       setLeftSidebarCollapsed: (collapsed: boolean) =>
         set((state) => ({
@@ -78,6 +84,11 @@ export const useEditorUIStore = create<EditorUIStore>()(
           },
         })),
       
+      setFullscreen: (fullscreen: boolean) =>
+        set(() => ({
+          isFullscreen: fullscreen,
+        })),
+      
       resetLeftSidebar: () =>
         set(() => ({
           leftSidebar: initialLeftSidebarState,
@@ -99,6 +110,7 @@ export const useEditorUIStore = create<EditorUIStore>()(
         rightSidebar: {
           isCollapsed: state.rightSidebar.isCollapsed,
         },
+        // Don't persist fullscreen state - should reset on page load
       }),
       merge: (persistedState, currentState) => ({
         ...currentState,
@@ -111,6 +123,8 @@ export const useEditorUIStore = create<EditorUIStore>()(
           ...initialRightSidebarState,
           ...(persistedState as Partial<EditorUIStore>)?.rightSidebar,
         },
+        // Always reset fullscreen to false on load
+        isFullscreen: false,
       }),
     }
   )

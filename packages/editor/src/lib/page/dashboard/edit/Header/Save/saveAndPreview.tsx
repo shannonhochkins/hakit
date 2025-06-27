@@ -41,7 +41,7 @@ export function SaveAndPreview() {
         onClick={() => {
           return save().then(() => {
             navigate({
-              to: '/me/$dashboardPath/$pagePath',
+              to: '/dashboard/$dashboardPath/$pagePath',
               params: {
                 dashboardPath: params.dashboardPath,
                 pagePath: params.pagePath
@@ -51,6 +51,9 @@ export function SaveAndPreview() {
         }}
       >
         <SaveIcon size={21} />
+        <span style={{
+          lineHeight: '21px',
+        }}>SAVE & PREVIEW</span>
       </ProgressButton>
     </>
   );

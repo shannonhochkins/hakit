@@ -1,8 +1,8 @@
 import { Puck } from '@measured/puck';
-import { Row } from '@hakit/components';
+import { Column } from '@hakit/components';
 import styled from '@emotion/styled';
 
-const CanvasWrapper = styled(Row)`
+const CanvasWrapper = styled(Column)`
   width: 100%;
   max-width: 100%;
   padding: var(--space-4);

@@ -25,6 +25,8 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   'aria-label': string;
   /** override the tooltip props */
   tooltipProps?: Partial<TooltipProps>;
+  /** if the button should appear active */
+  active?: boolean;
 }
 
 const getFabSize = (size: 'sm' | 'md' | 'lg') => {
@@ -114,13 +116,17 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
           background: var(--color-gray-700);
         }
       }
+      &.active {
+        background-color: var(--color-gray-700);
+        color: var(--color-text-primary);
+      }
     `;
   }
 
   if (variant === 'transparent') {
     return css`
       background: transparent;
-      color: var(--color-text-primary);
+      color: var(--color-text-muted);
       border: none;
       box-shadow: none;
       
@@ -136,6 +142,9 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
         &::before {
           background: rgba(255, 255, 255, 0.2);
         }
+      }
+      &.active {
+        color: var(--color-text-primary);
       }
     `;
   }
@@ -158,6 +167,10 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
       &::before {
         background: var(--gradient-primary-active);
       }
+    }
+    &.active {
+      background-color: var(--color-primary-600);
+      color: var(--color-text-primary);
     }
   `;
 };
@@ -310,6 +323,8 @@ export const Fab: React.FC<FabProps> = ({
   pulse = false,
   children,
   tooltipProps = {},
+  active,
+  className,
   ...props 
 }) => {
   console.log('props', props);
@@ -322,6 +337,8 @@ export const Fab: React.FC<FabProps> = ({
         pulse={pulse && !loading}
         loading={loading}
         disabled={disabled || loading}
+        active={active}
+        className={`${className || ''} ${active ? 'active' : ''}`}
         {...props}
       >
         {loading ? null : icon}

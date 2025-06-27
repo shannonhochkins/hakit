@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Tabs, Tab } from '@mui/material';
 import { useEditorUIStore } from '@lib/hooks/useEditorUIStore';
 import { Puck } from "@measured/puck";
+import { IconButton } from "@lib/page/shared/Button/IconButton";
 
 const CollapsedSidebar = styled.div`
   width: 40px;
@@ -25,20 +26,7 @@ const ExpandedSidebar = styled.div`
   flex-direction: column;
 `;
 
-const IconButton = styled.button<{ isActive?: boolean }>`
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  color: ${props => props.isActive ? 'var(--color-text-primary)' : 'var(--color-text-muted)'};
-  background-color: ${props => props.isActive ? 'var(--color-primary-600)' : 'transparent'};
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: ${props => props.isActive ? 'var(--color-primary-600)' : 'var(--color-border)'};
-  }
-`;
+
 
 const CollapsedIconContainer = styled.div`
   margin-top: var(--space-4);
@@ -53,6 +41,9 @@ const SidebarHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--color-border);
+  height: var(--header-height);
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 const StyledTabs = styled(Tabs)`
@@ -87,21 +78,6 @@ const StyledTabs = styled(Tabs)`
   }
 `;
 
-const CollapseButton = styled.button`
-  padding: var(--space-2);
-  margin-right: var(--space-1);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
-`;
 
 const TabContent = styled.div`
   display: flex;
@@ -193,31 +169,34 @@ export function LeftSidebar() {
         <CollapsedSidebar>
           <IconButton 
             onClick={() => setLeftSidebarCollapsed(false)} 
-            title="Expand sidebar"
-          >
-            <PanelRightIcon size={18} />
-          </IconButton>
+            aria-label="Expand sidebar"
+            variant="transparent"
+            icon={<PanelRightIcon size={18} />}
+          />
+            
           <CollapsedIconContainer>
             <IconButton
-              isActive={activeTab === 'components'}
+              variant="transparent"
+              active={activeTab === 'components'}
               onClick={() => {
                 setLeftSidebarCollapsed(false);
                 setLeftSidebarTab('components');
               }}
-              title="Components"
+              aria-label="Components"
+              icon={<BoxIcon size={18} />}
             >
-              <BoxIcon size={18} />
+              
             </IconButton>
             <IconButton
-              isActive={activeTab === 'outline'}
+              variant="transparent"
+              active={activeTab === 'outline'}
               onClick={() => {
                 setLeftSidebarCollapsed(false);
                 setLeftSidebarTab('outline');
               }}
-              title="Outline"
-            >
-              <Layers2Icon size={18} />
-            </IconButton>
+              aria-label="Outline"
+              icon={<Layers2Icon size={18} />}
+            />
           </CollapsedIconContainer>
         </CollapsedSidebar>
       ) : (
@@ -231,12 +210,12 @@ export function LeftSidebar() {
               <Tab label="Components" value="components" />
               <Tab label="Outline" value="outline" />
             </StyledTabs>
-            <CollapseButton
+            <IconButton
+              variant="transparent"
+              icon={<PanelLeftIcon size={16} />}
               onClick={() => setLeftSidebarCollapsed(true)}
-              title="Collapse sidebar"
-            >
-              <PanelLeftIcon size={16} />
-            </CollapseButton>
+              aria-label="Collapse sidebar"
+            />
           </SidebarHeader>
 
           {activeTab === 'components' && (

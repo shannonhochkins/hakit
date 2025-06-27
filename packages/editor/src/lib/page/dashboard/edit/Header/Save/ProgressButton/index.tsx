@@ -1,8 +1,8 @@
 import React, { ReactNode, useCallback, useState } from 'react';
 import styled from '@emotion/styled';
 import { Check, AlertOctagon, Loader2 } from 'lucide-react';
-import { IconButton } from '@lib/components/IconButtons';
-import { Tooltip } from '@lib/components/Tooltip';
+import { PrimaryButton } from '@lib/page/shared/Button';
+import { Row } from '@hakit/components';
 
 interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
   /** Disables the button, preventing clicks. */
@@ -20,6 +20,9 @@ const Container = styled.div`
   display: inline-block;
   position: relative;
   outline: none;
+  .hidden {
+    opacity: 0;
+  }
 `;
 
 const ProgressOverlay = styled.div`
@@ -29,6 +32,9 @@ const ProgressOverlay = styled.div`
   width: 100%;
   text-align: center;
   pointer-events: none; /* don't block clicks over the overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   svg {
     width: 1.25em;
@@ -80,11 +86,9 @@ export function ProgressButton({ disabled = false, onClick, children, title, ...
 
   return (
     <Container {...rest}>
-      <Tooltip title={title} placement='left'>
-        <IconButton disabled={disabled || progress} onClick={handleClick}>
-          <span className={result ? 'hidden' : ''}>{children}</span>
-        </IconButton>
-      </Tooltip>
+      <PrimaryButton aria-label={title || ''} disabled={disabled || progress} onClick={handleClick}>
+        <Row className={result ? 'hidden' : ''} gap="var(--space-1)">{children}</Row>
+      </PrimaryButton>
 
       {overlay && (
         <ProgressOverlay>

@@ -17,6 +17,7 @@ import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
+import { Toolbar } from './Preview/Toolbar';
 
 
 const emotionCachePlugin = createEmotionCachePlugin();
@@ -78,7 +79,10 @@ export function Editor() {
             opacity: emotionCache ? 1 : 0,
           }}>
             <LeftSidebar />
-            <Preview />
+            <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
+              <Toolbar />
+              <Preview />
+            </Column>
             <RightSidebar />
           </Row>
         </Column>

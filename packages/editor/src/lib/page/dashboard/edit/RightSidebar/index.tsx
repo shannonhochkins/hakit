@@ -5,8 +5,7 @@ import { Puck, createUsePuck } from '@measured/puck';
 import { usePuckSelectedItem } from '@lib/hooks/usePuckSelectedItem';
 import { useCallback } from 'react';
 import { X } from 'lucide-react';
-import { Tooltip } from '@lib/components/Tooltip';
-import { Fab } from "@lib/page/shared/Button";
+import { IconButton } from "@lib/page/shared/Button/IconButton";
 
 const usePuck = createUsePuck();
 
@@ -31,22 +30,6 @@ const ExpandedSidebar = styled.div`
   flex-direction: column;
 `;
 
-const IconButton = styled.button`
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
-`;
-
-
 const SidebarHeader = styled.div`
   padding: var(--space-3);
   border-bottom: 1px solid var(--color-border);
@@ -54,6 +37,9 @@ const SidebarHeader = styled.div`
   align-items: center;
   justify-content: flex-start;
   gap: var(--space-2);
+  height: var(--header-height);
+  flex-grow: 0;
+  flex-shrink: 0;
 `;
 
 const SidebarTitle = styled.h3`
@@ -95,10 +81,9 @@ export function RightSidebar() {
     <>
       {isCollapsed ? (
         <CollapsedSidebar>
-          <Fab 
+          <IconButton
+            variant="transparent"
             onClick={() => setRightSidebarCollapsed(false)} 
-            size="sm"
-            borderRadius="var(--radius-md)"            variant="transparent"
             icon={<PanelLeftIcon size={18} />}
             aria-label="Expand properties"
           />
@@ -106,22 +91,18 @@ export function RightSidebar() {
       ) : (
         <ExpandedSidebar>
           <SidebarHeader>
-            <Fab 
-              onClick={() => setRightSidebarCollapsed(true)} 
-              size="sm"
-              borderRadius="var(--radius-md)"
+            <IconButton
               variant="transparent"
+              onClick={() => setRightSidebarCollapsed(true)} 
               icon={<PanelRightIcon size={16} />}
               aria-label="Collapse properties"
             />
             <SidebarTitle>
               {tabHeading}
               {selectedItem && (
-                <Tooltip title="Deselect Component" placement="left">
-                  <IconButton onClick={deselect}>
-                    <X size={16} />   
-                  </IconButton>
-                </Tooltip>
+                <IconButton onClick={deselect} icon={<X size={16} />} aria-label="Deselect Component" tooltipProps={{
+                  placement: 'left'
+                }}  />
               )}
             </SidebarTitle>
           </SidebarHeader>

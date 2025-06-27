@@ -1,13 +1,19 @@
-import { useNavigate, useParams } from "@tanstack/react-router"
-import { ArrowLeftIcon, ExternalLinkIcon, PlusIcon, RedoIcon, SaveIcon, UndoIcon } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router"
+import { ArrowLeftIcon, PlusIcon } from "lucide-react";
 import styled from '@emotion/styled';
+import { useEditorUIStore } from '@lib/hooks/useEditorUIStore';
+import { Undo } from "./Undo";
+import { Redo } from "./Redo";
+import { Save } from "./Save";
+import { SaveAndPreview } from "./Save/saveAndPreview";
+import { IconButton } from "@lib/page/shared/Button/IconButton";
 
 // Styled Components
-const StyledHeader = styled.header`
+const StyledHeader = styled.header<{ $hidden?: boolean }>`
   background-color: var(--color-gray-900);
   border-bottom: 1px solid var(--color-border);
   padding: 0 var(--space-4);
-  display: flex;
+  display: ${props => props.$hidden ? 'none' : 'flex'};
   align-items: center;
   justify-content: space-between;
   height: var(--header-height);
@@ -17,21 +23,6 @@ const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   gap: var(--space-3);
-`;
-
-const BackButton = styled.button`
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
 `;
 
 const PageControls = styled.div`
@@ -85,89 +76,19 @@ const HeaderRight = styled.div`
 const UndoRedoGroup = styled.div`
   display: flex;
   align-items: center;
-  background-color: var(--color-surface-elevated);
   border-radius: var(--radius-md);
-`;
-
-const UndoRedoButton = styled.button<{ position: 'left' | 'right' }>`
-  padding: var(--space-2);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: ${props => props.position === 'left' ? 'var(--radius-md) 0 0 var(--radius-md)' : '0 var(--radius-md) var(--radius-md) 0'};
-  
-  &:hover {
-    color: var(--color-text-primary);
-  }
-  
-  &:disabled {
-    color: var(--color-text-disabled);
-    cursor: not-allowed;
-  }
-`;
-
-const SaveButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  background: var(--gradient-primary);
-  color: var(--color-text-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-primary-base);
-  
-  &:hover {
-    background: var(--gradient-primary-hover);
-    box-shadow: var(--shadow-primary-hover);
-  }
-  
-  &:active {
-    background: var(--gradient-primary-active);
-    box-shadow: var(--shadow-primary-active);
-  }
-`;
-
-const ViewButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  background-color: var(--color-success-600);
-  color: var(--color-text-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: var(--color-success-700);
-  }
-  
-  &:active {
-    background-color: var(--color-success-800);
-  }
+  gap: var(--space-2);
 `;
 
 export function Header() {
   const navigate = useNavigate();
+  const { isFullscreen } = useEditorUIStore();
+  
   const pages = [
     { id: 'page1', name: 'Page 1' },
     { id: 'page2', name: 'Page 2' },
     { id: 'page3', name: 'Page 3' },
   ];
-  const editorParams = useParams({
-      from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit',
-      shouldThrow: false,
-  });
 
   function handleBackToDashboards() {
     navigate({
@@ -176,24 +97,11 @@ export function Header() {
     });
   }
 
-  function handleViewDashboard() {
-    if (!editorParams) return;
-    navigate({
-      to: '/dashboard/$dashboardPath/$pagePath',
-      replace: true,
-      params: {
-        dashboardPath: editorParams?.dashboardPath,
-        pagePath: editorParams?.pagePath,
-      },
-    });
-  }
 
   return (
-    <StyledHeader>
+    <StyledHeader $hidden={isFullscreen}>
       <HeaderLeft>
-        <BackButton onClick={handleBackToDashboards} aria-label="Back to dashboards">
-          <ArrowLeftIcon size={18} />
-        </BackButton>
+        <IconButton icon={<ArrowLeftIcon size={18} />} onClick={handleBackToDashboards} aria-label="Back to dashboards" />
         <PageControls>
           <PageSelect>
             {pages.map(page => (
@@ -210,25 +118,12 @@ export function Header() {
       
       <HeaderRight>
         <UndoRedoGroup>
-          <UndoRedoButton position="left" title="Undo">
-            <UndoIcon size={16} />
-          </UndoRedoButton>
-          <UndoRedoButton position="right" title="Redo">
-            <RedoIcon size={16} />
-          </UndoRedoButton>
+          <Undo />
+          <Redo />
         </UndoRedoGroup>
         
-        <SaveButton title="Save">
-          <SaveIcon size={16} />
-          <span>Save</span>
-        </SaveButton>
-        
-        {editorParams && (
-          <ViewButton onClick={handleViewDashboard} title="Save and View Dashboard">
-            <ExternalLinkIcon size={16} />
-            <span>View</span>
-          </ViewButton>
-        )}
+        <Save />
+        <SaveAndPreview />
       </HeaderRight>
     </StyledHeader>
   );
