@@ -9,7 +9,7 @@ const ActionBarWrapper = styled.div`
   border-bottom: 3px solid var(--puck-color-grey-05);
   color: var(--puck-color-black);
   width: 100%;
-  padding: var(--puck-space-px);
+  padding: var(--space-4);
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;

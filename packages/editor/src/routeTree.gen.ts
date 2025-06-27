@@ -13,18 +13,14 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedMeIndexRouteImport } from './routes/_authenticated/me/index'
-import { Route as AuthenticatedManagerIndexRouteImport } from './routes/_authenticated/manager/index'
 import { Route as AuthenticatedAddonsIndexRouteImport } from './routes/_authenticated/addons/index'
 import { Route as AuthenticatedMeSettingsIndexRouteImport } from './routes/_authenticated/me/settings/index'
 import { Route as AuthenticatedMeLogoutIndexRouteImport } from './routes/_authenticated/me/logout/index'
 import { Route as AuthenticatedMeHelpIndexRouteImport } from './routes/_authenticated/me/help/index'
 import { Route as AuthenticatedMeDashboardsIndexRouteImport } from './routes/_authenticated/me/dashboards/index'
 import { Route as AuthenticatedMeComponentsIndexRouteImport } from './routes/_authenticated/me/components/index'
-import { Route as AuthenticatedDashboardNewIndexRouteImport } from './routes/_authenticated/dashboard/new/index'
-import { Route as AuthenticatedMeDashboardPathEditRouteImport } from './routes/_authenticated/me/$dashboardPath/edit'
-import { Route as AuthenticatedMeDashboardPathPagePathIndexRouteImport } from './routes/_authenticated/me/$dashboardPath/$pagePath/index'
-import { Route as AuthenticatedDashboardEditDashboardPathIndexRouteImport } from './routes/_authenticated/dashboard/edit/$dashboardPath/index'
-import { Route as AuthenticatedMeDashboardPathPagePathEditRouteImport } from './routes/_authenticated/me/$dashboardPath/$pagePath/edit'
+import { Route as AuthenticatedDashboardDashboardPathPagePathIndexRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/index'
+import { Route as AuthenticatedDashboardDashboardPathPagePathEditRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/edit'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -45,12 +41,6 @@ const AuthenticatedMeIndexRoute = AuthenticatedMeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedMeRoute,
 } as any)
-const AuthenticatedManagerIndexRoute =
-  AuthenticatedManagerIndexRouteImport.update({
-    id: '/manager/',
-    path: '/manager/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedAddonsIndexRoute =
   AuthenticatedAddonsIndexRouteImport.update({
     id: '/addons/',
@@ -87,35 +77,17 @@ const AuthenticatedMeComponentsIndexRoute =
     path: '/components/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
-const AuthenticatedDashboardNewIndexRoute =
-  AuthenticatedDashboardNewIndexRouteImport.update({
-    id: '/dashboard/new/',
-    path: '/dashboard/new/',
+const AuthenticatedDashboardDashboardPathPagePathIndexRoute =
+  AuthenticatedDashboardDashboardPathPagePathIndexRouteImport.update({
+    id: '/dashboard/$dashboardPath/$pagePath/',
+    path: '/dashboard/$dashboardPath/$pagePath/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedMeDashboardPathEditRoute =
-  AuthenticatedMeDashboardPathEditRouteImport.update({
-    id: '/$dashboardPath/edit',
-    path: '/$dashboardPath/edit',
-    getParentRoute: () => AuthenticatedMeRoute,
-  } as any)
-const AuthenticatedMeDashboardPathPagePathIndexRoute =
-  AuthenticatedMeDashboardPathPagePathIndexRouteImport.update({
-    id: '/$dashboardPath/$pagePath/',
-    path: '/$dashboardPath/$pagePath/',
-    getParentRoute: () => AuthenticatedMeRoute,
-  } as any)
-const AuthenticatedDashboardEditDashboardPathIndexRoute =
-  AuthenticatedDashboardEditDashboardPathIndexRouteImport.update({
-    id: '/dashboard/edit/$dashboardPath/',
-    path: '/dashboard/edit/$dashboardPath/',
+const AuthenticatedDashboardDashboardPathPagePathEditRoute =
+  AuthenticatedDashboardDashboardPathPagePathEditRouteImport.update({
+    id: '/dashboard/$dashboardPath/$pagePath/edit',
+    path: '/dashboard/$dashboardPath/$pagePath/edit',
     getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMeDashboardPathPagePathEditRoute =
-  AuthenticatedMeDashboardPathPagePathEditRouteImport.update({
-    id: '/$dashboardPath/$pagePath/edit',
-    path: '/$dashboardPath/$pagePath/edit',
-    getParentRoute: () => AuthenticatedMeRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -123,35 +95,27 @@ export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteWithChildren
   '/me': typeof AuthenticatedMeRouteWithChildren
   '/addons': typeof AuthenticatedAddonsIndexRoute
-  '/manager': typeof AuthenticatedManagerIndexRoute
   '/me/': typeof AuthenticatedMeIndexRoute
-  '/me/$dashboardPath/edit': typeof AuthenticatedMeDashboardPathEditRoute
-  '/dashboard/new': typeof AuthenticatedDashboardNewIndexRoute
   '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
-  '/me/$dashboardPath/$pagePath/edit': typeof AuthenticatedMeDashboardPathPagePathEditRoute
-  '/dashboard/edit/$dashboardPath': typeof AuthenticatedDashboardEditDashboardPathIndexRoute
-  '/me/$dashboardPath/$pagePath': typeof AuthenticatedMeDashboardPathPagePathIndexRoute
+  '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditRoute
+  '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteWithChildren
   '/addons': typeof AuthenticatedAddonsIndexRoute
-  '/manager': typeof AuthenticatedManagerIndexRoute
   '/me': typeof AuthenticatedMeIndexRoute
-  '/me/$dashboardPath/edit': typeof AuthenticatedMeDashboardPathEditRoute
-  '/dashboard/new': typeof AuthenticatedDashboardNewIndexRoute
   '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
-  '/me/$dashboardPath/$pagePath/edit': typeof AuthenticatedMeDashboardPathPagePathEditRoute
-  '/dashboard/edit/$dashboardPath': typeof AuthenticatedDashboardEditDashboardPathIndexRoute
-  '/me/$dashboardPath/$pagePath': typeof AuthenticatedMeDashboardPathPagePathIndexRoute
+  '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditRoute
+  '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -159,18 +123,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/me': typeof AuthenticatedMeRouteWithChildren
   '/_authenticated/addons/': typeof AuthenticatedAddonsIndexRoute
-  '/_authenticated/manager/': typeof AuthenticatedManagerIndexRoute
   '/_authenticated/me/': typeof AuthenticatedMeIndexRoute
-  '/_authenticated/me/$dashboardPath/edit': typeof AuthenticatedMeDashboardPathEditRoute
-  '/_authenticated/dashboard/new/': typeof AuthenticatedDashboardNewIndexRoute
   '/_authenticated/me/components/': typeof AuthenticatedMeComponentsIndexRoute
   '/_authenticated/me/dashboards/': typeof AuthenticatedMeDashboardsIndexRoute
   '/_authenticated/me/help/': typeof AuthenticatedMeHelpIndexRoute
   '/_authenticated/me/logout/': typeof AuthenticatedMeLogoutIndexRoute
   '/_authenticated/me/settings/': typeof AuthenticatedMeSettingsIndexRoute
-  '/_authenticated/me/$dashboardPath/$pagePath/edit': typeof AuthenticatedMeDashboardPathPagePathEditRoute
-  '/_authenticated/dashboard/edit/$dashboardPath/': typeof AuthenticatedDashboardEditDashboardPathIndexRoute
-  '/_authenticated/me/$dashboardPath/$pagePath/': typeof AuthenticatedMeDashboardPathPagePathIndexRoute
+  '/_authenticated/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditRoute
+  '/_authenticated/dashboard/$dashboardPath/$pagePath/': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -179,53 +139,41 @@ export interface FileRouteTypes {
     | ''
     | '/me'
     | '/addons'
-    | '/manager'
     | '/me/'
-    | '/me/$dashboardPath/edit'
-    | '/dashboard/new'
     | '/me/components'
     | '/me/dashboards'
     | '/me/help'
     | '/me/logout'
     | '/me/settings'
-    | '/me/$dashboardPath/$pagePath/edit'
-    | '/dashboard/edit/$dashboardPath'
-    | '/me/$dashboardPath/$pagePath'
+    | '/dashboard/$dashboardPath/$pagePath/edit'
+    | '/dashboard/$dashboardPath/$pagePath'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | ''
     | '/addons'
-    | '/manager'
     | '/me'
-    | '/me/$dashboardPath/edit'
-    | '/dashboard/new'
     | '/me/components'
     | '/me/dashboards'
     | '/me/help'
     | '/me/logout'
     | '/me/settings'
-    | '/me/$dashboardPath/$pagePath/edit'
-    | '/dashboard/edit/$dashboardPath'
-    | '/me/$dashboardPath/$pagePath'
+    | '/dashboard/$dashboardPath/$pagePath/edit'
+    | '/dashboard/$dashboardPath/$pagePath'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_authenticated/me'
     | '/_authenticated/addons/'
-    | '/_authenticated/manager/'
     | '/_authenticated/me/'
-    | '/_authenticated/me/$dashboardPath/edit'
-    | '/_authenticated/dashboard/new/'
     | '/_authenticated/me/components/'
     | '/_authenticated/me/dashboards/'
     | '/_authenticated/me/help/'
     | '/_authenticated/me/logout/'
     | '/_authenticated/me/settings/'
-    | '/_authenticated/me/$dashboardPath/$pagePath/edit'
-    | '/_authenticated/dashboard/edit/$dashboardPath/'
-    | '/_authenticated/me/$dashboardPath/$pagePath/'
+    | '/_authenticated/dashboard/$dashboardPath/$pagePath/edit'
+    | '/_authenticated/dashboard/$dashboardPath/$pagePath/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -263,33 +211,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAddonsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/manager/': {
-      id: '/_authenticated/manager/'
-      path: '/manager'
-      fullPath: '/manager'
-      preLoaderRoute: typeof AuthenticatedManagerIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/me/': {
       id: '/_authenticated/me/'
       path: '/'
       fullPath: '/me/'
       preLoaderRoute: typeof AuthenticatedMeIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/me/$dashboardPath/edit': {
-      id: '/_authenticated/me/$dashboardPath/edit'
-      path: '/$dashboardPath/edit'
-      fullPath: '/me/$dashboardPath/edit'
-      preLoaderRoute: typeof AuthenticatedMeDashboardPathEditRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/dashboard/new/': {
-      id: '/_authenticated/dashboard/new/'
-      path: '/dashboard/new'
-      fullPath: '/dashboard/new'
-      preLoaderRoute: typeof AuthenticatedDashboardNewIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/me/components/': {
       id: '/_authenticated/me/components/'
@@ -326,54 +253,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
-    '/_authenticated/me/$dashboardPath/$pagePath/edit': {
-      id: '/_authenticated/me/$dashboardPath/$pagePath/edit'
-      path: '/$dashboardPath/$pagePath/edit'
-      fullPath: '/me/$dashboardPath/$pagePath/edit'
-      preLoaderRoute: typeof AuthenticatedMeDashboardPathPagePathEditRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/dashboard/edit/$dashboardPath/': {
-      id: '/_authenticated/dashboard/edit/$dashboardPath/'
-      path: '/dashboard/edit/$dashboardPath'
-      fullPath: '/dashboard/edit/$dashboardPath'
-      preLoaderRoute: typeof AuthenticatedDashboardEditDashboardPathIndexRouteImport
+    '/_authenticated/dashboard/$dashboardPath/$pagePath/edit': {
+      id: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit'
+      path: '/dashboard/$dashboardPath/$pagePath/edit'
+      fullPath: '/dashboard/$dashboardPath/$pagePath/edit'
+      preLoaderRoute: typeof AuthenticatedDashboardDashboardPathPagePathEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/me/$dashboardPath/$pagePath/': {
-      id: '/_authenticated/me/$dashboardPath/$pagePath/'
-      path: '/$dashboardPath/$pagePath'
-      fullPath: '/me/$dashboardPath/$pagePath'
-      preLoaderRoute: typeof AuthenticatedMeDashboardPathPagePathIndexRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
+    '/_authenticated/dashboard/$dashboardPath/$pagePath/': {
+      id: '/_authenticated/dashboard/$dashboardPath/$pagePath/'
+      path: '/dashboard/$dashboardPath/$pagePath'
+      fullPath: '/dashboard/$dashboardPath/$pagePath'
+      preLoaderRoute: typeof AuthenticatedDashboardDashboardPathPagePathIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
 interface AuthenticatedMeRouteChildren {
   AuthenticatedMeIndexRoute: typeof AuthenticatedMeIndexRoute
-  AuthenticatedMeDashboardPathEditRoute: typeof AuthenticatedMeDashboardPathEditRoute
   AuthenticatedMeComponentsIndexRoute: typeof AuthenticatedMeComponentsIndexRoute
   AuthenticatedMeDashboardsIndexRoute: typeof AuthenticatedMeDashboardsIndexRoute
   AuthenticatedMeHelpIndexRoute: typeof AuthenticatedMeHelpIndexRoute
   AuthenticatedMeLogoutIndexRoute: typeof AuthenticatedMeLogoutIndexRoute
   AuthenticatedMeSettingsIndexRoute: typeof AuthenticatedMeSettingsIndexRoute
-  AuthenticatedMeDashboardPathPagePathEditRoute: typeof AuthenticatedMeDashboardPathPagePathEditRoute
-  AuthenticatedMeDashboardPathPagePathIndexRoute: typeof AuthenticatedMeDashboardPathPagePathIndexRoute
 }
 
 const AuthenticatedMeRouteChildren: AuthenticatedMeRouteChildren = {
   AuthenticatedMeIndexRoute: AuthenticatedMeIndexRoute,
-  AuthenticatedMeDashboardPathEditRoute: AuthenticatedMeDashboardPathEditRoute,
   AuthenticatedMeComponentsIndexRoute: AuthenticatedMeComponentsIndexRoute,
   AuthenticatedMeDashboardsIndexRoute: AuthenticatedMeDashboardsIndexRoute,
   AuthenticatedMeHelpIndexRoute: AuthenticatedMeHelpIndexRoute,
   AuthenticatedMeLogoutIndexRoute: AuthenticatedMeLogoutIndexRoute,
   AuthenticatedMeSettingsIndexRoute: AuthenticatedMeSettingsIndexRoute,
-  AuthenticatedMeDashboardPathPagePathEditRoute:
-    AuthenticatedMeDashboardPathPagePathEditRoute,
-  AuthenticatedMeDashboardPathPagePathIndexRoute:
-    AuthenticatedMeDashboardPathPagePathIndexRoute,
 }
 
 const AuthenticatedMeRouteWithChildren = AuthenticatedMeRoute._addFileChildren(
@@ -383,18 +295,17 @@ const AuthenticatedMeRouteWithChildren = AuthenticatedMeRoute._addFileChildren(
 interface AuthenticatedRouteChildren {
   AuthenticatedMeRoute: typeof AuthenticatedMeRouteWithChildren
   AuthenticatedAddonsIndexRoute: typeof AuthenticatedAddonsIndexRoute
-  AuthenticatedManagerIndexRoute: typeof AuthenticatedManagerIndexRoute
-  AuthenticatedDashboardNewIndexRoute: typeof AuthenticatedDashboardNewIndexRoute
-  AuthenticatedDashboardEditDashboardPathIndexRoute: typeof AuthenticatedDashboardEditDashboardPathIndexRoute
+  AuthenticatedDashboardDashboardPathPagePathEditRoute: typeof AuthenticatedDashboardDashboardPathPagePathEditRoute
+  AuthenticatedDashboardDashboardPathPagePathIndexRoute: typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMeRoute: AuthenticatedMeRouteWithChildren,
   AuthenticatedAddonsIndexRoute: AuthenticatedAddonsIndexRoute,
-  AuthenticatedManagerIndexRoute: AuthenticatedManagerIndexRoute,
-  AuthenticatedDashboardNewIndexRoute: AuthenticatedDashboardNewIndexRoute,
-  AuthenticatedDashboardEditDashboardPathIndexRoute:
-    AuthenticatedDashboardEditDashboardPathIndexRoute,
+  AuthenticatedDashboardDashboardPathPagePathEditRoute:
+    AuthenticatedDashboardDashboardPathPagePathEditRoute,
+  AuthenticatedDashboardDashboardPathPagePathIndexRoute:
+    AuthenticatedDashboardDashboardPathPagePathIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

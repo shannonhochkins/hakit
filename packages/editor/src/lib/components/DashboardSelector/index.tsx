@@ -162,7 +162,7 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
         </Column>
       )}
       {dashboards.length > 0 && (<Row gap="1rem" fullWidth alignItems='flex-start' justifyContent='flex-start' style={{
-        paddingTop: 'var(--puck-space-px)',
+        paddingTop: 'var(--space-4)',
       }}>
         {dashboards.map(dashboard => (
           <Card
@@ -289,7 +289,7 @@ export function DashboardSelector({ open = false, onClose }: DashboardSelectorPr
         </div>
         <div>
           <FieldLabel label="Thumbnail" icon={<ImagePlus size={16} />} style={{
-            marginBottom: 'var(--puck-space-px)',
+            marginBottom: 'var(--space-4)',
           }} />
           <ImageUpload value={thumbnail || ''} onChange={(value) => {
             setThumbnail(value);

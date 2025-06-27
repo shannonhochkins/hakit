@@ -54,6 +54,6 @@ const SidebarContainer = styled.div<{ visible: boolean }>`
   left: 0;
   top: 0;
   z-index: calc(var(--ha-modal-z-index, 10));
-  padding: var(--puck-space-px);
+  padding: var(--space-4);
   animation: ${({ visible }) => (visible ? slideIn : slideOut)} 0.3s ease forwards;
 `;

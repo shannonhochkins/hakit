@@ -27,7 +27,7 @@ const HelperText = styled.span`
   color: var(--puck-color-grey-03);
   font-size: 0.85rem;
   font-weight: 400;
-  margin-left: var(--puck-space-px);
+  margin-left: var(--space-4);
 `;
 
 
@@ -186,7 +186,7 @@ export const ViewportControls = () => {
             // empty value, consider we've hit the "edit" option
             setEditingBreakpoints(true);
           } else {
-            const previewMargin = getCssVariableValue("--puck-space-px", 16);
+            const previewMargin = getCssVariableValue("--space-4", 16);
 
             if (value?.id === "xlg") {
               // find the last non‐disabled viewport before xlg:

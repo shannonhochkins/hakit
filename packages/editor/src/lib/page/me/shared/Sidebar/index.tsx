@@ -42,7 +42,7 @@ const SidebarHeader = styled.div`
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  height: var(--space-16);
+  height: var(--header-height);
 `;
 
 const SidebarTitle = styled.h2`

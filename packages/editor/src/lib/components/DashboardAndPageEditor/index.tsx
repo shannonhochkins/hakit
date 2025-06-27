@@ -26,7 +26,7 @@ const OrderedList = styled.ol`
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--puck-space-px) / 2);
+  gap: calc(var(--space-4) / 2);
 `;
 const ListItem = styled.li`
   background-color: var(--puck-color-grey-10);
@@ -42,7 +42,7 @@ const ListItem = styled.li`
   border: 1px solid transparent;
   span {
     display: block;
-    padding: var(--puck-space-px) var(--puck-space-px) var(--puck-space-px) 0;
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
     width: 100%;
   }
   cursor: pointer;
@@ -96,7 +96,7 @@ const Fieldset = styled.fieldset`
 `;
 
 const FieldsetInnerList = styled.li`
-  padding: var(--puck-space-px) 0 var(--puck-space-px) calc(var(--puck-space-px) * 2);
+  padding: var(--space-4) 0 var(--space-4) calc(var(--space-4) * 2);
   margin: 0;
 `;
 
@@ -281,7 +281,7 @@ export function DashboardAndPageEditor({
       <Tooltip placement="left" title="Create new dashboard">
         <IconButton className="disable-bg-hover">
           <PlusCircle size={20} style={{
-            marginRight: `var(--puck-space-px)`,
+            marginRight: `var(--space-4)`,
           }} onClick={() => {
             // setDashboardEditorMode({
             //   mode: 'dashboard-new',
@@ -328,7 +328,7 @@ export function DashboardAndPageEditor({
             </Tooltip>
             <Tooltip placement="left" title="Edit">
               <IconButton className="disable-bg-hover" style={{
-                marginRight: `var(--puck-space-px)`,
+                marginRight: `var(--space-4)`,
               }} onClick={() => {
                 navigate({
                   to: `/dashboards/$dashboardPath/$pagePath/edit`,
@@ -356,7 +356,7 @@ export function DashboardAndPageEditor({
                   <span>Pages</span>
                 </Row>
                 <Tooltip placement="left" title="Create new page" style ={{
-                  marginRight: `var(--puck-space-px)`,
+                  marginRight: `var(--space-4)`,
                 }}>
                   <IconButton className="disable-bg-hover">
                     <PlusCircle size={20} onClick={() => {
@@ -373,7 +373,7 @@ export function DashboardAndPageEditor({
                   <ListItem key={page.id} className={currentDashboard?.id === dashboard.id && pagePath === page.path ? 'active' : ''}>
                     <Tooltip title="Select Page" placement="bottom" style={{
                       width: '100%',
-                      paddingLeft: `var(--puck-space-px)`,
+                      paddingLeft: `var(--space-4)`,
                     }} onClick={() => {
                       navigate({
                         from: `/dashboards/$dashboardPath/$pagePath/edit`,
@@ -388,7 +388,7 @@ export function DashboardAndPageEditor({
                     </Tooltip>
                     <Tooltip placement="left" title="Edit">
                       <IconButton className="disable-bg-hover" style={{
-                        marginRight: `var(--puck-space-px)`,
+                        marginRight: `var(--space-4)`,
                       }}>
                         <SquarePen size={20} onClick={() => {
                           // setDashboardPageEditorMode({
@@ -404,7 +404,7 @@ export function DashboardAndPageEditor({
                 {dashboard.pages?.length === 0 && (
                   <ListItem className="disable-hover">
                     <span style={{
-                      paddingLeft: `var(--puck-space-px)`,
+                      paddingLeft: `var(--space-4)`,
                     }}>No pages found</span>
                   </ListItem>
                 )}
@@ -416,13 +416,13 @@ export function DashboardAndPageEditor({
       {!dashboardsQuery.isLoading && dashboards?.length === 0 && (
         <ListItem className="disable-hover">
           <span style={{
-            paddingLeft: `var(--puck-space-px)`,
+            paddingLeft: `var(--space-4)`,
           }}>No dashboards found</span>
         </ListItem>
       )}
     </OrderedList>
     {message?.title && !dashboardsQuery.isLoading && <Alert severity={message.type} style={{
-      marginTop: 'var(--puck-space-px)',
+      marginTop: 'var(--space-4)',
     }}>
       <AlertTitle>{message.title}</AlertTitle>
       {message.message}

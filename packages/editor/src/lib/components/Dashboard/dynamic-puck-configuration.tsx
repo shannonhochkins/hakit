@@ -2,8 +2,6 @@ import { type UserConfig } from '@typings/puck';
 import { ComponentConfig, DefaultComponentProps } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
 import { createComponent, type ComponentFactoryData, type CustomComponentConfig } from '@lib/helpers/createComponent';
-import { CacheProvider } from '@emotion/react';
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 
 interface ComponentModule {
   default: CustomComponentConfig<DefaultComponentProps>;
@@ -82,11 +80,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const root: UserConfig['root'] = {
     ...rootConfig,
     render(props) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const emotionCache = useGlobalStore(state => state.emotionCache);
-      return <CacheProvider value={emotionCache ?? null}>
-        {rootConfig?.render?.(props) ?? null}
-      </CacheProvider>
+      console.log('props', props);
+      return rootConfig?.render?.(props) ?? null;
     }
   }
   const config: UserConfig = {

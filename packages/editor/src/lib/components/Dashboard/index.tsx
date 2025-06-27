@@ -7,24 +7,18 @@ import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@lib/constants';
 import { Spinner } from '../Spinner';
-import { NavigationSidebar } from '../NavigationSidebar';
-import { DashboardEditor, DashboardSelectorProps } from '../NavigationSidebar/DashboardEditor';
-import { DashboardPageSelectorProps } from '../NavigationSidebar/DashboardPageEditor';
 import { useIsPageEditMode } from '@lib/hooks/useIsPageEditMode';
-
 
 interface DashboardProps {
   dashboardPath?: string;
   pagePath?: string;
   children?: React.ReactNode;
-  mode: DashboardSelectorProps['mode'] | DashboardPageSelectorProps['mode'];
 }
 
 export function Dashboard({
   dashboardPath,
   pagePath,
   children,
-  mode,
 }: DashboardProps) {
   // get the path param from /editor:/id with tanstack router
   const dashboardQuery = useQuery({
@@ -65,40 +59,12 @@ export function Dashboard({
     return <Spinner absolute text="Loading dashboard data" />
   }
 
-  const editors = <>
-    {mode?.startsWith('dashboard-') && <DashboardEditor mode={mode as DashboardSelectorProps['mode']} open={true} onClose={() => {
-      
-    }} dashboardPath={dashboardPath} pagePath={pagePath} />}
-  </>
-
-  if (isPageEditMode) {
-    if (isPageEditMode && dashboard && dashboard.pages.length > 0 && matchedPage) {
-      return <>
-        {editors}
-        <DynamicConfig>
-          {children}
-        </DynamicConfig>
-      </>;
-    }
-    return <Spinner absolute text="Loading dashboard data" />
-  } else {
+  if (isPageEditMode && dashboard && dashboard.pages.length > 0 && matchedPage) {
     return <>
-      {children}
-    </>
+      <DynamicConfig>
+        {children}
+      </DynamicConfig>
+    </>;
   }
-
-  // return <>
-  //   {!isEditorMode && <NavigationSidebar closable={false} open />}
-  //   {mode?.startsWith('dashboard-') && <DashboardEditor mode={mode as DashboardSelectorProps['mode']} open={true} onClose={() => {
-      
-  //   }} dashboardPath={dashboardPath} pagePath={pagePath} />}
-  //   {/* {dashboardPageEditorMode?.mode && dashboardPageEditorMode.dashboard && <DashboardPageEditor mode={dashboardPageEditorMode.mode} open={true} onClose={() => {
-  //     setDashboardPageEditorMode(null);
-  //   }} dashboard={dashboardPageEditorMode.dashboard} page={dashboardPageEditorMode.page} />} */}
-  //   {isEditorMode && dashboard && dashboard.pages.length > 0 && matchedPage && <>
-  //     <DynamicConfig>
-  //       {children}
-  //     </DynamicConfig>
-  //   </>}
-  // </>
+  return <Spinner absolute text="Loading dashboard data" />
 }

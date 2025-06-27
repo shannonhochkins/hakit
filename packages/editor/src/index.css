@@ -3,7 +3,7 @@
   font-weight: 400;
   font-style: normal;
   font-variation-settings: "width" 100;
-  --puck-space-px: 16px;
+  --space-4: 16px;
   --ha-modal-z-index: 500;
   --ha-modal-popup-z-index: 501;
   /* Set your base rose hue (override as needed) */
@@ -101,7 +101,7 @@
 
   --transition-duration: 0.25s;
   --easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --header-height: 70px;
+  --header-height: var(--space-16);
 
   --ha-transition-duration: var(--transition-duration);
   --ha-easing: var(--easing);

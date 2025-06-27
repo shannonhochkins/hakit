@@ -1,0 +1,167 @@
+
+
+:root {
+  --puck-space-px: var(--space-4);
+  --ha-modal-z-index: 500;
+  --ha-modal-popup-z-index: 501;
+  /* Set your base rose hue (override as needed) */
+  --puck-rose-hue: 250deg;
+  /* Global adjustments for lightness and saturation */
+  --puck-rose-brightness-shift: 0%;
+  --puck-rose-saturation-shift: 0%;
+  /* Map rose colors to design system primary colors (flipped for dark theme) */
+  --puck-color-rose-01: var(--color-primary-50);   /* Light theme dark -> Dark theme light */
+  --puck-color-rose-02: var(--color-primary-100);
+  --puck-color-rose-03: var(--color-primary-200);
+  --puck-color-rose-04: var(--color-primary-300);
+  --puck-color-rose-05: var(--color-primary-400);
+  --puck-color-rose-06: var(--color-primary-500);
+  --puck-color-rose-07: var(--color-primary-600);
+  --puck-color-rose-08: var(--color-primary-700);
+  --puck-color-rose-09: var(--color-primary-800);
+  --puck-color-rose-10: var(--color-primary-900);
+  --puck-color-rose-11: var(--color-primary-900);
+  --puck-color-rose-12: var(--color-primary-900); /* Light theme light -> Dark theme dark */
+    /* Change the base hue for the entire palette */
+  --puck-hue: 210deg;
+  /* Shift the lightness and saturation globally (set to 0% for no change) */
+  --brightness-shift: 12%;
+  --saturation-shift: 5%;
+  /* Map azure colors to design system secondary colors (flipped for dark theme) */
+  --puck-color-azure-01: var(--color-secondary-50);
+  --puck-color-azure-02: var(--color-secondary-100);
+  --puck-color-azure-03: var(--color-secondary-200);
+  --puck-color-azure-04: var(--color-secondary-300);
+  --puck-color-azure-05: var(--color-secondary-400);
+  --puck-color-azure-06: var(--color-secondary-500);
+  --puck-color-azure-07: var(--color-secondary-600);
+  --puck-color-azure-08: var(--color-secondary-700);
+  --puck-color-azure-09: var(--color-secondary-800);
+  --puck-color-azure-10: var(--color-secondary-900);
+  --puck-color-azure-11: var(--color-secondary-900);
+  --puck-color-azure-12: var(--color-secondary-900);
+  /* Map status colors to design system (flipped for dark theme) */
+  --puck-color-green-01: var(--color-success-50);
+  --puck-color-green-02: var(--color-success-50);
+  --puck-color-green-03: var(--color-success-100);
+  --puck-color-green-04: var(--color-success-200);
+  --puck-color-green-05: var(--color-success-300);
+  --puck-color-green-06: var(--color-success-400);
+  --puck-color-green-07: var(--color-success-500);
+  --puck-color-green-08: var(--color-success-600);
+  --puck-color-green-09: var(--color-success-700);
+  --puck-color-green-10: var(--color-success-800);
+  --puck-color-green-11: var(--color-success-900);
+  --puck-color-green-12: var(--color-success-900);
+  --puck-color-yellow-01: var(--color-warning-50);
+  --puck-color-yellow-02: var(--color-warning-100);
+  --puck-color-yellow-03: var(--color-warning-200);
+  --puck-color-yellow-04: var(--color-warning-300);
+  --puck-color-yellow-05: var(--color-warning-400);
+  --puck-color-yellow-06: var(--color-warning-500);
+  --puck-color-yellow-07: var(--color-warning-600);
+  --puck-color-yellow-08: var(--color-warning-700);
+  --puck-color-yellow-09: var(--color-warning-800);
+  --puck-color-yellow-10: var(--color-warning-900);
+  --puck-color-yellow-11: var(--color-warning-900);
+  --puck-color-yellow-12: var(--color-warning-900);
+  --puck-color-red-01: var(--color-error-50);
+  --puck-color-red-02: var(--color-error-100);
+  --puck-color-red-03: var(--color-error-200);
+  --puck-color-red-04: var(--color-error-300);
+  --puck-color-red-05: var(--color-error-400);
+  --puck-color-red-06: var(--color-error-500);
+  --puck-color-red-07: var(--color-error-600);
+  --puck-color-red-08: var(--color-error-700);
+  --puck-color-red-09: var(--color-error-800);
+  --puck-color-red-10: var(--color-error-900);
+  --puck-color-red-11: var(--color-error-900);
+  --puck-color-red-12: var(--color-error-900);
+  
+
+  /* Map Puck grey colors to design system colors (flipped for dark theme) */
+  --puck-color-grey-01: var(--color-gray-50);     /* Light theme dark (#181818) -> Dark theme light */
+  --puck-color-grey-02: var(--color-gray-100);    /* Light theme dark (#292929) -> Dark theme light */
+  --puck-color-grey-03: var(--color-gray-200);    /* Light theme medium dark (#404040) -> Dark theme light */
+  --puck-color-grey-04: var(--color-gray-300);    /* Light theme medium (#5a5a5a) -> Dark theme medium light */
+  --puck-color-grey-05: var(--color-gray-400);    /* Light theme medium (#767676) -> Dark theme medium */
+  --puck-color-grey-06: var(--color-gray-500);    /* Light theme medium light (#949494) -> Dark theme medium */
+  --puck-color-grey-07: var(--color-gray-600);    /* Light theme light (#ababab) -> Dark theme medium dark */
+  --puck-color-grey-08: var(--color-gray-700);    /* Light theme lighter (#c3c3c3) -> Dark theme dark */
+  --puck-color-grey-09: var(--color-gray-800);    /* Light theme very light (#dcdcdc) -> Dark theme darker */
+  --puck-color-grey-10: var(--color-gray-900);    /* Light theme very light (#efefef) -> Dark theme very dark */
+  --puck-color-grey-11: var(--color-gray-950);    /* Light theme lightest (#f5f5f5) -> Dark theme darkest */
+  --puck-color-grey-12: var(--color-gray-950);    /* Light theme lightest (#fafafa) -> Dark theme darkest */
+  /* Map semantic colors to design system (inverted for dark theme) */
+  --puck-color-black: var(--color-gray-950);      /* In light theme black was #000, in dark theme should be darkest */
+  --puck-color-white: var(--color-text-primary);  /* In light theme white was #fff, in dark theme should be lightest text */
+  --puck-font-family: inherit;
+  --error-color: var(--color-error-500);
+  --error-color-alpha: var(--color-error-500);
+  --warning-color: var(--color-warning-500);
+  --success-color: var(--color-success-500);
+
+
+  /* Map timing and transitions to design system */
+  --transition-duration: var(--transition-normal);
+  --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --header-height: 70px;
+
+  --ha-transition-duration: var(--transition-duration);
+  --ha-easing: var(--easing);
+}
+
+* {
+  box-sizing: border-box;
+  ::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  /* Works on Chrome, Edge, and Safari */
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--puck-color-grey-10);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--puck-color-grey-05);
+    border-radius: 20px;
+    border: 3px solid var(--puck-color-grey-10);
+  }
+}
+
+.Puck {
+  width: 100%;
+  height: 100%;
+} 
+/* ensure the div wrapping the editor wrapper is full height/width */
+.Puck > div:has(.puck-editor-wrapper) {
+  width: 100%;
+  height: 100%;
+}
+[class*="_PuckPreview_"] {
+  width: 100%;
+}
+[class*="_PuckFields_"] {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: var(--space-4);
+}
+
+[class*="_PuckFields_"] > [class*="_PuckFields-field_"] {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+}
+[class*="_PuckFields--wrapFields_"] > [class*="_PuckFields-field_"]:first-of-type {
+  padding-top: var(--space-4);
+}
+[class*="_PuckFields--wrapFields_"] > [class*="_PuckFields-field_"] + [class*="_PuckFields-field_"] {
+  margin: 0;
+  border: none;
+}

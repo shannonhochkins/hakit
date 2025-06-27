@@ -19,7 +19,6 @@ import { type HassEntities, type HassServices } from 'home-assistant-js-websocke
 import { usePuckFrame } from '@lib/hooks/usePuckFrame';
 import { useTransformedPuckData } from '@lib/hooks/useTransformedPuckData';
 import { deepCopy } from 'deep-copy-ts';
-import { DropZone } from '@measured/puck';
 
 
 // Automatic extensions
@@ -171,7 +170,6 @@ export function createComponent<
           return {
             ...rest,
             dragRef: puck.dragRef,
-            DropZone,
             hakit: {
               data,
               editorFrame,

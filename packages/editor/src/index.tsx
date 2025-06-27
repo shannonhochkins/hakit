@@ -9,6 +9,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import './index.css';
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { ToastContainer } from 'react-toastify';
+import '@measured/puck/puck.css';
+import './puck-overrides.css';
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -79,6 +81,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           --color-gray-500: rgb(107, 114, 128);
           --color-gray-600: rgb(75, 85, 99);
           --color-gray-700: rgb(55, 65, 81);
+          --color-gray-750: rgb(42, 52, 68);
           --color-gray-800: rgb(31, 41, 55);
           --color-gray-850: rgb(24, 32, 46);
           --color-gray-900: rgb(17, 24, 39);

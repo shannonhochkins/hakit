@@ -6,7 +6,7 @@ import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import createCache from '@emotion/cache';
 
 export const Route = createFileRoute(
-  '/_authenticated/me/$dashboardPath/$pagePath/',
+  '/_authenticated/dashboard/$dashboardPath/$pagePath/',
 )({
   component: RouteComponent,
 })

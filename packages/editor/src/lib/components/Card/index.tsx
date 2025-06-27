@@ -37,7 +37,7 @@ const CardContainer = styled.div<React.ComponentPropsWithoutRef<'div'>>`
 `;
 const CardInner = styled.div`
   width: 100%;
-  padding: calc(var(--puck-space-px));
+  padding: calc(var(--space-4));
 `;
 
 const ImageWrapper = styled.div`
@@ -47,7 +47,7 @@ const ImageWrapper = styled.div`
   border-radius: 8px;
   background-size: cover;
   background-position: center;
-  margin-bottom: calc(var(--puck-space-px));
+  margin-bottom: calc(var(--space-4));
   position: relative;
 `;
 
@@ -62,7 +62,7 @@ const Subtitle = styled.div`
   color: var(--puck-color-grey-03);
   width: 100%;
   text-align: left;
-  margin-top: calc(var(--puck-space-px) / 4);
+  margin-top: calc(var(--space-4) / 4);
 `;
 
 const HeaderRow = styled.div`

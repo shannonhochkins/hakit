@@ -7,7 +7,7 @@ import { useParams } from '@tanstack/react-router';
 
 export function Save() {
   const params = useParams({
-      from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
+      from: "/_authenticated/dashboard/$dashboardPath/$pagePath/edit"
     });
   const data = useGlobalStore(store => store.unsavedPuckPageData);
   const dashboard = useGlobalStore(store => store.dashboard);

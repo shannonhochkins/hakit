@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 export function useIsPageEditMode(): boolean {
   const editorParams = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit',
+    from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit',
     shouldThrow: false,
   });
   // Check if both dashboardPath and pagePath are present in the params

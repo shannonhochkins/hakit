@@ -10,7 +10,7 @@ const StyledHeader = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--space-16);
+  height: var(--header-height);
 `;
 
 const HeaderLeft = styled.div`

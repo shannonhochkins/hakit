@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Repeat, Type } from 'lucide-react';
 import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
-import { Button } from '@lib/page/shared/Button';
+import { PrimaryButton } from '@lib/page/shared/Button';
 import { Modal, ModalActions } from '@lib/page/shared/Modal';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboardPage, dashboardByPathWithPageDataQueryOptions, dashboardsQueryOptions, deleteDashboardPage, updateDashboardPageForUser } from '@lib/api/dashboard';
@@ -33,7 +33,7 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
   const [pathTouched, setPathTouched] = useState(false);
   const [pathError, setPathError] = useState('');
   const params = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+    from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit'
   });
   // get the path param from /editor:/id with tanstack router
   const dashboardQuery = useQuery(dashboardByPathWithPageDataQueryOptions(params.dashboardPath));
@@ -126,9 +126,9 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
       </Column>
       <ModalActions wrap="nowrap" fullWidth alignItems='center' justifyContent='space-between'>
         {page?.id && <>
-          <Button color="error" variant="contained" onClick={() => {
+          <PrimaryButton color="error" variant="contained" onClick={() => {
             setConfirmDelete(true);
-          }}>DELETE</Button>
+          }}>DELETE</PrimaryButton>
           <Confirm
             title='Confirm delete page'
             open={confirmDelete}
@@ -158,8 +158,8 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
           </Confirm>
         </>}
         <Row gap="1rem">
-          <Button onClick={reset}>CANCEL</Button>
-            {(mode === 'new-page' || mode === 'duplicate-page') && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          <PrimaryButton onClick={reset}>CANCEL</PrimaryButton>
+            {(mode === 'new-page' || mode === 'duplicate-page') && (<PrimaryButton variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
               createDashboardPage({
                 id: dashboard?.id,
                 name,
@@ -177,9 +177,9 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
                 dashboardsQuery.refetch();
                 dashboardQuery.refetch();
               });
-          }}>CREATE</Button>)}
+          }}>CREATE</PrimaryButton>)}
 
-          {mode === 'edit-page' && page?.id && (<Button variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
+          {mode === 'edit-page' && page?.id && (<PrimaryButton variant="contained" disabled={!path || !name || !!pathError} onClick={() => {
               // if the paths match before we update from the original page, and the paths have changed
               // we should update the current path so if the user refreshes it loads the correct page
               const currentDashboard = path !== page.path && params.pagePath === page.path;
@@ -202,8 +202,8 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
                 // now update the url
                 if (currentDashboard) {
                   navigate({
-                    from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                    to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                    from: `/me/$dashboardPath/$pagePath/edit`,
+                    to: `/me/$dashboardPath/$pagePath/edit`,
                     replace: true,
                     params: {
                       dashboardPath: params.dashboardPath,
@@ -212,7 +212,7 @@ export function DashboardPageEditor({ open = false, mode, dashboard, page, onClo
                   });
                 }
               });
-              }}>SAVE</Button>)}
+              }}>SAVE</PrimaryButton>)}
         </Row>
       </ModalActions>
     </Modal>

@@ -8,10 +8,10 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
-    "build": "bun --filter 'hakit-client' build",
-    "watch:build": "bun --filter 'hakit-client' watch:build",
+    "build": "bun --filter 'hakit-editor' build",
+    "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "bun ./packages/server/index.ts",
-    "dev:client": "bun --filter 'hakit-client' dev",
+    "dev:editor": "bun --filter 'hakit-editor' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
     "dbml": "bun run ./packages/server/db/schema/dbml.ts",
     "test": "bun test",

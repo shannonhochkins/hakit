@@ -159,8 +159,8 @@ export function DashboardEditor({ open = false, mode, dashboardPath, pagePath, o
                   } else {
                     // CHECK THIS, seems wrong for dashboard, need to check this
                     navigate({
-                      from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                      to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                      from: `/dashboard/$dashboardPath/$pagePath/edit`,
+                      to: `/dashboard/$dashboardPath/$pagePath/edit`,
                       reloadDocument: true,
                       params: {
                         dashboardPath,
@@ -199,8 +199,8 @@ export function DashboardEditor({ open = false, mode, dashboardPath, pagePath, o
                 dashboardsQuery.refetch();
                 dashboardQuery.refetch();
                 navigate({
-                  from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                  to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                  from: `/dashboard/$dashboardPath/$pagePath/edit`,
+                  to: `/dashboard/$dashboardPath/$pagePath/edit`,
                   replace: true,
                   params: {
                     dashboardPath: newDashboard.path,
@@ -234,8 +234,8 @@ export function DashboardEditor({ open = false, mode, dashboardPath, pagePath, o
                 if (currentDashboard) {
                   if (isPageEditMode) {
                     navigate({
-                      from: `/dashboards/$dashboardPath/$pagePath/edit`,
-                      to: `/dashboards/$dashboardPath/$pagePath/edit`,
+                      from: `/dashboard/$dashboardPath/$pagePath/edit`,
+                      to: `/dashboard/$dashboardPath/$pagePath/edit`,
                       replace: isPageEditMode,
                       params: {
                         dashboardPath: path,
@@ -245,8 +245,8 @@ export function DashboardEditor({ open = false, mode, dashboardPath, pagePath, o
                   } else {
                     // if we're not in page edit mode, we should navigate to the dashboard edit page
                     navigate({
-                      from: `/dashboards/$dashboardPath/edit`,
-                      to: `/dashboards/$dashboardPath/edit`,
+                      from: `/dashboard/$dashboardPath/edit`,
+                      to: `/dashboard/$dashboardPath/edit`,
                       replace: true,
                       params: {
                         dashboardPath: path,

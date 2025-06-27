@@ -8,7 +8,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 export function SaveAndPreview() {
   const navigate = useNavigate();
   const params = useParams({
-    from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
+    from: "/_authenticated/dashboard/$dashboardPath/$pagePath/edit"
   });
   const data = useGlobalStore(store => store.unsavedPuckPageData);
   const breakpointItems = useGlobalStore(store => store.breakpointItems);
@@ -41,7 +41,7 @@ export function SaveAndPreview() {
         onClick={() => {
           return save().then(() => {
             navigate({
-              to: '/dashboards/$dashboardPath/$pagePath',
+              to: '/me/$dashboardPath/$pagePath',
               params: {
                 dashboardPath: params.dashboardPath,
                 pagePath: params.pagePath

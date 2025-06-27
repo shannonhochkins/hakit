@@ -83,7 +83,7 @@ function DashboardPageMultiSelect({
 
 export const Page = memo(function Page({ value, label, muiltiSelect, min, max, onChange }: NavigateProps) {
   const params = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+    from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit'
   });
   const { pagePath } = params;
   const dashboard = useGlobalStore(store => store.dashboard);

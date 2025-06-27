@@ -17,7 +17,7 @@ export function PageSelector() {
   const [newPageOpen, setOpenNewPage] =  useState(false);
   const dashboard = useGlobalStore(state => state.dashboard);
   const params = useParams({
-    from: "/_authenticated/dashboards/$dashboardPath/$pagePath/edit"
+    from: "/_authenticated/dashboard/$dashboardPath/$pagePath/edit"
   });
   const navigate = useNavigate();
   const pages = dashboard?.pages.map(page => ({
@@ -79,7 +79,7 @@ export function PageSelector() {
           setOpenNewPage(true);
         } else {
           navigate({
-            to: '/dashboards/$dashboardPath/$pagePath/edit',
+            to: '/dashboard/$dashboardPath/$pagePath/edit',
             // quickest pathway forward to load new data
             reloadDocument: true,
             params: {

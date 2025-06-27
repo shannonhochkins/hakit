@@ -34,7 +34,7 @@ export function DynamicConfig({ children }: DynamicConfigProps) {
   // }, [getServices, setServices]);
 
   if (!userConfig) {
-    return <Spinner absolute />;
+    return <Spinner absolute text="Loading user data" />;
   }
 
 

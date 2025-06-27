@@ -325,7 +325,7 @@ export function MyDashboards() {
           return;
         }
         navigate({
-          to: '/me/$dashboardPath/$pagePath',
+          to: '/dashboard/$dashboardPath/$pagePath',
           params: {
             dashboardPath: dashboard.path,
             pagePath,
@@ -338,7 +338,7 @@ export function MyDashboards() {
       const page = dashboard?.pages.find(p => p.id === id);
       if (dashboard && page) {
         navigate({
-          to: '/me/$dashboardPath/$pagePath',
+          to: '/dashboard/$dashboardPath/$pagePath',
           params: {
             dashboardPath: dashboard.path,
             pagePath: page.path,
@@ -375,7 +375,7 @@ export function MyDashboards() {
           return;
         }
         navigate({
-          to: '/me/$dashboardPath/$pagePath/edit',
+          to: '/dashboard/$dashboardPath/$pagePath/edit',
           params: {
             dashboardPath: dashboard.path,
             pagePath,
@@ -388,7 +388,7 @@ export function MyDashboards() {
       const page = dashboard?.pages.find(p => p.id === id);
       if (dashboard && page) {
         navigate({
-          to: '/me/$dashboardPath/$pagePath/edit',
+          to: '/dashboard/$dashboardPath/$pagePath/edit',
           params: {
             dashboardPath: dashboard.path,
             pagePath: page.path,
@@ -602,7 +602,7 @@ export function MyDashboards() {
   }, [searchQuery, previousSearchQuery, setPreviousSearchQuery]);
 
   if (!dashboards) {
-    return <Spinner absolute text="Loading user data" />;
+    return <Spinner absolute text="Loading dashboard data" />;
   }
 
   const deletingDashboard = dashboards?.find(d => d.id === deletingDashboardId);
