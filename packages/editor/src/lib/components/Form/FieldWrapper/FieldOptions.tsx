@@ -2,11 +2,10 @@ import { useState, type SyntheticEvent } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
-import { IconButton } from '@lib/components/IconButtons';
 import styled from '@emotion/styled';
 import { EllipsisVertical } from 'lucide-react';
-import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
+import { IconButton } from '@lib/page/shared/Button/IconButton';
 
 const Label = styled.span`
 
@@ -42,13 +41,16 @@ export function FieldOptions({ options }: FieldOptionsProps) {
 
   return (
     <div>
-      <Tooltip title="Field Options" placement="left">
-        <IconButton
-          onClick={handleClick}
-        >
-          <EllipsisVertical size={16} />
-        </IconButton>
-      </Tooltip>
+      <IconButton
+        onClick={handleClick}
+        variant="transparent"
+        size="xs"
+        aria-label='Field Options'
+        tooltipProps={{
+          placement: 'left',
+        }}
+        icon={<EllipsisVertical size={16} />}
+      />
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -65,8 +67,6 @@ export function FieldOptions({ options }: FieldOptionsProps) {
           paper: {
             style: {
               maxHeight: ITEM_HEIGHT * 4.5,
-              background: 'var(--color-gray-400)',
-              color: 'var(--color-gray-100)',
             },
           },
         }}

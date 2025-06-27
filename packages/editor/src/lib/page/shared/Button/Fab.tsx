@@ -3,14 +3,14 @@ import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { ButtonHTMLAttributes } from 'react';
 import { focusRing } from '@lib/styles/utils';
-import { Tooltip, TooltipProps } from '@lib/components/Tooltip';
+import { Tooltip, TooltipProps } from '@lib/page/shared/Tooltip';
 
 // Props interface for the FAB
 export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Icon to display in the center of the FAB */
   icon: React.ReactNode;
   /** Size variant of the FAB */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Color variant of the FAB */
   variant?: 'primary' | 'secondary' | 'transparent';
   /** Whether the FAB should pulse to draw attention */
@@ -29,8 +29,14 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean;
 }
 
-const getFabSize = (size: 'sm' | 'md' | 'lg') => {
+const getFabSize = (size: 'xs' | 'sm' | 'md' | 'lg') => {
   switch (size) {
+    case 'xs':
+      return css`
+        width: 32px;
+        height: 32px;
+        font-size: var(--font-size-xs);
+      `;
     case 'sm':
       return css`
         width: 40px;
@@ -54,12 +60,12 @@ const getFabSize = (size: 'sm' | 'md' | 'lg') => {
 
 const getFabPosition = (position: FabProps['position']) => {
   if (position === 'relative') return '';
-  
+
   const baseFixed = css`
     position: fixed;
     z-index: var(--z-fixed);
   `;
-  
+
   switch (position) {
     case 'bottom-right':
       return css`
@@ -101,16 +107,16 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
       color: var(--color-text-primary);
       border: 1px solid var(--color-border);
       box-shadow: var(--shadow-lg);
-      
+
       &::before {
         background: var(--color-border);
       }
-      
+
       &:hover:not(:disabled) {
         border-color: var(--color-gray-600);
         box-shadow: var(--shadow-xl);
       }
-      
+
       &:active:not(:disabled) {
         &::before {
           background: var(--color-gray-700);
@@ -129,15 +135,15 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
       color: var(--color-text-muted);
       border: none;
       box-shadow: none;
-      
+
       &::before {
         background: rgba(255, 255, 255, 0.1);
       }
-      
+
       &:hover:not(:disabled) {
         box-shadow: var(--shadow-lg);
       }
-      
+
       &:active:not(:disabled) {
         &::before {
           background: rgba(255, 255, 255, 0.2);
@@ -148,21 +154,21 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
       }
     `;
   }
-  
+
   return css`
     background: var(--gradient-primary);
     color: var(--color-text-primary);
     border: none;
     box-shadow: var(--shadow-primary-base), var(--shadow-lg);
-    
+
     &::before {
       background: var(--gradient-primary-hover);
     }
-    
+
     &:hover:not(:disabled) {
       box-shadow: var(--shadow-primary-hover), var(--shadow-xl);
     }
-    
+
     &:active:not(:disabled) {
       &::before {
         background: var(--gradient-primary-active);
@@ -186,12 +192,12 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
   font-family: inherit;
   font-weight: var(--font-weight-medium);
   overflow: hidden;
-  
+
   /* Performance optimizations */
   transform: translateZ(0);
   will-change: transform, box-shadow;
   backface-visibility: hidden;
-  
+
   /* Hover overlay for smooth transitions */
   &::before {
     content: '';
@@ -205,16 +211,16 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
     transition: opacity var(--transition-fast);
     z-index: -1;
   }
-  
+
   /* Smooth transitions */
-  transition: 
+  transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast);
 
   /* Hover state */
   &:hover:not(:disabled) {
     transform: translateY(-2px) scale(1.05);
-    
+
     &::before {
       opacity: 1;
     }
@@ -226,7 +232,7 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
   /* Active state */
   &:active:not(:disabled) {
     transform: translateY(0) scale(1);
-    
+
     &::before {
       opacity: 1;
     }
@@ -238,45 +244,49 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
     opacity: 0.6;
     transform: none;
     box-shadow: var(--shadow-md);
-    
+
     &:hover {
       transform: none;
     }
   }
 
   /* Loading state */
-  ${props => props.loading && css`
-    cursor: default;
-    pointer-events: none;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border: 2px solid transparent;
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-  `}
+  ${props =>
+    props.loading &&
+    css`
+      cursor: default;
+      pointer-events: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+    `}
 
   /* Pulse animation */
-  ${props => props.pulse && css`
-    animation: pulse 2s infinite;
-    
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  ${props =>
+    props.pulse &&
+    css`
+      animation: pulse 2s infinite;
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
       }
-      70% {
-        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-      }
-    }
-  `}
+    `}
 
   /* Size variants */
   ${props => getFabSize(props.size || 'md')}
@@ -297,7 +307,7 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
     transition: none;
     transform: none !important;
     animation: none !important;
-    
+
     &:hover:not(:disabled),
     &:active:not(:disabled) {
       transform: none;
@@ -313,7 +323,7 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
 `;
 
 // React component wrapper
-export const Fab: React.FC<FabProps> = ({ 
+export const Fab: React.FC<FabProps> = ({
   icon,
   loading,
   disabled,
@@ -325,11 +335,11 @@ export const Fab: React.FC<FabProps> = ({
   tooltipProps = {},
   active,
   className,
-  ...props 
+  ...props
 }) => {
   console.log('props', props);
   return (
-    <Tooltip title={props['aria-label'] || ''} placement="top" {...tooltipProps}>
+    <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps}>
       <StyledFab
         size={size}
         variant={variant}
@@ -347,4 +357,3 @@ export const Fab: React.FC<FabProps> = ({
     </Tooltip>
   );
 };
-

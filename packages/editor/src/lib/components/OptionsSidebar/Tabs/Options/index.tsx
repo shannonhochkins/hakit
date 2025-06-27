@@ -4,8 +4,7 @@ import { TabHeading } from '../TabHeading';
 import { TabPadding } from '../TabPadding';
 import { useCallback } from 'react';
 import { X } from 'lucide-react';
-import { Tooltip } from '@lib/components/Tooltip';
-import { IconButton } from '../../../IconButtons';
+import { IconButton } from '@lib/page/shared/Button/IconButton';
 
 const usePuck = createUsePuck();
 
@@ -37,11 +36,14 @@ export function Options() {
       <TabPadding>
         <TabHeading>
           <span>{selectedItem.type + ' Options'}</span>
-          <Tooltip title='Deselect Component' placement='left'>
-            <IconButton onClick={deselect}>
-              <X size={16} />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={deselect}
+            icon={<X size={16} />}
+            tooltipProps={{
+              placement: 'left',
+            }}
+            aria-label='Deselect Component'
+          ></IconButton>
         </TabHeading>
       </TabPadding>
       <Puck.Fields />

@@ -14,7 +14,7 @@ import { Modal, ModalActions } from '@lib/page/shared/Modal';
 import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
 import { PrimaryButton } from '@lib/page/shared/Button';
 import { getCssVariableValue, setSidebarWidth } from '@lib/components/OptionsSidebar/helpers';
-import { Tooltip } from '@lib/components/Tooltip';
+import { Tooltip } from '@lib/page/shared/Tooltip';
 
 const StyledViewportControls = styled(Row)`
   min-height: var(--header-height);
@@ -30,13 +30,9 @@ const HelperText = styled.span`
   margin-left: var(--space-4);
 `;
 
-
-function findPreviousNonDisabledBreakpoint(
-  breakpoints: Required<BreakpointItem[]>,
-  id: BreakPoint
-) {
+function findPreviousNonDisabledBreakpoint(breakpoints: Required<BreakpointItem[]>, id: BreakPoint) {
   // Find this breakpoint in the array
-  const idx = breakpoints.findIndex((v) => v.id === id);
+  const idx = breakpoints.findIndex(v => v.id === id);
   if (idx === -1) return undefined;
 
   // Walk backwards to find the first non-disabled viewport
@@ -80,9 +76,8 @@ export function formatMediaQuery(media: string): string {
   return media;
 }
 
-
 export const ViewportControls = () => {
-  const [editingBreakpoints, setEditingBreakpoints] =  useState(false);
+  const [editingBreakpoints, setEditingBreakpoints] = useState(false);
   const breakpointItems = useGlobalStore(store => store.breakpointItems);
   const setBreakPointItems = useGlobalStore(store => store.setBreakPointItems);
   const options = useMemo(() => breakpointItems.filter(item => !item.disabled), [breakpointItems]);
@@ -113,27 +108,30 @@ export const ViewportControls = () => {
   const activeViewport = useActiveBreakpoint();
   const value = useMemo(() => options.find(item => item.id === activeViewport), [activeViewport, options]);
   // if this fails, it means the breakpoint object isn't valid
-  const getQueries = useCallback((items: BreakpointItem[]) => {
-    try {
-      const breakpoints = breakpointItemToBreakPoints(items);
-      // handles the case where all breakpoints are disabled, we need to send at least one extra breakpoint
-      // to hakit function to get a formatted object
-      if (Object.keys(breakpoints).length === 1 && breakpoints['xlg' as 'lg']) {
-        breakpoints['lg'] = (breakpoints['xlg' as 'lg'] || 0) - 1;
-      }
-      if (!breakpoints) {
+  const getQueries = useCallback(
+    (items: BreakpointItem[]) => {
+      try {
+        const breakpoints = breakpointItemToBreakPoints(items);
+        // handles the case where all breakpoints are disabled, we need to send at least one extra breakpoint
+        // to hakit function to get a formatted object
+        if (Object.keys(breakpoints).length === 1 && breakpoints['xlg' as 'lg']) {
+          breakpoints['lg'] = (breakpoints['xlg' as 'lg'] || 0) - 1;
+        }
+        if (!breakpoints) {
+          return null;
+        }
+        return getBreakpoints(breakpoints);
+      } catch (e) {
+        console.error('Get queries error', e);
+        // ignore the error, validation will show errors in the fields
         return null;
       }
-      return getBreakpoints(breakpoints)
-    } catch (e) {
-      console.error('Get queries error', e);
-      // ignore the error, validation will show errors in the fields
-      return null;
-    }
-  }, [
-    // TODO this may not be needed, if this logic breaks, we can uncomment
-    // controlledBreakpointItems
-  ]);
+    },
+    [
+      // TODO this may not be needed, if this logic breaks, we can uncomment
+      // controlledBreakpointItems
+    ]
+  );
 
   const validBreakpoints = useMemo(() => {
     // create a deep clone of the breakpoint items
@@ -156,7 +154,6 @@ export const ViewportControls = () => {
     return breakpointItemsClone;
   }, [getQueries, controlledBreakpointItems]);
 
-
   if (!value) {
     return null;
   }
@@ -167,57 +164,73 @@ export const ViewportControls = () => {
     <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
       <SelectField
         value={value}
-        options={[...options, {
-          id: 'new',
-          title: 'Customize',
-          width: -1,
-        }]}
-        size="small"
-        getOptionLabel={(option) => option.id === 'new' ? <Row gap="0.5rem" fullHeight>
-          <Edit size={16} />
-          Customize
-        </Row> : option.title}
-        startAdornment={<TabletSmartphone size={36} style={{
-          marginRight: '0.5rem',
-        }} />}
+        options={[
+          ...options,
+          {
+            id: 'new',
+            title: 'Customize',
+            width: -1,
+          },
+        ]}
+        size='small'
+        getOptionLabel={option =>
+          option.id === 'new' ? (
+            <Row gap='0.5rem' fullHeight>
+              <Edit size={16} />
+              Customize
+            </Row>
+          ) : (
+            option.title
+          )
+        }
+        startAdornment={
+          <TabletSmartphone
+            size={36}
+            style={{
+              marginRight: '0.5rem',
+            }}
+          />
+        }
         // getOptionValue={(option) => option.width}
-        onChange={(event) => {
+        onChange={event => {
           const value = event?.target.value;
           if (typeof value === 'string' || value.id === 'new') {
             // empty value, consider we've hit the "edit" option
             setEditingBreakpoints(true);
           } else {
-            const previewMargin = getCssVariableValue("--space-4", 16);
+            const previewMargin = getCssVariableValue('--space-4', 16);
 
-            if (value?.id === "xlg") {
+            if (value?.id === 'xlg') {
               // find the last non‐disabled viewport before xlg:
-              const prev = findPreviousNonDisabledBreakpoint(DEFAULT_BREAKPOINTS, "xlg");
+              const prev = findPreviousNonDisabledBreakpoint(DEFAULT_BREAKPOINTS, 'xlg');
               if (!prev) {
                 // If none found, fallback logic
                 // e.g. "fill up the screen"
                 setSidebarWidth(window.innerWidth - (value.width - 1));
               } else {
                 // replicate the old xlg math:
-                setSidebarWidth(
-                  window.innerWidth - (value.width + prev.width - 1)
-                );
+                setSidebarWidth(window.innerWidth - (value.width + prev.width - 1));
               }
             } else if (value) {
               // replicate the old non-xlg math
-              setSidebarWidth(
-                window.innerWidth - (value.width - 1) - previewMargin * 2
-              );
+              setSidebarWidth(window.innerWidth - (value.width - 1) - previewMargin * 2);
             }
           }
-          
         }}
       />
       {valueQueryHelper?.[value.id] && <HelperText>{formatMediaQuery(valueQueryHelper?.[value.id] as string)}</HelperText>}
-      <Modal open={editingBreakpoints} title="Breakpoints" onClose={() => {
-        setEditingBreakpoints(false);
-      }}>
-        <p>Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one before it.</p>
-        <Column gap="1rem" fullWidth>
+      <Modal
+        open={editingBreakpoints}
+        title='Breakpoints'
+        onClose={() => {
+          setEditingBreakpoints(false);
+        }}
+      >
+        <p>
+          Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one
+          before it.
+        </p>
+        <Column gap='1rem' fullWidth>
           {controlledBreakpointItems.map((item, index) => {
             // find the previous non-disabled breakpoint
             // and check if the current breakpoint is larger than the previous one
@@ -226,105 +239,143 @@ export const ViewportControls = () => {
             const previousWidth = index === 0 || !previousBreakpoint ? 0 : previousBreakpoint.width;
             const isWidthValue = previousWidth < item.width;
             const isTitleValid = item.title.length > 0;
-            return <Row key={item.id} alignItems='flex-start' justifyContent='space-between' gap="1rem" wrap='nowrap' fullWidth style={{
-              backgroundColor: 'var(--color-gray-900)',
-              padding: item.disabled ? '0 0 0.5rem 1rem' : '0.5rem 1rem 1rem',
-              borderRadius: '8px',
-            }}>
-            <InputField
-              readOnly={item.disabled}
-              style={{
-                width: '100%',
-              }}
-              error={!isTitleValid}
-              helperText={!item.editable ? '' : isTitleValid ? 'Enter a name for this breakpoint' : 'Name is required'}
-              required
-              value={item.title}
-              label="Title"
-              type="text"
-              disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
-              onChange={event => {
-              const val = event.target.value;
-                setControlledBreakpointItems((prev) => {
-                  const newItems = [...prev];
-                  const index = newItems.findIndex(i => i.id === item.id);
-                  if (index !== -1) {
-                    newItems[index] = {
-                      ...newItems[index],
-                      title: val
-                    };
+            return (
+              <Row
+                key={item.id}
+                alignItems='flex-start'
+                justifyContent='space-between'
+                gap='1rem'
+                wrap='nowrap'
+                fullWidth
+                style={{
+                  backgroundColor: 'var(--color-gray-900)',
+                  padding: item.disabled ? '0 0 0.5rem 1rem' : '0.5rem 1rem 1rem',
+                  borderRadius: '8px',
+                }}
+              >
+                <InputField
+                  readOnly={item.disabled}
+                  style={{
+                    width: '100%',
+                  }}
+                  error={!isTitleValid}
+                  helperText={!item.editable ? '' : isTitleValid ? 'Enter a name for this breakpoint' : 'Name is required'}
+                  required
+                  value={item.title}
+                  label='Title'
+                  type='text'
+                  disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
+                  onChange={event => {
+                    const val = event.target.value;
+                    setControlledBreakpointItems(prev => {
+                      const newItems = [...prev];
+                      const index = newItems.findIndex(i => i.id === item.id);
+                      if (index !== -1) {
+                        newItems[index] = {
+                          ...newItems[index],
+                          title: val,
+                        };
+                      }
+                      return newItems;
+                    });
+                  }}
+                />
+                <InputField
+                  readOnly={item.disabled}
+                  style={{
+                    width: '100%',
+                    opacity: item.disabled ? '0' : '1',
+                  }}
+                  value={item.width}
+                  error={!isWidthValue}
+                  helperText={
+                    !item.editable
+                      ? ''
+                      : isWidthValue
+                        ? 'Enter the max size this breakpoint'
+                        : `Value should be larger than ${previousWidth}`
                   }
-                  return newItems;
-                });
-            }} />
-            <InputField
-              readOnly={item.disabled}
-              style={{
-                width: '100%',
-                opacity: item.disabled ? '0' : '1',
-              }}
-              value={item.width}
-              error={!isWidthValue}
-              helperText={!item.editable ? '' : isWidthValue ? 'Enter the max size this breakpoint' : `Value should be larger than ${previousWidth}`}
-              label="Size"
-              type="number"
-              disabled={!item.editable || item.disabled}
-              className={item.width === 1 && item.id === 'xlg' ? 'hide-value' : ''}
-              slotProps={{
-                input: {
-                  endAdornment: queries && typeof queries[item.id] === 'string' && <Tooltip title={formatMediaQuery(queries[item.id] as string)} placement='top' style={{
-                    display: 'flex'
-                  }}>
-                    <CircleHelp size={18} />
-                  </Tooltip>
-                }
-              }}
-              onChange={event => {
-                const val = event.target.value;
-                setControlledBreakpointItems((prev) => {
-                  const newItems = [...prev];
-                  const index = newItems.findIndex(i => i.id === item.id);
-                  if (index !== -1) {
-                    newItems[index] = {
-                      ...newItems[index],
-                      width: parseInt(val, 10)
-                    };
-                  }
-                  return newItems;
-                });
-              }} />
-            {item.editable ? <SwitchField
-              style={{
-                minWidth: '70px',
-              }}
-              checked={!item.disabled}
-              onChange={(event) => {
-                const val = (event.target as HTMLInputElement).checked;
-                setControlledBreakpointItems((prev) => {
-                  const newItems = [...prev];
-                  const index = newItems.findIndex(i => i.id === item.id);
-                  if (index !== -1) {
-                    newItems[index] = {
-                      ...newItems[index],
-                      disabled: !val
-                    };
-                  }
-                  return newItems;
-                });
-              }} /> : <div style={{
-                minWidth: '70px',
-              }}>&nbsp;</div>}
-          </Row>
+                  label='Size'
+                  type='number'
+                  disabled={!item.editable || item.disabled}
+                  className={item.width === 1 && item.id === 'xlg' ? 'hide-value' : ''}
+                  slotProps={{
+                    input: {
+                      endAdornment: queries && typeof queries[item.id] === 'string' && (
+                        <Tooltip
+                          title={formatMediaQuery(queries[item.id] as string)}
+                          placement='top'
+                          style={{
+                            display: 'flex',
+                          }}
+                        >
+                          <CircleHelp size={18} />
+                        </Tooltip>
+                      ),
+                    },
+                  }}
+                  onChange={event => {
+                    const val = event.target.value;
+                    setControlledBreakpointItems(prev => {
+                      const newItems = [...prev];
+                      const index = newItems.findIndex(i => i.id === item.id);
+                      if (index !== -1) {
+                        newItems[index] = {
+                          ...newItems[index],
+                          width: parseInt(val, 10),
+                        };
+                      }
+                      return newItems;
+                    });
+                  }}
+                />
+                {item.editable ? (
+                  <SwitchField
+                    style={{
+                      minWidth: '70px',
+                    }}
+                    checked={!item.disabled}
+                    onChange={event => {
+                      const val = (event.target as HTMLInputElement).checked;
+                      setControlledBreakpointItems(prev => {
+                        const newItems = [...prev];
+                        const index = newItems.findIndex(i => i.id === item.id);
+                        if (index !== -1) {
+                          newItems[index] = {
+                            ...newItems[index],
+                            disabled: !val,
+                          };
+                        }
+                        return newItems;
+                      });
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      minWidth: '70px',
+                    }}
+                  >
+                    &nbsp;
+                  </div>
+                )}
+              </Row>
+            );
           })}
         </Column>
         <ModalActions>
-          <PrimaryButton disabled={!validBreakpoints} onClick={() => {
-            if (validBreakpoints) {
-              setBreakPointItems(controlledBreakpointItems);
-              setEditingBreakpoints(false);
-              setBreakpoints(breakpointItemToBreakPoints(validBreakpoints));
-            }
-          }}>APPLY</PrimaryButton>
+          <PrimaryButton
+            disabled={!validBreakpoints}
+            onClick={() => {
+              if (validBreakpoints) {
+                setBreakPointItems(controlledBreakpointItems);
+                setEditingBreakpoints(false);
+                setBreakpoints(breakpointItemToBreakPoints(validBreakpoints));
+              }
+            }}
+          >
+            APPLY
+          </PrimaryButton>
         </ModalActions>
       </Modal>
     </StyledViewportControls>

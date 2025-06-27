@@ -1,12 +1,12 @@
-import { IconButton } from '@lib/components/IconButtons';
 import { ReactNode, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
-import { Tooltip } from '@lib/components/Tooltip';
+import { Tooltip } from '@lib/page/shared/Tooltip';
 import { Confirm } from '../../../page/shared/Modal/confirm';
 import { FieldOptions, type FieldOption } from './FieldOptions';
 import { FieldLabel } from './FieldLabel';
+import { IconButton } from '@lib/page/shared/Button/IconButton';
 
 const Description = styled.div`
   font-size: 12px;
@@ -51,9 +51,8 @@ const Label = styled.fieldset`
   }
   &.bp-mode-enabled {
     position: relative;
-    [class*='_IconButton_'] {
-      color: var(--color-gray-50);
-      background-color: var(--color-gray-900);
+    .puck-field {
+      border-left: 4px solid var(--color-primary-500);
     }
   }
 `;
@@ -149,12 +148,12 @@ export function FieldWrapper({
             onToggleBreakpointMode();
           }
         },
-        selected: breakpointMode
+        selected: breakpointMode,
       });
     }
     return options;
   }, [disableBreakpoints, breakpointMode, providedBreakpointValues.length, onToggleBreakpointMode]);
-  
+
   if (omitLabel) {
     return (
       <>
@@ -192,17 +191,24 @@ export function FieldWrapper({
         icon={icon}
         readOnly={readOnly}
         className={`puck-field-label ${!open && collapsible ? 'collapsed' : ''}`}
-        endAdornment={<>
-          {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
-          {collapsible && (
-            <Tooltip placement="left" title={open ? 'Collapse' : 'Expand'}>
-              <IconButton onClick={onToggleBreakpointMode}>
-                {open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-              </IconButton>
-            </Tooltip>
-          )}
-        </>}
-        />
+        endAdornment={
+          <>
+            {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
+            {collapsible && (
+              <IconButton
+                icon={open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                onClick={onToggleBreakpointMode}
+                variant='transparent'
+                size='xs'
+                tooltipProps={{
+                  placement: 'left',
+                }}
+                aria-label={open ? 'Collapse' : 'Expand'}
+              />
+            )}
+          </>
+        }
+      />
       <Field className={`puck-field ${!open && collapsible ? 'collapsed' : ''} `}>{children}</Field>
       {breakpointMode && !disableBreakpoints && (
         <>

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
-import { Tooltip } from '@lib/components/Tooltip';
+import { Tooltip } from '@lib/page/shared/Tooltip';
 import { ReactNode } from '@tanstack/react-router';
 import { InfoIcon, Lock } from 'lucide-react';
 
@@ -37,22 +37,14 @@ type FieldLabelProps = {
   startAdornment?: ReactNode;
 } & React.ComponentPropsWithoutRef<'span'>;
 
-export function FieldLabel({
-  label,
-  description,
-  icon = null,
-  readOnly,
-  startAdornment,
-  endAdornment,
-  ...rest
-}: FieldLabelProps) {
+export function FieldLabel({ label, description, icon = null, readOnly, startAdornment, endAdornment, ...rest }: FieldLabelProps) {
   return (
     <LabelContainer {...rest}>
       <Row fullWidth alignItems='center' justifyContent='space-between'>
         {startAdornment}
         <Tooltip title={description} placement='left'>
           <Row alignItems='center' wrap='nowrap'>
-            {(icon || description) ? <LabelIcon>{icon || <InfoIcon size={16} />}</LabelIcon> : null}
+            {icon || description ? <LabelIcon>{icon || <InfoIcon size={16} />}</LabelIcon> : null}
             {label}
             {readOnly && (
               <DisabledIcon title='Read-only'>

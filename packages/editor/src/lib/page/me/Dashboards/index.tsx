@@ -1,6 +1,19 @@
 import { useMemo, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { PlusIcon, EditIcon, LayoutDashboardIcon, SearchIcon, InfoIcon, EyeIcon, FileTextIcon, X, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import {
+  PlusIcon,
+  EditIcon,
+  LayoutDashboardIcon,
+  SearchIcon,
+  InfoIcon,
+  EyeIcon,
+  FileTextIcon,
+  X,
+  MoreVertical,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage } from '@lib/api/dashboard';
 import { Spinner } from '@lib/components/Spinner';
@@ -13,7 +26,7 @@ import { Column, Row } from '@hakit/components';
 import { toReadableDate } from '@lib/page/shared/helpers';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
-import { Tooltip } from '@lib/components/Tooltip';
+import { Tooltip } from '@lib/page/shared/Tooltip';
 import { DashboardWithoutPageData, DashboardPageWithoutData } from '@typings/dashboard';
 import {
   TableContainer as StyledTableContainer,
@@ -26,7 +39,7 @@ import {
   CollapsibleRow,
   ChildTableRow,
   ExpandIcon,
-} from '@lib/components/Table';
+} from '@lib/page/shared/Table';
 import { Fab, SecondaryButton } from '@lib/page/shared/Button';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
@@ -59,7 +72,7 @@ const PageHeader = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  
+
   @media (min-width: var(--breakpoint-md)) {
     flex-direction: row;
     align-items: center;
@@ -138,7 +151,7 @@ const ThumbnailContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -156,7 +169,7 @@ const PageThumbnailContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -206,35 +219,53 @@ const ActionButtons = styled.div`
 
 const PageCount = styled.span<{ isEmpty?: boolean }>`
   font-size: var(--font-size-xs);
-  color: ${props => props.isEmpty ? 'var(--color-text-muted)' : 'var(--color-text-muted)'};
-  font-style: ${props => props.isEmpty ? 'italic' : 'normal'};
+  color: ${props => (props.isEmpty ? 'var(--color-text-muted)' : 'var(--color-text-muted)')};
+  font-style: ${props => (props.isEmpty ? 'italic' : 'normal')};
 `;
 
 const ChildTable = styled(StyledTable)`
   table-layout: fixed;
   width: 100%;
-  
+
   /* Force column widths to match parent table */
-  colgroup col:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
-  colgroup col:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
-  colgroup col:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  colgroup col:nth-child(4) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
-  
+  colgroup col:nth-child(1) {
+    width: ${TABLE_COLUMNS.DASHBOARD.width};
+    min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth};
+  }
+  colgroup col:nth-child(2) {
+    width: ${TABLE_COLUMNS.PATH.width};
+  }
+  colgroup col:nth-child(3) {
+    width: ${TABLE_COLUMNS.CREATED.width};
+  }
+  colgroup col:nth-child(4) {
+    width: ${TABLE_COLUMNS.ACTIONS.width};
+  }
+
   /* Ensure cells respect the column widths */
-  td:nth-child(1) { width: ${TABLE_COLUMNS.DASHBOARD.width}; min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth}; }
-  td:nth-child(2) { width: ${TABLE_COLUMNS.PATH.width}; }
-  td:nth-child(3) { width: ${TABLE_COLUMNS.CREATED.width}; }
-  td:nth-child(4) { width: ${TABLE_COLUMNS.ACTIONS.width}; }
+  td:nth-child(1) {
+    width: ${TABLE_COLUMNS.DASHBOARD.width};
+    min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth};
+  }
+  td:nth-child(2) {
+    width: ${TABLE_COLUMNS.PATH.width};
+  }
+  td:nth-child(3) {
+    width: ${TABLE_COLUMNS.CREATED.width};
+  }
+  td:nth-child(4) {
+    width: ${TABLE_COLUMNS.ACTIONS.width};
+  }
 `;
 
 // Sortable Header Component
 const SortableHeaderCell = styled(TableHeaderCell)<{ sortable?: boolean }>`
-  cursor: ${props => props.sortable ? 'pointer' : 'default'};
+  cursor: ${props => (props.sortable ? 'pointer' : 'default')};
   user-select: none;
   transition: background-color var(--transition-normal);
-  
+
   &:hover {
-    background-color: ${props => props.sortable ? 'var(--color-gray-700)' : 'transparent'};
+    background-color: ${props => (props.sortable ? 'var(--color-gray-700)' : 'transparent')};
   }
 `;
 
@@ -247,7 +278,7 @@ const SortHeaderContent = styled.div`
 const SortIcon = styled.div<{ direction?: 'asc' | 'desc' }>`
   display: flex;
   align-items: center;
-  opacity: ${props => props.direction ? 1 : 0.5};
+  opacity: ${props => (props.direction ? 1 : 0.5)};
   transition: opacity var(--transition-normal);
 `;
 
@@ -290,12 +321,7 @@ export function MyDashboards() {
   };
 
   // Unified action handlers with type discrimination
-  const handleMenuOpen = (
-    event: React.MouseEvent<HTMLElement>, 
-    type: 'dashboard' | 'page', 
-    dashboardId: string, 
-    pageId?: string
-  ) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, type: 'dashboard' | 'page', dashboardId: string, pageId?: string) => {
     event.stopPropagation();
     setMenuAnchorEl(event.currentTarget);
     setMenuDashboardId(dashboardId);
@@ -312,7 +338,7 @@ export function MyDashboards() {
 
   const handleView = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
-    
+
     if (type === 'dashboard') {
       const dashboard = getDashboardById(dashboards || [], id);
       if (dashboard) {
@@ -350,7 +376,7 @@ export function MyDashboards() {
 
   const handleEdit = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
-    
+
     if (type === 'dashboard') {
       setEditingDashboardId(id);
       setFormMode('edit');
@@ -400,7 +426,7 @@ export function MyDashboards() {
 
   const handleDelete = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
-    
+
     if (type === 'dashboard') {
       setDeletingDashboardId(id);
       setDeleteConfirmOpen(true);
@@ -421,13 +447,13 @@ export function MyDashboards() {
   const handleSort = (column: SortColumn) => {
     setSortConfig(prev => ({
       column,
-      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
   const handleDuplicate = (type: 'dashboard' | 'page', id: string, dashboardId?: string) => {
     handleMenuClose();
-    
+
     if (type === 'dashboard') {
       setEditingDashboardId(id);
       setFormMode('duplicate');
@@ -443,10 +469,13 @@ export function MyDashboards() {
     if (deletingDashboardId) {
       // Delete dashboard
       try {
-        await deleteDashboard({ id: deletingDashboardId }, {
-          success: 'Dashboard deleted',
-          error: 'Failed to delete dashboard'
-        });
+        await deleteDashboard(
+          { id: deletingDashboardId },
+          {
+            success: 'Dashboard deleted',
+            error: 'Failed to delete dashboard',
+          }
+        );
         dashboardsQuery.refetch();
         setDeleteConfirmOpen(false);
         setDeletingDashboardId(null);
@@ -458,10 +487,13 @@ export function MyDashboards() {
     } else if (deletingPageId && deletingPageDashboardId) {
       // Delete page
       try {
-        await deleteDashboardPage({ id: deletingPageDashboardId, pageId: deletingPageId }, {
-          success: 'Page deleted',
-          error: 'Failed to delete page',
-        });
+        await deleteDashboardPage(
+          { id: deletingPageDashboardId, pageId: deletingPageId },
+          {
+            success: 'Page deleted',
+            error: 'Failed to delete page',
+          }
+        );
         dashboardsQuery.refetch();
         setDeleteConfirmOpen(false);
         setDeletingPageId(null);
@@ -511,10 +543,9 @@ export function MyDashboards() {
       for (const dashboard of dashboardsToProcess) {
         const dashboardNameMatch = dashboard.name.toLowerCase().includes(query);
         const dashboardPathMatch = dashboard.path.toLowerCase().includes(query);
-        
-        const matchedPages = dashboard.pages.filter(page => 
-          page.name.toLowerCase().includes(query) || 
-          page.path.toLowerCase().includes(query)
+
+        const matchedPages = dashboard.pages.filter(
+          page => page.name.toLowerCase().includes(query) || page.path.toLowerCase().includes(query)
         );
 
         if (dashboardNameMatch || dashboardPathMatch || matchedPages.length > 0) {
@@ -522,15 +553,15 @@ export function MyDashboards() {
           matchedDashboards.push({
             ...dashboard,
             matchedPages: hasPageMatch ? matchedPages : dashboard.pages,
-            hasPageMatch
+            hasPageMatch,
           });
-          
+
           if (hasPageMatch) {
             dashboardsToExpandLocal.push(dashboard.id);
           }
         }
       }
-      
+
       dashboardsToProcess = matchedDashboards;
     }
 
@@ -570,8 +601,11 @@ export function MyDashboards() {
     return {
       dashboards: sortedDashboards,
       hasMatches: searchQuery.trim() ? sortedDashboards.length > 0 : true,
-      matchType: searchQuery.trim() && sortedDashboards.some(d => (d as DashboardWithMatching).hasPageMatch) ? 'pages' : 'dashboards' as 'pages' | 'dashboards' | null,
-      dashboardsToExpand: searchQuery.trim() ? sortedDashboards.filter(d => (d as DashboardWithMatching).hasPageMatch).map(d => d.id) : []
+      matchType:
+        searchQuery.trim() && sortedDashboards.some(d => (d as DashboardWithMatching).hasPageMatch)
+          ? 'pages'
+          : ('dashboards' as 'pages' | 'dashboards' | null),
+      dashboardsToExpand: searchQuery.trim() ? sortedDashboards.filter(d => (d as DashboardWithMatching).hasPageMatch).map(d => d.id) : [],
     };
   }, [dashboards, searchQuery, sortConfig]);
 
@@ -602,26 +636,24 @@ export function MyDashboards() {
   }, [searchQuery, previousSearchQuery, setPreviousSearchQuery]);
 
   if (!dashboards) {
-    return <Spinner absolute text="Loading dashboard data" />;
+    return <Spinner absolute text='Loading dashboard data' />;
   }
 
   const deletingDashboard = dashboards?.find(d => d.id === deletingDashboardId);
-  const deletingPage = deletingPageDashboardId && deletingPageId ? 
-    dashboards?.find(d => d.id === deletingPageDashboardId)?.pages.find(p => p.id === deletingPageId) : 
-    null;
+  const deletingPage =
+    deletingPageDashboardId && deletingPageId
+      ? dashboards?.find(d => d.id === deletingPageDashboardId)?.pages.find(p => p.id === deletingPageId)
+      : null;
 
   return (
     <Container>
       <PageHeader>
-        <Row fullWidth justifyContent="space-between" alignItems="center">
+        <Row fullWidth justifyContent='space-between' alignItems='center'>
           <HeaderContent>
             <PageTitle>Dashboards</PageTitle>
             <PageSubtitle>Manage your custom dashboards</PageSubtitle>
           </HeaderContent>
-          <PrimaryButton 
-            onClick={() => setFormMode('new')}
-            startIcon={<PlusIcon size={16} />}
-          >
+          <PrimaryButton onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
             Create Dashboard
           </PrimaryButton>
         </Row>
@@ -633,36 +665,42 @@ export function MyDashboards() {
             width: '100%',
             paddingTop: '0',
           }}
-          type="text"
-          placeholder="Search dashboards and pages..."
+          type='text'
+          placeholder='Search dashboards and pages...'
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          variant="outlined"
-          size="small"
+          onChange={e => setSearchQuery(e.target.value)}
+          variant='outlined'
+          size='small'
           fullWidth
           slotProps={{
             input: {
               startAdornment: (
-                <InputAdornment position="start">
+                <InputAdornment position='start'>
                   <SearchIcon size={18} />
                 </InputAdornment>
               ),
-                        },
+            },
           }}
         />
       </SearchAndFilter>
 
       {searchQuery && hasMatches && (
         <SearchFilterIndicator>
-          <Row gap="var(--space-3)" alignItems="center">
+          <Row gap='var(--space-3)' alignItems='center'>
             <InfoIcon size={14} />
             <span>
               Filtering {matchType === 'pages' ? 'pages and dashboards' : 'dashboards'} by &ldquo;{searchQuery}&rdquo;
             </span>
           </Row>
-          <Fab tooltipProps={{
-            placement: 'left'
-          }} variant="transparent" size="sm" icon={<X size={16} onClick={() => setSearchQuery('')} />} aria-label="Clear search term" />
+          <Fab
+            tooltipProps={{
+              placement: 'left',
+            }}
+            variant='transparent'
+            size='sm'
+            icon={<X size={16} onClick={() => setSearchQuery('')} />}
+            aria-label='Clear search term'
+          />
         </SearchFilterIndicator>
       )}
 
@@ -694,33 +732,28 @@ export function MyDashboards() {
 
       <Confirm
         open={deleteConfirmOpen}
-        title={deletingDashboard ? "Delete Dashboard" : "Delete Page"}
+        title={deletingDashboard ? 'Delete Dashboard' : 'Delete Page'}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       >
         <p>
-          Are you sure you want to delete{' '}
-          <strong>
-            &ldquo;{deletingDashboard ? deletingDashboard.name : deletingPage?.name}&rdquo;
-          </strong>? This action cannot be undone.
+          Are you sure you want to delete <strong>&ldquo;{deletingDashboard ? deletingDashboard.name : deletingPage?.name}&rdquo;</strong>?
+          This action cannot be undone.
         </p>
       </Confirm>
 
       {filteredDashboards.length === 0 ? (
         <EmptyState
           icon={<LayoutDashboardIcon size={64} />}
-          title={searchQuery ? "No results found" : "No dashboards yet"}
+          title={searchQuery ? 'No results found' : 'No dashboards yet'}
           description={
-            searchQuery 
+            searchQuery
               ? `No dashboards or pages match "${searchQuery}". Try adjusting your search terms.`
-              : "Create your first dashboard to get started with building custom Home Assistant interfaces."
+              : 'Create your first dashboard to get started with building custom Home Assistant interfaces.'
           }
           actions={
             !searchQuery ? (
-              <PrimaryButton 
-                onClick={() => setFormMode('new')}
-                startIcon={<PlusIcon size={16} />}
-              >
+              <PrimaryButton onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
                 Create Your First Dashboard
               </PrimaryButton>
             ) : null
@@ -737,7 +770,7 @@ export function MyDashboards() {
             </colgroup>
             <StyledTableHead>
               <StyledTableRow>
-                <SortableHeaderCell 
+                <SortableHeaderCell
                   width={TABLE_COLUMNS.DASHBOARD.width}
                   minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
                   sortable
@@ -747,40 +780,43 @@ export function MyDashboards() {
                     <span>Dashboard</span>
                     <SortIcon direction={sortConfig.column === 'name' ? sortConfig.direction : undefined}>
                       {sortConfig.column === 'name' ? (
-                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                        sortConfig.direction === 'asc' ? (
+                          <ArrowUp size={16} />
+                        ) : (
+                          <ArrowDown size={16} />
+                        )
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
                     </SortIcon>
                   </SortHeaderContent>
                 </SortableHeaderCell>
-                <SortableHeaderCell 
-                  width={TABLE_COLUMNS.PATH.width}
-                  sortable
-                  onClick={() => handleSort('path')}
-                >
+                <SortableHeaderCell width={TABLE_COLUMNS.PATH.width} sortable onClick={() => handleSort('path')}>
                   <SortHeaderContent>
                     <span>Path</span>
                     <SortIcon direction={sortConfig.column === 'path' ? sortConfig.direction : undefined}>
                       {sortConfig.column === 'path' ? (
-                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                        sortConfig.direction === 'asc' ? (
+                          <ArrowUp size={16} />
+                        ) : (
+                          <ArrowDown size={16} />
+                        )
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
                     </SortIcon>
                   </SortHeaderContent>
                 </SortableHeaderCell>
-                <SortableHeaderCell 
-                  width={TABLE_COLUMNS.CREATED.width}
-                  hiddenBelow="lg"
-                  sortable
-                  onClick={() => handleSort('created')}
-                >
+                <SortableHeaderCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg' sortable onClick={() => handleSort('created')}>
                   <SortHeaderContent>
                     <span>Created</span>
                     <SortIcon direction={sortConfig.column === 'created' ? sortConfig.direction : undefined}>
                       {sortConfig.column === 'created' ? (
-                        sortConfig.direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />
+                        sortConfig.direction === 'asc' ? (
+                          <ArrowUp size={16} />
+                        ) : (
+                          <ArrowDown size={16} />
+                        )
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
@@ -813,23 +849,15 @@ export function MyDashboards() {
                         <StyledTableBody>
                           <ChildTableRow>
                             <StyledTableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
-                              <Row fullWidth justifyContent="space-between" alignItems="center">
-                                <span>
-                                  {(dashboard.matchedPages || dashboard.pages).length > 0 
-                                    ? 'PAGES'
-                                    : 'No pages found'}
-                                </span>
-                                <PrimaryButton 
-                                  size="sm"
-                                  onClick={() => handleCreatePage(dashboard.id)}
-                                  startIcon={<PlusIcon size={16} />}
-                                >
+                              <Row fullWidth justifyContent='space-between' alignItems='center'>
+                                <span>{(dashboard.matchedPages || dashboard.pages).length > 0 ? 'PAGES' : 'No pages found'}</span>
+                                <PrimaryButton size='sm' onClick={() => handleCreatePage(dashboard.id)} startIcon={<PlusIcon size={16} />}>
                                   Create Page
                                 </PrimaryButton>
                               </Row>
                             </StyledTableCell>
                           </ChildTableRow>
-                          
+
                           {(dashboard.matchedPages || dashboard.pages).map((page: DashboardPageWithoutData) => (
                             <ChildTableRow key={page.id}>
                               <StyledTableCell>
@@ -849,39 +877,39 @@ export function MyDashboards() {
                               <StyledTableCell>
                                 <PagePathText>{page.path}</PagePathText>
                               </StyledTableCell>
-                              <StyledTableCell hiddenBelow="lg">
+                              <StyledTableCell hiddenBelow='lg'>
                                 <Tooltip title={`Updated on ${toReadableDate(page.updatedAt, true)}`}>
                                   <DateText>{toReadableDate(page.createdAt)}</DateText>
                                 </Tooltip>
                               </StyledTableCell>
                               <StyledTableCell>
                                 <ActionButtons>
-                                  <Tooltip title="View Page">
-                                    <SecondaryButton 
-                                      fullHeight 
-                                      size="sm" 
+                                  <Tooltip title='View Page'>
+                                    <SecondaryButton
+                                      fullHeight
+                                      size='sm'
                                       startIcon={<EyeIcon size={14} />}
                                       onClick={() => handleView('page', page.id, dashboard.id)}
                                     >
                                       View
                                     </SecondaryButton>
                                   </Tooltip>
-                                  <Tooltip title="Design Page">
-                                    <SecondaryButton 
-                                      fullHeight 
-                                      size="sm" 
+                                  <Tooltip title='Design Page'>
+                                    <SecondaryButton
+                                      fullHeight
+                                      size='sm'
                                       startIcon={<LayoutDashboardIcon size={14} />}
                                       onClick={() => handleDesign('page', page.id, dashboard.id)}
                                     >
                                       Design
                                     </SecondaryButton>
                                   </Tooltip>
-                                  <Tooltip title="Actions">
-                                    <SecondaryButton 
-                                      fullHeight 
-                                      autoWidth 
-                                      size="sm" 
-                                      onClick={(e) => handleMenuOpen(e, 'page', dashboard.id, page.id)}
+                                  <Tooltip title='Actions'>
+                                    <SecondaryButton
+                                      fullHeight
+                                      autoWidth
+                                      size='sm'
+                                      onClick={e => handleMenuOpen(e, 'page', dashboard.id, page.id)}
                                     >
                                       <MoreVertical size={14} />
                                     </SecondaryButton>
@@ -895,26 +923,20 @@ export function MyDashboards() {
                     </>
                   }
                 >
-                  <StyledTableCell 
-                    width={TABLE_COLUMNS.DASHBOARD.width}
-                    minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
-                  >
+                  <StyledTableCell width={TABLE_COLUMNS.DASHBOARD.width} minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}>
                     <DashboardHeader>
-                      <Tooltip 
+                      <Tooltip
                         title={
-                          expandedDashboards.has(dashboard.id) 
-                            ? "Collapse" 
+                          expandedDashboards.has(dashboard.id)
+                            ? 'Collapse'
                             : (dashboard.matchedPages || dashboard.pages).length === 0
-                              ? "Expand to create page"
-                              : "Expand to view pages"
-                        } 
-                        placement="top"
+                              ? 'Expand to create page'
+                              : 'Expand to view pages'
+                        }
+                        placement='top'
                       >
                         <span>
-                          <ExpandIcon
-                            expanded={expandedDashboards.has(dashboard.id)}
-                            onClick={() => toggleExpanded(dashboard.id)}
-                          />
+                          <ExpandIcon expanded={expandedDashboards.has(dashboard.id)} onClick={() => toggleExpanded(dashboard.id)} />
                         </span>
                       </Tooltip>
                       <DashboardInfo>
@@ -930,7 +952,9 @@ export function MyDashboards() {
                         <Column>
                           <DashboardName>{dashboard.name}</DashboardName>
                           <PageCount isEmpty={dashboard.pages.length === 0}>
-                            {dashboard.pages.length === 0 ? 'No pages' : `${dashboard.pages.length} page${dashboard.pages.length !== 1 ? 's' : ''}`}
+                            {dashboard.pages.length === 0
+                              ? 'No pages'
+                              : `${dashboard.pages.length} page${dashboard.pages.length !== 1 ? 's' : ''}`}
                           </PageCount>
                         </Column>
                       </DashboardInfo>
@@ -939,46 +963,35 @@ export function MyDashboards() {
                   <StyledTableCell width={TABLE_COLUMNS.PATH.width}>
                     <PathText>{dashboard.path}</PathText>
                   </StyledTableCell>
-                  <StyledTableCell 
-                    width={TABLE_COLUMNS.CREATED.width}
-                    hiddenBelow="lg"
-                  >
+                  <StyledTableCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg'>
                     <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt, true)}`}>
                       <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
                     </Tooltip>
                   </StyledTableCell>
-                  <StyledTableCell 
-                    width={TABLE_COLUMNS.ACTIONS.width}
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <StyledTableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
                     <ActionButtons>
-                      <Tooltip title="View Dashboard">
-                        <SecondaryButton 
-                          fullHeight 
-                          size="sm" 
+                      <Tooltip title='View Dashboard'>
+                        <SecondaryButton
+                          fullHeight
+                          size='sm'
                           startIcon={<EyeIcon size={14} />}
                           onClick={() => handleView('dashboard', dashboard.id)}
                         >
                           View
                         </SecondaryButton>
                       </Tooltip>
-                      <Tooltip title="Design Dashboard">
-                        <SecondaryButton 
-                          fullHeight 
-                          size="sm" 
-                          startIcon={<LayoutDashboardIcon size={14} />} 
+                      <Tooltip title='Design Dashboard'>
+                        <SecondaryButton
+                          fullHeight
+                          size='sm'
+                          startIcon={<LayoutDashboardIcon size={14} />}
                           onClick={() => handleDesign('dashboard', dashboard.id)}
                         >
                           Design
                         </SecondaryButton>
                       </Tooltip>
-                      <Tooltip title="Actions">
-                        <SecondaryButton 
-                          fullHeight 
-                          autoWidth 
-                          size="sm" 
-                          onClick={(e) => handleMenuOpen(e, 'dashboard', dashboard.id)}
-                        >
+                      <Tooltip title='Actions'>
+                        <SecondaryButton fullHeight autoWidth size='sm' onClick={e => handleMenuOpen(e, 'dashboard', dashboard.id)}>
                           <MoreVertical size={14} />
                         </SecondaryButton>
                       </Tooltip>
@@ -990,28 +1003,30 @@ export function MyDashboards() {
           </StyledTable>
         </StyledTableContainer>
       )}
-      
+
       <ActionsMenu
         anchorEl={menuAnchorEl}
         open={Boolean(menuAnchorEl)}
         onClose={handleMenuClose}
-        {...(menuType === 'dashboard' ? {
-          type: 'dashboard' as const,
-          id: menuDashboardId || '',
-          onView: handleView,
-          onEdit: handleEdit,
-          onDuplicate: handleDuplicate,
-          onCreatePage: handleCreatePage,
-          onDelete: handleDelete,
-        } : {
-          type: 'page' as const,
-          id: menuPageId || '',
-          dashboardId: menuDashboardId || '',
-          onView: handleView,
-          onEdit: handleEdit,
-          onDuplicate: handleDuplicate,
-          onDelete: handleDelete,
-        })}
+        {...(menuType === 'dashboard'
+          ? {
+              type: 'dashboard' as const,
+              id: menuDashboardId || '',
+              onView: handleView,
+              onEdit: handleEdit,
+              onDuplicate: handleDuplicate,
+              onCreatePage: handleCreatePage,
+              onDelete: handleDelete,
+            }
+          : {
+              type: 'page' as const,
+              id: menuPageId || '',
+              dashboardId: menuDashboardId || '',
+              onView: handleView,
+              onEdit: handleEdit,
+              onDuplicate: handleDuplicate,
+              onDelete: handleDelete,
+            })}
       />
     </Container>
   );
@@ -1062,33 +1077,39 @@ const ActionsMenu = (props: ActionsMenuProps) => {
         horizontal: 'right',
       }}
     >
-      <MenuItem onClick={() => {
-        if (type === 'dashboard') {
-          props.onView('dashboard', id);
-        } else {
-          props.onView('page', id, props.dashboardId);
-        }
-      }}>
+      <MenuItem
+        onClick={() => {
+          if (type === 'dashboard') {
+            props.onView('dashboard', id);
+          } else {
+            props.onView('page', id, props.dashboardId);
+          }
+        }}
+      >
         <EyeIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'View Dashboard' : 'View Page'}
       </MenuItem>
-      <MenuItem onClick={() => {
-        if (type === 'dashboard') {
-          props.onEdit('dashboard', id);
-        } else {
-          props.onEdit('page', id, props.dashboardId);
-        }
-      }}>
+      <MenuItem
+        onClick={() => {
+          if (type === 'dashboard') {
+            props.onEdit('dashboard', id);
+          } else {
+            props.onEdit('page', id, props.dashboardId);
+          }
+        }}
+      >
         <EditIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'Rename Dashboard' : 'Edit Page'}
       </MenuItem>
-      <MenuItem onClick={() => {
-        if (type === 'dashboard') {
-          props.onDuplicate('dashboard', id);
-        } else {
-          props.onDuplicate('page', id, props.dashboardId);
-        }
-      }}>
+      <MenuItem
+        onClick={() => {
+          if (type === 'dashboard') {
+            props.onDuplicate('dashboard', id);
+          } else {
+            props.onDuplicate('page', id, props.dashboardId);
+          }
+        }}
+      >
         <FileTextIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'Duplicate Dashboard' : 'Duplicate Page'}
       </MenuItem>
@@ -1098,14 +1119,14 @@ const ActionsMenu = (props: ActionsMenuProps) => {
           Add Page
         </MenuItem>
       )}
-      <MenuItem 
+      <MenuItem
         onClick={() => {
           if (type === 'dashboard') {
             props.onDelete('dashboard', id);
           } else {
             props.onDelete('page', id, props.dashboardId);
           }
-        }} 
+        }}
         style={{ color: 'var(--color-error-500)' }}
       >
         <LayoutDashboardIcon size={16} style={{ marginRight: 8 }} />

@@ -8,6 +8,7 @@ export function IconButton({
   ...rest
 }: IconButtonProps) {
   return <Fab
+    className={`icon-button ${rest.className || ''}`}
     size="sm"
     borderRadius="var(--radius-md)"
     variant="secondary"

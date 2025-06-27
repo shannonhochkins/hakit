@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ImageUp, X } from 'lucide-react';
-import { IconButton } from '@lib/components/IconButtons';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@lib/page/shared/Modal/confirm';
 import { deleteFile, uploadImage } from '@lib/api/upload';
 import { Spinner } from '@lib/components/Spinner';
+import { IconButton } from '@lib/page/shared/Button/IconButton';
 
 const Container = styled.div`
   padding-top: var(--space-1);
@@ -96,19 +96,19 @@ const FileUploadBox = styled.div`
   font-size: var(--font-size-sm);
   transition: var(--transition-normal);
   transition-property: border-color, background-color;
-  
+
   &:hover {
     border-color: var(--color-primary-300);
     background-color: var(--color-gray-800);
   }
-  
+
   span {
     &.link {
       cursor: pointer;
       font-weight: var(--font-weight-semibold);
       text-decoration: underline;
       color: var(--color-primary-400);
-      
+
       &:hover {
         color: var(--color-primary-300);
       }
@@ -203,7 +203,7 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
   const _onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    
+
     setLoading(true);
     uploadImage(e.target.files)
       .then(response => {
@@ -219,7 +219,6 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
         // TODO - Loading state?
         setLoading(false);
       });
-     
   };
 
   return (
@@ -243,17 +242,21 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
       >
         <p>Are you sure you want to remove this image?</p>
       </Confirm>
-      {loading ? <FileUploadBox>
+      {loading ? (
+        <FileUploadBox>
           <Spinner />
-      </FileUploadBox> : file && file.fileimage ? (
+        </FileUploadBox>
+      ) : file && file.fileimage ? (
         <PreviewBox>
           <RemoveButton
             onClick={() => {
               setConfirmDelete(true);
             }}
-          >
-            <X size={16} />
-          </RemoveButton>
+            variant='transparent'
+            aria-label='Remove image'
+            size='xs'
+            icon={<X size={16} />}
+          />
           <PreviewImage
             src={file.fileimage as string}
             onError={() => {
