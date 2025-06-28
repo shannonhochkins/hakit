@@ -6,7 +6,7 @@ export function useIsPageEditMode(): boolean {
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
     shouldThrow: false,
   });
-  // Check if both dashboardPath and pagePath are present in the params
+  // Check if both dashboardPath and pagePath are present in the params with /edit
   // if true, we're on the drag/drop edit page mode
   return useMemo(() => !!editorParams?.dashboardPath && !!editorParams?.pagePath, [editorParams]);
 }

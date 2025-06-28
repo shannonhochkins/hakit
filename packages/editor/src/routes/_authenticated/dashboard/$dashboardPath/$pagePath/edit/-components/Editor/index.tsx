@@ -27,16 +27,11 @@ export function Editor() {
   const setUnsavedPuckPageData = useGlobalStore(state => state.setUnsavedPuckPageData);
   // const setEmotionCache = useGlobalStore(state => state.setEmotionCache);
   const userConfig = useGlobalStore(state => state.userConfig);
-  const setEditorMode = useGlobalStore(state => state.setEditorMode);
   // const observerRef = useRef<MutationObserver | null>(null);
   const emotionCache = useGlobalStore(state => state.emotionCache);
   const { setLeftSidebarCollapsed, setRightSidebarCollapsed, leftSidebar, rightSidebar } = useEditorUIStore();
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
   const rightPanelRef = useRef<ImperativePanelHandle>(null);
-
-  useEffect(() => {
-    setEditorMode(true);
-  }, [setEditorMode]);
 
   useEffect(() => {
     // If the left sidebar is collapsed, collapse the panel
