@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import styled from '@emotion/styled';
-import { PrimaryButton } from '@lib/page/shared/Button/Primary';
-import { SecondaryButton } from '@lib/page/shared/Button/Secondary';
+import { PrimaryButton } from '@lib/components/Button/Primary';
+import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { PackageIcon, PlusIcon, DownloadIcon } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 
@@ -63,7 +63,6 @@ export const Route = createFileRoute('/_authenticated/me/components/')({
 function RouteComponent() {
   const navigate = useNavigate();
 
-
   const handleBrowseAddons = () => {
     navigate({ to: '/addons' });
   };
@@ -77,10 +76,7 @@ function RouteComponent() {
     <ComponentsContainer>
       <PageHeader>
         <PageTitle>My Components</PageTitle>
-        <PrimaryButton 
-          startIcon={<PlusIcon size={16} />}
-          onClick={handleCreateComponent}
-        >
+        <PrimaryButton startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
           Create Component
         </PrimaryButton>
       </PageHeader>
@@ -91,20 +87,14 @@ function RouteComponent() {
         </EmptyStateIcon>
         <EmptyStateTitle>No custom components yet</EmptyStateTitle>
         <EmptyStateDescription>
-          Extend your dashboards with custom components. Create your own or browse the community addon library 
-          to find components that enhance your Home Assistant experience.
+          Extend your dashboards with custom components. Create your own or browse the community addon library to find components that
+          enhance your Home Assistant experience.
         </EmptyStateDescription>
         <ActionButtons>
-          <PrimaryButton 
-            startIcon={<DownloadIcon size={16} />}
-            onClick={handleBrowseAddons}
-          >
+          <PrimaryButton startIcon={<DownloadIcon size={16} />} onClick={handleBrowseAddons}>
             Browse Addons
           </PrimaryButton>
-          <SecondaryButton 
-            startIcon={<PlusIcon size={16} />}
-            onClick={handleCreateComponent}
-          >
+          <SecondaryButton startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
             Create Custom Component
           </SecondaryButton>
         </ActionButtons>

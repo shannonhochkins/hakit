@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
-import { Tooltip } from '@lib/page/shared/Tooltip';
+import { Tooltip } from '@lib/components/Tooltip';
 import { ReactNode } from '@tanstack/react-router';
 import { InfoIcon, Lock } from 'lucide-react';
 

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import styled from '@emotion/styled';
 import { HelpCircleIcon, BookOpenIcon, MessageCircleIcon } from 'lucide-react';
-import { SecondaryButton } from '@lib/page/shared/Button/Secondary';
+import { SecondaryButton } from '@lib/components/Button/Secondary';
 
 // Styled Components
 const HelpContainer = styled.div`
@@ -27,7 +27,7 @@ const HelpCard = styled.div`
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   transition: all var(--transition-normal);
-  
+
   &:hover {
     border-color: var(--color-border-subtle);
     transform: translateY(-2px);
@@ -57,7 +57,6 @@ export const Route = createFileRoute('/_authenticated/me/help/')({
 });
 
 function RouteComponent() {
-
   const handleExternalLink = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -65,7 +64,7 @@ function RouteComponent() {
   return (
     <HelpContainer>
       <PageTitle>Help & Support</PageTitle>
-      
+
       <HelpGrid>
         <HelpCard>
           <HelpIcon>
@@ -75,9 +74,7 @@ function RouteComponent() {
           <HelpDescription>
             Browse comprehensive guides, tutorials, and API documentation to get the most out of HA KIT Editor.
           </HelpDescription>
-          <SecondaryButton 
-            onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit')}
-          >
+          <SecondaryButton onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit')}>
             View Documentation
           </SecondaryButton>
         </HelpCard>
@@ -90,11 +87,7 @@ function RouteComponent() {
           <HelpDescription>
             Join our Discord community to get help from other users, share your creations, and stay updated.
           </HelpDescription>
-          <SecondaryButton 
-            onClick={() => handleExternalLink('https://discord.gg/65UpetST')}
-          >
-            Join Discord
-          </SecondaryButton>
+          <SecondaryButton onClick={() => handleExternalLink('https://discord.gg/65UpetST')}>Join Discord</SecondaryButton>
         </HelpCard>
 
         <HelpCard>
@@ -102,12 +95,8 @@ function RouteComponent() {
             <HelpCircleIcon size={48} />
           </HelpIcon>
           <HelpTitle>Frequently Asked Questions</HelpTitle>
-          <HelpDescription>
-            Find answers to common questions about installation, configuration, and troubleshooting.
-          </HelpDescription>
-          <SecondaryButton 
-            onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit/discussions')}
-          >
+          <HelpDescription>Find answers to common questions about installation, configuration, and troubleshooting.</HelpDescription>
+          <SecondaryButton onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit/discussions')}>
             View FAQs
           </SecondaryButton>
         </HelpCard>

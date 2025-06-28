@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { ImageUp, X } from 'lucide-react';
 import { Alert, PreloadImage } from '@hakit/components';
-import { Confirm } from '@lib/page/shared/Modal/confirm';
+import { Confirm } from '@lib/components/Modal/confirm';
 import { deleteFile, uploadImage } from '@lib/api/upload';
 import { Spinner } from '@lib/components/Spinner';
-import { IconButton } from '@lib/page/shared/Button/IconButton';
+import { IconButton } from '@lib/components/Button/IconButton';
 
 const Container = styled.div`
   padding-top: var(--space-1);

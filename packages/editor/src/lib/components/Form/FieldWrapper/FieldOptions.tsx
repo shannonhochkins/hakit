@@ -5,16 +5,13 @@ import Checkbox from '@mui/material/Checkbox';
 import styled from '@emotion/styled';
 import { EllipsisVertical } from 'lucide-react';
 import { Column, Row } from '@hakit/components';
-import { IconButton } from '@lib/page/shared/Button/IconButton';
+import { IconButton } from '@lib/components/Button/IconButton';
 
-const Label = styled.span`
-
-`;
+const Label = styled.span``;
 const Description = styled.span`
   font-size: 0.75rem;
   color: var(--color-gray-200);
 `;
-
 
 const ITEM_HEIGHT = 48;
 
@@ -43,8 +40,8 @@ export function FieldOptions({ options }: FieldOptionsProps) {
     <div>
       <IconButton
         onClick={handleClick}
-        variant="transparent"
-        size="xs"
+        variant='transparent'
+        size='xs'
         aria-label='Field Options'
         tooltipProps={{
           placement: 'left',
@@ -71,12 +68,16 @@ export function FieldOptions({ options }: FieldOptionsProps) {
           },
         }}
       >
-        {options.map((option) => (
-          <MenuItem key={option.label} selected={option.selected} onClick={() => {
-            option.onClick?.();
-            handleClose();
-          }}>
-            <Row fullWidth alignItems="center" gap={0.5} justifyContent="flex-start">
+        {options.map(option => (
+          <MenuItem
+            key={option.label}
+            selected={option.selected}
+            onClick={() => {
+              option.onClick?.();
+              handleClose();
+            }}
+          >
+            <Row fullWidth alignItems='center' gap={0.5} justifyContent='flex-start'>
               <Checkbox
                 checked={option.selected}
                 slotProps={{
@@ -87,7 +88,8 @@ export function FieldOptions({ options }: FieldOptionsProps) {
                       color: 'var(--color-gray-100)',
                     },
                   },
-                }} />
+                }}
+              />
               <Column alignItems='flex-start' gap={0.5} justifyContent='flex-start'>
                 <Label>{option.label}</Label>
                 {option.description && <Description>{option.description}</Description>}

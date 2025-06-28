@@ -1,30 +1,28 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Header } from '@lib/page/shared/Header';
-import { HeroSection } from '@lib/page/home/HeroSection';
-import { FeaturesSection } from '@lib/page/home/Features';
-import { DemoSection } from '@lib/page/home/DemoSection';
-import { CTASection } from '@lib/page/home/CTASection';
-import { Footer } from '@lib/page/shared/Footer';
-import { BenefitsSection } from '@lib/page/home/BenefitsSection';
-
+import { createFileRoute } from '@tanstack/react-router';
+import { Header } from '@lib/components/Header';
+import { HeroSection } from '@client/src/routes/-components/HeroSection';
+import { FeaturesSection } from '@client/src/routes/-components/Features';
+import { DemoSection } from '@client/src/routes/-components/DemoSection';
+import { CTASection } from '@client/src/routes/-components/CTASection';
+import { Footer } from '@lib/components/Footer';
+import { BenefitsSection } from '@client/src/routes/-components/BenefitsSection';
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  
-  
-  return <>
-    <Header />
-    <main>
-      <HeroSection />
-      <FeaturesSection />
-      <DemoSection />
-      <BenefitsSection />
-      <CTASection />
-    </main>
-    <Footer />
-  </>
- 
+  return (
+    <>
+      <Header />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+        <DemoSection />
+        <BenefitsSection />
+        <CTASection />
+      </main>
+      <Footer />
+    </>
+  );
 }

@@ -2,11 +2,11 @@ import { ReactNode, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { BreakPoint, Row } from '@hakit/components';
-import { Tooltip } from '@lib/page/shared/Tooltip';
-import { Confirm } from '../../../page/shared/Modal/confirm';
+import { Tooltip } from '@lib/components/Tooltip';
+import { Confirm } from '../../Modal/confirm';
 import { FieldOptions, type FieldOption } from './FieldOptions';
 import { FieldLabel } from './FieldLabel';
-import { IconButton } from '@lib/page/shared/Button/IconButton';
+import { IconButton } from '@lib/components/Button/IconButton';
 
 const Description = styled.div`
   font-size: 12px;

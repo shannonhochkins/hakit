@@ -15,39 +15,39 @@ type EditorUIStore = {
     isCollapsed: boolean;
     activeTab: LeftSidebarTab;
   };
-  
+
   // Right Sidebar State
   rightSidebar: {
     isCollapsed: boolean;
   };
-  
+
   // Fullscreen State
   isFullscreen: boolean;
-  
+
   // Canvas Preview State
   canvasPreview: CanvasPreview;
-  
+
   // Actions
   setLeftSidebarCollapsed: (collapsed: boolean) => void;
   setLeftSidebarTab: (tab: LeftSidebarTab) => void;
-  
+
   setRightSidebarCollapsed: (collapsed: boolean) => void;
-  
+
   setFullscreen: (fullscreen: boolean) => void;
-  
+
   setCanvasPreview: (preview: Partial<CanvasPreview>) => void;
-  
+
   // Reset methods
   resetLeftSidebar: () => void;
   resetRightSidebar: () => void;
 };
 
-const initialLeftSidebarState = {
+const initialLeftSidebarState: EditorUIStore['leftSidebar'] = {
   isCollapsed: false,
   activeTab: 'components' as LeftSidebarTab,
 };
 
-const initialRightSidebarState = {
+const initialRightSidebarState: EditorUIStore['rightSidebar'] = {
   isCollapsed: false,
 };
 
@@ -59,22 +59,22 @@ const initialCanvasPreviewState: CanvasPreview = {
 
 export const useEditorUIStore = create<EditorUIStore>()(
   persist(
-    (set) => ({
+    set => ({
       leftSidebar: initialLeftSidebarState,
       rightSidebar: initialRightSidebarState,
       isFullscreen: false,
       canvasPreview: initialCanvasPreviewState,
-      
+
       setLeftSidebarCollapsed: (collapsed: boolean) =>
-        set((state) => ({
+        set(state => ({
           leftSidebar: {
             ...state.leftSidebar,
             isCollapsed: collapsed,
           },
         })),
-      
+
       setLeftSidebarTab: (tab: LeftSidebarTab) =>
-        set((state) => ({
+        set(state => ({
           leftSidebar: {
             ...state.leftSidebar,
             activeTab: tab,
@@ -82,33 +82,33 @@ export const useEditorUIStore = create<EditorUIStore>()(
             isCollapsed: false,
           },
         })),
-      
+
       setRightSidebarCollapsed: (collapsed: boolean) =>
-        set((state) => ({
+        set(state => ({
           rightSidebar: {
             ...state.rightSidebar,
             isCollapsed: collapsed,
           },
         })),
-      
+
       setFullscreen: (fullscreen: boolean) =>
         set(() => ({
           isFullscreen: fullscreen,
         })),
-      
+
       setCanvasPreview: (preview: Partial<CanvasPreview>) =>
-        set((state) => ({
+        set(state => ({
           canvasPreview: {
             ...state.canvasPreview,
             ...preview,
           },
         })),
-      
+
       resetLeftSidebar: () =>
         set(() => ({
           leftSidebar: initialLeftSidebarState,
         })),
-      
+
       resetRightSidebar: () =>
         set(() => ({
           rightSidebar: initialRightSidebarState,
@@ -116,7 +116,7 @@ export const useEditorUIStore = create<EditorUIStore>()(
     }),
     {
       name: 'hakit-editor-ui-store',
-      partialize: (state) => ({
+      partialize: state => ({
         leftSidebar: {
           isCollapsed: state.leftSidebar.isCollapsed,
           activeTab: state.leftSidebar.activeTab,

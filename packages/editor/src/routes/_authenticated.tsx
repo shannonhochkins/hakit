@@ -1,25 +1,23 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { userQueryOptions } from "../lib/api/user";
-import { useLocalStorage } from "@lib/hooks/useLocalStorage";
-// TODO - move this to a better place
-import { HassModal } from '@lib/components/Dashboard/HassModal';
-import { HassConnect } from "@hakit/core";
-import { useEffect } from "react";
-import { useAuthButtonState } from "@lib/hooks/useAuthButtonState";
-import { Spinner } from "@lib/components/Spinner";
-
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { userQueryOptions } from '../lib/api/user';
+import { useLocalStorage } from '@lib/hooks/useLocalStorage';
+import { HassConnect } from '@hakit/core';
+import { useEffect } from 'react';
+import { useAuthButtonState } from '@lib/hooks/useAuthButtonState';
+import { Spinner } from '@lib/components/Spinner';
+import { HassModal } from '../lib/components/HassModal';
 
 const Login = () => {
   const { buttonState } = useAuthButtonState();
-  
+
   return (
     <div>
       <p>You need to {buttonState.type === 'sign-in' ? 'sign in' : 'create an account'} to continue</p>
       <button>
-        <a href="/api/login">Sign In</a>
+        <a href='/api/login'>Sign In</a>
       </button>
       <button>
-        <a href="/api/register">Create Account</a>
+        <a href='/api/register'>Create Account</a>
       </button>
     </div>
   );
@@ -44,19 +42,18 @@ const Component = () => {
 
   if (!hassUrl) {
     // ask the user for their Home Assistant URL
-    return <HassModal />
+    return <HassModal />;
   }
 
-  return <HassConnect
-    loading={<Spinner absolute text="Connecting to Home Assistant" />}
-    hassUrl={hassUrl}
-    hassToken={hassToken}>
-    <Outlet />
-  </HassConnect>
+  return (
+    <HassConnect loading={<Spinner absolute text='Connecting to Home Assistant' />} hassUrl={hassUrl} hassToken={hassToken}>
+      <Outlet />
+    </HassConnect>
+  );
 };
 
 // src/routes/_authenticated.tsx
-export const Route = createFileRoute("/_authenticated")({
+export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
     const queryClient = context.queryClient;
 
@@ -64,7 +61,7 @@ export const Route = createFileRoute("/_authenticated")({
       const data = await queryClient.fetchQuery(userQueryOptions);
       return data;
     } catch (e) {
-      console.error("Error fetching user data", e);
+      console.error('Error fetching user data', e);
       return { user: null };
     }
   },
