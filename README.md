@@ -1,50 +1,131 @@
 
-# hakit
+# 🏠 HAKIT - Home Assistant Dashboard Creator
 
-## Pre-requisites
+> **Note: This project is currently in active development and not yet ready for production use.**
 
-1. Bun
-2. .env file with DATABASE_URL value, and KINDE env variables listed below
-3. service-account.json
+HAKIT is a powerful, intuitive drag-and-drop dashboard builder designed specifically for Home Assistant enthusiasts. Create stunning, responsive dashboards with unlimited customization options—no coding required.
 
-To install dependencies:
+![HAKIT Dashboard Editor](https://img.shields.io/badge/Status-In%20Development-orange)
+![Built with React](https://img.shields.io/badge/Built%20with-React-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
 
-```bash
-bun install && cd ./packages/client && bun install
-```
+## ✨ Key Features
 
-To run locally:
+### 🎨 **Intuitive Visual Editor**
+- **Drag & Drop Interface**: Click and point to edit with an intuitive, user-friendly UI
+- **Real-time Preview**: See your changes instantly as you build
+- **Undo/Redo Support**: Full history management while editing
+- **Responsive Design**: Create layouts that work perfectly on desktop, tablet, and mobile
 
-```bash
-bun run dev
-```
+### 🏗️ **Advanced Dashboard Management**
+- **Multiple Dashboards**: Create and manage unlimited dashboards
+- **Multi-page Support**: Each dashboard can contain multiple pages
+- **Seamless Navigation**: Link dashboards and pages together effortlessly
+- **Page Selector**: Easily switch between pages during editing
 
-This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+### 🧩 **Powerful Component System**
+- **React-based Components**: Leverage the vast React ecosystem instead of limited Lovelace components
+- **GitHub Integration**: Transform entire GitHub repositories into comprehensive theme packages
+- **Multi-theme Support**: Use multiple themes and repositories simultaneously
+- **Component Repositories**: Support for both individual components and complete theme packages
+- **Unlimited Field Types**: Complete customization with virtually unlimited field options
 
-## GCLOUD Postgres
-- Need to attach IP address to access the DB, will be the server and any local IP needed
+### 🎯 **Developer-Friendly**
+- **React Ecosystem**: Built for React developers—no complex addon structure required
+- **Easy Theme Creation**: Simple repository structure for creating themes
+- **TypeScript Support**: Full type safety throughout the application
+- **Modern Tooling**: Built with Vite, TanStack Router, and modern React patterns
 
+### 🔒 **Secure & Privacy-Focused**
+- **No HA Credentials Required**: Your Home Assistant credentials never leave your device
+- **Cloud Storage**: Optional cloud sync for your dashboard designs
+- **Image Upload Support**: Built-in image management and storage
 
-## Subabase DB with Drizzle-kit ORM
+## 🚀 Planned Features
 
-.env - DATABASE_URL= GET FROM SUPABASE - Use Session pooler url:
+### 📱 **Home Assistant Integration**
+- **Home Assistant Addon**: Render custom dashboards directly within Home Assistant
+- **Native Integration**: Seamless integration with existing Home Assistant workflows
 
-1. Generate sql files from schemas `bun drizzle-kit generate`
-2. Migrate the data to the gcp db table `bun run migrate.ts`
-3. Visualize the database - `bunx drizzle-kit studio`
+### 🎨 **Enhanced Theming**
+- **Professional Themes**: Curated collection of professionally designed themes
+- **Theme Marketplace**: Community-driven theme sharing platform
+- **Advanced Customization**: Even more styling and layout options
 
-When adding new columns, run through all the steps again.
+## 🏗️ Architecture
 
-## Authentication
-Using Kinde for authentication locally, environment variables needed from hakit.kinde.com/admin are:
+HAKIT is built with modern web technologies for maximum performance and developer experience:
 
-```bash
-KINDE_DOMAIN=https://hakit.kinde.com
-KINDE_CLIENT_ID=<REDACTED>
-KINDE_CLIENT_SECRET=<REDACTED
-KINDE_REDIRECT_URI=http://localhost:3000/api/callback
-KINDE_LOGOUT_REDIRECT_URI=http://localhost:3000
-```
+- **Frontend**: React 19 with TypeScript
+- **Backend**: Hono.js API with Bun runtime
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Kinde for secure user management
+- **Storage**: Google Cloud Storage for assets
+- **Editor**: Puck.js for visual editing capabilities
 
-#### Kinde redirect urls
-May need to update the redirect urls in the application settings within the kinde dashboard if new domains are added. The redirect urls are used to redirect the user back to the application after authentication.
+## 🔧 Quick Start
+
+> **Prerequisites**: Bun runtime and Node.js 18+
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/hakit.git
+   cd hakit
+   ```
+
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Fill in your database and authentication details
+   ```
+
+4. **Start development server**
+   ```bash
+   bun run dev
+   ```
+
+5. **Open your browser**
+   Navigate to `http://localhost:3000` to start building!
+
+## 📚 Documentation
+
+- [📖 Development Guide](./docs/DEVELOPMENT.md) - Setup and development instructions
+- [🎨 Design System](./docs/DESIGN_SYSTEM.md) - Design tokens and component guidelines
+- [🎯 Project Roadmap](./docs/TODO.md) - Current progress and upcoming features
+- [🧩 Puck Theme Mapping](./docs/PUCK_THEME_MAPPING.md) - Component theme integration
+
+## 🤝 Contributing
+
+We welcome contributions! This project is in active development, and there are many opportunities to help:
+
+- 🐛 **Bug Reports**: Found an issue? Please report it!
+- 💡 **Feature Requests**: Have ideas for new features?
+- 🎨 **Theme Creation**: Help build amazing themes for the community
+- 📝 **Documentation**: Improve our docs and guides
+- 🧪 **Testing**: Help us test new features and improvements
+
+## 📄 License
+
+This project is proprietary software owned by Shannon Hochkins. 
+
+- **Personal Use**: Free for personal, non-commercial Home Assistant dashboards
+- **Commercial Use**: Requires a commercial license - [Contact for licensing](mailto:your-email@domain.com)
+- **Contributions**: Welcome! Contributors retain no commercial rights to contributions
+
+See the [LICENSE](LICENSE) file for complete terms and conditions.
+
+## 🙏 Acknowledgments
+
+- Home Assistant community for inspiration and feedback
+- React and TypeScript teams for amazing developer tools
+- Puck.js for the powerful visual editing framework
+- All contributors and early adopters helping shape HAKIT
+
+---
+
+**Ready to revolutionize your Home Assistant dashboard experience?** [Get started today!](#-quick-start)

@@ -1,0 +1,47 @@
+HAKIT PROPRIETARY LICENSE
+
+Copyright (c) 2025 Shannon Hochkins. All rights reserved.
+
+HAKIT Dashboard Creator and all associated documentation, files, and components
+(the "Software") are the proprietary and confidential property of Shannon Hochkins.
+
+PERMITTED USES:
+
+- Personal, non-commercial use for creating Home Assistant dashboards
+- Educational purposes and learning
+- Contributing to the project development (subject to contributor agreements)
+- Evaluation and testing purposes
+
+PROHIBITED USES:
+
+- Commercial use, resale, or redistribution without explicit written permission
+- Creating competing products or services based on this Software
+- Sublicensing, selling, or otherwise monetizing the Software or derivatives
+- Removing or altering copyright notices or license terms
+
+COMMERCIAL LICENSING:
+Commercial use, including but not limited to:
+
+- Using HAKIT in a business environment
+- Offering HAKIT-based services to clients
+- Incorporating HAKIT into commercial products
+- Any revenue-generating activities involving HAKIT
+
+requires a separate commercial license. Contact Shannon Hochkins at
+[mail@shannonhochkins.com] for commercial licensing inquiries.
+
+CONTRIBUTIONS:
+By contributing to this project, you agree that your contributions will be
+subject to the same license terms and that Shannon Hochkins retains all
+rights to incorporate contributions into commercial versions.
+
+DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+For questions regarding this license, please contact: [mail@shannonhochkins.com]

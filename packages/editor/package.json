@@ -1,7 +1,10 @@
 {
   "name": "hakit-editor",
+  "description": "React-based visual editor for HAKIT dashboard builder",
   "private": true,
   "version": "1.0.0",
+  "author": "Shannon Hochkins",
+  "license": "PROPRIETARY",
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",

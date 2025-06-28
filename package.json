@@ -1,8 +1,23 @@
 {
   "name": "hakit",
+  "description": "A powerful drag-and-drop dashboard builder for Home Assistant",
+  "version": "1.0.0",
   "module": "packages/server/index.ts",
   "type": "module",
   "private": true,
+  "author": "Shannon Hochkins",
+  "license": "PROPRIETARY",
+  "keywords": [
+    "home-assistant",
+    "dashboard",
+    "react",
+    "typescript",
+    "drag-drop"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/hakit.git"
+  },
   "workspaces": [
     "packages/editor"
   ],
