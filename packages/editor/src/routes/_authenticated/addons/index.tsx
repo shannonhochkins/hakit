@@ -9,8 +9,8 @@ import styled from '@emotion/styled';
 
 
 const FileUploadBox = styled.div`
-  border: 1px dashed var(--puck-color-azure-05);
-  background-color: var(--puck-color-grey-12);
+  border: 1px dashed var(--color-secondary-400);
+  background-color: var(--color-gray-950);
   border-radius: 0.25rem;
   min-height: 100px;
   position: relative;
@@ -20,7 +20,7 @@ const FileUploadBox = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
   font-weight: 400;
   font-size: 15px;
   span {

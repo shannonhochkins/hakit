@@ -12,23 +12,23 @@ import { getDefaultServiceByEntity } from '@lib/helpers/services';
 
 const StyledTextField = styled(TextField)`
   &:focus-visible {
-    outline: 2px solid var(--puck-color-azure-05);
+    outline: 2px solid var(--color-secondary-400);
     outline-offset: 2px;
   }
   .MuiInputBase-root {
     padding-top: 2px;
     padding-bottom: 2px;
-    background-color: var(--puck-color-grey-12);
-    border-color: var(--puck-color-grey-09);
-    color: var(--puck-color-grey-02);
+    background-color: var(--color-gray-950);
+    border-color: var(--color-gray-800);
+    color: var(--color-gray-100);
 
     &.Mui-focused fieldset {
-      border-color: var(--puck-color-azure-05);
+      border-color: var(--color-secondary-400);
     }
     input.MuiInputBase-input {
     }
     .MuiAutocomplete-endAdornment button {
-      color: var(--puck-color-grey-02);
+      color: var(--color-gray-100);
       padding: 0;
       margin-right: -4px;
       .MuiSvgIcon-root {
@@ -41,8 +41,8 @@ const StyledTextField = styled(TextField)`
 const StyledPopper = styled(Popper)({
   [`& .${autocompleteClasses.listbox}`]: {
     boxSizing: 'border-box',
-    backgroundColor: 'var(--puck-color-grey-12)',
-    color: 'var(--puck-color-grey-03)',
+    backgroundColor: 'var(--color-gray-950)',
+    color: 'var(--color-gray-200)',
     '& ul': {
       padding: 0,
       margin: 0,
@@ -52,18 +52,18 @@ const StyledPopper = styled(Popper)({
 
 const RowElement = styled.div`
   &.even li:not([aria-selected='true']) {
-    background-color: var(--puck-color-grey-12);
+    background-color: var(--color-gray-950);
   }
   &.odd li:not([aria-selected='true']) {
-    background-color: var(--puck-color-grey-10);
+    background-color: var(--color-gray-900);
   }
   li[aria-selected='true'] {
-    background-color: var(--puck-color-azure-09) !important;
-    color: var(--puck-color-grey-01);
+    background-color: var(--color-secondary-800) !important;
+    color: var(--color-gray-50);
   }
   &:hover li {
-    background-color: var(--puck-color-grey-05);
-    color: var(--puck-color-grey-02);
+    background-color: var(--color-gray-400);
+    color: var(--color-gray-100);
   }
 `;
 

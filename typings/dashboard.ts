@@ -5,6 +5,8 @@ export type DashboardPageWithoutData = {
     id: string;
     name: string;
     path: string;
+    createdAt: string;
+    updatedAt: string;
     thumbnail: string | null;
 }
 export type DashboardPageWithData = DashboardPageWithoutData & {
@@ -17,6 +19,8 @@ interface Dashboard {
     themeId?: string;
     data: PuckPageData;
     thumbnail: string | null;
+    createdAt: string;
+    updatedAt: string;
     breakpoints: BreakpointItem[];
 }
 

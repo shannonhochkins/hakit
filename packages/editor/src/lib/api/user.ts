@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from '@tanstack/react-query';
 import { api, callApi } from './';
 
 export async function getCurrentUser() {
@@ -6,9 +6,9 @@ export async function getCurrentUser() {
 }
 
 export const userQueryOptions = queryOptions({
-  queryKey: ["get-current-user"],
+  queryKey: ['get-current-user'],
   queryFn: getCurrentUser,
   retry: false,
   staleTime: Infinity,
+  experimental_prefetchInRender: true,
 });
-

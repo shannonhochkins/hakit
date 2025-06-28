@@ -8,15 +8,17 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
-    "build": "bun --filter 'hakit-client' build",
-    "watch:build": "bun --filter 'hakit-client' watch:build",
+    "build": "bun --filter 'hakit-editor' build",
+    "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "bun ./packages/server/index.ts",
-    "dev:client": "bun --filter 'hakit-client' dev",
+    "dev:editor": "bun --filter 'hakit-editor' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
     "dbml": "bun run ./packages/server/db/schema/dbml.ts",
     "test": "bun test",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -32,6 +34,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.1.0",
+    "prettier": "^3.6.2",
     "tsx": "^4.19.3",
     "typescript-eslint": "^8.32.1"
   },
@@ -44,9 +47,10 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/traverse": "^7.26.9",
     "@google-cloud/storage": "^7.15.2",
+    "@hakit/components": "^5.1.1-canary.0",
+    "@hakit/core": "^5.1.1-canary.0",
     "@hono/zod-validator": "^0.4.3",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
-    "@measured/puck": "0.19.0-canary.e62832e",
     "@supabase/supabase-js": "^2.49.3",
     "deep-copy-ts": "^0.5.4",
     "dotenv": "^16.4.7",

@@ -16,12 +16,9 @@ import { type CustomFieldsConfiguration } from '@lib/components/Form';
 import { getDefaultPropsFromFields, transformFields, wrapDefaults, transformProps } from '@lib/helpers/breakpoints';
 import { AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import { type PuckCategories } from '@typings/puck';
 import { usePuckFrame } from '@lib/hooks/usePuckFrame';
 import { useTransformedPuckData } from '@lib/hooks/useTransformedPuckData';
 import { deepCopy } from 'deep-copy-ts';
-import { DropZone } from '@measured/puck';
-
 
 // Automatic extensions
 // import { type Actions, getActionFields, resolveActionFields } from '@lib/puck/EditorComponents/form/definitions/actions';
@@ -44,7 +41,7 @@ export type CustomComponentConfig<
   DataShape = Omit<ComponentData<FieldProps>, 'type'>,
 > = Omit<ComponentConfig<Props, FieldProps, DataShape>, 'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label'> & {
   label: string;
-  category: PuckCategories;
+  category: string;
   fields: CustomFieldsConfiguration<Props, false, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   resolveFields?: (
     data: DeepPartial<DataShape>,
@@ -52,7 +49,7 @@ export type CustomComponentConfig<
       changed: Partial<Record<keyof FieldProps, boolean>>;
       fields: CustomFieldsConfiguration<FieldProps, WithField>;
       lastFields: CustomFieldsConfiguration<FieldProps, WithField>;
-      lastData: (DataShape) | null;
+      lastData: DataShape | null;
       appState: AppState;
       parent: ComponentData | null;
     }
@@ -71,14 +68,13 @@ export type ComponentFactoryData = {
   getAllServices: () => Promise<HassServices | null>;
 };
 
-
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
-export function createComponent<
-  P extends DefaultComponentProps
->(config: CustomComponentConfig<P>): (data: ComponentFactoryData) => Promise<ComponentConfig<P>> {
+export function createComponent<P extends DefaultComponentProps>(
+  config: CustomComponentConfig<P>
+): (data: ComponentFactoryData) => Promise<ComponentConfig<P>> {
   return async function (data: ComponentFactoryData) {
     const _config = deepCopy(config);
     const fields = _config.fields;
@@ -122,12 +118,16 @@ export function createComponent<
       ...config,
       defaultProps: newDefaultProps as ComponentConfig<P>['defaultProps'],
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
-      fields: Object.keys(fields).length === 0 ? {} as Fields<P> : transformedFields as Fields<P>,
+      fields: Object.keys(fields).length === 0 ? ({} as Fields<P>) : (transformedFields as Fields<P>),
       resolveFields: async (data, params) => {
         const activeBreakpoint = data.props.breakpoint ?? 'xlg';
-        const newProps = merge.withOptions({
-          mergeArrays: false,
-        }, newDefaultProps, data.props) as WithId<P>;
+        const newProps = merge.withOptions(
+          {
+            mergeArrays: false,
+          },
+          newDefaultProps,
+          data.props
+        ) as ComponentData<P>['props'];
         data.props = newProps;
         const transformedProps = transformProps(data, activeBreakpoint);
         // if (config.withActions) {
@@ -161,9 +161,13 @@ export function createComponent<
         // Shallowly transform the props, converting all breakpoint objects to single values by the active breakpoint
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const resolvedProps = useMemo(() => {
-          const withDefaults = merge.withOptions({
-            mergeArrays: false,
-          }, newDefaultProps, props) as WithId<WithPuckProps<P>>;
+          const withDefaults = merge.withOptions(
+            {
+              mergeArrays: false,
+            },
+            newDefaultProps,
+            props
+          ) as WithId<WithPuckProps<P>>;
           return transformProps(withDefaults, activeBreakpoint);
         }, [props, activeBreakpoint]);
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -172,13 +176,13 @@ export function createComponent<
           return {
             ...rest,
             dragRef: puck.dragRef,
-            DropZone,
+            renderDropZone: puck.renderDropZone,
             hakit: {
               data,
               editorFrame,
               dashboard,
-              activeBreakpoint
-            }
+              activeBreakpoint,
+            },
           };
         }, [resolvedProps, activeBreakpoint, data, editorFrame, dashboard]);
         // Call the original render with the final single-value props

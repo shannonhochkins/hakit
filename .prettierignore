@@ -1,6 +1,34 @@
 # Add files here to ignore them from prettier formatting
+
+# Dependencies
 **/node_modules
+bun.lock
+
+# Build outputs
 /dist
+.next/
+.rsbuild/
+
+# Generated files
+*.generated.*
+routeTree.gen.ts
+
+# Database
+drizzle/
+
+# Logs
+*.log
+*.log.*
+
+# Environment files
+.env
+.env.*
+
+# Static assets
 **/*.css
-**/*.md
+**/*.min.js
+**/*.min.css
 **/*.mjs
+
+# Documentation
+**/*.md

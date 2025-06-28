@@ -1,9 +1,8 @@
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { AutoField } from '@measured/puck';
 import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/dashboard';
-
+import { useDashboard } from '@lib/hooks/queeries/useDashboard';
 
 interface NavigateProps {
   value: DashboardPageWithoutData | DashboardPageWithoutData[];
@@ -31,21 +30,23 @@ function DashboardPageMultiSelect({
   min?: number;
   max?: number;
 }) {
-  const dashboardMap = useMemo(() => new Map(
-    value?.map(page => [page.id, page]) // or from external source if needed
-  ), [value]);
+  const dashboardMap = useMemo(
+    () =>
+      new Map(
+        value?.map(page => [page.id, page]) // or from external source if needed
+      ),
+    [value]
+  );
 
   const handleChange = (rawValue: Array<{ page: string }>) => {
-    const newValue = rawValue
-      .map(({ page }) => dashboardMap.get(page))
-      .filter((v): v is DashboardPageWithoutData => !!v);
+    const newValue = rawValue.map(({ page }) => dashboardMap.get(page)).filter((v): v is DashboardPageWithoutData => !!v);
 
     onChange(newValue);
   };
 
   const selectedMultiValue = useMemo(() => {
     return value
-      ? (value as DashboardPageWithoutData[]).map((item) => ({ page: item.id }))
+      ? (value as DashboardPageWithoutData[]).map(item => ({ page: item.id }))
       : firstDashboard?.id
         ? [{ page: firstDashboard.id }]
         : [];
@@ -56,9 +57,7 @@ function DashboardPageMultiSelect({
       field={{
         type: 'array',
         label: label ?? 'Unknown',
-        getItemSummary: (item: {
-          page: string;
-        }) => {
+        getItemSummary: (item: { page: string }) => {
           const matchedDashboard = dashboardMap.get(item.page);
           return matchedDashboard?.name ?? firstDashboard?.name ?? '';
         },
@@ -83,19 +82,17 @@ function DashboardPageMultiSelect({
 
 export const Page = memo(function Page({ value, label, muiltiSelect, min, max, onChange }: NavigateProps) {
   const params = useParams({
-    from: '/_authenticated/dashboards/$dashboardPath/$pagePath/edit'
+    from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
   const { pagePath } = params;
-  const dashboard = useGlobalStore(store => store.dashboard);
+  const dashboardQuery = useDashboard(params.dashboardPath);
+  const dashboard = dashboardQuery?.data;
   const dashboardItems = useMemo(() => dashboard?.pages ?? [], [dashboard]);
   const options = useMemo(() => {
-    return (
-      dashboardItems
-        .map(item => ({
-          value: item.id,
-          label: item.name + (item.path === pagePath ? ` (current)` : ''),
-        }))
-    );
+    return dashboardItems.map(item => ({
+      value: item.id,
+      label: item.name + (item.path === pagePath ? ` (current)` : ''),
+    }));
   }, [dashboardItems, pagePath]);
 
   const [firstDashboard] = dashboardItems;
@@ -104,9 +101,13 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
     return new Map(dashboardItems.map(item => [item.id, item]));
   }, [dashboardItems]);
 
-  const handleChange = (value: string | Array<{
-    page: string
-  }>) => {
+  const handleChange = (
+    value:
+      | string
+      | Array<{
+          page: string;
+        }>
+  ) => {
     if (typeof value === 'string') {
       const matchedDashboard = dashboardItems.find(item => item.id === value);
       if (!matchedDashboard) {
@@ -116,6 +117,9 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
           id: matchedDashboard.id,
           name: matchedDashboard.name,
           path: matchedDashboard.path,
+          createdAt: matchedDashboard.createdAt,
+          updatedAt: matchedDashboard.updatedAt,
+          thumbnail: matchedDashboard.thumbnail,
         });
       }
     } else {
@@ -127,27 +131,33 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
             console.error('Invalid page or dashboard not found', page?.page);
             return [];
           }
-          return [{
-            id: matchedDashboard.id,
-            name: matchedDashboard.name,
-            path: matchedDashboard.path
-          }];
+          return [
+            {
+              id: matchedDashboard.id,
+              name: matchedDashboard.name,
+              path: matchedDashboard.path,
+              createdAt: matchedDashboard.createdAt,
+              updatedAt: matchedDashboard.updatedAt,
+              thumbnail: matchedDashboard.thumbnail,
+            },
+          ];
         });
       onChange(pages);
     }
-  }
-
+  };
 
   if (muiltiSelect) {
-   return <DashboardPageMultiSelect
-      value={value as DashboardPageWithoutData[]}
-      label={label}
-      onChange={onChange}
-      options={options}
-      firstDashboard={firstDashboard}
-      min={min}
-      max={max}
-    />
+    return (
+      <DashboardPageMultiSelect
+        value={value as DashboardPageWithoutData[]}
+        label={label}
+        onChange={onChange}
+        options={options}
+        firstDashboard={firstDashboard}
+        min={min}
+        max={max}
+      />
+    );
   }
 
   return (
@@ -160,6 +170,5 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
       onChange={handleChange}
       value={value ? (value as DashboardPageWithoutData).id : firstDashboard.id}
     />
-   
   );
-})
+});

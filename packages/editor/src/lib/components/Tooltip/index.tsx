@@ -6,30 +6,34 @@ const TooltipSpan = styled.span<Pick<TooltipProps, 'placement'>>`
   position: fixed;
   top: 0;
   left: 0;
-  background-color: var(--puck-color-grey-05);
-  color: var(--puck-color-grey-02);
-  padding: 8px;
-  border-radius: 4px;
-  box-shadow: 0px 2px 4px var(--puck-color-grey-12);
-  font-size: 0.75rem;
-  z-index: 1000;
+  background-color: var(--color-gray-800);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-gray-600);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2xl);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  z-index: var(--z-tooltip);
   visibility: hidden;
   opacity: 0;
-  transition: var(--transition-duration) var(--easing);
+  transition: var(--transition-normal);
   transition-property: opacity, visibility;
   pointer-events: none;
   user-select: none;
+  max-width: 200px;
+  word-wrap: break-word;
   transform: ${props => {
     switch (props.placement) {
       default:
       case 'top':
-        return 'translateY(calc(-100% - 10px)) translateX(-50%)';
+        return 'translateY(calc(-100% - var(--space-2))) translateX(-50%)';
       case 'right':
-        return 'translateX(10px) translateY(-50%)';
+        return 'translateX(var(--space-2)) translateY(-50%)';
       case 'bottom':
-        return 'translateY(10px) translateX(-50%)';
+        return 'translateY(var(--space-2)) translateX(-50%)';
       case 'left':
-        return 'translateX(calc(-100% - 10px)) translateY(-50%)';
+        return 'translateX(calc(-100% - var(--space-2))) translateY(-50%)';
     }
   }};
   &::before {
@@ -45,34 +49,38 @@ const TooltipSpan = styled.span<Pick<TooltipProps, 'placement'>>`
         case 'top':
           return `
             border-width: 6px 6px 0 6px;
-            border-color: var(--puck-color-grey-05) transparent transparent transparent;
+            border-color: var(--color-gray-800) transparent transparent transparent;
             top: 100%;
             left: 50%;
             transform: translateX(-50%);
+            filter: drop-shadow(0 1px 0 var(--color-gray-600));
           `;
         case 'right':
           return `
             border-width: 6px 6px 6px 0;
-            border-color: transparent var(--puck-color-grey-05) transparent transparent;
+            border-color: transparent var(--color-gray-800) transparent transparent;
             left: 0;
             top: 50%;
             transform: translate(-100%, -50%);
+            filter: drop-shadow(-1px 0 0 var(--color-gray-600));
           `;
         case 'bottom':
           return `
             border-width: 0 6px 6px 6px;
-            border-color: transparent transparent var(--puck-color-grey-05) transparent;
+            border-color: transparent transparent var(--color-gray-800) transparent;
             bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
+            filter: drop-shadow(0 -1px 0 var(--color-gray-600));
           `;
         case 'left':
           return `
             border-width: 6px 0 6px 6px;
-            border-color: transparent transparent transparent var(--puck-color-grey-05);
+            border-color: transparent transparent transparent var(--color-gray-800);
             right: 0;
             top: 50%;
             transform: translate(100%, -50%);
+            filter: drop-shadow(1px 0 0 var(--color-gray-600));
           `;
       }
     }};

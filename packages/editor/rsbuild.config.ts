@@ -9,9 +9,9 @@ export default defineConfig({
     pluginReact({
       swcReactOptions: {
         importSource: '@emotion/react',
-      }
+      },
     }),
-    pluginModuleFederation(moduleFederationConfig)
+    pluginModuleFederation(moduleFederationConfig),
   ],
   html: {
     template: './static/index.html',
@@ -20,16 +20,19 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     proxy: {
-      context: "/api",
-      target: "http://localhost:5000",
+      context: '/api',
+      target: 'http://localhost:5000',
       changeOrigin: true,
-    }
+    },
   },
   tools: {
     rspack: {
       plugins: [
-        TanStackRouterRspack({ target: 'react', autoCodeSplitting: true }),
-      ]
+        TanStackRouterRspack({
+          target: 'react',
+          autoCodeSplitting: true,
+        }),
+      ],
     },
     swc: {
       jsc: {
@@ -37,6 +40,6 @@ export default defineConfig({
           plugins: [['@swc/plugin-emotion', {}]],
         },
       },
-    }
-  }
+    },
+  },
 });

@@ -58,5 +58,16 @@ export const insertDashboardPageSchema = dashboardPageSchema.pick({
 })
 .extend({
   data: dashboardPageSchema.shape.data.optional(),
-  thumbnail: dashboardSchema.shape.thumbnail.optional(),
+  thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
+});
+
+export const updateDashboardPageSchema = createUpdateSchema(pagesTable).pick({
+  name: true,
+  path: true,
+  data: true,
+  thumbnail: true,
+})
+.extend({
+  data: dashboardPageSchema.shape.data.optional(),
+  thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
 });

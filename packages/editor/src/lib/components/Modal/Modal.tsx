@@ -1,23 +1,11 @@
 import { Column, Row } from '@hakit/components';
+import { Fab } from '@lib/components/Button';
 import styled from '@emotion/styled';
 import { Fragment, ReactNode, useCallback, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
-
-const Fab = styled.button<{
-  size?: number;
-  hasChildren?: boolean;
-}>`
-  flex-shrink: 0;
-  border-radius: 100%;
-  aspect-ratio: 1/1;
-  align-items: center;
-  justify-content: center;
-  display: flex;
-  cursor: pointer;
-`;
 
 const ModalContainer = styled.div`
   --modal-width: 750px;
@@ -26,65 +14,69 @@ const ModalContainer = styled.div`
   left: 50%;
   display: flex;
   width: var(--modal-width);
-  font-weight: 300;
+  font-weight: var(--font-weight-normal);
   max-width: 95%;
   transform: translate3d(-50%, -50%, 0);
-  color: var(--puck-color-grey-02);
+  color: var(--color-text-primary);
   max-height: calc(100% - 4rem);
   overflow: hidden;
-  border-radius: var(--puck-space-px);
-  display: flex;
-  flex-direction: row;
+  border-radius: var(--radius-lg);
+  flex-direction: column;
   align-items: stretch;
-  justify-content: space-between;
-  background-color: var(--puck-color-grey-07);
-  z-index: calc(var(--ha-modal-z-index, 10) + 1);
-  box-shadow: 0px 0px 10px hsla(220, calc(100% * 0.8), 3%, 0.6);
+  justify-content: flex-start;
+  background-color: var(--color-surface-elevated);
+  z-index: calc(var(--z-modal, 1050) + 1);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--color-border);
 `;
 const ModalInner = styled.div`
   display: flex;
-  padding: 0rem 1rem 2rem;
+  padding: var(--space-4);
   align-items: flex-start;
   flex-direction: column;
 `;
+
 const ModalOverflow = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  margin-top: 5rem;
+  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height */
   justify-content: flex-start;
   align-items: stretch;
   width: 100%;
 `;
+
 const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: var(--space-4);
   flex-wrap: nowrap;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  background-color: var(--puck-color-grey-12);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 `;
 
 const Title = styled.h4`
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   max-width: 100%;
-  color: var(--puck-color-grey-01);
+  color: var(--color-text-primary);
 `;
 
 const Description = styled.h4`
   margin: 0;
-  font-weight: 400;
-  font-size: 0.9rem;
-  color: var(--puck-color-grey-023);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 `;
 
 const ModalBackdrop = styled.div`
@@ -94,9 +86,9 @@ const ModalBackdrop = styled.div`
   width: 100%;
   height: 100%;
   cursor: pointer;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: var(--ha-modal-z-index, 10);
-  backdrop-filter: blur(0.25em) brightness(0.75);
+  background: var(--color-surface-overlay);
+  z-index: var(--z-modal-backdrop, 1040);
+  backdrop-filter: blur(var(--blur-sm)) brightness(0.75);
 `;
 
 /** animation variant controls for the modal container */
@@ -132,7 +124,7 @@ export interface ModalProps extends Omit<Extendable, 'title'> {
   autocloseSeconds?: number;
 }
 
-const BASE_Z_INDEX = 500;
+const BASE_Z_INDEX = 1050; // Using design system z-modal value
 
 export function Modal({
   open,
@@ -254,13 +246,15 @@ export function Modal({
               >
                 {headerActions && headerActions()}
                 <Fab
+                  icon={<X size={24} />}
                   onClick={() => {
                     doClose();
                   }}
                   className={`modal-close-button`}
-                >
-                  <X size={24} />
-                </Fab>
+                  aria-label='Close modal'
+                  variant='secondary'
+                  size='sm'
+                />
               </Row>
             </ModalHeader>
             <ModalOverflow className={`modal-overflow`}>

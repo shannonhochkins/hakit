@@ -2,20 +2,16 @@ import { useState, type SyntheticEvent } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
-import { IconButton } from '@lib/components/IconButtons';
 import styled from '@emotion/styled';
 import { EllipsisVertical } from 'lucide-react';
-import { Tooltip } from '@lib/components/Tooltip';
 import { Column, Row } from '@hakit/components';
+import { IconButton } from '@lib/components/Button/IconButton';
 
-const Label = styled.span`
-
-`;
+const Label = styled.span``;
 const Description = styled.span`
   font-size: 0.75rem;
-  color: var(--puck-color-grey-03);
+  color: var(--color-gray-200);
 `;
-
 
 const ITEM_HEIGHT = 48;
 
@@ -42,13 +38,16 @@ export function FieldOptions({ options }: FieldOptionsProps) {
 
   return (
     <div>
-      <Tooltip title="Field Options" placement="left">
-        <IconButton
-          onClick={handleClick}
-        >
-          <EllipsisVertical size={16} />
-        </IconButton>
-      </Tooltip>
+      <IconButton
+        onClick={handleClick}
+        variant='transparent'
+        size='xs'
+        aria-label='Field Options'
+        tooltipProps={{
+          placement: 'left',
+        }}
+        icon={<EllipsisVertical size={16} />}
+      />
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -65,18 +64,20 @@ export function FieldOptions({ options }: FieldOptionsProps) {
           paper: {
             style: {
               maxHeight: ITEM_HEIGHT * 4.5,
-              background: 'var(--puck-color-grey-05)',
-              color: 'var(--puck-color-grey-02)',
             },
           },
         }}
       >
-        {options.map((option) => (
-          <MenuItem key={option.label} selected={option.selected} onClick={() => {
-            option.onClick?.();
-            handleClose();
-          }}>
-            <Row fullWidth alignItems="center" gap={0.5} justifyContent="flex-start">
+        {options.map(option => (
+          <MenuItem
+            key={option.label}
+            selected={option.selected}
+            onClick={() => {
+              option.onClick?.();
+              handleClose();
+            }}
+          >
+            <Row fullWidth alignItems='center' gap={0.5} justifyContent='flex-start'>
               <Checkbox
                 checked={option.selected}
                 slotProps={{
@@ -84,10 +85,11 @@ export function FieldOptions({ options }: FieldOptionsProps) {
                     style: {
                       padding: 0,
                       marginRight: '0.5rem',
-                      color: 'var(--puck-color-grey-02)',
+                      color: 'var(--color-gray-100)',
                     },
                   },
-                }} />
+                }}
+              />
               <Column alignItems='flex-start' gap={0.5} justifyContent='flex-start'>
                 <Label>{option.label}</Label>
                 {option.description && <Description>{option.description}</Description>}

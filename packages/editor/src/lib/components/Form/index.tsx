@@ -32,6 +32,7 @@ import {
   TableCellsSplit,
   ImagePlus,
   CodeXml,
+  Minus,
 } from 'lucide-react';
 import { transformProps, getResolvedBreakpointValue, multipleBreakpointsEnabled } from '@lib/helpers/breakpoints';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
@@ -123,6 +124,11 @@ type HiddenField = {
   type: 'hidden';
 };
 
+type DividerField = BaseField & {
+  type: 'divider';
+  label: string;
+};
+
 type CustomObjectField<
   Props extends DefaultComponentProps = DefaultComponentProps,
   E extends DefaultComponentProps = DefaultComponentProps,
@@ -182,6 +188,7 @@ type CustomField<
       | (SliderField & ExtendedFieldTypes<DataShape> & E)
       | (GridField & ExtendedFieldTypes<DataShape> & E)
       | (CodeField & ExtendedFieldTypes<DataShape> & E)
+      | (DividerField & ExtendedFieldTypes<DataShape> & E)
       | CustomField<Props, E>
     ))
   | (HiddenField & E)
@@ -239,6 +246,7 @@ const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   slider: <Hash size={16} />,
   grid: <TableCellsSplit size={16} />,
   code: <CodeXml size={16} />,
+  divider: <Minus size={16} />,
   // not seen anyway
   hidden: <Hash size={16} />,
 };
@@ -468,6 +476,29 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
           )}
           {field.type === 'code' && (
             <CodeField value={value} language={field.language} onValidate={field.onValidate} onChange={onChange} />
+          )}
+          {field.type === 'divider' && (
+            <div style={{
+              width: '100%',
+              height: '1px',
+              backgroundColor: 'var(--color-border)',
+              margin: 'var(--space-2) 0',
+              position: 'relative'
+            }}>
+              <div style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'var(--color-surface)',
+                padding: '0 var(--space-2)',
+                fontSize: 'var(--font-size-xs)',
+                color: 'var(--color-text-muted)',
+                fontWeight: 'var(--font-weight-medium)'
+              }}>
+                {field.label}
+              </div>
+            </div>
           )}
         </FieldWrapper>
       );

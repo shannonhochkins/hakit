@@ -1,4 +1,4 @@
-import { pgTable, varchar, unique, jsonb, check, index, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, boolean, varchar, unique, jsonb, check, index, timestamp, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // ----------------------
@@ -91,6 +91,8 @@ export const componentsTable = pgTable("components", {
   uploadType: varchar("upload_type", { length: 10 }),
   // optional thumbnail path or URL
   thumbnail: varchar("thumbnail", { length: 255 }),
+  // is the component enabled
+  isEnabled: boolean("is_enabled").default(true).notNull(),
   // store the file reference in the bucket
   objectKey: varchar("objectKey", { length: 250 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })

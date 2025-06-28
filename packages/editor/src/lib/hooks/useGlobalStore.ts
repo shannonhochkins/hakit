@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { PuckPageData, UserConfig } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
-import type { DashboardWithoutPageData, DashboardWithPageData } from "@typings/dashboard";
+import type { DashboardWithPageData } from "@typings/dashboard";
 import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@lib/constants';
 import { BreakpointItem } from '@typings/breakpoints';
