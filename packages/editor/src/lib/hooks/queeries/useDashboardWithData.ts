@@ -2,8 +2,10 @@ import { dashboardByPathWithPageDataQueryOptions } from '@lib/api/dashboard';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useGlobalStore } from '../useGlobalStore';
 
 export function useDashboardWithData(dashboardPath?: string) {
+  const setDashboard = useGlobalStore(store => store.setDashboard);
   // Define the query options separately to avoid spreading type conflicts
   const queryOptions = useMemo(() => {
     if (!dashboardPath) {
@@ -40,6 +42,16 @@ export function useDashboardWithData(dashboardPath?: string) {
       });
     }
   }, [query.isError, query.error]);
+
+  useEffect(() => {
+    // Set the dashboard in global store when data is available
+    if (query.data) {
+      setDashboard(query.data);
+    } else {
+      // Clear the dashboard if no data is returned
+      setDashboard(null);
+    }
+  }, [query.data, setDashboard]);
 
   return useMemo(
     () => ({

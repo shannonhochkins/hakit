@@ -1,8 +1,8 @@
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { AutoField } from '@measured/puck';
 import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/dashboard';
+import { useDashboard } from '@lib/hooks/queeries/useDashboard';
 
 interface NavigateProps {
   value: DashboardPageWithoutData | DashboardPageWithoutData[];
@@ -85,7 +85,8 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
   const { pagePath } = params;
-  const dashboard = useGlobalStore(store => store.dashboard);
+  const dashboardQuery = useDashboard(params.dashboardPath);
+  const dashboard = dashboardQuery?.data;
   const dashboardItems = useMemo(() => dashboard?.pages ?? [], [dashboard]);
   const options = useMemo(() => {
     return dashboardItems.map(item => ({
@@ -116,6 +117,9 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
           id: matchedDashboard.id,
           name: matchedDashboard.name,
           path: matchedDashboard.path,
+          createdAt: matchedDashboard.createdAt,
+          updatedAt: matchedDashboard.updatedAt,
+          thumbnail: matchedDashboard.thumbnail,
         });
       }
     } else {
@@ -132,6 +136,9 @@ export const Page = memo(function Page({ value, label, muiltiSelect, min, max, o
               id: matchedDashboard.id,
               name: matchedDashboard.name,
               path: matchedDashboard.path,
+              createdAt: matchedDashboard.createdAt,
+              updatedAt: matchedDashboard.updatedAt,
+              thumbnail: matchedDashboard.thumbnail,
             },
           ];
         });

@@ -16,7 +16,7 @@ interface DashboardProps {
 
 export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProps) {
   const dashboardQuery = useDashboardWithData(dashboardPath);
-  const setDashboard = useGlobalStore(store => store.setDashboard);
+
   const setBreakpoints = useThemeStore(store => store.setBreakpoints);
   const setBreakPointItems = useGlobalStore(store => store.setBreakPointItems);
 
@@ -36,7 +36,6 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
 
   useEffect(() => {
     if (dashboard && dashboard.pages.length) {
-      setDashboard(dashboard);
       // if there's breakpoints set, use them, else use the default breakpoints
       const breakpoints = dashboard.breakpoints && Array.isArray(dashboard.breakpoints) ? dashboard.breakpoints : DEFAULT_BREAKPOINTS;
       setBreakpoints(breakpointItemToBreakPoints(breakpoints));
@@ -45,7 +44,7 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
         setPuckPageData(matchedPage.data);
       }
     }
-  }, [dashboard, matchedPage, setBreakPointItems, setBreakpoints, setDashboard, setPuckPageData]);
+  }, [dashboard, matchedPage, setBreakPointItems, setBreakpoints, setPuckPageData]);
 
   if (dashboardQuery.isLoading) {
     return <Spinner absolute text='Loading dashboard data' />;
