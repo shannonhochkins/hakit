@@ -9,6 +9,20 @@ HAKIT is a powerful, intuitive drag-and-drop dashboard builder designed specific
 ![Built with React](https://img.shields.io/badge/Built%20with-React-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
 
+---
+
+## 🌟 **Follow the Journey**
+
+**Interested in revolutionizing your Home Assistant dashboards?** 
+
+👉 **[⭐ Star this repository](https://github.com/shannonhochkins/hakit)** to stay updated on our progress and be notified when new features are released!
+
+🔔 **Watch the repo** to get notifications about major updates, releases, and community discussions.
+
+This project is evolving rapidly, and your support helps drive development forward. Join our growing community of Home Assistant enthusiasts who are excited about the future of dashboard creation!
+
+---
+
 ## ✨ Key Features
 
 ### 🎨 **Intuitive Visual Editor**
