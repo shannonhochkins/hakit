@@ -14,6 +14,7 @@ interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
   onClick?: () => Promise<unknown>;
   /** Button label or children. */
   children?: ReactNode;
+  buttonStyles?: React.CSSProperties;
 }
 
 const Container = styled.div`
@@ -54,7 +55,7 @@ const ProgressOverlay = styled.div`
   }
 `;
 
-export function ProgressButton({ disabled = false, onClick, children, title, ...rest }: ProgressButtonProps) {
+export function ProgressButton({ disabled = false, onClick, children, title, buttonStyles, ...rest }: ProgressButtonProps) {
   const [progress, setProgress] = useState(false);
   const [result, setResult] = useState<'success' | 'error' | undefined>(undefined);
 
@@ -86,7 +87,15 @@ export function ProgressButton({ disabled = false, onClick, children, title, ...
 
   return (
     <Container {...rest}>
-      <PrimaryButton aria-label={title || ''} disabled={disabled || progress} onClick={handleClick}>
+      <PrimaryButton
+        aria-label={title || ''}
+        disabled={disabled || progress}
+        onClick={handleClick}
+        tooltipProps={{
+          placement: 'bottom',
+        }}
+        style={buttonStyles}
+      >
         <Row className={result ? 'hidden' : ''} gap='var(--space-1)'>
           {children}
         </Row>

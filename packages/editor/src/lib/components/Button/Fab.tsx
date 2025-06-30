@@ -337,7 +337,6 @@ export const Fab: React.FC<FabProps> = ({
   className,
   ...props
 }) => {
-  console.log('props', props);
   return (
     <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps}>
       <StyledFab

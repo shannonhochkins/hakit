@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Header } from '@lib/components/Header';
+import { Header } from '@client/src/routes/-components/Header';
 import { HeroSection } from '@client/src/routes/-components/HeroSection';
 import { FeaturesSection } from '@client/src/routes/-components/Features';
 import { DemoSection } from '@client/src/routes/-components/DemoSection';
 import { CTASection } from '@client/src/routes/-components/CTASection';
-import { Footer } from '@lib/components/Footer';
+import { Footer } from '@client/src/routes/-components/Footer';
 import { BenefitsSection } from '@client/src/routes/-components/BenefitsSection';
 
 export const Route = createFileRoute('/')({

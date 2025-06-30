@@ -203,17 +203,6 @@ import { Fab } from '@lib/page/shared/Button';
 - **Icon Support**: Start and end icon props
 - **Performance Optimized**: GPU acceleration and optimized transitions
 
-#### Card Component
-```tsx
-const Card = styled.div`
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-md);
-`;
-```
-
 ## 🔧 Customization
 
 To modify the design system:

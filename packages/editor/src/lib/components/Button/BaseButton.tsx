@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { css, keyframes } from '@emotion/react';
 import { ButtonHTMLAttributes } from 'react';
+import { Tooltip, TooltipProps } from '@lib/components/Tooltip';
 
 // Base props interface shared by all button types
 export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +20,10 @@ export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   startIcon?: React.ReactNode;
   /** Custom icon to display after text */
   endIcon?: React.ReactNode;
+  /** Custom label for accessibility */
+  'aria-label': string;
+  /** override the tooltip props */
+  tooltipProps?: Partial<TooltipProps>;
 }
 
 const spin = keyframes`
@@ -28,7 +33,7 @@ const spin = keyframes`
   to {
     transform: translate(-50%, -50%) rotate(360deg);
   }
-`
+`;
 
 // Base button with CSS variables for theming
 const StyledBaseButton = styled.button<BaseButtonProps>`
@@ -64,7 +69,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   justify-content: center;
   gap: var(--space-2);
   cursor: pointer;
-  
+
   /* Typography */
   font-family: inherit;
   font-size: var(--font-size-base);
@@ -72,19 +77,19 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   line-height: var(--line-height-normal);
   text-decoration: none;
   white-space: nowrap;
-  
+
   /* Layout defaults */
   min-width: 120px;
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  
+
   /* Apply CSS variables */
   background: var(--button-bg);
   color: var(--button-color);
   border: var(--button-border);
   box-shadow: var(--button-shadow);
-  
+
   /* Performance optimizations */
   transform: translateZ(0);
   will-change: transform, box-shadow;
@@ -120,7 +125,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
     border: var(--button-border-hover);
     box-shadow: var(--button-shadow-hover);
     transform: var(--button-transform-hover);
-    
+
     &::before {
       background: var(--button-overlay-bg-hover);
       opacity: 1;
@@ -131,7 +136,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   &:focus:not(:disabled) {
     outline: none;
     box-shadow: var(--button-shadow), var(--button-shadow-focus);
-    
+
     &::before {
       background: var(--button-overlay-bg-hover);
       opacity: 1;
@@ -142,7 +147,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   &:focus-visible:not(:disabled) {
     outline: none;
     box-shadow: var(--button-shadow), var(--button-shadow-focus);
-    
+
     &::before {
       background: var(--button-overlay-bg-hover);
       opacity: 1;
@@ -156,7 +161,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
     border: var(--button-border-active);
     box-shadow: var(--button-shadow-active);
     transform: var(--button-transform-active);
-    
+
     &::before {
       background: var(--button-overlay-bg-active);
       opacity: 1;
@@ -175,69 +180,83 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   }
 
   /* Loading state */
-  ${props => props.loading && css`
-    cursor: default;
-    pointer-events: none;
-    color: transparent !important;
-    
-    /* Prevent background color change when loading */
-    &:disabled {
+  ${props =>
+    props.loading &&
+    css`
+      cursor: default;
+      pointer-events: none;
       color: transparent !important;
-      background: var(--button-bg) !important;
-      border: var(--button-border) !important;
-      opacity: 1 !important;
-      cursor: default !important;
-    }
-    
-    &::after {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      top: 50%;
-      left: 50%;
-      border: 2px solid transparent;
-      border-top-color: var(--button-spinner-color);
-      border-radius: 50%;
-      z-index: 2;
-      /* Animation handles both centering and rotation */
-      animation: ${spin} 1s linear infinite;
-    }
-  `}
+
+      /* Prevent background color change when loading */
+      &:disabled {
+        color: transparent !important;
+        background: var(--button-bg) !important;
+        border: var(--button-border) !important;
+        opacity: 1 !important;
+        cursor: default !important;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        border: 2px solid transparent;
+        border-top-color: var(--button-spinner-color);
+        border-radius: 50%;
+        z-index: 2;
+        /* Animation handles both centering and rotation */
+        animation: ${spin} 1s linear infinite;
+      }
+    `}
 
   /* Size variants */
-  ${props => props.size === 'sm' && css`
-    min-width: 80px;
-    padding: var(--space-2) var(--space-4);
-    font-size: var(--font-size-sm);
-  `}
+  ${props =>
+    props.size === 'sm' &&
+    css`
+      min-width: 80px;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+    `}
 
-  ${props => props.size === 'md' && css`
-    min-width: 100px;
-    padding: var(--space-2) var(--space-5);
-    font-size: var(--font-size-base);
-  `}
+  ${props =>
+    props.size === 'md' &&
+    css`
+      min-width: 100px;
+      padding: var(--space-2) var(--space-5);
+      font-size: var(--font-size-base);
+    `}
 
-  ${props => props.size === 'lg' && css`
-    min-width: 160px;
-    padding: var(--space-4) var(--space-8);
-    font-size: var(--font-size-lg);
-  `}
+  ${props =>
+    props.size === 'lg' &&
+    css`
+      min-width: 160px;
+      padding: var(--space-4) var(--space-8);
+      font-size: var(--font-size-lg);
+    `}
 
   /* Full width variant */
-  ${props => props.fullWidth && css`
-    width: 100%;
-    min-width: auto;
-  `}
-  ${props => props.fullHeight && css`
-    height: 100%;
-    min-height: auto;
-  `}
+  ${props =>
+    props.fullWidth &&
+    css`
+      width: 100%;
+      min-width: auto;
+    `}
+  ${props =>
+    props.fullHeight &&
+    css`
+      height: 100%;
+      min-height: auto;
+    `}
 
-  ${props => props.autoWidth && css`
-    width: auto;
-    min-width: 0;
-  `}
+  ${props =>
+    props.autoWidth &&
+    css`
+      width: auto;
+      min-width: 0;
+    `}
 
   svg {
     aspect-ratio: 1 / 1;
@@ -253,7 +272,7 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
   @media (prefers-reduced-motion: reduce) {
     transition: none;
     transform: none !important;
-    
+
     &:hover:not(:disabled),
     &:active:not(:disabled) {
       transform: none;
@@ -262,31 +281,34 @@ const StyledBaseButton = styled.button<BaseButtonProps>`
 `;
 
 // React component wrapper with all logic
-export const BaseButton: React.FC<BaseButtonProps> = ({ 
-  children, 
-  startIcon, 
-  endIcon, 
-  loading, 
+export const BaseButton: React.FC<BaseButtonProps> = ({
+  children,
+  startIcon,
+  endIcon,
+  loading,
   disabled,
   size = 'md',
   fullWidth = false,
   fullHeight = false,
   autoWidth,
-  ...props 
+  tooltipProps,
+  ...props
 }) => {
   return (
-    <StyledBaseButton
-      size={size}
-      loading={loading}
-      fullWidth={fullWidth}
-      fullHeight={fullHeight}
-      disabled={disabled || loading}
-      autoWidth={autoWidth}
-      {...props}
-    >
-      {startIcon && !loading && <>{startIcon}</>}
-      {children}
-      {endIcon && !loading && <>{endIcon}</>}
-    </StyledBaseButton>
+    <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps}>
+      <StyledBaseButton
+        size={size}
+        loading={loading}
+        fullWidth={fullWidth}
+        fullHeight={fullHeight}
+        disabled={disabled || loading}
+        autoWidth={autoWidth}
+        {...props}
+      >
+        {startIcon && !loading && <>{startIcon}</>}
+        {children}
+        {endIcon && !loading && <>{endIcon}</>}
+      </StyledBaseButton>
+    </Tooltip>
   );
 };
