@@ -16,13 +16,6 @@ interface DashboardProps {
 
 export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProps) {
   const dashboardQuery = useDashboardWithData(dashboardPath);
-
-  const setBreakpoints = useThemeStore(store => store.setBreakpoints);
-  const setBreakPointItems = useGlobalStore(store => store.setBreakPointItems);
-
-  const setPuckPageData = useGlobalStore(state => state.setPuckPageData);
-  const setEditorMode = useGlobalStore(state => state.setEditorMode);
-
   const dashboard = dashboardQuery.data;
   const matchedPage = useMemo(
     () => (pagePath ? dashboard?.pages.find(page => page.path === pagePath) : dashboard?.pages[0]),
@@ -31,20 +24,22 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
   const isPageEditMode = useIsPageEditMode();
 
   useEffect(() => {
-    setEditorMode(isPageEditMode);
-  }, [setEditorMode, isPageEditMode]);
+    useGlobalStore.getState().setEditorMode(isPageEditMode);
+  }, [isPageEditMode]);
 
   useEffect(() => {
     if (dashboard && dashboard.pages.length) {
+      const { setBreakPointItems, setPuckPageData, puckPageData } = useGlobalStore.getState();
       // if there's breakpoints set, use them, else use the default breakpoints
       const breakpoints = dashboard.breakpoints && Array.isArray(dashboard.breakpoints) ? dashboard.breakpoints : DEFAULT_BREAKPOINTS;
-      setBreakpoints(breakpointItemToBreakPoints(breakpoints));
+      useThemeStore.getState().setBreakpoints(breakpointItemToBreakPoints(breakpoints));
       setBreakPointItems(breakpoints);
-      if (matchedPage) {
+      if (matchedPage && !puckPageData) {
+        // puckPageData may have already been set by the RecoveryPrompt component
         setPuckPageData(matchedPage.data);
       }
     }
-  }, [dashboard, matchedPage, setBreakPointItems, setBreakpoints, setPuckPageData]);
+  }, [dashboard, matchedPage]);
 
   if (dashboardQuery.isLoading) {
     return <Spinner absolute text='Loading dashboard data' />;

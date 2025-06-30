@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { MenuIcon, XIcon } from 'lucide-react';
 import styled from '@emotion/styled';
-import { PrimaryButton } from '../Button/Primary';
+import { PrimaryButton } from '../../../lib/components/Button/Primary';
 import { useAuthButtonState } from '@lib/hooks/useAuthButtonState';
-import { FeatureText } from '../FeatureText';
+import { FeatureText } from '../../../lib/components/FeatureText';
 import { useNavigate } from '@tanstack/react-router';
 
 const StyledHeader = styled.header`
@@ -86,11 +86,11 @@ const MobileMenuButton = styled.button`
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: color var(--transition-normal);
-  
+
   &:hover {
     color: var(--color-text-primary);
   }
-  
+
   @media (min-width: 768px) {
     display: none;
   }
@@ -100,7 +100,7 @@ const MobileMenu = styled.div`
   display: block;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  
+
   @media (min-width: 768px) {
     display: none;
   }
@@ -129,7 +129,7 @@ const MobileNavLink = styled.a`
   color: inherit;
   text-decoration: none;
   transition: color var(--transition-normal);
-  
+
   &:hover {
     color: var(--color-primary-400);
   }
@@ -141,83 +141,73 @@ export const Header = () => {
   const { buttonState, isLoading } = useAuthButtonState();
 
   const handleAuthButtonClick = () => {
-    if (buttonState.type === 'dashboard') {      
+    if (buttonState.type === 'dashboard') {
       navigate({
-        to: "/me",
+        to: '/me',
         replace: true,
-      })
+      });
     } else {
       // For internal routes, use client-side navigation
       window.location.href = '/api/login';
     }
   };
-   
+
   return (
     <StyledHeader>
       <Container>
         <LogoContainer>
           <LogoWrapper>
-            <FeatureText primary="@HAKIT" secondary="/EDITOR" />
+            <FeatureText primary='@HAKIT' secondary='/EDITOR' />
             <LogoGlow />
           </LogoWrapper>
         </LogoContainer>
-        
+
         <Nav>
           <NavList>
             <NavItem>
-              <NavLink href="#features">Features</NavLink>
+              <NavLink href='#features'>Features</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="#demo">Demo</NavLink>
+              <NavLink href='#demo'>Demo</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="#benefits">Benefits</NavLink>
+              <NavLink href='#benefits'>Benefits</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="#pricing">Pricing</NavLink>
+              <NavLink href='#pricing'>Pricing</NavLink>
             </NavItem>
           </NavList>
         </Nav>
-        
+
         <GetStartedContainer>
-          <PrimaryButton 
-            size="sm" 
-            onClick={handleAuthButtonClick}
-            loading={isLoading}
-            disabled={isLoading}
-          >
+          <PrimaryButton size='sm' onClick={handleAuthButtonClick} loading={isLoading} disabled={isLoading}>
             {isLoading ? 'Loading...' : buttonState.label}
           </PrimaryButton>
         </GetStartedContainer>
-        
+
         <MobileMenuButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
         </MobileMenuButton>
       </Container>
-      
+
       {isMenuOpen && (
         <MobileMenu>
           <MobileMenuContainer>
             <MobileNavList>
               <MobileNavItem>
-                <MobileNavLink href="#features">Features</MobileNavLink>
+                <MobileNavLink href='#features'>Features</MobileNavLink>
               </MobileNavItem>
               <MobileNavItem>
-                <MobileNavLink href="#demo">Demo</MobileNavLink>
+                <MobileNavLink href='#demo'>Demo</MobileNavLink>
               </MobileNavItem>
               <MobileNavItem>
-                <MobileNavLink href="#benefits">Benefits</MobileNavLink>
+                <MobileNavLink href='#benefits'>Benefits</MobileNavLink>
               </MobileNavItem>
               <MobileNavItem>
-                <MobileNavLink href="#pricing">Pricing</MobileNavLink>
+                <MobileNavLink href='#pricing'>Pricing</MobileNavLink>
               </MobileNavItem>
               <MobileNavItem>
-                <PrimaryButton 
-                  size="sm" 
-                  fullWidth 
-                  onClick={handleAuthButtonClick}
-                  disabled={isLoading}
-                >
+                <PrimaryButton size='sm' fullWidth onClick={handleAuthButtonClick} disabled={isLoading}>
                   {isLoading ? 'Loading...' : buttonState.label}
                 </PrimaryButton>
               </MobileNavItem>

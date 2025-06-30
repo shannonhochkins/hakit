@@ -48,7 +48,7 @@ This project is evolving rapidly, and your support helps drive development forwa
 - **React Ecosystem**: Built for React developers—no complex addon structure required
 - **Easy Theme Creation**: Simple repository structure for creating themes
 - **TypeScript Support**: Full type safety throughout the application
-- **Modern Tooling**: Built with Vite, TanStack Router, and modern React patterns
+- **Modern Tooling**: A separate package for ease of addon development is provided
 
 ### 🔒 **Secure & Privacy-Focused**
 - **No HA Credentials Required**: Your Home Assistant credentials never leave your device
@@ -58,8 +58,7 @@ This project is evolving rapidly, and your support helps drive development forwa
 ## 🚀 Planned Features
 
 ### 📱 **Home Assistant Integration**
-- **Home Assistant Addon**: Render custom dashboards directly within Home Assistant
-- **Native Integration**: Seamless integration with existing Home Assistant workflows
+- **Home Assistant Addon**: Render custom dashboards directly within Home Assistant - I'll create an addon for this down the track once stable
 
 ### 🎨 **Enhanced Theming**
 - **Professional Themes**: Curated collection of professionally designed themes
@@ -75,36 +74,7 @@ HAKIT is built with modern web technologies for maximum performance and develope
 - **Database**: PostgreSQL with Drizzle ORM
 - **Authentication**: Kinde for secure user management
 - **Storage**: Google Cloud Storage for assets
-- **Editor**: Puck.js for visual editing capabilities
-
-## 🔧 Quick Start
-
-> **Prerequisites**: Bun runtime and Node.js 18+
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/hakit.git
-   cd hakit
-   ```
-
-2. **Install dependencies**
-   ```bash
-   bun install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Fill in your database and authentication details
-   ```
-
-4. **Start development server**
-   ```bash
-   bun run dev
-   ```
-
-5. **Open your browser**
-   Navigate to `http://localhost:3000` to start building!
+- **Editor**: [Puck](https://github.com/puckeditor/puck) for visual editing capabilities
 
 ## 📚 Documentation
 

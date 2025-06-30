@@ -1,6 +1,9 @@
-# Development Guide
+
+## 🔧 Developer Quick Start
 
 This document contains development notes and setup instructions for contributors.
+
+> **Note**: This project is in active development, so expect changes and updates frequently.
 
 ## Pre-requisites
 
@@ -8,25 +11,34 @@ This document contains development notes and setup instructions for contributors
 2. **Environment Variables** - Copy `.env.example` to `.env` and fill in required values:
    - `DATABASE_URL` - PostgreSQL connection string
    - Kinde authentication variables (see Authentication section)
-3. **Service Account** - `service-account.json` for Google Cloud Storage
 
-## Installation
+## Getting Started
 
-To install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/shannonhochkins/hakit.git
+   cd hakit
+   ```
 
-```bash
-bun install && cd ./packages/client && bun install
-```
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
 
-## Running Locally
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Fill in your database and authentication details
+   ```
 
-To run the development server:
+4. **Start development server**
+   ```bash
+   bun run dev
+   ```
 
-```bash
-bun run dev
-```
+5. **Open your browser**
+   Navigate to `http://localhost:3000` to start building!
 
-This project was created using `bun init` in bun v1.2.4. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 
 ## Database Setup
 

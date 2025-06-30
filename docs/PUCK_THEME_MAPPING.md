@@ -19,18 +19,18 @@ For dark theme compatibility, we **inverted** the mapping:
 ### Grey Scale (Most Important)
 ```css
 /* Original light theme → Dark theme mapping */
---puck-color-grey-01: var(--color-gray-50);   /* #181818 → light gray */
---puck-color-grey-02: var(--color-gray-100);  /* #292929 → light gray */
---puck-color-grey-03: var(--color-gray-200);  /* #404040 → medium light */
---puck-color-grey-04: var(--color-gray-300);  /* #5a5a5a → medium light */
---puck-color-grey-05: var(--color-gray-400);  /* #767676 → medium */
---puck-color-grey-06: var(--color-gray-500);  /* #949494 → medium */
---puck-color-grey-07: var(--color-gray-600);  /* #ababab → medium dark */
---puck-color-grey-08: var(--color-gray-700);  /* #c3c3c3 → dark */
---puck-color-grey-09: var(--color-gray-800);  /* #dcdcdc → darker */
---puck-color-grey-10: var(--color-gray-900);  /* #efefef → very dark */
---puck-color-grey-11: var(--color-gray-950);  /* #f5f5f5 → darkest */
---puck-color-grey-12: var(--color-gray-950);  /* #fafafa → darkest */
+--puck-color-grey-01: var(--color-gray-50); 
+--puck-color-grey-02: var(--color-gray-100); 
+--puck-color-grey-03: var(--color-gray-200); 
+--puck-color-grey-04: var(--color-gray-300); 
+--puck-color-grey-05: var(--color-gray-400); 
+--puck-color-grey-06: var(--color-gray-500); 
+--puck-color-grey-07: var(--color-gray-600); 
+--puck-color-grey-08: var(--color-gray-700); 
+--puck-color-grey-09: var(--color-gray-800); 
+--puck-color-grey-10: var(--color-gray-900); 
+--puck-color-grey-11: var(--color-gray-950); 
+--puck-color-grey-12: var(--color-gray-950); 
 ```
 
 ### Brand Colors
