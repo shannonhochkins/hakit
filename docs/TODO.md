@@ -1,5 +1,3 @@
-- Introduce dropdown menu for selecting a page within a dashboard
-   - Also introduce a way to create a new page, potentially a popup with a name field?
 - Kinde
   - Do i really need this? supabase already has auth, haven't looked into it yet though
   - See if i can capture location of the user, to determine the best database location
@@ -22,11 +20,6 @@ Consider automatically saving after a delete, or when a users tries to refresh t
     - Should skip upload if folder already exists in gcp and just give user access
 
 
-## UI Todos
-
-1. Figure out we can navigate to a DASHBOARD, and then be able to edit a page
-2. From the editor page, swap to other pages, potentially in the top left part of the menu
-
 ## Component data - Page information/data
 - we send a 'hakit' object over to every component with some internal information/methods, we should probably expose the ability to navigate to a page programmatically
     packages/editor/src/lib/helpers/createComponent/index.tsx -> finalProps passes this information across
@@ -47,18 +40,15 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - When saving a dashboard, in the background we should generate a thumbnail of the current page, and save it to the database against the entity (page or dashboard), dashboard will just be the first page as we can't really generate a thumbnail of the dashboard as a whole, or show all images in a slider or something?
 - Needs to be a background task, something like puppeteer, or a headless browser to generate the image as client side, you can only use canvas realistically and its never accurate enough to get a good image of the page
 
-### Page Selector in main UI
-- path field should be automatically populated with tthe name of the page, but we should also allow the user to change this
-- need to add validation as this will be a route path, can't have weird characters
-- need to add a way to delete a page, and also a way to duplicate a page
-- maybe the "new page" option should change to a "customize" option which shows a popup with all pages to manage them
-- What if the user renames the page they're currently on, do we just refresh the page or replace the url?
 
-### Dashboard Selector in main UI
-- duplicate a dashboard - currently only does this, doesn't duplicate related pages which it probably should
-- delete a dashboard - needs confirmation
-- What if the user renames the dashboard they're currently on, do we just refresh the page or replace the url?
-- What if a user deletes the current dashboard, need a seamless way to handle this so routes/requests don't fetch on entities that no longer exist
+
+# Editor
+
+## UX
+- When no repositories are added or remotes, there's technically nothing you can do in the editor
+  - In this case, there will be no components, so the left side bar should have a link back to the me/components portal
+  - Global options for default root? Do we need this? Or can we just display "no options" when there are no fields for any component 
+
 
 ## Fields
 - Breakpoints - A way to clear an individual breakpoint from the little badge style thing that appears underneath the field
@@ -71,14 +61,4 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - Display breakpoint titles in the fields somehow without displaying too long values
 - Hide breakpoint functionality if only one breakpoint is defined/enabled
 - test the shit out of this logic
-
-## Thumbnails 
-Currently, dashboards/pages support thumbnails, but consider removing this as they're not displayed or used
-
-## Navigation Sidebar
-- Hamburger menu should move when sidebar is open
-- May need duplicate functionality to duplicate a dashboard and all pages underneath it
-- no XX found in sidebar doesn't have the right padding, should probably not have a different background color either
-- Design isn't great, but it's okay for now
-- Determine if we should include the "resize" handle for this sidebar too
-- When there's no dashboards, and we create one, there's a request that's fired causing an error
+- Create issue with Puck as we can determine when a code component doesn't exist or not (component exists in data, but not in component config)

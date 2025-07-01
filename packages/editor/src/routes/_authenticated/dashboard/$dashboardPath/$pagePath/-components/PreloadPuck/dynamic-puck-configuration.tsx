@@ -1,7 +1,8 @@
 import React from 'react';
 import { type UserConfig } from '@typings/puck';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps, DropZone } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
+import { type UserOptions } from '@module-federation/runtime-core';
 import { createComponent, type ComponentFactoryData, type CustomComponentConfig } from '@lib/helpers/createComponent';
 
 interface ComponentModule {
@@ -13,7 +14,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const rootConfigs: Array<UserConfig['root'] & { _remoteName?: string }> = [];
   const categories: NonNullable<UserConfig['categories']> = {} as NonNullable<UserConfig['categories']>;
 
-  const remotes = [
+  const remotes: UserOptions['remotes'] = [
     {
       name: '@hakit/test',
       entry: 'http://localhost:3001/mf-manifest.json',
@@ -59,10 +60,14 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
           // it's the same reference to the same element, but just to make puck happy we'll create a new object
           // and cast it here to the correct type
           const customComponent = componentConfig as unknown as CustomComponentConfig<DefaultComponentProps>;
-          const componentLabel = `${remote.name}::${customComponent.label || ''}`;
-          components[componentLabel] = componentConfig;
+          const componentLabel = customComponent.label;
+          components[componentLabel] = {
+            ...componentConfig,
+            // @ts-expect-error - we know this doesn't exist, it's fine.
+            _remoteName: remote.name, // track which remote this came from
+          };
           // we will use the :: as a delimiter to display the actual category/labels correctly
-          const categoryLabel = `${remote.name}::${customComponent.category || ''}`;
+          const categoryLabel = remote.name;
           if (!categories[categoryLabel]) {
             categories[categoryLabel] = {
               title: categoryLabel,
@@ -77,7 +82,21 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   }
 
   if (rootConfigs.length === 0) {
-    throw new Error('No "Root" component found');
+    rootConfigs.push({
+      label: 'Root',
+      fields: {},
+      render(props) {
+        return props.children;
+      },
+    });
+
+    components['Test'] = {
+      label: 'Test',
+      fields: {},
+      defaultProps: {},
+      resolveFields: async () => ({}),
+      render: props => <div ref={props.dragRef}>Test Component</div>,
+    };
   }
 
   // Merge all root configurations
@@ -178,7 +197,9 @@ function mergeRootConfigurations(rootConfigs: Array<UserConfig['root'] & { _remo
               // Preserve the original puck context and editMode
               const mergedProps = {
                 ...rootProps,
+                id: props.id,
                 puck: props.puck,
+                dropZone: DropZone,
                 editMode: props.editMode,
               };
               return (

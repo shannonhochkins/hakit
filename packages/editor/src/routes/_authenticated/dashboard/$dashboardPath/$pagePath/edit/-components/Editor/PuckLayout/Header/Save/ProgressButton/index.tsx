@@ -96,7 +96,7 @@ export function ProgressButton({ disabled = false, onClick, children, title, but
         }}
         style={buttonStyles}
       >
-        <Row className={result ? 'hidden' : ''} gap='var(--space-1)'>
+        <Row className={result ? 'hidden' : ''} gap='var(--space-2)'>
           {children}
         </Row>
       </PrimaryButton>

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Save as SaveIcon } from 'lucide-react';
+import { ExternalLink, Save as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { updateDashboardPageForUser, updateDashboardForUser } from '@client/src/lib/api/dashboard';
@@ -60,10 +60,10 @@ export function Save() {
           } as React.CSSProperties
         }
       >
-        <SaveIcon size={21} />
+        {hasUnsavedChanges ? <SaveIcon size={18} /> : <ExternalLink size={18} />}
         <span
           style={{
-            lineHeight: '21px',
+            lineHeight: '19px',
           }}
         >
           {hasUnsavedChanges ? 'SAVE' : 'VIEW'}

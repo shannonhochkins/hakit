@@ -1,14 +1,15 @@
-import type {
-  DefaultComponentProps,
-  PuckComponent,
-  ComponentConfig,
-  ComponentData,
-  CustomField,
-  AppState,
-  WithId,
-  WithPuckProps,
-  Fields,
-  PuckContext,
+import {
+  type DefaultComponentProps,
+  type PuckComponent,
+  type ComponentConfig,
+  type ComponentData,
+  type CustomField,
+  type AppState,
+  type WithId,
+  type WithPuckProps,
+  type Fields,
+  type PuckContext,
+  DropZone,
 } from '@measured/puck';
 import { useEffect, useMemo } from 'react';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
@@ -41,7 +42,6 @@ export type CustomComponentConfig<
   DataShape = Omit<ComponentData<FieldProps>, 'type'>,
 > = Omit<ComponentConfig<Props, FieldProps, DataShape>, 'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label'> & {
   label: string;
-  category: string;
   fields: CustomFieldsConfiguration<Props, false, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   resolveFields?: (
     data: DeepPartial<DataShape>,
@@ -176,7 +176,7 @@ export function createComponent<P extends DefaultComponentProps>(
           return {
             ...rest,
             dragRef: puck.dragRef,
-            renderDropZone: puck.renderDropZone,
+            dropZone: DropZone,
             hakit: {
               data,
               editorFrame,

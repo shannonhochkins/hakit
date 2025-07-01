@@ -73,8 +73,7 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
       recordHistory: true,
     });
   }, [dispatch]);
-
-  const tabHeading = selectedItem ? `${selectedItem.type.split('::')[1]} Options` : 'Global Options';
+  const tabHeading = selectedItem ? `${selectedItem.type} Options` : 'Global Options';
 
   return (
     <>
