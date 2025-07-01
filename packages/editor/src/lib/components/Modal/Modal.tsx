@@ -122,6 +122,8 @@ export interface ModalProps extends Omit<Extendable, 'title'> {
   headerActions?: () => ReactNode;
   /** Automatically close the modal after the provided number of seconds */
   autocloseSeconds?: number;
+  /** hide the close button @default false */
+  hideCloseButton?: boolean;
 }
 
 const BASE_Z_INDEX = 1050; // Using design system z-modal value
@@ -138,6 +140,7 @@ export function Modal({
   className,
   headerActions,
   autocloseSeconds = undefined,
+  hideCloseButton = false,
   ...rest
 }: ModalProps) {
   const _id = useId();
@@ -245,16 +248,18 @@ export function Modal({
                 }}
               >
                 {headerActions && headerActions()}
-                <Fab
-                  icon={<X size={24} />}
-                  onClick={() => {
-                    doClose();
-                  }}
-                  className={`modal-close-button`}
-                  aria-label='Close modal'
-                  variant='secondary'
-                  size='sm'
-                />
+                {!hideCloseButton && (
+                  <Fab
+                    icon={<X size={24} />}
+                    onClick={() => {
+                      doClose();
+                    }}
+                    className={`modal-close-button`}
+                    aria-label='Close modal'
+                    variant='secondary'
+                    size='sm'
+                  />
+                )}
               </Row>
             </ModalHeader>
             <ModalOverflow className={`modal-overflow`}>

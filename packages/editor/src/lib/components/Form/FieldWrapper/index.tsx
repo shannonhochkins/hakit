@@ -166,7 +166,7 @@ export function FieldWrapper({
     <Label
       className={`${className ?? ''} ${type ? `field-${type}` : ''} ${collapsible ? 'collapsible' : ''} ${breakpointMode && !disableBreakpoints ? 'bp-mode-enabled' : ''}`}
       onClick={() => {
-        if (collapsible?.open) {
+        if (typeof collapsible === 'object') {
           setOpen(!open);
         }
       }}

@@ -4,7 +4,6 @@ import { type CustomFields, type CustomFieldsConfiguration, type CustomFieldsWit
 import { createCustomField } from '@lib/components/Form';
 import { DefaultPropsCallbackData } from '@typings';
 import { BreakpointItem } from '@typings/breakpoints';
-// import { DefaultPropsCallbackData } from '@typings';
 
 // Adjust or confirm your actual ordering:
 export const BREAKPOINT_ORDER: BreakPoint[] = ['xxs', 'xs', 'sm', 'md', 'lg', 'xlg'];
@@ -39,20 +38,20 @@ export function getResolvedBreakpointValue<T>(value: unknown, active: BreakPoint
   // just fallback to `xlg` explicitly:
   return value.xlg as T;
 }
-const excludeList = ['key', 'children', 'puck', 'editMode', 'id'] as const;
-type ExcludedKeys = typeof excludeList[number];
+const excludeList = ['key', 'children', 'puck', 'editMode', 'id', ...BREAKPOINT_ORDER] as const;
+type ExcludedKeys = (typeof excludeList)[number];
 type BreakpointMap<T> = Partial<Record<BreakPoint, T>>;
 
-type TransformProps<T> = 
-  T extends BreakpointMap<infer U> ? TransformProps<U> :
-  T extends Array<infer U> ? TransformProps<U>[] :
-  T extends object ? {
-    [K in keyof T]:
-      K extends ExcludedKeys
-        ? T[K]
-        : TransformProps<T[K]>
-  } :
-  T;
+type TransformProps<T> =
+  T extends BreakpointMap<infer U>
+    ? TransformProps<U>
+    : T extends Array<infer U>
+      ? TransformProps<U>[]
+      : T extends object
+        ? {
+            [K in keyof T]: K extends ExcludedKeys ? T[K] : TransformProps<T[K]>;
+          }
+        : T;
 // Main function that transforms props recursively, including array items.
 export function transformProps<P extends object>(props: P, active: BreakPoint): TransformProps<P> {
   // null/undefined => just return
@@ -179,7 +178,9 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 }
 
-export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(fields: CustomFieldsConfiguration<P, false, DataShape>): CustomFieldsConfiguration<P, true> {
+export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
+  fields: CustomFieldsConfiguration<P, false, DataShape>
+): CustomFieldsConfiguration<P, true> {
   const result = {} as CustomFieldsConfiguration<P, true>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
@@ -211,14 +212,14 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
 
 export function breakpointItemToBreakPoints(breakpoints: BreakpointItem[]): BreakPoints {
   return breakpoints
-  .filter(breakpoint => !breakpoint.disabled)
-  .reduce(
-    (acc, breakpoint) => ({
-      ...acc,
-      [breakpoint.id]: breakpoint.width,
-    }),
-    {} as BreakPoints
-  );
+    .filter(breakpoint => !breakpoint.disabled)
+    .reduce(
+      (acc, breakpoint) => ({
+        ...acc,
+        [breakpoint.id]: breakpoint.width,
+      }),
+      {} as BreakPoints
+    );
 }
 
 /**
@@ -238,12 +239,11 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
     }
 
     if (fieldDef.type === 'entity') {
-      if (typeof fieldDef.options === 'function')  {
+      if (typeof fieldDef.options === 'function') {
         fieldDef.options = await fieldDef.options(data);
       }
       result[fieldName] = await fieldDef.default(fieldDef.options, data);
       fieldDef.default = result[fieldName];
-      
     } else if (fieldDef.type === 'object') {
       // If it's an object, recurse into objectFields
       const nestedDefaults: DefaultComponentProps = {};
@@ -258,9 +258,9 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
             nestedFieldDef.default = nestedDefaults[nestedFieldName];
           } else {
             nestedDefaults[nestedFieldName] =
-            nestedFieldDef.type === 'object'
-              ? await getDefaultPropsFromFields(nestedFieldDef.objectFields as CustomFieldsConfiguration, data)
-              : nestedFieldDef.default;
+              nestedFieldDef.type === 'object'
+                ? await getDefaultPropsFromFields(nestedFieldDef.objectFields as CustomFieldsConfiguration, data)
+                : nestedFieldDef.default;
           }
         }
       }
@@ -276,7 +276,6 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
             }
             nestedArrayDefaults[key] = await nestedArrayField.default(nestedArrayField.options, data);
             nestedArrayField.default = nestedArrayDefaults[key];
-            
           } else {
             nestedArrayDefaults[key] =
               nestedArrayField.type === 'object'

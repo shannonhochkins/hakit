@@ -40,7 +40,6 @@ const StyledTextField = styled(TextField)`
     background: var(--color-surface);
     border-radius: var(--radius-md);
 
-    input[type='text'],
     input[type='number'] {
       padding: var(--space-2) var(--space-4);
       font-size: var(--font-size-sm);
@@ -65,47 +64,28 @@ const StyledTextField = styled(TextField)`
     }
 
     &.Mui-error.Mui-focused fieldset {
+      border-color: var(--color-error-500);
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
-    &.Mui-disabled.MuiOutlinedInput-root {
-      background: var(--color-surface-muted);
+    &.Mui-disabled {
+      background-color: var(--color-surface-muted);
+
+      fieldset {
+        border-color: var(--color-border-subtle);
+      }
 
       input {
         color: var(--color-text-muted);
         -webkit-text-fill-color: var(--color-text-muted);
       }
-
-      div:has(> svg) {
-        color: var(--color-text-muted);
-      }
-
-      fieldset {
-        border-color: var(--color-border-subtle);
-      }
-    }
-  }
-
-  &.MuiFormControl-root.MuiTextField-root label {
-    top: var(--space-1);
-
-    &.Mui-focused {
-      top: var(--space-2);
-    }
-    &.MuiInputLabel-shrink {
-      top: var(--space-2);
     }
   }
 
   &.read-only {
-    label {
-      display: none;
-    }
-    .MuiFormHelperText-root {
-      display: none;
-    }
     .MuiInputBase-root {
-      background: transparent;
+      background-color: var(--color-surface-muted);
+
       fieldset {
         border-color: transparent;
       }
@@ -123,23 +103,82 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-export const InputField = ({
-  className,
-  ...props
-}: TextFieldProps & {
+export interface NumberFieldProps extends Omit<TextFieldProps, 'type' | 'onChange' | 'value'> {
+  value?: number;
+  onChange?: (value: number | undefined) => void;
+  min?: number;
+  max?: number;
+  step?: number;
   readOnly?: boolean;
-}) => {
+}
+
+export const NumberField = ({ className, value, onChange, min, max, step, readOnly, ...props }: NumberFieldProps) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
+
+    const inputValue = event.target.value;
+
+    // If the input is empty, call onChange with undefined
+    if (inputValue === '') {
+      onChange?.(undefined);
+      return;
+    }
+
+    // Parse the number value
+    const numericValue = parseFloat(inputValue);
+
+    // Check if it's a valid number
+    if (!isNaN(numericValue)) {
+      // Apply min/max constraints if provided
+      let constrainedValue = numericValue;
+
+      if (typeof min === 'number' && constrainedValue < min) {
+        constrainedValue = min;
+      }
+
+      if (typeof max === 'number' && constrainedValue > max) {
+        constrainedValue = max;
+      }
+
+      onChange?.(constrainedValue);
+    }
+  };
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (readOnly) return;
+
+    // On blur, ensure the value respects step if provided
+    if (typeof step === 'number' && typeof value === 'number') {
+      const steppedValue = Math.round(value / step) * step;
+      if (steppedValue !== value) {
+        onChange?.(steppedValue);
+      }
+    }
+
+    // Call the original onBlur if provided
+    props.onBlur?.(event);
+  };
+
   return (
     <StyledTextField
-      className={`${className ?? ''} ${props.readOnly ? 'read-only' : ''}`}
+      {...props}
+      type='number'
+      value={value ?? ''}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      className={`${className ?? ''} ${readOnly ? 'read-only' : ''}`}
       slotProps={{
         ...props.slotProps,
         input: {
-          readOnly: props.readOnly,
+          readOnly,
+          inputProps: {
+            min,
+            max,
+            step,
+          },
           ...(props.slotProps?.input ?? {}),
         },
       }}
-      {...props}
     />
   );
 };

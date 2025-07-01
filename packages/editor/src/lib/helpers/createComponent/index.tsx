@@ -128,6 +128,7 @@ export function createComponent<P extends DefaultComponentProps>(
           newDefaultProps,
           data.props
         ) as ComponentData<P>['props'];
+        console.log('resolved', data, newProps);
         data.props = newProps;
         const transformedProps = transformProps(data, activeBreakpoint);
         // if (config.withActions) {

@@ -1,23 +1,8 @@
 import styled from '@emotion/styled';
-import { Radio, RadioGroup, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material';
+import { Radio, RadioGroup, FormControl, FormControlLabel, FormHelperText } from '@mui/material';
 
 const StyledFormControl = styled(FormControl)`
   width: 100%;
-`;
-
-const StyledFormLabel = styled(FormLabel)`
-  color: var(--color-text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--space-2);
-
-  &.Mui-focused {
-    color: var(--color-primary-500);
-  }
-
-  &.Mui-disabled {
-    color: var(--color-text-muted);
-  }
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
@@ -86,7 +71,6 @@ export interface RadioFieldProps {
   value?: string | number | boolean;
   options: RadioOption[];
   onChange?: (value: string | number | boolean) => void;
-  label?: string;
   helperText?: string;
   error?: boolean;
   disabled?: boolean;
@@ -101,7 +85,6 @@ export const RadioField = ({
   value,
   options,
   onChange,
-  label,
   helperText,
   error,
   disabled,
@@ -126,7 +109,6 @@ export const RadioField = ({
 
   return (
     <StyledFormControl error={error} disabled={disabled}>
-      {label && <StyledFormLabel disabled={disabled}>{label}</StyledFormLabel>}
       <StyledRadioGroup name={name} id={id} value={String(value ?? '')} onChange={handleChange} row={isHorizontal}>
         {options.map((option, index) => (
           <StyledFormControlLabel

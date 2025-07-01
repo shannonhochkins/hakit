@@ -96,7 +96,13 @@ export function ProgressButton({ disabled = false, onClick, children, title, var
         }}
         variant={result === 'success' ? 'success' : result === 'error' ? 'error' : variant}
       >
-        <Row className={result ? 'hidden' : ''} gap='var(--space-2)'>
+        <Row
+          className={result ? 'hidden' : ''}
+          gap='var(--space-2)'
+          style={{
+            opacity: overlay ? 0 : 1,
+          }}
+        >
           {children}
         </Row>
       </PrimaryButton>

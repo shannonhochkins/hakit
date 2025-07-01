@@ -66,7 +66,6 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
             // @ts-expect-error - we know this doesn't exist, it's fine.
             _remoteName: remote.name, // track which remote this came from
           };
-          // we will use the :: as a delimiter to display the actual category/labels correctly
           const categoryLabel = remote.name;
           if (!categories[categoryLabel]) {
             categories[categoryLabel] = {

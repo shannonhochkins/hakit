@@ -9,7 +9,7 @@ import {
   type TextareaField,
   type SelectField,
   type RadioField,
-  type BaseField,
+  type BaseField as PuckBaseField,
   type ObjectField,
   type ArrayField,
   type UiState,
@@ -49,9 +49,12 @@ import { CodeField } from './Fields/Code';
 import { InputField } from './Fields/Input';
 import { SelectField as CustomSelectField } from './Fields/Select';
 import { RadioField as CustomRadioField } from './Fields/Radio';
+import { NumberField as CustomNumberField } from './Fields/Number';
 import { DefaultPropsCallbackData } from '@typings';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { OnValidate } from '@monaco-editor/react';
+
+type BaseField = Omit<PuckBaseField, 'visible'>;
 
 type ExtendedFieldTypes<DataShape = unknown> = {
   description?: string;
@@ -271,7 +274,7 @@ const usePuck = createUsePuck();
 export function createCustomField<Props extends DefaultComponentProps = DefaultComponentProps>(
   field: CustomFields<Props>
 ): CustomFieldsWithDefinition<Props> {
-  const automaticDisableBreakpointsForTypes = ['object', 'array'];
+  const automaticDisableBreakpointsForTypes: FieldTypes[] = ['object', 'array', 'divider'];
   // default values for the field
   field.disableBreakpoints = automaticDisableBreakpointsForTypes.includes(field.type)
     ? true
@@ -400,7 +403,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
           {field.type === 'slider' && <Slider value={value} min={field.min} max={field.max} step={field.step} onChange={onChange} />}
           {field.type === 'text' && (
             <InputField
-              label={field.label ?? 'Unknown'}
               value={value || ''}
               onChange={e => onChange(e.target.value)}
               readOnly={field.readOnly}
@@ -409,17 +411,15 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
             />
           )}
           {field.type === 'number' && (
-            <AutoField
-              field={{
-                type: field.type,
-                label: field.label ?? 'Unknown',
-                min: field.min,
-                max: field.max,
-                step: field.step,
-                ...commonAutoFieldProps,
-              }}
-              onChange={onChange}
+            <CustomNumberField
               value={value}
+              onChange={onChange}
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              readOnly={field.readOnly}
+              name={commonAutoFieldProps.name}
+              id={commonAutoFieldProps.id}
             />
           )}
           {field.type === 'select' && (
@@ -431,6 +431,7 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
                 const selectedValue = e.target.value as { value: string; label: string } | null;
                 // Find the original option to get the correct typed value
                 const selectedOption = field.options.find(option => option.value === selectedValue?.value);
+                console.log('selectedOption', selectedOption);
                 if (selectedOption) {
                   onChange(selectedOption.value);
                 }
@@ -447,7 +448,6 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
               options={[...field.options]}
               onChange={onChange}
               orientation='horizontal'
-              label={field.label}
               name={commonAutoFieldProps.name}
               id={commonAutoFieldProps.id}
               readOnly={field.readOnly}
@@ -469,7 +469,13 @@ export function createCustomField<Props extends DefaultComponentProps = DefaultC
               field={{
                 type: field.type,
                 label: field.label ?? 'Unknown',
-                getItemSummary: field.getItemSummary,
+                getItemSummary: (item: DefaultComponentProps[0], i: number) => {
+                  if (field.getItemSummary) {
+                    const actualItem = transformProps(item, activeBreakpoint);
+                    return field.getItemSummary(actualItem, i);
+                  }
+                  return `Item ${i + 1}`;
+                },
                 defaultItemProps: field.defaultItemProps,
                 arrayFields: field.arrayFields,
                 min: field.min,
