@@ -161,10 +161,22 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
             /* Primary Button Shadows */
-            --shadow-primary-base: 0 4px 14px 0 rgba(59, 130, 246, 0.15);
-            --shadow-primary-hover: 0 6px 20px 0 rgba(59, 130, 246, 0.25);
-            --shadow-primary-active: 0 2px 8px 0 rgba(59, 130, 246, 0.3);
+            --shadow-primary-base: 0 1px 7px 0 rgba(59, 130, 246, 0.15);
+            --shadow-primary-hover: 0 2px 10px 0 rgba(59, 130, 246, 0.25);
+            --shadow-primary-active: 0 2px 4px 0 rgba(59, 130, 246, 0.3);
             --shadow-primary-focus: 0 0 0 3px rgba(59, 130, 246, 0.4);
+
+            /* error Button Shadows */
+            --shadow-error-base: 0 1px 7px 0 rgba(239, 68, 68, 0.15);
+            --shadow-error-hover: 0 2px 10px 0 rgba(239, 68, 68, 0.25);
+            --shadow-error-active: 0 2px 4px 0 rgba(239, 68, 68, 0.35);
+            --shadow-error-focus: 0 0 0 3px rgba(239, 68, 68, 0.3);
+
+            /* success Button Shadows */
+            --shadow-success-base: 0 1px 7px 0 rgba(34, 197, 94, 0.15);
+            --shadow-success-hover: 0 2px 10px 0 rgba(34, 197, 94, 0.25);
+            --shadow-success-active: 0 2px 4px 0 rgba(34, 197, 94, 0.35);
+            --shadow-success-focus: 0 0 0 3px rgba(34, 197, 94, 0.3);
 
             /* === TYPOGRAPHY === */
             --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;

@@ -23,6 +23,9 @@ const TooltipSpan = styled.span<Pick<TooltipProps, 'placement'>>`
   user-select: none;
   max-width: 200px;
   word-wrap: break-word;
+  &.no-wrap {
+    white-space: nowrap;
+  }
   transform: ${props => {
     switch (props.placement) {
       default:
@@ -170,7 +173,11 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
       {children}
       {typeof document !== 'undefined' &&
         createPortal(
-          <TooltipSpan className='tooltip-inner' placement={placement} ref={tooltipRef}>
+          <TooltipSpan
+            className={`tooltip-inner ${typeof title === 'string' ? (title.length < 20 ? 'no-wrap' : '') : ''}`}
+            placement={placement}
+            ref={tooltipRef}
+          >
             {title}
           </TooltipSpan>,
           window.document.body

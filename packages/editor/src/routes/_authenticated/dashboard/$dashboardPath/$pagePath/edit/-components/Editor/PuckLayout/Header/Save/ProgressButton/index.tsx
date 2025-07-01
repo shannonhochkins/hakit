@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useState } from 'react';
 import styled from '@emotion/styled';
 import { Check, AlertOctagon, Loader2 } from 'lucide-react';
-import { PrimaryButton } from '@lib/components/Button';
+import { PrimaryButton, PrimaryButtonProps } from '@lib/components/Button';
 import { Row } from '@hakit/components';
 
 interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
@@ -14,7 +14,7 @@ interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
   onClick?: () => Promise<unknown>;
   /** Button label or children. */
   children?: ReactNode;
-  buttonStyles?: React.CSSProperties;
+  variant: PrimaryButtonProps['variant'];
 }
 
 const Container = styled.div`
@@ -55,7 +55,7 @@ const ProgressOverlay = styled.div`
   }
 `;
 
-export function ProgressButton({ disabled = false, onClick, children, title, buttonStyles, ...rest }: ProgressButtonProps) {
+export function ProgressButton({ disabled = false, onClick, children, title, variant, ...rest }: ProgressButtonProps) {
   const [progress, setProgress] = useState(false);
   const [result, setResult] = useState<'success' | 'error' | undefined>(undefined);
 
@@ -94,7 +94,7 @@ export function ProgressButton({ disabled = false, onClick, children, title, but
         tooltipProps={{
           placement: 'bottom',
         }}
-        style={buttonStyles}
+        variant={result === 'success' ? 'success' : result === 'error' ? 'error' : variant}
       >
         <Row className={result ? 'hidden' : ''} gap='var(--space-2)'>
           {children}

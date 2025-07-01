@@ -52,13 +52,7 @@ export function Save() {
             return Promise.resolve();
           }
         }}
-        buttonStyles={
-          {
-            '--button-bg': hasUnsavedChanges ? 'var(--gradient-primary)' : 'var(--color-success-500)',
-            '--button-bg-hover': hasUnsavedChanges ? 'var(--gradient-primary)' : 'var(--color-success-500)',
-            '--button-bg-active': hasUnsavedChanges ? 'var(--gradient-primary)' : 'var(--color-success-500)',
-          } as React.CSSProperties
-        }
+        variant={hasUnsavedChanges ? 'primary' : 'success'}
       >
         {hasUnsavedChanges ? <SaveIcon size={18} /> : <ExternalLink size={18} />}
         <span
