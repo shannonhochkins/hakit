@@ -14,7 +14,7 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
  *
  * 1. Recursively processes nested object and array fields
  * 2. Wraps each field definition in a custom field with a `_field` property containing the original configuration
- * 3. Applies automatic breakpoint logic (object, array, and divider fields get `disableBreakpoints: true`)
+ * 3. Applies automatic breakpoint logic (object, array, and divider fields get `responsiveMode: false`)
  *
  * @template P - The component props type extending DefaultComponentProps
  * @template DataShape - The shape of the component data, defaults to Omit<ComponentData<P>, 'type'>

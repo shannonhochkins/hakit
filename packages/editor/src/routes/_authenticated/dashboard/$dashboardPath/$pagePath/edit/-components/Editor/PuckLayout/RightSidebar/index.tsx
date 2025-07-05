@@ -57,7 +57,6 @@ const SidebarTitle = styled.h3`
 
 const SidebarContent = styled.div`
   flex: 1;
-  padding: var(--space-3);
   overflow-y: auto;
 `;
 
@@ -116,7 +115,10 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
               )}
             </SidebarTitle>
           </SidebarHeader>
-          <SidebarContent>{selectedItem ? <Puck.Fields /> : <Puck.Fields wrapFields={false} />}</SidebarContent>
+          {/* <SidebarContent>{selectedItem ? <Puck.Fields /> : <Puck.Fields wrapFields={false} />}</SidebarContent> */}
+          <SidebarContent>
+            <Puck.Fields />
+          </SidebarContent>
         </ExpandedSidebar>
       )}
     </>

@@ -22,7 +22,7 @@ describe('transformFields', () => {
               },
             },
           ],
-          disableBreakpoints: true,
+          responsiveMode: false,
           arrayFields: {
             gap: {
               type: 'number',
@@ -63,14 +63,14 @@ describe('transformFields', () => {
               },
             },
           ],
-          disableBreakpoints: true,
+          responsiveMode: false,
           label: 'Direction',
           arrayFields: {
             gap: {
               type: 'custom',
               render: expect.any(Function),
               _field: {
-                disableBreakpoints: false,
+                responsiveMode: true,
                 default: 4,
                 type: 'number',
                 label: '',
@@ -82,7 +82,7 @@ describe('transformFields', () => {
               render: expect.any(Function),
               _field: {
                 type: 'object',
-                disableBreakpoints: true,
+                responsiveMode: false,
                 label: '',
                 objectFields: {
                   description: {
@@ -91,7 +91,7 @@ describe('transformFields', () => {
                     _field: {
                       default: '123',
                       label: '',
-                      disableBreakpoints: false,
+                      responsiveMode: true,
                       type: 'text',
                     },
                   },
@@ -153,7 +153,7 @@ describe('transformFields', () => {
         type: 'text',
         label: 'Title',
         default: 'Default Title',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -166,7 +166,7 @@ describe('transformFields', () => {
         default: 0,
         min: 0,
         max: 100,
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -181,7 +181,7 @@ describe('transformFields', () => {
           { label: 'Option 2', value: 'opt2' },
         ],
         default: 'opt1',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -196,20 +196,20 @@ describe('transformFields', () => {
           { label: 'No', value: false },
         ],
         default: true,
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
   });
 
-  test('Should revert disableBreakpoints for fields that do not permit it', () => {
+  test('Should revert responsiveMode for fields that do not permit it', () => {
     const config: CustomComponentConfig<DefaultComponentProps> = {
       label: 'Excluded Fields Test',
       fields: {
-        // Test object field with disableBreakpoints: false (should become true)
+        // Test object field with responsiveMode: true (should become false)
         objectField: {
           type: 'object',
           label: 'Object Field',
-          disableBreakpoints: false, // Should be reverted to true
+          responsiveMode: true, // Should be reverted to false
           objectFields: {
             nested: {
               type: 'text',
@@ -218,12 +218,12 @@ describe('transformFields', () => {
             },
           },
         },
-        // Test array field with disableBreakpoints: false (should become true)
+        // Test array field with responsiveMode: true (should become false)
         arrayField: {
           type: 'array',
           label: 'Array Field',
           default: [],
-          disableBreakpoints: false, // Should be reverted to true
+          responsiveMode: true, // Should be reverted to false
           arrayFields: {
             item: {
               type: 'text',
@@ -232,25 +232,25 @@ describe('transformFields', () => {
             },
           },
         },
-        // Test divider field with disableBreakpoints: false (should become true)
+        // Test divider field with responsiveMode: true (should become false)
         dividerField: {
           type: 'divider',
           label: 'Divider Field',
           default: undefined,
-          disableBreakpoints: false, // Should be reverted to true
+          responsiveMode: true, // Should be reverted to false
         },
-        // Test hidden field with disableBreakpoints: false (should become true)
+        // Test hidden field with responsiveMode: true (should become false)
         hiddenField: {
           type: 'hidden',
           default: 'hidden-value',
-          disableBreakpoints: false, // Should be reverted to true
+          responsiveMode: true, // Should be reverted to false
         },
-        // Control test: normal field that should respect disableBreakpoints: false
+        // Control test: normal field that should respect responsiveMode: true
         normalText: {
           type: 'text',
           label: 'Normal Text',
           default: '',
-          disableBreakpoints: false, // Should remain false
+          responsiveMode: true, // Should remain true
         },
       },
       render() {
@@ -260,7 +260,7 @@ describe('transformFields', () => {
 
     const transformedFields = transformFields(config.fields);
 
-    // Test that all excluded field types have disableBreakpoints: true regardless of input
+    // Test that all excluded field types have responsiveMode: false regardless of input
     const excludedFieldTests = [
       { key: 'objectField', type: 'object' },
       { key: 'arrayField', type: 'array' },
@@ -272,12 +272,12 @@ describe('transformFields', () => {
       const transformedField = (transformedFields[key] as any)?._field;
 
       expect(transformedField).toBeDefined();
-      expect(transformedField.disableBreakpoints).toBe(true);
+      expect(transformedField.responsiveMode).toBe(false);
       expect(transformedField.type).toBe(type);
     });
 
-    // Test that normal field respects the original disableBreakpoints value
-    expect((transformedFields.normalText as any)._field.disableBreakpoints).toBe(false);
+    // Test that normal field respects the original responsiveMode value
+    expect((transformedFields.normalText as any)._field.responsiveMode).toBe(true);
     expect((transformedFields.normalText as any)._field.type).toBe('text');
 
     // Verify that the complete EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES list is covered
@@ -336,7 +336,7 @@ describe('transformFields', () => {
       _field: {
         type: 'object',
         label: 'Settings',
-        disableBreakpoints: true,
+        responsiveMode: false,
         objectFields: {
           theme: {
             type: 'custom',
@@ -349,7 +349,7 @@ describe('transformFields', () => {
                 { label: 'Dark', value: 'dark' },
               ],
               default: 'light',
-              disableBreakpoints: false,
+              responsiveMode: true,
             },
           },
           layout: {
@@ -358,7 +358,7 @@ describe('transformFields', () => {
             _field: {
               type: 'object',
               label: 'Layout',
-              disableBreakpoints: true,
+              responsiveMode: false,
               objectFields: {
                 width: {
                   type: 'custom',
@@ -367,7 +367,7 @@ describe('transformFields', () => {
                     type: 'number',
                     label: 'Width',
                     default: 100,
-                    disableBreakpoints: false,
+                    responsiveMode: true,
                   },
                 },
                 color: {
@@ -377,7 +377,7 @@ describe('transformFields', () => {
                     type: 'text',
                     label: 'Color',
                     default: '#000000',
-                    disableBreakpoints: false,
+                    responsiveMode: true,
                   },
                 },
               },
@@ -442,7 +442,7 @@ describe('transformFields', () => {
         type: 'array',
         label: 'Items',
         default: [],
-        disableBreakpoints: true,
+        responsiveMode: false,
         arrayFields: {
           name: {
             type: 'custom',
@@ -451,7 +451,7 @@ describe('transformFields', () => {
               type: 'text',
               label: 'Name',
               default: '',
-              disableBreakpoints: false,
+              responsiveMode: true,
             },
           },
           metadata: {
@@ -460,7 +460,7 @@ describe('transformFields', () => {
             _field: {
               type: 'object',
               label: 'Metadata',
-              disableBreakpoints: true,
+              responsiveMode: false,
               objectFields: {
                 priority: {
                   type: 'custom',
@@ -469,7 +469,7 @@ describe('transformFields', () => {
                     type: 'number',
                     label: 'Priority',
                     default: 1,
-                    disableBreakpoints: false,
+                    responsiveMode: true,
                   },
                 },
                 tags: {
@@ -479,7 +479,7 @@ describe('transformFields', () => {
                     type: 'array',
                     label: 'Tags',
                     default: [],
-                    disableBreakpoints: true,
+                    responsiveMode: false,
                     arrayFields: {
                       tag: {
                         type: 'custom',
@@ -488,7 +488,7 @@ describe('transformFields', () => {
                           type: 'text',
                           label: 'Tag',
                           default: '',
-                          disableBreakpoints: false,
+                          responsiveMode: true,
                         },
                       },
                     },
@@ -502,7 +502,7 @@ describe('transformFields', () => {
     });
   });
 
-  test('Should handle automatic disableBreakpoints for object, array, and divider types', () => {
+  test('Should handle automatic responsiveMode for object, array, and divider types', () => {
     const config: CustomComponentConfig<DefaultComponentProps> = {
       label: 'Breakpoints Test',
       fields: {
@@ -515,7 +515,7 @@ describe('transformFields', () => {
           type: 'text',
           label: 'Manually Disabled',
           default: '',
-          disableBreakpoints: true,
+          responsiveMode: false,
         },
         objectField: {
           type: 'object',
@@ -553,20 +553,20 @@ describe('transformFields', () => {
 
     const transformedFields = transformFields(config.fields);
 
-    // Normal text field should have breakpoints enabled by default
-    expect((transformedFields.normalText as unknown as any)._field.disableBreakpoints).toBe(false);
+    // Normal text field should have responsive mode enabled by default
+    expect((transformedFields.normalText as unknown as any)._field.responsiveMode).toBe(true);
 
     // Manually disabled should respect the setting
-    expect((transformedFields.manuallyDisabled as unknown as any)._field.disableBreakpoints).toBe(true);
+    expect((transformedFields.manuallyDisabled as unknown as any)._field.responsiveMode).toBe(false);
 
-    // Object, array, and divider should automatically have breakpoints disabled
-    expect((transformedFields.objectField as unknown as any)._field.disableBreakpoints).toBe(true);
-    expect((transformedFields.arrayField as unknown as any)._field.disableBreakpoints).toBe(true);
-    expect((transformedFields.dividerField as unknown as any)._field.disableBreakpoints).toBe(true);
+    // Object, array, and divider should automatically have responsive mode disabled
+    expect((transformedFields.objectField as unknown as any)._field.responsiveMode).toBe(false);
+    expect((transformedFields.arrayField as unknown as any)._field.responsiveMode).toBe(false);
+    expect((transformedFields.dividerField as unknown as any)._field.responsiveMode).toBe(false);
 
     // But nested fields inside objects/arrays should still follow normal rules
-    expect((transformedFields.objectField as unknown as any)._field.objectFields.nested._field.disableBreakpoints).toBe(false);
-    expect((transformedFields.arrayField as unknown as any)._field.arrayFields.item._field.disableBreakpoints).toBe(false);
+    expect((transformedFields.objectField as unknown as any)._field.objectFields.nested._field.responsiveMode).toBe(true);
+    expect((transformedFields.arrayField as unknown as any)._field.arrayFields.item._field.responsiveMode).toBe(true);
   });
 
   test('Should handle special field types (entity, service, color, etc.)', () => {
@@ -624,7 +624,7 @@ describe('transformFields', () => {
         label: 'Entity',
         options: [],
         default: expect.any(Function),
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -635,7 +635,7 @@ describe('transformFields', () => {
         type: 'service',
         label: 'Service',
         default: 'switch.turn_on',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -646,7 +646,7 @@ describe('transformFields', () => {
         type: 'color',
         label: 'Color',
         default: '#ffffff',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -660,7 +660,7 @@ describe('transformFields', () => {
         max: 100,
         step: 1,
         default: 50,
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -672,7 +672,7 @@ describe('transformFields', () => {
         label: 'Code',
         language: 'yaml',
         default: '',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
 
@@ -683,7 +683,7 @@ describe('transformFields', () => {
         type: 'imageUpload',
         label: 'Image',
         default: '',
-        disableBreakpoints: false,
+        responsiveMode: true,
       },
     });
   });
@@ -714,7 +714,7 @@ describe('transformFields', () => {
         hiddenField: {
           type: 'hidden',
           default: 'hidden-value',
-          disableBreakpoints: false, // this will be automatically reverted to true
+          responsiveMode: true, // this will be automatically reverted to false
         },
         complexObject: {
           type: 'object',
@@ -793,7 +793,7 @@ describe('transformFields', () => {
           type: 'text',
           label: 'Basic Text',
           default: '',
-          disableBreakpoints: false,
+          responsiveMode: true,
         },
       },
       hiddenField: {
@@ -802,7 +802,7 @@ describe('transformFields', () => {
         _field: {
           type: 'hidden',
           default: 'hidden-value',
-          disableBreakpoints: true,
+          responsiveMode: false,
         },
       },
       complexObject: {
@@ -811,7 +811,7 @@ describe('transformFields', () => {
         _field: {
           type: 'object',
           label: 'Complex Object',
-          disableBreakpoints: true,
+          responsiveMode: false,
           objectFields: {
             simpleNumber: {
               type: 'custom',
@@ -820,7 +820,7 @@ describe('transformFields', () => {
                 type: 'number',
                 label: 'Simple Number',
                 default: 0,
-                disableBreakpoints: false,
+                responsiveMode: true,
               },
             },
             nestedArray: {
@@ -830,7 +830,7 @@ describe('transformFields', () => {
                 type: 'array',
                 label: 'Nested Array',
                 default: [],
-                disableBreakpoints: true,
+                responsiveMode: false,
                 arrayFields: {
                   arrayText: {
                     type: 'custom',
@@ -839,7 +839,7 @@ describe('transformFields', () => {
                       type: 'text',
                       label: 'Array Text',
                       default: '',
-                      disableBreakpoints: false,
+                      responsiveMode: true,
                     },
                   },
                   arrayObject: {
@@ -848,7 +848,7 @@ describe('transformFields', () => {
                     _field: {
                       type: 'object',
                       label: 'Array Object',
-                      disableBreakpoints: true,
+                      responsiveMode: false,
                       objectFields: {
                         deepText: {
                           type: 'custom',
@@ -857,7 +857,7 @@ describe('transformFields', () => {
                             type: 'text',
                             label: 'Deep Text',
                             default: '',
-                            disableBreakpoints: false,
+                            responsiveMode: true,
                           },
                         },
                         hiddenInNested: {
@@ -866,7 +866,7 @@ describe('transformFields', () => {
                           _field: {
                             type: 'hidden',
                             default: 'nested-hidden',
-                            disableBreakpoints: true,
+                            responsiveMode: false,
                           },
                         },
                       },
@@ -881,7 +881,7 @@ describe('transformFields', () => {
               _field: {
                 type: 'hidden',
                 default: 'another-hidden',
-                disableBreakpoints: true,
+                responsiveMode: false,
               },
             },
           },
@@ -894,7 +894,7 @@ describe('transformFields', () => {
           type: 'array',
           label: 'Top Level Array',
           default: [],
-          disableBreakpoints: true,
+          responsiveMode: false,
           arrayFields: {
             color: {
               type: 'custom',
@@ -903,7 +903,7 @@ describe('transformFields', () => {
                 type: 'color',
                 label: 'Color',
                 default: '#000000',
-                disableBreakpoints: false,
+                responsiveMode: true,
               },
             },
             slider: {
@@ -915,7 +915,7 @@ describe('transformFields', () => {
                 min: 0,
                 max: 10,
                 default: 5,
-                disableBreakpoints: false,
+                responsiveMode: true,
               },
             },
           },
@@ -931,7 +931,7 @@ describe('transformFields', () => {
       _field: {
         type: 'hidden',
         default: 'hidden-value',
-        disableBreakpoints: true,
+        responsiveMode: false,
       },
     });
     expect((transformedFields.complexObject as unknown as any)._field.objectFields.anotherHidden).toBeDefined();

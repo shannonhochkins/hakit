@@ -186,8 +186,14 @@
   padding-top: var(--space-4);
 }
 [class*="_PuckFields--wrapFields_"] > [class*="_PuckFields-field_"] + [class*="_PuckFields-field_"] {
-  margin: 0;
   border: none;
+}
+
+[class*="_InputWrapper_"] + [class*="_InputWrapper_"] {
+  margin-top: var(--space-5);
+}
+[class*="_PuckFields-field_"] + [class*="_PuckFields-field_"] {
+  margin-top: var(--space-5);
 }
 
 body, html {

@@ -27,8 +27,8 @@ const FieldTest: CustomComponentConfig<LayoutProps> = {
     options: {
       type: 'object',
       label: 'Field Examples',
-      collapsible: {
-        open: true,
+      collapseOptions: {
+        startExpanded: true,
       },
       description: 'Variations of different field types',
       objectFields: {
@@ -48,8 +48,8 @@ const FieldTest: CustomComponentConfig<LayoutProps> = {
         deep: {
           type: 'object',
           label: 'Deep Object',
-          collapsible: {
-            open: true,
+          collapseOptions: {
+            startExpanded: true,
           },
           description: 'Object with nested fields',
           objectFields: {
@@ -72,8 +72,8 @@ const FieldTest: CustomComponentConfig<LayoutProps> = {
               default: [],
               min: 5,
               max: 5,
-              collapsible: {
-                open: true,
+              collapseOptions: {
+                startExpanded: true,
               },
               getItemSummary: (item, i) => item.label || `Item #${i}`,
               defaultItemProps: {
@@ -100,8 +100,8 @@ const FieldTest: CustomComponentConfig<LayoutProps> = {
           default: [],
           min: 5,
           max: 5,
-          collapsible: {
-            open: true,
+          collapseOptions: {
+            startExpanded: true,
           },
           getItemSummary: (item, i) => item.label || `Item #${i}`,
           defaultItemProps: {

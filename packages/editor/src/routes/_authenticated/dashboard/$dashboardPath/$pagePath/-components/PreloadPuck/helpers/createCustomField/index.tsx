@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { AutoField, type DefaultComponentProps } from '@measured/puck';
+import { useCallback, useMemo, useState } from 'react';
+import { type DefaultComponentProps } from '@measured/puck';
 import { ReactNode } from 'react';
 import {
   Hash,
@@ -16,23 +16,24 @@ import {
   ImagePlus,
   CodeXml,
   Minus,
+  ChevronUp,
+  Touchpad,
+  TouchpadOff,
 } from 'lucide-react';
-// custom fields
-import { Color } from '@lib/components/Form/Fields/Color';
-import { Slider } from '@lib/components/Form/Fields/Slider';
-import { Entity } from '@lib/components/Form/Fields/Entity';
-import { Service } from '@lib/components/Form/Fields/Service';
-import { Page } from '@lib/components/Form/Fields/Page';
-import { GridField } from '@lib/components/Form/Fields/Grid';
-import { ImageUpload } from '@lib/components/Form/Fields/Image';
-import { CodeField } from '@lib/components/Form/Fields/Code';
-import { InputField } from '@lib/components/Form/Fields/Input';
-import { SelectField as CustomSelectField } from '@lib/components/Form/Fields/Select';
-import { RadioField as CustomRadioField } from '@lib/components/Form/Fields/Radio';
-import { NumberField as CustomNumberField } from '@lib/components/Form/Fields/Number';
-import { HassEntity } from 'home-assistant-js-websocket';
+
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/constants';
 import type { CustomFields, CustomFieldsWithDefinition, FieldTypes } from '@typings/fields';
+import { Fieldset } from './Fieldset';
+import { FieldLabel } from './FieldLabel';
+import { IconButton } from '@lib/components/Button/IconButton';
+import { FieldWrapper } from './FieldWrapper';
+import { CustomAutoField } from './CustomAutoField';
+import styled from '@emotion/styled';
+import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
+import { Row } from '@hakit/components';
+import { deepCopy } from 'deep-copy-ts';
+import { Alert } from '@lib/components/Alert';
+// import { Tooltip } from '@lib/components/Tooltip';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
@@ -58,28 +59,58 @@ const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   hidden: <Hash size={16} />,
 };
 
-const BREAKPOINT_LOGIC_DEFAULT_DISABLED = false;
+const Description = styled.div`
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 400;
+`;
+
+const Mark = styled.div`
+  color: var(--color-gray-300);
+  background-color: var(--color-gray-950);
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+`;
+
+const FieldInput = styled.div`
+  width: 100%;
+  > * {
+    width: 100%;
+  }
+`;
+
+const RESPONSIVE_MODE_DEFAULT = true;
 
 /**
  * Helper function to create custom fields (cf - custom field)
  */
 
-export function createCustomField<Props extends DefaultComponentProps>(field: CustomFields<Props>): CustomFieldsWithDefinition<Props> {
+export function createCustomField<Props extends DefaultComponentProps>(_field: CustomFields<Props>): CustomFieldsWithDefinition<Props> {
   // default values for the field
-  field.disableBreakpoints = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(field.type)
-    ? true
-    : (field.disableBreakpoints ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED);
-  const _field = field as CustomFieldsWithDefinition<Props>['_field'];
+  _field.responsiveMode = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(_field.type)
+    ? false
+    : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
+  const field = deepCopy(_field) as CustomFieldsWithDefinition<Props>['_field'];
   return {
     type: 'custom',
-    _field,
+    _field: field,
     render({ name, onChange, value, id }) {
+      // TODO - change this to use the store to retrieve if we're enabled or not
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [breakpointMode, setBreakpointMode] = useState(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [confirmBreakpointChange, setConfirmBreakpointChange] = useState(false);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
+
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], []);
       // const appState = usePuck(c => c.appState);
       // const selectedItem = usePuck(c => c.selectedItem);
-      // // fine to use hooks here, eslint just doesn't know it's a component render, with a wrapping component it may cause more renders than necessary
-      // const activeBreakpoint = useActiveBreakpoint();
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const activeBreakpoint = useActiveBreakpoint();
 
       // const isVisible = useMemo(() => {
       //   if (typeof _field.visible === 'function') {
@@ -104,7 +135,7 @@ export function createCustomField<Props extends DefaultComponentProps>(field: Cu
       // const valOrDefault = useMemo(() => {
       //   return (
       //     puckValue ??
-      //     (field.disableBreakpoints
+      //     (field.responsiveMode
       //       ? field.default
       //       : {
       //           xlg: field.default,
@@ -117,16 +148,12 @@ export function createCustomField<Props extends DefaultComponentProps>(field: Cu
       // // intentionally using any here as the value will be unknown in this context
       // // and we can't use unknown as the value properties expect the shape type of the CustomField
       // const value = useMemo(() => {
-      //   return field.disableBreakpoints ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);
+      //   return field.responsiveMode ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);
       // }, [valOrDefault, activeBreakpoint]);
-      const commonAutoFieldProps = {
-        name,
-        id: field.id,
-        readOnly: field.readOnly,
-      };
+
       // const onChange = (value: unknown, uiState?: Partial<UiState>) => {
       //   if (typeof value === 'undefined') return;
-      //   if (field.disableBreakpoints) {
+      //   if (field.responsiveMode) {
       //     // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
       //     puckOnChange(value as Props, uiState);
       //   } else if (typeof value !== 'undefined') {
@@ -149,17 +176,104 @@ export function createCustomField<Props extends DefaultComponentProps>(field: Cu
       //   return <></>;
       // }
 
-      const activeBreakpoint = 'xs';
-      const breakpointMode = false;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const onToggleBreakpointMode = useCallback(() => {
+        const isBreakpointModeEnabled = !breakpointMode;
+        // because the onChange method is memoized, we need to call it here to ensure the value is updated
+        // immediately when the breakpoint mode is toggled
+        if (!isBreakpointModeEnabled) {
+          // send back the converted breakpoint value
+          onChange(value);
+        }
+        setBreakpointMode(!breakpointMode);
+      }, [breakpointMode, onChange, value]);
 
-      if (field.type === 'hidden') {
-        return <input type='hidden' value={value as unknown as string} />;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const onToggleExpand = useCallback(() => {
+        toggleExpanded(!isExpanded);
+      }, [isExpanded]);
+
+      if (!_icon) {
+        return <Alert severity='error'>Unsupported field type: &quot;{field.type}&quot;</Alert>;
       }
 
       return (
+        <Fieldset
+          className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${_field.collapseOptions ? 'collapsible' : ''} ${breakpointMode && field.responsiveMode ? 'bp-mode-enabled' : ''}`}
+          onClick={() => {
+            if (typeof field.collapseOptions === 'object') {
+              toggleExpanded(!isExpanded);
+            }
+          }}
+        >
+          <FieldLabel
+            label={field.label}
+            description={field.description}
+            icon={_icon}
+            readOnly={field.readOnly}
+            className={`hakit-field-label ${!isExpanded && field.collapseOptions ? 'collapsed' : ''}`}
+            endAdornment={
+              <>
+                {field.collapseOptions && (
+                  <IconButton
+                    icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                    onClick={onToggleExpand}
+                    variant='transparent'
+                    size='xs'
+                    tooltipProps={{
+                      placement: 'left',
+                    }}
+                    aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                  />
+                )}
+              </>
+            }
+          />
+          <FieldWrapper className={`hakit-field-wrapper ${!isExpanded && field.collapseOptions ? 'collapsed' : ''} `}>
+            <FieldInput className='hakit-field-input'>
+              <CustomAutoField<Props> field={_field} value={value} name={name} onChange={onChange} />
+            </FieldInput>
+            {field.responsiveMode && (
+              <IconButton
+                icon={breakpointMode ? <Touchpad size={16} /> : <TouchpadOff size={16} />}
+                onClick={onToggleBreakpointMode}
+                active={breakpointMode}
+                variant='transparent'
+                size='xs'
+                tooltipProps={{
+                  placement: 'left',
+                }}
+                aria-label={breakpointMode ? 'Responsive Values Enabled' : 'Responsive Values Disabled'}
+              />
+            )}
+          </FieldWrapper>
+          {breakpointMode && field.responsiveMode && (
+            <>
+              <Description className='hakit-field-responsive-description'>
+                <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>
+                  <Row justifyContent='flex-start' gap='0.25rem'>
+                    Active <Mark>{activeBreakpoint}</Mark>
+                  </Row>
+                  {/* {providedBreakpointValues.length > 0 && (
+                  <Row justifyContent='flex-start' gap='0.25rem'>
+                    Configured{' '}
+                    <Row gap='0.125rem'>
+                      {providedBreakpointValues.map(([bp, val], i) => (
+                        <Tooltip title={val.length > 10 ? '' : val} key={i}>
+                          <Mark>{bp}</Mark>
+                        </Tooltip>
+                      ))}
+                    </Row>
+                  </Row>
+                )} */}
+                </Row>
+              </Description>
+            </>
+          )}
+        </Fieldset>
         // <FieldWrapper
         //   key={id}
-        //   disableBreakpoints={field.disableBreakpoints ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED}
+        //   responsiveMode={field.responsiveMode ?? BREAKPOINT_LOGIC_DEFAULT_DISABLED}
         //   activeBreakpoint={activeBreakpoint}
         //   // providedBreakpointValues={Object.entries(valOrDefault ?? {}).map(([key, val]) => [key, `${val}`])}
         //   providedBreakpointValues={Object.entries({}).map(([key, val]) => [key, `${val}`])}
@@ -186,141 +300,6 @@ export function createCustomField<Props extends DefaultComponentProps>(field: Cu
         //   collapsible={field.collapsible}
         //   className={field.className}
         // >
-        <>
-          {field.type === 'imageUpload' && <ImageUpload value={value} onChange={onChange} />}
-
-          {field.type === 'grid' && <GridField value={value} step={field.step} min={field.min} max={field.max} onChange={onChange} />}
-
-          {field.type === 'page' && <Page value={value} label={field.label} muiltiSelect={false} onChange={onChange} />}
-          {field.type === 'pages' && <Page value={value} label={field.label} muiltiSelect={true} onChange={onChange} />}
-          {field.type === 'entity' && <Entity options={field.options as HassEntity[]} value={value} onChange={onChange} />}
-          {field.type === 'service' && <Service value={value} onChange={onChange} />}
-          {field.type === 'color' && <Color value={value} onChange={onChange} />}
-          {field.type === 'slider' && <Slider value={value} min={field.min} max={field.max} step={field.step} onChange={onChange} />}
-          {field.type === 'text' && (
-            <InputField
-              value={value || ''}
-              onChange={e => onChange(e.target.value)}
-              readOnly={field.readOnly}
-              name={commonAutoFieldProps.name}
-              id={commonAutoFieldProps.id}
-            />
-          )}
-          {field.type === 'number' && (
-            <CustomNumberField
-              value={value}
-              onChange={onChange}
-              min={field.min}
-              max={field.max}
-              step={field.step}
-              readOnly={field.readOnly}
-              name={commonAutoFieldProps.name}
-              id={commonAutoFieldProps.id}
-            />
-          )}
-          {field.type === 'select' && (
-            <CustomSelectField
-              value={field.options.find(option => option.value === value)}
-              options={[...field.options]}
-              getOptionLabel={option => option?.label ?? '-'}
-              onChange={e => {
-                const selectedValue = e.target.value as { value: string; label: string } | null;
-                // Find the original option to get the correct typed value
-                const selectedOption = field.options.find(option => option.value === selectedValue?.value);
-                if (selectedOption) {
-                  onChange(selectedOption.value);
-                }
-              }}
-              size='small'
-              name={commonAutoFieldProps.name}
-              id={commonAutoFieldProps.id}
-              readOnly={field.readOnly}
-            />
-          )}
-          {field.type === 'radio' && (
-            <CustomRadioField
-              value={value}
-              options={[...field.options]}
-              onChange={onChange}
-              orientation='horizontal'
-              name={commonAutoFieldProps.name}
-              id={commonAutoFieldProps.id}
-              readOnly={field.readOnly}
-            />
-          )}
-          {field.type === 'textarea' && (
-            <AutoField
-              field={{
-                type: field.type,
-                label: field.label ?? 'Unknown',
-                ...commonAutoFieldProps,
-              }}
-              onChange={onChange}
-              value={value}
-            />
-          )}
-          {field.type === 'array' && (
-            <AutoField
-              field={{
-                type: field.type,
-                label: field.label ?? 'Unknown',
-                getItemSummary: (item: DefaultComponentProps[0], i: number) => {
-                  if (field.getItemSummary) {
-                    return field.getItemSummary(item, i);
-                  }
-                  return `Item ${i + 1}`;
-                },
-                defaultItemProps: field.defaultItemProps,
-                arrayFields: field.arrayFields,
-                min: field.min,
-                max: field.max,
-                ...commonAutoFieldProps,
-              }}
-              onChange={onChange}
-              value={value}
-            />
-          )}
-          {field.type === 'object' && (
-            <AutoField
-              field={{
-                type: field.type,
-                label: field.label ?? 'Unknown',
-                objectFields: field.objectFields,
-                ...commonAutoFieldProps,
-              }}
-              onChange={onChange}
-              value={value}
-            />
-          )}
-          {field.type === 'code' && <CodeField value={value} language={field.language} onValidate={field.onValidate} onChange={onChange} />}
-          {field.type === 'divider' && (
-            <div
-              style={{
-                width: '100%',
-                height: '1px',
-                backgroundColor: 'var(--color-border)',
-                margin: 'var(--space-2) 0',
-                position: 'relative',
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  backgroundColor: 'var(--color-surface)',
-                  padding: '0 var(--space-2)',
-                  fontSize: 'var(--font-size-xs)',
-                  color: 'var(--color-text-muted)',
-                  fontWeight: 'var(--font-weight-medium)',
-                }}
-              >
-                {field.label}
-              </div>
-            </div>
-          )}
-        </>
       );
     },
   };

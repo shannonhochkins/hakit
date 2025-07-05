@@ -87,7 +87,7 @@
 //     sizeOptions: {
 //       type: 'object',
 //       label: 'Size Options',
-//       disableBreakpoints: true,
+//       responsiveMode: true,
 //       default: {},
 //       collapsible: {
 //         open: true,

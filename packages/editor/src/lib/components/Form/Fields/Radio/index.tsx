@@ -25,6 +25,11 @@ const StyledFormControlLabel = styled(FormControlLabel)`
       color: var(--color-text-muted);
     }
   }
+  .MuiFormGroup-root {
+  }
+  &:first-of-type > span {
+    padding-left: 0;
+  }
 `;
 
 const StyledRadio = styled(Radio)`

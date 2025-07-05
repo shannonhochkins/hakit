@@ -4,6 +4,7 @@ import { CustomConfig, PuckPageData } from '@typings/puck';
 import { merge } from 'ts-deepmerge';
 import { ComponentData } from '@measured/puck';
 import type { CustomFieldsConfiguration } from '@typings/fields';
+import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from './constants';
 
 /**
  * Converts Puck's flattened data structure back to database format with breakpoint objects merged with the original data
@@ -12,8 +13,8 @@ import type { CustomFieldsConfiguration } from '@typings/fields';
  * configuration to determine how values should be stored in the database:
  *
  * **Breakpoint Storage Logic:**
- * - If `disableBreakpoints: true` OR field type is ['object', 'array', 'divider'] → store under `$xlg` only
- * - If `disableBreakpoints: false` AND field has "breakpoints" enabled → update current breakpoint key
+ * - If `responsiveMode: false` OR field type is ['object', 'array', 'divider' (and others potentially)] → store under `$xlg` only
+ * - If `responsiveMode: true` AND field has "breakpoints" enabled → update current breakpoint key
  * - If field has "breakpoints" enabled → also always set `$xlg` as fallback
  *
  * **Field Configuration Detection:**
@@ -63,10 +64,10 @@ export function puckToDBValue(
 
   // Helper function to check if field type should disable breakpoints
   const shouldDisableBreakpoints = (fieldConfig: CustomFieldsConfiguration[string]): boolean => {
-    // Check if disableBreakpoints is explicitly set on the field
-    if ('disableBreakpoints' in fieldConfig && fieldConfig.disableBreakpoints === true) return true;
+    // Check if responsiveMode is explicitly set on the field
+    if ('responsiveMode' in fieldConfig && fieldConfig.responsiveMode === false) return true;
     const type = fieldConfig?.type;
-    return ['object', 'array', 'divider'].includes(type);
+    return EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(type);
   };
 
   // Helper function to process a field value based on its configuration
@@ -80,10 +81,10 @@ export function puckToDBValue(
     if (!fieldConfig) return currentValue;
 
     const isBreakpointEnabled = componentId && breakpointModeMap[componentId]?.[fieldPath];
-    const disableBreakpoints = shouldDisableBreakpoints(fieldConfig);
+    const responsiveModeDisabled = shouldDisableBreakpoints(fieldConfig);
 
     // If breakpoints are disabled OR field doesn't have breakpoints enabled, store under $xlg only
-    if (disableBreakpoints || !isBreakpointEnabled) {
+    if (responsiveModeDisabled || !isBreakpointEnabled) {
       return {
         [`$xlg`]: currentValue,
       };

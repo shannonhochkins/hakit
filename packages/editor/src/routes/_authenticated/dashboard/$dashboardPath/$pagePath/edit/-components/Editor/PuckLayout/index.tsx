@@ -59,7 +59,7 @@ export function PuckLayout() {
         <PanelGroup autoSaveId='hakit-panels' direction='horizontal'>
           <Panel
             ref={leftPanelRef}
-            defaultSize={25}
+            defaultSize={15}
             collapsible
             // get 50px as a percentage of the viewport width
             collapsedSize={(50 / window.innerWidth) * 100}
@@ -87,7 +87,7 @@ export function PuckLayout() {
           <StyledPanelResizeHandle>
             <ResizeHandleIcon direction='horizontal' />
           </StyledPanelResizeHandle>
-          <Panel minSize={50}>
+          <Panel minSize={60}>
             <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
               <Toolbar />
               <Preview />

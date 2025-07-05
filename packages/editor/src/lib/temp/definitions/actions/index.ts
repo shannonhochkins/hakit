@@ -69,7 +69,7 @@
 //       label: 'Actions',
 //       description: 'Actions for the components',
 //       default: {},
-//       disableBreakpoints: true,
+//       responsiveMode: true,
 //       collapsible: {
 //         open: true,
 //       },
@@ -79,7 +79,7 @@
 //           label: 'Tap Action',
 //           description: 'The action to perform when the component is tapped',
 //           default: {},
-//           disableBreakpoints: true,
+//           responsiveMode: true,
 //           collapsible: {
 //             open: true,
 //           },
