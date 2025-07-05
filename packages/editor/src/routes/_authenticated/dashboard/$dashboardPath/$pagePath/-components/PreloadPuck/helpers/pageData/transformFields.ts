@@ -1,8 +1,6 @@
-import {
-  createCustomField,
-  CustomFieldsConfiguration,
-} from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/createCustomField';
-import { ComponentData, DefaultComponentProps } from '@measured/puck';
+import { createCustomField } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/createCustomField';
+import type { CustomFieldsConfiguration } from '@typings/fields';
+import type { ComponentData, DefaultComponentProps } from '@measured/puck';
 
 function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];

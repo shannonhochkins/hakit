@@ -32,7 +32,7 @@ import { RadioField as CustomRadioField } from '@lib/components/Form/Fields/Radi
 import { NumberField as CustomNumberField } from '@lib/components/Form/Fields/Number';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/constants';
-import { CustomFields, CustomFieldsWithDefinition, FieldTypes } from './types';
+import type { CustomFields, CustomFieldsWithDefinition, FieldTypes } from '@typings/fields';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
@@ -63,9 +63,8 @@ const BREAKPOINT_LOGIC_DEFAULT_DISABLED = false;
 /**
  * Helper function to create custom fields (cf - custom field)
  */
-export function createCustomField<Props extends DefaultComponentProps = DefaultComponentProps>(
-  field: CustomFields<Props>
-): CustomFieldsWithDefinition<Props> {
+
+export function createCustomField<Props extends DefaultComponentProps>(field: CustomFields<Props>): CustomFieldsWithDefinition<Props> {
   // default values for the field
   field.disableBreakpoints = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(field.type)
     ? true

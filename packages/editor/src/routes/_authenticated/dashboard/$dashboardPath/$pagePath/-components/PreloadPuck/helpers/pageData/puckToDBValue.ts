@@ -3,7 +3,7 @@ import { ComponentBreakpointModeMap } from '@lib/hooks/useGlobalStore';
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { merge } from 'ts-deepmerge';
 import { ComponentData } from '@measured/puck';
-import { CustomFieldsConfiguration } from '../createCustomField/types';
+import type { CustomFieldsConfiguration } from '@typings/fields';
 
 /**
  * Converts Puck's flattened data structure back to database format with breakpoint objects merged with the original data

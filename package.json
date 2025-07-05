@@ -23,8 +23,9 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
+    "prebuild": "bun run type-check",
     "build": "bun --filter 'hakit-editor' build",
-    "type-check": "tsc --noEmit",
+    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
