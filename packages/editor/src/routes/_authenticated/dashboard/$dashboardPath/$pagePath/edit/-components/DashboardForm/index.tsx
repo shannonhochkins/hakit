@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboard, dashboardsQueryOptions, updateDashboardForUser, duplicateDashboard } from '@lib/api/dashboard';
-import { nameToPath } from '@lib/helpers/routes/nameToPath';
+import { nameToPath } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/routes/nameToPath';
 import { usePrevious } from '@lib/hooks/usePrevious';
 import { PrimaryButton } from '@lib/components/Button/Primary';
 import { SecondaryButton } from '@lib/components/Button/Secondary';
@@ -182,7 +182,6 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
         onClose();
       } catch (error) {
         console.error('Error saving dashboard:', error);
-        // TODO: Show error toast
       } finally {
         setIsSubmitting(false);
       }
@@ -265,11 +264,11 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
         </FieldGroup>
 
         <FormActions>
-          <SecondaryButton type='button' onClick={onClose}>
+          <SecondaryButton aria-label='' type='button' onClick={onClose}>
             <XIcon size={16} />
             Cancel
           </SecondaryButton>
-          <PrimaryButton type='submit' disabled={!validateForm() || isSubmitting} loading={isSubmitting}>
+          <PrimaryButton aria-label='' type='submit' disabled={!validateForm() || isSubmitting} loading={isSubmitting}>
             {validateForm() ? <CheckIcon size={16} /> : null}
             {getSubmitLabel()}
           </PrimaryButton>

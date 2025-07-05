@@ -1,22 +1,36 @@
 import { create } from 'zustand';
-import type { PuckPageData, UserConfig } from '@typings/puck';
+import type { CustomConfig, PuckPageData } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
-import type { DashboardWithPageData } from '@typings/dashboard';
+import type { DashboardWithoutPageData, DashboardWithPageData } from '@typings/dashboard';
 import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@lib/constants';
 import { BreakpointItem } from '@typings/breakpoints';
+import { BreakPoint } from '@hakit/components';
+
+type ComponentId = string;
+type FieldDotNotatedKey = string;
+type IsBreakpointModeEnabled = boolean;
+export type ComponentBreakpointModeMap = Record<ComponentId, Record<FieldDotNotatedKey, IsBreakpointModeEnabled>>;
+
+// options.deep.deepText
 
 type PuckConfigurationStore = {
+  activeBreakpoint: BreakPoint;
+  setActiveBreakpoint: (activeBreakpoint: BreakPoint) => void;
   breakpointItems: BreakpointItem[];
   setBreakPointItems: (breakpointItems: BreakpointItem[]) => void;
+  editorIframeDocument: Document | null; // Document of the iframe
+  setEditorIframeDocument: (document: Document | null) => void;
   emotionCache: EmotionCache | null;
   setEmotionCache: (emotionCache: EmotionCache | null) => void;
-  userConfig: UserConfig | null;
-  setUserConfig: (userConfig: UserConfig | null) => void;
+  userConfig: CustomConfig | null;
+  setUserConfig: (userConfig: CustomConfig | null) => void;
   services: HassServices | null;
   setServices: (services: HassServices | null) => void;
   dashboard: DashboardWithPageData | null;
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
+  dashboardWithoutData: DashboardWithoutPageData | null;
+  setDashboardWithoutData: (dashboard: DashboardWithoutPageData | null) => void;
   hasInitializedData: boolean; // Flag to indicate if the initial data has been set
   setHasInitializedData: (hasInitializedData: boolean) => void;
   puckPageData: PuckPageData | null;
@@ -29,19 +43,33 @@ type PuckConfigurationStore = {
   popModal: (id: number) => void;
   editorMode: boolean;
   setEditorMode: (editorMode: boolean) => void;
+  componentBreakpointMap: ComponentBreakpointModeMap;
+  setComponentBreakpointMap: (componentBreakpointMap: ComponentBreakpointModeMap) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>(set => {
   let nextId = 0;
   return {
+    activeBreakpoint: 'xlg', // Default to 'xlg' or any other breakpoint you prefer
+    setActiveBreakpoint: (activeBreakpoint: BreakPoint) => {
+      return set(state => ({ ...state, activeBreakpoint }));
+    },
+    componentBreakpointMap: {},
+    setComponentBreakpointMap: (componentBreakpointMap: ComponentBreakpointModeMap) => {
+      return set(state => ({ ...state, componentBreakpointMap }));
+    },
     breakpointItems: DEFAULT_BREAKPOINTS,
     setBreakPointItems: (breakpointItems: BreakpointItem[]) => set(state => ({ ...state, breakpointItems })),
+    editorIframeDocument: null,
+    setEditorIframeDocument: (document: Document | null) => set(state => ({ ...state, editorIframeDocument: document })),
     emotionCache: null,
     setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
     userConfig: null,
-    setUserConfig: (userConfig: UserConfig | null) => set(state => ({ ...state, userConfig })),
+    setUserConfig: (userConfig: CustomConfig | null) => set(state => ({ ...state, userConfig })),
     services: null,
     setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
+    dashboardWithoutData: null,
+    setDashboardWithoutData: (dashboard: DashboardWithoutPageData | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
     hasInitializedData: false,
@@ -53,7 +81,6 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
       return set(state => {
         if (!state.hasInitializedData) return state;
         if (JSON.stringify(state.unsavedPuckPageData) === JSON.stringify(state.puckPageData)) return state;
-        console.log('setting puck page data unsaved', unsavedPuckPageData);
         return { ...state, unsavedPuckPageData };
       });
     },

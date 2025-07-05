@@ -1,18 +1,18 @@
 import React from 'react';
-import { type UserConfig } from '@typings/puck';
-import { DefaultComponentProps, DropZone } from '@measured/puck';
+import { Config, DefaultComponentProps } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import { createComponent, type ComponentFactoryData, type CustomComponentConfig } from '@lib/helpers/createComponent';
+import { type ComponentFactoryData, type CustomComponentConfig } from '@typings/puck';
+import { createComponent } from './helpers/createPuckComponent';
 
 interface ComponentModule {
   default: CustomComponentConfig<DefaultComponentProps>;
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData) {
-  const components: UserConfig['components'] = {};
-  const rootConfigs: Array<UserConfig['root'] & { _remoteName?: string }> = [];
-  const categories: NonNullable<UserConfig['categories']> = {} as NonNullable<UserConfig['categories']>;
+  const components: Config['components'] = {};
+  const rootConfigs: Array<Config['root'] & { _remoteName?: string }> = [];
+  const categories: NonNullable<Config['categories']> = {} as NonNullable<Config['categories']>;
 
   const remotes: UserOptions['remotes'] = [
     {
@@ -52,7 +52,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
           // add every root config to the list to render under one root
           // this could cause conflicts in the wild depending on the nature of the root components
           const rootConfigWithRemote = {
-            ...(componentConfig as UserConfig['root']),
+            ...(componentConfig as Config['root']),
             _remoteName: remote.name, // track which remote this came from
           };
           rootConfigs.push(rootConfigWithRemote);
@@ -61,6 +61,13 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
           // and cast it here to the correct type
           const customComponent = componentConfig as unknown as CustomComponentConfig<DefaultComponentProps>;
           const componentLabel = customComponent.label;
+          if (!componentLabel) {
+            throw new Error(`Component from remote "${remote.name}" has no label`);
+          }
+          if (components[componentLabel]) {
+            console.warn(`Component "${componentLabel}" already exists`);
+            continue;
+          }
           components[componentLabel] = {
             ...componentConfig,
             // @ts-expect-error - we know this doesn't exist, it's fine.
@@ -83,25 +90,18 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   if (rootConfigs.length === 0) {
     rootConfigs.push({
       label: 'Root',
+      _remoteName: 'remote-default',
       fields: {},
       render(props) {
         return props.children;
       },
     });
-
-    components['Test'] = {
-      label: 'Test',
-      fields: {},
-      defaultProps: {},
-      resolveFields: async () => ({}),
-      render: props => <div ref={props.dragRef}>Test Component</div>,
-    };
   }
 
   // Merge all root configurations
   const mergedRoot = mergeRootConfigurations(rootConfigs);
 
-  const config: UserConfig = {
+  const config: Config = {
     components,
     categories,
     root: mergedRoot,
@@ -147,7 +147,7 @@ function createDividerField(remoteName: string) {
 }
 
 // Helper function to merge multiple root configurations
-function mergeRootConfigurations(rootConfigs: Array<UserConfig['root'] & { _remoteName?: string }>): UserConfig['root'] {
+function mergeRootConfigurations(rootConfigs: Array<Config['root'] & { _remoteName?: string }>): Config['root'] {
   // Start with the first root config as base
   const baseConfig = rootConfigs[0];
 
@@ -156,54 +156,34 @@ function mergeRootConfigurations(rootConfigs: Array<UserConfig['root'] & { _remo
   }
 
   // Merge all fields from all root configs, adding dividers between remotes
-  const mergedFields: NonNullable<UserConfig['root']>['fields'] = {};
+  let mergedFields: NonNullable<Config['root']>['fields'] = {};
 
   rootConfigs.forEach((rootConfig, index) => {
     const remoteName = rootConfig._remoteName || `Remote ${index + 1}`;
-
+    mergedFields = {
+      ...mergedFields,
+      ...rootConfig.fields,
+    };
     // Add divider before each remote's fields (except the first one)
     if (index > 0) {
       const dividerKey = `__divider_${remoteName}_${index}`;
       mergedFields[dividerKey] = createDividerField(remoteName);
     }
-
-    // Add all fields from this root config
-    if (rootConfig?.fields) {
-      Object.entries(rootConfig.fields).forEach(([fieldKey, fieldValue]) => {
-        // Prefix field keys with remote name to avoid conflicts
-        const prefixedKey = `${remoteName}::${fieldKey}`;
-        mergedFields[prefixedKey] = fieldValue;
-      });
-    }
   });
 
   // Create the merged root configuration
-  const mergedRoot: UserConfig['root'] = {
+  const mergedRoot: Config['root'] = {
     // Merge other properties from base config (excluding render and fields)
     ...Object.fromEntries(Object.entries(baseConfig || {}).filter(([key]) => key !== 'render' && key !== 'fields')),
-
     // Set the merged fields
     fields: mergedFields,
-
     // Create a render function that calls all root render functions
     render(props) {
       return (
         <>
           {rootConfigs.map((rootConfig, index) => {
             if (rootConfig?.render) {
-              // Extract props that belong to this specific root config
-              const rootProps = extractPropsForRoot(props, rootConfig._remoteName || `Remote ${index + 1}`);
-              // Preserve the original puck context and editMode
-              const mergedProps = {
-                ...rootProps,
-                id: props.id,
-                puck: props.puck,
-                dropZone: DropZone,
-                editMode: props.editMode,
-              };
-              return (
-                <React.Fragment key={rootConfig._remoteName || index}>{rootConfig.render(mergedProps as typeof props)}</React.Fragment>
-              );
+              return <React.Fragment key={rootConfig._remoteName || index}>{rootConfig.render(props)}</React.Fragment>;
             }
             return null;
           })}
@@ -212,28 +192,10 @@ function mergeRootConfigurations(rootConfigs: Array<UserConfig['root'] & { _remo
     },
   };
 
-  // Remove the temporary _remoteName property from the result
+  // Remove the temporary _remoteName property from the result as this is potentially multiple remotes
+  // the object field wrapper will have the key of the remote name
   const cleanedRoot = { ...mergedRoot };
   delete (cleanedRoot as typeof baseConfig)._remoteName;
 
   return cleanedRoot;
-}
-
-// Helper function to extract props that belong to a specific root
-function extractPropsForRoot(allProps: Record<string, unknown>, remoteName: string) {
-  // Extract only the props that belong to this remote
-  const extractedProps: Record<string, unknown> = {};
-
-  Object.entries(allProps).forEach(([key, value]) => {
-    if (key.startsWith(`${remoteName}::`)) {
-      // Remove the remote prefix to get the original field name
-      const originalKey = key.replace(`${remoteName}::`, '');
-      extractedProps[originalKey] = value;
-    } else if (!key.includes('::') && !key.startsWith('__divider_')) {
-      // Include non-prefixed props (likely from the base config)
-      extractedProps[key] = value;
-    }
-  });
-
-  return extractedProps;
 }

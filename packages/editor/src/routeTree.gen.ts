@@ -92,7 +92,6 @@ const AuthenticatedDashboardDashboardPathPagePathEditIndexRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '': typeof AuthenticatedRouteWithChildren
   '/me': typeof AuthenticatedMeRouteWithChildren
   '/addons': typeof AuthenticatedAddonsIndexRoute
   '/me/': typeof AuthenticatedMeIndexRoute
@@ -106,7 +105,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '': typeof AuthenticatedRouteWithChildren
   '/addons': typeof AuthenticatedAddonsIndexRoute
   '/me': typeof AuthenticatedMeIndexRoute
   '/me/components': typeof AuthenticatedMeComponentsIndexRoute
@@ -136,7 +134,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | ''
     | '/me'
     | '/addons'
     | '/me/'
@@ -150,7 +147,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | ''
     | '/addons'
     | '/me'
     | '/me/components'
@@ -183,18 +179,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/me': {
@@ -204,13 +200,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/addons/': {
-      id: '/_authenticated/addons/'
-      path: '/addons'
-      fullPath: '/addons'
-      preLoaderRoute: typeof AuthenticatedAddonsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/me/': {
       id: '/_authenticated/me/'
       path: '/'
@@ -218,25 +207,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
-    '/_authenticated/me/components/': {
-      id: '/_authenticated/me/components/'
-      path: '/components'
-      fullPath: '/me/components'
-      preLoaderRoute: typeof AuthenticatedMeComponentsIndexRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
+    '/_authenticated/addons/': {
+      id: '/_authenticated/addons/'
+      path: '/addons'
+      fullPath: '/addons'
+      preLoaderRoute: typeof AuthenticatedAddonsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/me/dashboards/': {
-      id: '/_authenticated/me/dashboards/'
-      path: '/dashboards'
-      fullPath: '/me/dashboards'
-      preLoaderRoute: typeof AuthenticatedMeDashboardsIndexRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/me/help/': {
-      id: '/_authenticated/me/help/'
-      path: '/help'
-      fullPath: '/me/help'
-      preLoaderRoute: typeof AuthenticatedMeHelpIndexRouteImport
+    '/_authenticated/me/settings/': {
+      id: '/_authenticated/me/settings/'
+      path: '/settings'
+      fullPath: '/me/settings'
+      preLoaderRoute: typeof AuthenticatedMeSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/me/logout/': {
@@ -246,11 +228,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeLogoutIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
-    '/_authenticated/me/settings/': {
-      id: '/_authenticated/me/settings/'
-      path: '/settings'
-      fullPath: '/me/settings'
-      preLoaderRoute: typeof AuthenticatedMeSettingsIndexRouteImport
+    '/_authenticated/me/help/': {
+      id: '/_authenticated/me/help/'
+      path: '/help'
+      fullPath: '/me/help'
+      preLoaderRoute: typeof AuthenticatedMeHelpIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
+    }
+    '/_authenticated/me/dashboards/': {
+      id: '/_authenticated/me/dashboards/'
+      path: '/dashboards'
+      fullPath: '/me/dashboards'
+      preLoaderRoute: typeof AuthenticatedMeDashboardsIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
+    }
+    '/_authenticated/me/components/': {
+      id: '/_authenticated/me/components/'
+      path: '/components'
+      fullPath: '/me/components'
+      preLoaderRoute: typeof AuthenticatedMeComponentsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/dashboard/$dashboardPath/$pagePath/': {

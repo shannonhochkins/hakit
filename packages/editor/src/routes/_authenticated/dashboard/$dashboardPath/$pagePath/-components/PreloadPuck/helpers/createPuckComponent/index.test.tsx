@@ -1,12 +1,11 @@
-
 import type { AllDomains, EntityName, FilterByDomain } from '@hakit/core';
-import { CustomComponentConfig } from '.';
 import { HassEntities } from 'home-assistant-js-websocket';
 import { PuckContext } from '@measured/puck';
+import { CustomComponentConfig } from '@typings/puck';
 export interface NavigationProps {
   options: {
-    hideClock?: boolean;    
-  },
+    hideClock?: boolean;
+  };
   clockOptions: {
     useTimeEntity?: boolean;
     timeEntity?: FilterByDomain<EntityName, 'sensor'>;
@@ -19,32 +18,34 @@ export interface NavigationProps {
     hideIcon?: boolean;
     throttleTime?: number;
     icon?: string;
-  }
+  };
 }
 
 function NavigationBar({ clockOptions, options }: NavigationProps & { ref: PuckContext['dragRef'] }) {
   // Placeholder for the actual implementation of the NavigationBar component
-  return <div>{JSON.stringify({
-    clockOptions,
-    options,
-  })}</div>;
+  return (
+    <div>
+      {JSON.stringify({
+        clockOptions,
+        options,
+      })}
+    </div>
+  );
 }
 
 function filterEntitiesByDomains(entities: HassEntities, ...domains: AllDomains[]) {
   const values = Array.isArray(entities) ? entities : Object.values(entities);
-  return values.filter((entity) => domains.includes(entity.entity_id.split(".")[0]));
+  return values.filter(entity => domains.includes(entity.entity_id.split('.')[0]));
 }
 
-const definition: CustomComponentConfig<NavigationProps> = {
-  category: 'Misc',
+export const definition: CustomComponentConfig<NavigationProps> = {
   label: 'Navigation',
   fields: {
     options: {
       type: 'object',
-      default: {},
       label: 'Options',
       visible(data) {
-        return data.options.hideClock === true
+        return data.options.hideClock === true;
       },
       description: 'General options for the navigation bar',
       collapsible: {
@@ -60,8 +61,8 @@ const definition: CustomComponentConfig<NavigationProps> = {
             { label: 'No', value: false },
           ],
           default: false,
-        },        
-      }
+        },
+      },
     },
     clockOptions: {
       type: 'object',
@@ -70,13 +71,11 @@ const definition: CustomComponentConfig<NavigationProps> = {
       collapsible: {
         open: true,
       },
-      default: {},
       objectFields: {
         hideTime: {
           type: 'radio',
           label: 'Hide Time',
           description: 'Hide the time in the clock',
-          supportsTemplates: true,
           options: [
             { label: 'Yes', value: true },
             { label: 'No', value: false },
@@ -92,7 +91,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
             { label: 'No', value: false },
           ],
           default: true,
-          visible(data) {
+          visible() {
             return true;
           },
         },
@@ -103,7 +102,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
           options(data) {
             return filterEntitiesByDomains(data.entities, 'sensor').filter(entity => entity.entity_id.includes('time'));
           },
-          default: (options) => {
+          default: options => {
             const defaultEntity = options.find(entity => entity.entity_id === 'sensor.time');
             return defaultEntity?.entity_id ?? undefined;
           },
@@ -133,8 +132,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
           visible(data) {
             const hideTime = data.clockOptions.hideTime ?? false;
             return !hideTime;
-
-          }
+          },
         },
         useDateEntity: {
           type: 'radio',
@@ -163,7 +161,7 @@ const definition: CustomComponentConfig<NavigationProps> = {
           label: 'Date Format',
           description: 'The format to use for the date',
           // helpLink: TODO
-          default: 'dddd, MMMM DD YYYY',  // maybe change this to a dropdown menu with multiple differnt options
+          default: 'dddd, MMMM DD YYYY', // maybe change this to a dropdown menu with multiple differnt options
         },
         hideIcon: {
           type: 'radio',
@@ -183,54 +181,11 @@ const definition: CustomComponentConfig<NavigationProps> = {
           default: 'mdi:calendar',
         },
       },
-    }
-  },
-  resolveFields: async (data, params) => {
-    const fields = params.fields;
-    const hideClock = data.props?.options?.hideClock ?? false;
-    const hideTime = data.props?.clockOptions?.hideTime ?? false;
-    const hideDate = data.props?.clockOptions?.hideDate ?? false;
-    const hideIcon = data.props?.clockOptions?.hideIcon ?? true;
-    const useTimeEntity = data.props?.clockOptions?.useTimeEntity ?? true;
-    const useDateEntity = data.props?.clockOptions?.useDateEntity ?? true;
-    
-    if (hideClock) {
-      // typescript hack here to swap the word hidden for object type
-      fields.clockOptions._field.type = ('hidden' as 'object');
-    } else {
-      fields.clockOptions._field.type = 'object';
-    }
-    if (fields.clockOptions._field.type === 'object') {
-      if (fields.clockOptions._field.objectFields.timeEntity?._field.type) {
-        fields.clockOptions._field.objectFields.timeEntity._field.type = useTimeEntity && !hideTime ? 'entity' : 'hidden';
-      }
-      if (fields.clockOptions._field.objectFields.useTimeEntity?._field.type) {
-        fields.clockOptions._field.objectFields.useTimeEntity._field.type = !hideTime ? 'radio' : 'hidden';
-      }
-      if (fields.clockOptions._field.objectFields.useDateEntity?._field.type) {
-        fields.clockOptions._field.objectFields.useDateEntity._field.type = !hideDate ? 'radio' : 'hidden';
-      }
-      if (fields.clockOptions._field.objectFields.dateEntity?._field.type) {
-        fields.clockOptions._field.objectFields.dateEntity._field.type = useDateEntity && !hideDate ? 'entity' : 'hidden';
-      }
-      if (fields.clockOptions._field.objectFields.timeFormat?._field.type) {
-        fields.clockOptions._field.objectFields.timeFormat._field.type = useTimeEntity || hideTime ? 'hidden' : 'text';
-      }
-      if (fields.clockOptions._field.objectFields.dateFormat?._field.type) {
-        fields.clockOptions._field.objectFields.dateFormat._field.type = useDateEntity || hideDate ? 'hidden' : 'text';
-      }
-      if (fields.clockOptions._field.objectFields.throttleTime?._field.type) {
-        fields.clockOptions._field.objectFields.throttleTime._field.type = useTimeEntity || hideTime ? 'hidden' : 'number';
-      }
-      if (fields.clockOptions._field.objectFields.icon?._field.type) {
-        fields.clockOptions._field.objectFields.icon._field.type = !hideIcon ? 'text' : 'hidden';
-      }
-    }
-    return fields;
+    },
   },
   permissions: { delete: true, drag: true, duplicate: false },
   inline: true,
-  render({ dragRef, options, clockOptions, editorFrame }) {
-    return <NavigationBar clockOptions={clockOptions} options={options} ref={dragRef} />
+  render({ puck, options, clockOptions }) {
+    return <NavigationBar clockOptions={clockOptions} options={options} ref={puck.dragRef} />;
   },
-}
+};

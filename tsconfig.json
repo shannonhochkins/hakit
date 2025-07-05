@@ -21,7 +21,15 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["node_modules", "dist", "build", "coverage", ".tanstack"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "@mf-types", // Exclude module federation types
+    "../**/node_modules", // Exclude node_modules in parent dirs
+    "../../**/node_modules"
+  ]
 }

@@ -5,6 +5,7 @@ import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 import { Spinner } from '@lib/components/Spinner';
 import { PuckPageData } from '@typings/puck';
 import { PuckLayout } from './PuckLayout';
+import { puckToDBValue } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/puckToDBValue';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
@@ -13,11 +14,18 @@ export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const userConfig = useGlobalStore(state => state.userConfig);
   const handlePuckChange = (newData: PuckPageData) => {
-    const { hasInitializedData, setHasInitializedData, setUnsavedPuckPageData } = useGlobalStore.getState();
+    // we've just received a new update for the entire puck page data
+    // we should now take the current data, merge with the original data
+    // sort out any new breakpoint values based on flags set in the store
+    // and sing a happy song and hope and pray this works.
+    const { puckPageData, hasInitializedData, activeBreakpoint, componentBreakpointMap, setHasInitializedData, setUnsavedPuckPageData } =
+      useGlobalStore.getState();
     if (!hasInitializedData) {
       setHasInitializedData(true);
-    } else {
-      setUnsavedPuckPageData(newData);
+    } else if (userConfig) {
+      const newDataWithBp = puckToDBValue(puckPageData, newData, activeBreakpoint, userConfig, componentBreakpointMap);
+      console.log('Updating data for db', newDataWithBp);
+      setUnsavedPuckPageData(newDataWithBp);
     }
   };
 
@@ -27,7 +35,6 @@ export function Editor() {
   if (!puckPageData) {
     return <Spinner absolute text='Loading page data' />;
   }
-  console.log('rendering editor', puckPageData);
 
   return (
     <div
@@ -52,7 +59,7 @@ export function Editor() {
           disableAutoScroll: false,
         }}
         config={userConfig as Config}
-        data={puckPageData}
+        data={{}}
       >
         <PuckLayout />
       </Puck>
