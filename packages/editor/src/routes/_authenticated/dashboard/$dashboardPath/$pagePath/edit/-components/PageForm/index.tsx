@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardsQueryOptions, createDashboardPage, updateDashboardPageForUser, duplicateDashboardPage } from '@lib/api/dashboard';
-import { nameToPath } from '@lib/helpers/routes/nameToPath';
+import { nameToPath } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/routes/nameToPath';
 import { PrimaryButton } from '@lib/components/Button/Primary';
 import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { FieldGroup } from '@lib/components/Form/FieldWrapper/FieldGroup';
@@ -290,11 +290,11 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
         </FieldGroup>
 
         <FormActions>
-          <SecondaryButton type='button' onClick={handleClose} disabled={isSubmitting}>
+          <SecondaryButton aria-label='' type='button' onClick={handleClose} disabled={isSubmitting}>
             <XIcon size={16} />
             Cancel
           </SecondaryButton>
-          <PrimaryButton type='submit' loading={isSubmitting} disabled={isInvalid}>
+          <PrimaryButton aria-label='' type='submit' loading={isSubmitting} disabled={isInvalid}>
             {!isInvalid && <CheckIcon size={16} />}
             {mode === 'new' ? 'Create Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Save Changes'}
           </PrimaryButton>

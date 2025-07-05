@@ -8,7 +8,7 @@ import { computeDomain, EntityName } from '@hakit/core';
 import { Row, Column } from '@hakit/components';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { usePuckSelectedItem } from '@lib/hooks/usePuckSelectedItem';
-import { getDefaultServiceByEntity } from '@lib/helpers/services';
+import { getDefaultServiceByEntity } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/services';
 
 const StyledTextField = styled(TextField)`
   &:focus-visible {
@@ -184,8 +184,8 @@ export function Service({ value, onChange }: ServiceProps) {
     options?: {
       entity?: string;
     };
-  }>(true);
-  const valueFromSelected = selectedItem?.props.options?.entity;
+  }>();
+  const valueFromSelected = selectedItem?.props?.options?.entity;
   const entity = valueFromSelected || 'sun.sun';
   const services = useGlobalStore(store => store.services);
   const defaultService = getDefaultServiceByEntity(entity, services);

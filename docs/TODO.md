@@ -62,3 +62,8 @@ Consider automatically saving after a delete, or when a users tries to refresh t
 - Hide breakpoint functionality if only one breakpoint is defined/enabled
 - test the shit out of this logic
 - Create issue with Puck as we can determine when a code component doesn't exist or not (component exists in data, but not in component config)
+
+
+## Root Configurations
+
+Currently, the functionality for multiple Root components from multiple repositories is a bit hairy, there's the possibility for repositories to clash with field keys which we'll need to try and sort out a solution for.

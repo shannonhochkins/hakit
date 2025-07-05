@@ -19,13 +19,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "*": ["./@mf-types/*"],
-      "@typings": ["../../typings/index.ts"],
+      // "*": ["./@mf-types/*"],
       "@typings/*": ["../../typings/*"],
       "@lib/*": ["./src/lib/*"],
       "@client/*": ["./*"],
       "@server/*": ["../server/*"]
     }
   },
-  "include": ["src", "../../typings/breakpoints.ts"]
+  "include": ["src", "../../typings"]
 }

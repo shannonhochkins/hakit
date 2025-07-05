@@ -4,6 +4,8 @@ import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
 import { updateDashboardPageForUser } from '@lib/api/dashboard';
 import { type PuckAction } from '@measured/puck';
+import { deepCopy } from 'deep-copy-ts';
+import { trimPuckDataToConfig } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/trimPuckDataToConfig';
 
 interface UnsavedChangesState {
   // Status flags
@@ -67,7 +69,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
       if (!storageKey) return;
       try {
         const saveData = {
-          data: structuredClone(data),
+          data: deepCopy(data),
           timestamp: new Date().toISOString(),
         };
         localStorage.setItem(storageKey, JSON.stringify(saveData));
@@ -134,7 +136,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
   const acceptRecovery = useCallback(() => {
     const stored = getStoredData();
     if (!stored?.data) return;
-    const { dashboard, setPuckPageData } = useGlobalStore.getState();
+    const { dashboard, setPuckPageData, userConfig } = useGlobalStore.getState();
     // remove local storage data always
     removeStoredData();
     const page = dashboard?.pages.find(page => page.path === params?.pagePath);
@@ -142,13 +144,22 @@ export function useUnsavedChanges(): UnsavedChangesState {
       console.error('Dashboard or page unavailable, unable to restore');
       return;
     }
+    if (!userConfig) {
+      console.error('User configuration is missing, unable to restore');
+      return;
+    }
+    const updated = trimPuckDataToConfig(stored.data, userConfig);
+    if (!updated) {
+      console.error('Failed to trim stored data to user config, unable to restore');
+      return;
+    }
     // Update internal puck data
-    setPuckPageData(stored.data);
+    setPuckPageData(updated);
     // the user has accepted the recovery, so we update the dashboard page data
     // in the db
     updateDashboardPageForUser(dashboard.id, {
       id: page.id,
-      data: stored.data,
+      data: updated,
     }).finally(() => {
       setShowRecoveryPrompt(false);
     });

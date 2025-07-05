@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useGlobalStore } from '../useGlobalStore';
+import { deepCopy } from 'deep-copy-ts';
 
 export function useDashboardWithData(dashboardPath?: string) {
-  const setDashboard = useGlobalStore(store => store.setDashboard);
   // Define the query options separately to avoid spreading type conflicts
   const queryOptions = useMemo(() => {
     if (!dashboardPath) {
@@ -44,14 +44,26 @@ export function useDashboardWithData(dashboardPath?: string) {
   }, [query.isError, query.error]);
 
   useEffect(() => {
+    const { setDashboard, setDashboardWithoutData } = useGlobalStore.getState();
+
     // Set the dashboard in global store when data is available
     if (query.data) {
       setDashboard(query.data);
+      // delete the data property from the dashboard, and each page
+      const clonedDashboard = deepCopy(query.data);
+      // @ts-expect-error data is not a valid property on DashboardWithPageData
+      delete clonedDashboard.data;
+      clonedDashboard.pages.forEach(page => {
+        // @ts-expect-error data is not a valid property on DashboardWithPageData
+        delete page.data;
+      });
+      setDashboardWithoutData(clonedDashboard);
     } else {
       // Clear the dashboard if no data is returned
       setDashboard(null);
+      setDashboardWithoutData(null);
     }
-  }, [query.data, setDashboard]);
+  }, [query.data]);
 
   return useMemo(
     () => ({

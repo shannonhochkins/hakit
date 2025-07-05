@@ -1,33 +1,33 @@
-import type { PuckPageData } from "./puck";
-import type { BreakpointItem } from "./breakpoints";
+import type { PuckPageData } from './puck';
+import type { BreakpointItem } from './breakpoints';
 
 export type DashboardPageWithoutData = {
-    id: string;
-    name: string;
-    path: string;
-    createdAt: string;
-    updatedAt: string;
-    thumbnail: string | null;
-}
+  id: string;
+  name: string;
+  path: string;
+  createdAt: string;
+  updatedAt: string;
+  thumbnail: string | null;
+};
 export type DashboardPageWithData = DashboardPageWithoutData & {
-    data: PuckPageData;
-}
+  data: PuckPageData;
+};
 interface Dashboard {
-    id: string;
-    name: string;
-    path: string;
-    themeId?: string;
-    data: PuckPageData;
-    thumbnail: string | null;
-    createdAt: string;
-    updatedAt: string;
-    breakpoints: BreakpointItem[];
+  id: string;
+  name: string;
+  path: string;
+  themeId?: string;
+  data: PuckPageData;
+  thumbnail: string | null;
+  createdAt: string;
+  updatedAt: string;
+  breakpoints: BreakpointItem[];
 }
 
 export type DashboardWithPageData = Dashboard & {
-    pages: DashboardPageWithData[];
-}
+  pages: DashboardPageWithData[];
+};
 
 export type DashboardWithoutPageData = Dashboard & {
-    pages: DashboardPageWithoutData[];
+  pages: DashboardPageWithoutData[];
 };

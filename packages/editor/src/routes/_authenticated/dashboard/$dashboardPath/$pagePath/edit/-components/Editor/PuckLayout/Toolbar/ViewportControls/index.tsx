@@ -11,7 +11,7 @@ import { InputField } from '@lib/components/Form/Fields/Input';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { CircleHelp, Edit, TabletSmartphone } from 'lucide-react';
 import { Modal, ModalActions } from '@lib/components/Modal';
-import { breakpointItemToBreakPoints } from '@lib/helpers/breakpoints';
+import { breakpointItemToBreakPoints } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/breakpoints';
 import { PrimaryButton } from '@lib/components/Button';
 import { Tooltip } from '@lib/components/Tooltip';
 
