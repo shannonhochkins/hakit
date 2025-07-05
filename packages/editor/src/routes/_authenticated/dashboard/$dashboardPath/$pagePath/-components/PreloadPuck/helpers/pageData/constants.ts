@@ -1,5 +1,5 @@
 import { type BreakPoint } from '@hakit/components';
-import { FieldTypes } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/createCustomField';
+import type { FieldTypes } from '@typings/fields';
 
 // the order of the breakpoint keys
 export const BREAKPOINT_ORDER: BreakPoint[] = ['xxs', 'xs', 'sm', 'md', 'lg', 'xlg'] as const;

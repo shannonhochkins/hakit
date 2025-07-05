@@ -11,7 +11,7 @@ import {
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { DashboardPageWithoutData } from './dashboard';
-import type { CustomFieldsConfiguration } from '../packages/editor/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/createCustomField/types';
+import type { CustomFieldsConfiguration } from './fields';
 
 export type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly

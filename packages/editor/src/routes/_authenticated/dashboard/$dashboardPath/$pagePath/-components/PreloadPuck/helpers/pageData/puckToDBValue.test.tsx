@@ -7,7 +7,7 @@ import { fieldsWithBreakpointsEnabled } from './__mocks__/fieldsWithBreakpointsE
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@lib/hooks/useGlobalStore';
-import { CustomObjectField } from '../createCustomField/types';
+import type { CustomObjectField } from '@typings/fields';
 import { DefaultComponentProps } from '@measured/puck';
 
 describe('puckToDBValue', () => {

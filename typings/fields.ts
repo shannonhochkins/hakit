@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  type DefaultComponentProps,
-  type TextField,
-  type NumberField,
-  type TextareaField,
-  type SelectField,
-  type RadioField,
-  type BaseField as PuckBaseField,
-  type ObjectField,
-  type ArrayField,
-  type CustomField as PuckCustomField,
+import type {
+  DefaultComponentProps,
+  TextField,
+  NumberField,
+  TextareaField,
+  SelectField,
+  RadioField,
+  BaseField as PuckBaseField,
+  ObjectField,
+  ArrayField,
+  CustomField as PuckCustomField,
 } from '@measured/puck';
-import { ReactNode } from 'react';
-// custom fields
-import { DefaultPropsCallbackData } from '@typings/puck';
-import { HassEntity } from 'home-assistant-js-websocket';
-import { OnValidate } from '@monaco-editor/react';
+import type { ReactNode } from 'react';
+import type { DefaultPropsCallbackData } from './puck';
+import type { HassEntity } from 'home-assistant-js-websocket';
+import type { OnValidate } from '@monaco-editor/react';
 
 type BaseField = Omit<PuckBaseField, 'visible'>;
 
@@ -41,7 +40,7 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
 };
 
 export type EntityField<DataShape = unknown> = BaseField &
-  Omit<ExtendedFieldTypes<DataShape>, 'default'> & {} & {
+  Omit<ExtendedFieldTypes<DataShape>, 'default'> & {
     type: 'entity';
     options: HassEntity[] | ((data: DefaultPropsCallbackData) => Promise<HassEntity[]> | HassEntity[]);
     default: (options: HassEntity[], data: DefaultPropsCallbackData) => Promise<string | undefined> | string | undefined;
@@ -62,6 +61,7 @@ export type ImageUploadField = BaseField & {
 export type PageField = BaseField & {
   type: 'page';
 };
+
 export type PagesField = BaseField & {
   type: 'pages';
   min?: number;
@@ -134,6 +134,7 @@ export type CustomField<
       readOnly?: boolean;
     }) => React.ReactElement;
   };
+
 // field keys that we are replacing with our own
 type ExcludePuckKeys = keyof ExtendedFieldTypes;
 

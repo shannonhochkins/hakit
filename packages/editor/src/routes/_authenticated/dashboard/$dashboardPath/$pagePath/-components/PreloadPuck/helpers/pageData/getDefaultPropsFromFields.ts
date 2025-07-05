@@ -1,6 +1,6 @@
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { DefaultPropsCallbackData } from '@typings/puck';
-import { CustomFields, CustomFieldsConfiguration } from '../createCustomField/types';
+import type { CustomFields, CustomFieldsConfiguration } from '@typings/fields';
 
 /**
  * Recursively gathers default values from fields definitions.
