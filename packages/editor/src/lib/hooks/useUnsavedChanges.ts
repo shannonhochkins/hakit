@@ -6,6 +6,7 @@ import { updateDashboardPageForUser } from '@lib/api/dashboard';
 import { type PuckAction } from '@measured/puck';
 import { deepCopy } from 'deep-copy-ts';
 import { trimPuckDataToConfig } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/trimPuckDataToConfig';
+import { dbValueToPuck } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/dbValueToPuck';
 
 interface UnsavedChangesState {
   // Status flags
@@ -136,7 +137,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
   const acceptRecovery = useCallback(() => {
     const stored = getStoredData();
     if (!stored?.data) return;
-    const { dashboard, setPuckPageData, userConfig } = useGlobalStore.getState();
+    const { dashboard, setPuckPageData, userConfig, activeBreakpoint } = useGlobalStore.getState();
     // remove local storage data always
     removeStoredData();
     const page = dashboard?.pages.find(page => page.path === params?.pagePath);
@@ -153,13 +154,15 @@ export function useUnsavedChanges(): UnsavedChangesState {
       console.error('Failed to trim stored data to user config, unable to restore');
       return;
     }
+    const puckValue = dbValueToPuck(updated, activeBreakpoint);
+    console.log('revorting to stored data', puckValue);
     // Update internal puck data
-    setPuckPageData(updated);
+    setPuckPageData(puckValue);
     // the user has accepted the recovery, so we update the dashboard page data
     // in the db
     updateDashboardPageForUser(dashboard.id, {
       id: page.id,
-      data: updated,
+      data: puckValue,
     }).finally(() => {
       setShowRecoveryPrompt(false);
     });

@@ -23,6 +23,7 @@ export function Editor() {
     if (!hasInitializedData) {
       setHasInitializedData(true);
     } else if (userConfig) {
+      console.log('Received new data from Puck', newData);
       const newDataWithBp = puckToDBValue(puckPageData, newData, activeBreakpoint, userConfig, componentBreakpointMap);
       console.log('Updating data for db', newDataWithBp);
       setUnsavedPuckPageData(newDataWithBp);
@@ -35,6 +36,8 @@ export function Editor() {
   if (!puckPageData) {
     return <Spinner absolute text='Loading page data' />;
   }
+
+  console.log('puckPageData', puckPageData);
 
   return (
     <div
@@ -59,7 +62,7 @@ export function Editor() {
           disableAutoScroll: false,
         }}
         config={userConfig as Config}
-        data={{}}
+        data={puckPageData}
       >
         <PuckLayout />
       </Puck>

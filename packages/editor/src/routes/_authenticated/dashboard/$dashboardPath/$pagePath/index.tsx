@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import createCache from '@emotion/cache';
 import { PreloadPuck } from './-components/PreloadPuck';
+import { AssignPuckData } from './-components/PreloadPuck/AssignPuckData';
 
 export const Route = createFileRoute('/_authenticated/dashboard/$dashboardPath/$pagePath/')({
   component: RouteComponent,
@@ -24,7 +25,9 @@ function RouteComponent() {
 
   return (
     <PreloadPuck dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
-      <Renderer />
+      <AssignPuckData dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
+        <Renderer />
+      </AssignPuckData>
     </PreloadPuck>
   );
 }

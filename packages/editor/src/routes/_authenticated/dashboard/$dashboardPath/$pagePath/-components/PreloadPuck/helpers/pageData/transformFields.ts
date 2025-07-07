@@ -40,22 +40,28 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
  * ```
  */
 export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
-  fields: CustomFieldsConfiguration<P, false, DataShape>
+  fields: CustomFieldsConfiguration<P, false, DataShape>,
+  isTopLevel: boolean = true
 ): CustomFieldsConfiguration<P, true> {
   const result = {} as CustomFieldsConfiguration<P, true>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
+    // Skip processing 'id' fields only at the top level (they are system fields for components)
+    if (fieldName === 'id' && isTopLevel) {
+      continue;
+    }
+
     // If it's an object field, recurse into objectFields
     if (fieldDef.type === 'object' && fieldDef.objectFields) {
       // @ts-expect-error - Fix later
-      fieldDef.objectFields = transformFields(fieldDef.objectFields);
+      fieldDef.objectFields = transformFields(fieldDef.objectFields, false); // Not top level anymore
       // @ts-expect-error - Fix later
       result[fieldName] = createCustomField(fieldDef);
 
       // If it's an array field, recurse into arrayFields
     } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
       // @ts-expect-error - Fix later
-      fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields);
+      fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields, false); // Not top level anymore
       // @ts-expect-error - Fix later
       result[fieldName] = createCustomField(fieldDef);
 

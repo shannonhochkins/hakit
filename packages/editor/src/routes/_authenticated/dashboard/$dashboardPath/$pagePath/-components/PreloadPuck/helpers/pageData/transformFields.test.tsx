@@ -940,4 +940,139 @@ describe('transformFields', () => {
         .hiddenInNested
     ).toBeDefined();
   });
+
+  test('should skip id fields only at top level but process nested id fields', () => {
+    const fields = {
+      id: {
+        type: 'text',
+        label: 'ID',
+        default: '',
+      },
+      title: {
+        type: 'text',
+        label: 'Title',
+        default: '',
+      },
+      settings: {
+        type: 'object',
+        label: 'Settings',
+        objectFields: {
+          id: {
+            type: 'text',
+            label: 'Settings ID',
+            default: '',
+          },
+          name: {
+            type: 'text',
+            label: 'Name',
+            default: '',
+          },
+        },
+      },
+      items: {
+        type: 'array',
+        label: 'Items',
+        default: [],
+        arrayFields: {
+          id: {
+            type: 'text',
+            label: 'Item ID',
+            default: '',
+          },
+          name: {
+            type: 'text',
+            label: 'Item Name',
+            default: '',
+          },
+        },
+      },
+    } as const;
+
+    const transformedFields = transformFields(fields);
+
+    // The top-level id field should be completely skipped
+    expect(transformedFields).not.toHaveProperty('id');
+
+    // Other fields should be processed normally
+    expect(transformedFields.title).toBeDefined();
+    expect(transformedFields.title).toEqual({
+      type: 'custom',
+      render: expect.any(Function),
+      _field: {
+        type: 'text',
+        label: 'Title',
+        default: '',
+        responsiveMode: true,
+      },
+    });
+
+    // Nested object fields should be processed normally, including nested id fields
+    expect(transformedFields.settings).toBeDefined();
+    expect(transformedFields.settings).toEqual({
+      type: 'custom',
+      render: expect.any(Function),
+      _field: {
+        type: 'object',
+        label: 'Settings',
+        responsiveMode: false,
+        objectFields: {
+          id: {
+            type: 'custom',
+            render: expect.any(Function),
+            _field: {
+              type: 'text',
+              label: 'Settings ID',
+              default: '',
+              responsiveMode: true,
+            },
+          },
+          name: {
+            type: 'custom',
+            render: expect.any(Function),
+            _field: {
+              type: 'text',
+              label: 'Name',
+              default: '',
+              responsiveMode: true,
+            },
+          },
+        },
+      },
+    });
+
+    // Nested array fields should be processed normally, including nested id fields
+    expect(transformedFields.items).toBeDefined();
+    expect(transformedFields.items).toEqual({
+      type: 'custom',
+      render: expect.any(Function),
+      _field: {
+        type: 'array',
+        label: 'Items',
+        default: [],
+        responsiveMode: false,
+        arrayFields: {
+          id: {
+            type: 'custom',
+            render: expect.any(Function),
+            _field: {
+              type: 'text',
+              label: 'Item ID',
+              default: '',
+              responsiveMode: true,
+            },
+          },
+          name: {
+            type: 'custom',
+            render: expect.any(Function),
+            _field: {
+              type: 'text',
+              label: 'Item Name',
+              default: '',
+              responsiveMode: true,
+            },
+          },
+        },
+      },
+    });
+  });
 });

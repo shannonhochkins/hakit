@@ -40,6 +40,7 @@ export function createComponent<P extends DefaultComponentProps>(
       },
     };
     // attach internal breakpoint field
+    // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
     transformedFields._activeBreakpoint = breakpointField;
 
     return {

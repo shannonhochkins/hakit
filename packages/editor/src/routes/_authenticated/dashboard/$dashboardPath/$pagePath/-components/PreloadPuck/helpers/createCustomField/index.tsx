@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useMemo, useState } from 'react';
-import { type DefaultComponentProps } from '@measured/puck';
+import { createUsePuck, UiState, type DefaultComponentProps } from '@measured/puck';
 import { ReactNode } from 'react';
 import {
   Hash,
@@ -83,6 +84,8 @@ const FieldInput = styled.div`
 
 const RESPONSIVE_MODE_DEFAULT = true;
 
+const usePuck = createUsePuck();
+
 /**
  * Helper function to create custom fields (cf - custom field)
  */
@@ -96,41 +99,29 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
   return {
     type: 'custom',
     _field: field,
-    render({ name, onChange, value, id }) {
+    render({ name, onChange: puckOnChange, value, id }) {
       // TODO - change this to use the store to retrieve if we're enabled or not
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [breakpointMode, setBreakpointMode] = useState(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [confirmBreakpointChange, setConfirmBreakpointChange] = useState(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+      // const [confirmBreakpointChange, setConfirmBreakpointChange] = useState(false);
       const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], []);
-      // const appState = usePuck(c => c.appState);
+      const appState = usePuck(c => c.appState);
+
       // const selectedItem = usePuck(c => c.selectedItem);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const selectedItem = usePuck(s => s.selectedItem);
       const activeBreakpoint = useActiveBreakpoint();
 
-      // const isVisible = useMemo(() => {
-      //   if (typeof _field.visible === 'function') {
-      //     // If there's no expected selectedItem, we can assume the root options should be shown
-      //     const visibleData = selectedItem
-      //       ? transformProps(selectedItem.props, activeBreakpoint)
-      //       : appState.data.root?.props
-      //         ? transformProps(appState.data.root.props, activeBreakpoint)
-      //         : null;
-      //     if (!visibleData) return;
-      //     return _field.visible(visibleData);
-      //   }
-      //   return _field.visible ?? true;
-      // }, [
-      //   appState.data.root,
-      //   // TODO test this visible logic, If this stopps working when values change, add the puckValue back in
-      //   // puckValue,
-      //   selectedItem,
-      //   activeBreakpoint,
-      // ]);
+      const isVisible = useMemo(() => {
+        if (typeof _field.visible === 'function') {
+          // If there's no expected selectedItem, we can assume the root options should be shown
+          const visibleData = selectedItem ? selectedItem.props : appState.data.root?.props;
+          if (!visibleData) return;
+          console.log('visibleData', visibleData);
+          return _field.visible(visibleData);
+        }
+        return _field.visible ?? true;
+      }, [appState.data.root?.props, selectedItem]);
 
       // const valOrDefault = useMemo(() => {
       //   return (
@@ -151,32 +142,16 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
       //   return field.responsiveMode ? valOrDefault : getResolvedBreakpointValue<any>(valOrDefault, activeBreakpoint);
       // }, [valOrDefault, activeBreakpoint]);
 
-      // const onChange = (value: unknown, uiState?: Partial<UiState>) => {
-      //   if (typeof value === 'undefined') return;
-      //   if (field.responsiveMode) {
-      //     // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
-      //     puckOnChange(value as Props, uiState);
-      //   } else if (typeof value !== 'undefined') {
-      //     const xlg = 'xlg' as keyof AvailableQueries;
-      //     const newValue = breakpointMode
-      //       ? {
-      //           ...valOrDefault,
-      //           [activeBreakpoint]: value,
-      //         }
-      //       : ({
-      //           [xlg]: value,
-      //         } as Props);
-      //     // send back the converted breakpoint value
-      //     // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
-      //     puckOnChange(newValue, uiState);
-      //   }
-      // };
+      const onChange = useCallback(
+        (value: unknown, uiState?: Partial<UiState>) => {
+          // TODO - Potentially hijack the value here before firing on change for things like value validation for an individual field
+          if (typeof value === 'undefined') return;
+          // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
+          puckOnChange(value, uiState);
+        },
+        [puckOnChange]
+      );
 
-      // if (!isVisible) {
-      //   return <></>;
-      // }
-
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const onToggleBreakpointMode = useCallback(() => {
         const isBreakpointModeEnabled = !breakpointMode;
         // because the onChange method is memoized, we need to call it here to ensure the value is updated
@@ -188,7 +163,6 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
         setBreakpointMode(!breakpointMode);
       }, [breakpointMode, onChange, value]);
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const onToggleExpand = useCallback(() => {
         toggleExpanded(!isExpanded);
       }, [isExpanded]);
@@ -197,8 +171,13 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
         return <Alert severity='error'>Unsupported field type: &quot;{field.type}&quot;</Alert>;
       }
 
+      if (!isVisible) {
+        return <></>;
+      }
+
       return (
         <Fieldset
+          id={id}
           className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${_field.collapseOptions ? 'collapsible' : ''} ${breakpointMode && field.responsiveMode ? 'bp-mode-enabled' : ''}`}
           onClick={() => {
             if (typeof field.collapseOptions === 'object') {
