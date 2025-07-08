@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { Info, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { Column } from '@hakit/components';
 
 type AlertSeverity = 'info' | 'warning' | 'success' | 'error';
 
@@ -11,6 +12,8 @@ interface AlertProps {
   title?: string;
   className?: string;
 }
+
+const ICON_SIZE = 20;
 
 const getSeverityStyles = (severity: AlertSeverity) => {
   switch (severity) {
@@ -69,7 +72,7 @@ const getSeverityColorStyles = (severity: AlertSeverity) => {
 
 const getSeverityIcon = (severity: AlertSeverity) => {
   const iconProps = {
-    size: 20,
+    size: ICON_SIZE,
     'aria-hidden': true,
     className: 'shrink-0 mt-1',
   };
@@ -99,16 +102,22 @@ const AlertContainer = styled.div<{ severity: AlertSeverity }>`
 const AlertContent = styled.div`
   display: flex;
   gap: var(--space-3);
+  position: relative;
+  padding-left: calc(${ICON_SIZE + 'px'} + var(--space-2));
 `;
 
 const AlertIcon = styled.div<{ severity: AlertSeverity }>`
+  position: absolute;
+  top: 2px;
+  left: 0;
   flex-shrink: 0;
-  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   ${props => getSeverityColorStyles(props.severity)}
 `;
 
-const AlertBody = styled.div`
-  flex: 1;
+const AlertBody = styled(Column)`
   min-width: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
@@ -117,8 +126,8 @@ const AlertBody = styled.div`
 const AlertTitle = styled.h3<{ severity: AlertSeverity }>`
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-md);
-  margin-bottom: var(--space-1);
-  margin-top: 0;
+  margin: 0;
+  padding: 0;
   ${props => getSeverityColorStyles(props.severity)}
 
   &:only-child {
@@ -127,7 +136,7 @@ const AlertTitle = styled.h3<{ severity: AlertSeverity }>`
 `;
 
 const AlertMessage = styled.div<{ severity: AlertSeverity }>`
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
 
   /* Style mark elements based on severity */
@@ -210,9 +219,9 @@ export function Alert({ children, severity = 'info', title, className }: AlertPr
     <AlertContainer severity={severity} className={className}>
       <AlertContent>
         <AlertIcon severity={severity}>{getSeverityIcon(severity)}</AlertIcon>
-        <AlertBody>
+        <AlertBody alignItems='flex-start' justifyContent='flex-start' gap='var(--space-1)'>
           {title && <AlertTitle severity={severity}>{title}</AlertTitle>}
-          <AlertMessage severity={severity}>{children}</AlertMessage>
+          {children && <AlertMessage severity={severity}>{children}</AlertMessage>}
         </AlertBody>
       </AlertContent>
     </AlertContainer>

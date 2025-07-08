@@ -1,7 +1,7 @@
 import { Column, Row } from '@hakit/components';
 import { Fab } from '@lib/components/Button';
 import styled from '@emotion/styled';
-import { Fragment, ReactNode, useCallback, useEffect, useId, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
@@ -29,12 +29,17 @@ const ModalContainer = styled.div`
   box-shadow: var(--shadow-2xl);
   border: 1px solid var(--color-border);
 `;
+
+ModalContainer.displayName = 'ModalContainer';
+
 const ModalInner = styled.div`
   display: flex;
   padding: var(--space-4);
   align-items: flex-start;
   flex-direction: column;
 `;
+
+ModalInner.displayName = 'ModalInner';
 
 const ModalOverflow = styled.div`
   overflow-x: hidden;
@@ -46,6 +51,8 @@ const ModalOverflow = styled.div`
   align-items: stretch;
   width: 100%;
 `;
+
+ModalOverflow.displayName = 'ModalOverflow';
 
 const ModalHeader = styled.div`
   display: flex;
@@ -61,6 +68,8 @@ const ModalHeader = styled.div`
   border-bottom: 1px solid var(--color-border);
 `;
 
+ModalHeader.displayName = 'ModalHeader';
+
 const Title = styled.h4`
   margin: 0;
   font-size: var(--font-size-xl);
@@ -72,12 +81,16 @@ const Title = styled.h4`
   color: var(--color-text-primary);
 `;
 
+Title.displayName = 'ModalTitle';
+
 const Description = styled.h4`
   margin: 0;
   font-weight: var(--font-weight-normal);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 `;
+
+Description.displayName = 'ModalDescription';
 
 const ModalBackdrop = styled.div`
   position: absolute;
@@ -90,6 +103,8 @@ const ModalBackdrop = styled.div`
   z-index: var(--z-modal-backdrop, 1040);
   backdrop-filter: blur(var(--blur-sm)) brightness(0.75);
 `;
+
+ModalBackdrop.displayName = 'ModalBackdrop';
 
 /** animation variant controls for the modal container */
 export type CustomModalAnimation = (
@@ -201,74 +216,72 @@ export function Modal({
   const containerZ = baseZ + 1;
 
   return createPortal(
-    <>
-      {open && (
-        <Fragment key={`${prefix}-fragment`}>
-          <ModalBackdrop
-            key={`${prefix}-backdrop`}
-            className='modal-backdrop'
-            id={`${prefix}-backdrop`}
-            onClick={() => {
-              if (open) {
-                onClose();
-              }
-            }}
-            style={{
-              ...backdropProps?.style,
-              zIndex: backdropZ,
-            }}
-            {...backdropProps}
-          />
-          <ModalContainer
-            {...rest}
-            style={{
-              ...style,
-              zIndex: containerZ,
-            }}
-            key={`${prefix}-container`}
-            className={`modal-container ${className ?? ''}`}
-          >
-            <ModalHeader className={`modal-header`}>
-              <Column
-                alignItems='flex-start'
-                className={`modal-column`}
-                style={{
-                  flexShrink: 1,
-                  maxWidth: '70%',
-                }}
-              >
-                {title && <Title className={`modal-title`}>{title}</Title>}
-                {description && <Description className={`modal-description`}>{description}</Description>}
-              </Column>
-              <Row
-                gap='0.5rem'
-                wrap='nowrap'
-                style={{
-                  flexShrink: 0,
-                }}
-              >
-                {headerActions && headerActions()}
-                {!hideCloseButton && (
-                  <Fab
-                    icon={<X size={24} />}
-                    onClick={() => {
-                      doClose();
-                    }}
-                    className={`modal-close-button`}
-                    aria-label='Close modal'
-                    variant='secondary'
-                    size='sm'
-                  />
-                )}
-              </Row>
-            </ModalHeader>
-            <ModalOverflow className={`modal-overflow`}>
-              <ModalInner className={'modal-inner'}>{children}</ModalInner>
-            </ModalOverflow>
-          </ModalContainer>
-        </Fragment>
-      )}
-    </>,
+    open ? (
+      <div key={`${prefix}-modal-wrapper`}>
+        <ModalBackdrop
+          key={`${prefix}-backdrop`}
+          className='modal-backdrop'
+          id={`${prefix}-backdrop`}
+          onClick={() => {
+            if (open) {
+              onClose();
+            }
+          }}
+          style={{
+            ...backdropProps?.style,
+            zIndex: backdropZ,
+          }}
+          {...backdropProps}
+        />
+        <ModalContainer
+          {...rest}
+          style={{
+            ...style,
+            zIndex: containerZ,
+          }}
+          key={`${prefix}-container`}
+          className={`modal-container ${className ?? ''}`}
+        >
+          <ModalHeader key={`${prefix}-header`} className={`modal-header`}>
+            <Column
+              alignItems='flex-start'
+              className={`modal-column`}
+              style={{
+                flexShrink: 1,
+                maxWidth: '70%',
+              }}
+            >
+              {title && <Title className={`modal-title`}>{title}</Title>}
+              {description && <Description className={`modal-description`}>{description}</Description>}
+            </Column>
+            <Row
+              gap='0.5rem'
+              wrap='nowrap'
+              style={{
+                flexShrink: 0,
+              }}
+            >
+              {headerActions && headerActions()}
+              {!hideCloseButton && (
+                <Fab
+                  icon={<X size={24} />}
+                  onClick={() => {
+                    doClose();
+                  }}
+                  className={`modal-close-button`}
+                  aria-label='Close modal'
+                  variant='secondary'
+                  size='sm'
+                />
+              )}
+            </Row>
+          </ModalHeader>
+          <ModalOverflow key={`${prefix}-overflow`} className={`modal-overflow`}>
+            <ModalInner className={'modal-inner'}>{children}</ModalInner>
+          </ModalOverflow>
+        </ModalContainer>
+      </div>
+    ) : null,
     window.document.body
   );
 }

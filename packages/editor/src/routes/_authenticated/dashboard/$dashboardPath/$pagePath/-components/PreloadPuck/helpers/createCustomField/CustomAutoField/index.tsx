@@ -14,6 +14,11 @@ import { RadioField as CustomRadioField } from '@lib/components/Form/Fields/Radi
 import { NumberField as CustomNumberField } from '@lib/components/Form/Fields/Number';
 import { HassEntity } from 'home-assistant-js-websocket';
 import { Alert } from '@lib/components/Alert';
+import styled from '@emotion/styled';
+
+const StyledAlert = styled(Alert)`
+  margin: 0;
+`;
 
 interface CustomAutoFieldProps<Props extends DefaultComponentProps> {
   field: CustomFields<Props>;
@@ -208,5 +213,5 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     );
   }
 
-  return <Alert severity='error'>Unsupported field type: &quot;{field.type}&quot;</Alert>;
+  return <StyledAlert severity='error'>Unsupported field type: &quot;{field.type}&quot;</StyledAlert>;
 }

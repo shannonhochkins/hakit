@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { Column, Row } from '@hakit/components';
 import { Preview } from './Preview';
@@ -40,6 +40,47 @@ export function PuckLayout() {
     }
   }, [leftSidebar.isCollapsed, rightSidebar.isCollapsed]);
 
+  const onRightSidebarToggle = useCallback((collapsed: boolean) => {
+    if (rightPanelRef.current) {
+      if (collapsed) {
+        rightPanelRef.current.collapse();
+      } else {
+        rightPanelRef.current.expand();
+      }
+    }
+  }, []);
+
+  const onLeftSidebarToggle = useCallback((collapsed: boolean) => {
+    if (leftPanelRef.current) {
+      if (collapsed) {
+        leftPanelRef.current.collapse();
+      } else {
+        leftPanelRef.current.expand();
+      }
+    }
+  }, []);
+
+  const onLeftSidebarCollapse = useCallback(() => {
+    setLeftSidebarCollapsed(true);
+  }, [setLeftSidebarCollapsed]);
+
+  const onLeftSidebarExpand = useCallback(() => {
+    setLeftSidebarCollapsed(false);
+  }, [setLeftSidebarCollapsed]);
+
+  const onRightSidebarCollapse = useCallback(() => {
+    setRightSidebarCollapsed(true);
+  }, [setRightSidebarCollapsed]);
+
+  const onRightSidebarExpand = useCallback(() => {
+    setRightSidebarCollapsed(false);
+  }, [setRightSidebarCollapsed]);
+
+  const leftSidebarCollapsedSize = useMemo(() => (50 / window.innerWidth) * 100, []);
+  const leftSidebarMinSize = useMemo(() => (200 / window.innerWidth) * 100, []);
+  const rightSidebarCollapsedSize = useMemo(() => (50 / window.innerWidth) * 100, []);
+  const rightSidebarMinSize = useMemo(() => (200 / window.innerWidth) * 100, []);
+
   return (
     <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' className='puck-editor-wrapper'>
       <Header />
@@ -52,6 +93,7 @@ export function PuckLayout() {
         gap='0px'
         style={{
           flex: '1 1 0',
+          maxHeight: 'calc(100% - var(--header-height))',
           minWidth: 0,
           opacity: emotionCache ? 1 : 0,
         }}
@@ -62,27 +104,13 @@ export function PuckLayout() {
             defaultSize={15}
             collapsible
             // get 50px as a percentage of the viewport width
-            collapsedSize={(50 / window.innerWidth) * 100}
-            minSize={(200 / window.innerWidth) * 100}
+            collapsedSize={leftSidebarCollapsedSize}
+            minSize={leftSidebarMinSize}
             maxSize={40}
-            onCollapse={() => {
-              setLeftSidebarCollapsed(true);
-            }}
-            onExpand={() => {
-              setLeftSidebarCollapsed(false);
-            }}
+            onCollapse={onLeftSidebarCollapse}
+            onExpand={onLeftSidebarExpand}
           >
-            <LeftSidebar
-              onToggle={collapsed => {
-                if (leftPanelRef.current) {
-                  if (collapsed) {
-                    leftPanelRef.current.collapse();
-                  } else {
-                    leftPanelRef.current.expand();
-                  }
-                }
-              }}
-            />
+            <LeftSidebar onToggle={onLeftSidebarToggle} />
           </Panel>
           <StyledPanelResizeHandle>
             <ResizeHandleIcon direction='horizontal' />
@@ -99,28 +127,14 @@ export function PuckLayout() {
           <Panel
             ref={rightPanelRef}
             defaultSize={25}
-            collapsedSize={(50 / window.innerWidth) * 100}
+            collapsedSize={rightSidebarCollapsedSize}
             collapsible
-            minSize={(200 / window.innerWidth) * 100}
+            minSize={rightSidebarMinSize}
             maxSize={40}
-            onCollapse={() => {
-              setRightSidebarCollapsed(true);
-            }}
-            onExpand={() => {
-              setRightSidebarCollapsed(false);
-            }}
+            onCollapse={onRightSidebarCollapse}
+            onExpand={onRightSidebarExpand}
           >
-            <RightSidebar
-              onToggle={collapsed => {
-                if (rightPanelRef.current) {
-                  if (collapsed) {
-                    rightPanelRef.current.collapse();
-                  } else {
-                    rightPanelRef.current.expand();
-                  }
-                }
-              }}
-            />
+            <RightSidebar onToggle={onRightSidebarToggle} />
           </Panel>
         </PanelGroup>
       </Row>
