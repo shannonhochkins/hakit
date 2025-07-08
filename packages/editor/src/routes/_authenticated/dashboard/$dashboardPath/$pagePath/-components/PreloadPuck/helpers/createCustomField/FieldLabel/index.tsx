@@ -20,7 +20,7 @@ const LabelContainer = styled.span`
 const LabelIcon = styled.div`
   display: flex;
   padding-left: 0;
-  color: var(--color-primary-500);
+  color: var(--color-gray-500);
 `;
 
 const DisabledIcon = styled.div`

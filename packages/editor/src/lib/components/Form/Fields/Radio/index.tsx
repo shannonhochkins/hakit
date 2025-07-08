@@ -3,6 +3,9 @@ import { Radio, RadioGroup, FormControl, FormControlLabel, FormHelperText } from
 
 const StyledFormControl = styled(FormControl)`
   width: 100%;
+  border: 1px solid var(--color-gray-800);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
@@ -26,9 +29,6 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     }
   }
   .MuiFormGroup-root {
-  }
-  &:first-of-type > span {
-    padding-left: 0;
   }
 `;
 

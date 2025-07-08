@@ -96,6 +96,7 @@ const AlertContainer = styled.div<{ severity: AlertSeverity }>`
   border-radius: var(--radius-lg);
   border: 1px solid;
   margin-bottom: var(--space-8);
+  opacity: 1 !important;
   ${props => getSeverityStyles(props.severity)}
 `;
 

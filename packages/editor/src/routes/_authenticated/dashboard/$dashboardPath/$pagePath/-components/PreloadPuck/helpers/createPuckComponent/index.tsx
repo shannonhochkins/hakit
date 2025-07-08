@@ -6,7 +6,58 @@ import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { usePuckIframeElements } from '@lib/hooks/usePuckIframeElements';
 import { ComponentConfig, CustomField, DefaultComponentProps, Fields } from '@measured/puck';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, InternalFields } from '@typings/puck';
-import { useEffect } from 'react';
+import { useEffect, Component, ReactNode } from 'react';
+import { Alert } from '@lib/components/Alert';
+
+// Error boundary component to catch rendering errors
+class ComponentRenderErrorBoundary<P extends DefaultComponentProps> extends Component<
+  { children: ReactNode; componentConfig?: CustomComponentConfig<P>; dragRef?: ((element: Element | null) => void) | null },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: {
+    children: ReactNode;
+    componentConfig?: CustomComponentConfig<P>;
+    dragRef?: ((element: Element | null) => void) | null;
+  }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('HAKIT: Component render error:', error, errorInfo);
+    console.error('HAKIT: Component type:', this.props.componentConfig?.label);
+  }
+
+  componentDidUpdate(prevProps: { children: ReactNode; componentConfig?: CustomComponentConfig<P> }) {
+    // Reset error state if the component type changes (new component being rendered)
+    if (prevProps.componentConfig?.label !== this.props.componentConfig?.label && this.state.hasError) {
+      this.setState({ hasError: false, error: undefined });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div ref={this.props.dragRef} style={{ position: 'relative', width: '100%' }}>
+          <Alert
+            title={`Component Render Error${this.props.componentConfig?.label ? ` (${this.props.componentConfig?.label})` : ''}`}
+            severity='error'
+          >
+            <p style={{ margin: '0 0 var(--space-2) 0' }}>
+              {this.state.error?.message || 'An error occurred while rendering this component'}
+            </p>
+          </Alert>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
@@ -59,11 +110,16 @@ export function createComponent<P extends DefaultComponentProps>(
           _editor: editorElements,
           _dashboard: dashboard,
         };
-        // we cast here intentionally to ensure that the renderProps match the expected type
-        return config.render({
-          ...props,
-          ...renderProps,
-        } as Parameters<typeof config.render>[0]);
+
+        // Wrap the config.render call in an error boundary to catch rendering errors
+        return (
+          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={props.puck.dragRef}>
+            {config.render({
+              ...props,
+              ...renderProps,
+            } as Parameters<typeof config.render>[0])}
+          </ComponentRenderErrorBoundary>
+        );
       },
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
       fields: Object.keys(fields).length === 0 ? ({} as Fields<P>) : (transformedFields as Fields<P>),

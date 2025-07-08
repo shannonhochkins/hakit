@@ -9,7 +9,7 @@ import { useSidebarSizeChange } from '@lib/hooks/useSidebarSizeChange';
 async function loadMonaco() {
   const MonacoConfig = await import('monaco-editor');
   const { loader, Editor } = await import('@monaco-editor/react');
-  
+
   // Configure the loader to use the imported Monaco
   loader.config({ monaco: MonacoConfig });
 
@@ -20,16 +20,16 @@ async function loadMonaco() {
       switch (label) {
         case 'json':
           return new Worker(new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url), {
-            type: 'module'
+            type: 'module',
           });
         case 'html':
           return new Worker(new URL('monaco-editor/esm/vs/language/html/html.worker', import.meta.url), {
-            type: 'module'
+            type: 'module',
           });
         case 'javascript':
         case 'typescript':
           return new Worker(new URL('monaco-editor/esm/vs/language/typescript/ts.worker', import.meta.url), {
-            type: 'module'
+            type: 'module',
           });
         case 'yaml': {
           configureMonacoYaml(MonacoConfig, {
@@ -37,18 +37,18 @@ async function loadMonaco() {
             schemas: [],
           });
           return new Worker(new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url), {
-            type: 'module'
+            type: 'module',
           });
         }
         case 'editorWorkerService':
         default:
           return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url), {
-            type: 'module'
+            type: 'module',
           });
       }
     },
   };
-  
+
   return Editor;
 }
 
