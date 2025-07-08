@@ -41,7 +41,5 @@ export function AssignPuckData({ dashboardPath, pagePath, children }: DashboardP
   if (dashboard && dashboard.pages.length > 0 && matchedPage && userConfig) {
     return <>{children}</>;
   }
-  // TODO - Maybe the page we're viewing doesn't have page data?
-  // redirect to dashboard home or display a message?
-  return <Spinner absolute text='Whoops, something weird has happened!' />;
+  return <Spinner absolute text='Connecting the dots...' />;
 }

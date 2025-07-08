@@ -180,7 +180,7 @@ export const Header = () => {
         </Nav>
 
         <GetStartedContainer>
-          <PrimaryButton size='sm' onClick={handleAuthButtonClick} loading={isLoading} disabled={isLoading}>
+          <PrimaryButton aria-label='' size='sm' onClick={handleAuthButtonClick} loading={isLoading} disabled={isLoading}>
             {isLoading ? 'Loading...' : buttonState.label}
           </PrimaryButton>
         </GetStartedContainer>
@@ -207,7 +207,7 @@ export const Header = () => {
                 <MobileNavLink href='#pricing'>Pricing</MobileNavLink>
               </MobileNavItem>
               <MobileNavItem>
-                <PrimaryButton size='sm' fullWidth onClick={handleAuthButtonClick} disabled={isLoading}>
+                <PrimaryButton aria-label='' size='sm' fullWidth onClick={handleAuthButtonClick} disabled={isLoading}>
                   {isLoading ? 'Loading...' : buttonState.label}
                 </PrimaryButton>
               </MobileNavItem>

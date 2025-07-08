@@ -31,10 +31,11 @@ export function Confirm({ open, title, children, onConfirm, onCancel }: ConfirmP
           marginTop: 24,
         }}
       >
-        <SecondaryButton size='md' onClick={onCancel} disabled={loading}>
+        <SecondaryButton aria-label='' size='md' onClick={onCancel} disabled={loading}>
           Cancel
         </SecondaryButton>
         <PrimaryButton
+          aria-label=''
           size='md'
           onClick={() => {
             const result = onConfirm();

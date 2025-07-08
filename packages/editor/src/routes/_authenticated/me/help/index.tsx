@@ -74,7 +74,7 @@ function RouteComponent() {
           <HelpDescription>
             Browse comprehensive guides, tutorials, and API documentation to get the most out of HA KIT Editor.
           </HelpDescription>
-          <SecondaryButton onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit')}>
+          <SecondaryButton aria-label='' onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit')}>
             View Documentation
           </SecondaryButton>
         </HelpCard>
@@ -87,7 +87,9 @@ function RouteComponent() {
           <HelpDescription>
             Join our Discord community to get help from other users, share your creations, and stay updated.
           </HelpDescription>
-          <SecondaryButton onClick={() => handleExternalLink('https://discord.gg/65UpetST')}>Join Discord</SecondaryButton>
+          <SecondaryButton aria-label='' onClick={() => handleExternalLink('https://discord.gg/65UpetST')}>
+            Join Discord
+          </SecondaryButton>
         </HelpCard>
 
         <HelpCard>
@@ -96,7 +98,7 @@ function RouteComponent() {
           </HelpIcon>
           <HelpTitle>Frequently Asked Questions</HelpTitle>
           <HelpDescription>Find answers to common questions about installation, configuration, and troubleshooting.</HelpDescription>
-          <SecondaryButton onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit/discussions')}>
+          <SecondaryButton aria-label='' onClick={() => handleExternalLink('https://github.com/shannonhochkins/hakit/discussions')}>
             View FAQs
           </SecondaryButton>
         </HelpCard>

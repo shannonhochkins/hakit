@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { type EditorProps, type OnMount } from '@monaco-editor/react';
-import { CodeField as CodeFieldType } from '../../../../../routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/createCustomField';
 import { monarchTokens, languageConfiguration } from './languages/jinja2';
 import { configureMonacoYaml } from 'monaco-yaml';
 import { editor } from 'monaco-editor';
 import { useSidebarSizeChange } from '@lib/hooks/useSidebarSizeChange';
+import { type CodeField as CodeFieldType } from '@typings/fields';
 
 async function loadMonaco() {
   const MonacoConfig = await import('monaco-editor');

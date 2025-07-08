@@ -61,5 +61,5 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
   }
   // TODO - Maybe the page we're viewing doesn't have page data?
   // redirect to dashboard home or display a message?
-  return <Spinner absolute text='Whoops, something weird has happened1!' />;
+  return <Spinner absolute text='Connecting the dots...' />;
 }

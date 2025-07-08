@@ -653,7 +653,7 @@ export function Dashboards() {
             <PageTitle>Dashboards</PageTitle>
             <PageSubtitle>Manage your custom dashboards</PageSubtitle>
           </HeaderContent>
-          <PrimaryButton onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
+          <PrimaryButton aria-label='' onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
             Create Dashboard
           </PrimaryButton>
         </Row>
@@ -753,7 +753,7 @@ export function Dashboards() {
           }
           actions={
             !searchQuery ? (
-              <PrimaryButton onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
+              <PrimaryButton aria-label='' onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
                 Create Your First Dashboard
               </PrimaryButton>
             ) : null
@@ -851,7 +851,12 @@ export function Dashboards() {
                             <StyledTableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
                               <Row fullWidth justifyContent='space-between' alignItems='center'>
                                 <span>{(dashboard.matchedPages || dashboard.pages).length > 0 ? 'PAGES' : 'No pages found'}</span>
-                                <PrimaryButton size='sm' onClick={() => handleCreatePage(dashboard.id)} startIcon={<PlusIcon size={16} />}>
+                                <PrimaryButton
+                                  aria-label='Create New Page'
+                                  size='sm'
+                                  onClick={() => handleCreatePage(dashboard.id)}
+                                  startIcon={<PlusIcon size={16} />}
+                                >
                                   Create Page
                                 </PrimaryButton>
                               </Row>
@@ -884,36 +889,33 @@ export function Dashboards() {
                               </StyledTableCell>
                               <StyledTableCell>
                                 <ActionButtons>
-                                  <Tooltip title='View Page'>
-                                    <SecondaryButton
-                                      fullHeight
-                                      size='sm'
-                                      startIcon={<EyeIcon size={14} />}
-                                      onClick={() => handleView('page', page.id, dashboard.id)}
-                                    >
-                                      View
-                                    </SecondaryButton>
-                                  </Tooltip>
-                                  <Tooltip title='Design Page'>
-                                    <SecondaryButton
-                                      fullHeight
-                                      size='sm'
-                                      startIcon={<LayoutDashboardIcon size={14} />}
-                                      onClick={() => handleDesign('page', page.id, dashboard.id)}
-                                    >
-                                      Design
-                                    </SecondaryButton>
-                                  </Tooltip>
-                                  <Tooltip title='Actions'>
-                                    <SecondaryButton
-                                      fullHeight
-                                      autoWidth
-                                      size='sm'
-                                      onClick={e => handleMenuOpen(e, 'page', dashboard.id, page.id)}
-                                    >
-                                      <MoreVertical size={14} />
-                                    </SecondaryButton>
-                                  </Tooltip>
+                                  <SecondaryButton
+                                    aria-label='View Page'
+                                    fullHeight
+                                    size='sm'
+                                    startIcon={<EyeIcon size={14} />}
+                                    onClick={() => handleView('page', page.id, dashboard.id)}
+                                  >
+                                    View
+                                  </SecondaryButton>
+                                  <SecondaryButton
+                                    aria-label='Design Page'
+                                    fullHeight
+                                    size='sm'
+                                    startIcon={<LayoutDashboardIcon size={14} />}
+                                    onClick={() => handleDesign('page', page.id, dashboard.id)}
+                                  >
+                                    Design
+                                  </SecondaryButton>
+                                  <SecondaryButton
+                                    aria-label='Actions'
+                                    fullHeight
+                                    autoWidth
+                                    size='sm'
+                                    onClick={e => handleMenuOpen(e, 'page', dashboard.id, page.id)}
+                                  >
+                                    <MoreVertical size={14} />
+                                  </SecondaryButton>
                                 </ActionButtons>
                               </StyledTableCell>
                             </ChildTableRow>
@@ -970,31 +972,33 @@ export function Dashboards() {
                   </StyledTableCell>
                   <StyledTableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
                     <ActionButtons>
-                      <Tooltip title='View Dashboard'>
-                        <SecondaryButton
-                          fullHeight
-                          size='sm'
-                          startIcon={<EyeIcon size={14} />}
-                          onClick={() => handleView('dashboard', dashboard.id)}
-                        >
-                          View
-                        </SecondaryButton>
-                      </Tooltip>
-                      <Tooltip title='Design Dashboard'>
-                        <SecondaryButton
-                          fullHeight
-                          size='sm'
-                          startIcon={<LayoutDashboardIcon size={14} />}
-                          onClick={() => handleDesign('dashboard', dashboard.id)}
-                        >
-                          Design
-                        </SecondaryButton>
-                      </Tooltip>
-                      <Tooltip title='Actions'>
-                        <SecondaryButton fullHeight autoWidth size='sm' onClick={e => handleMenuOpen(e, 'dashboard', dashboard.id)}>
-                          <MoreVertical size={14} />
-                        </SecondaryButton>
-                      </Tooltip>
+                      <SecondaryButton
+                        aria-label='View Dashboard'
+                        fullHeight
+                        size='sm'
+                        startIcon={<EyeIcon size={14} />}
+                        onClick={() => handleView('dashboard', dashboard.id)}
+                      >
+                        View
+                      </SecondaryButton>
+                      <SecondaryButton
+                        aria-label='Design Dashboard'
+                        fullHeight
+                        size='sm'
+                        startIcon={<LayoutDashboardIcon size={14} />}
+                        onClick={() => handleDesign('dashboard', dashboard.id)}
+                      >
+                        Design
+                      </SecondaryButton>
+                      <SecondaryButton
+                        aria-label='Actions'
+                        fullHeight
+                        autoWidth
+                        size='sm'
+                        onClick={e => handleMenuOpen(e, 'dashboard', dashboard.id)}
+                      >
+                        <MoreVertical size={14} />
+                      </SecondaryButton>
                     </ActionButtons>
                   </StyledTableCell>
                 </CollapsibleRow>

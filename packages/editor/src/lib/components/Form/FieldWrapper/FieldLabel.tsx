@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
-import { ReactNode } from '@tanstack/react-router';
+import {} from '@tanstack/react-router';
 import { InfoIcon, Lock } from 'lucide-react';
+import { ReactNode } from 'react';
 
 const LabelContainer = styled.span`
   align-items: center;
