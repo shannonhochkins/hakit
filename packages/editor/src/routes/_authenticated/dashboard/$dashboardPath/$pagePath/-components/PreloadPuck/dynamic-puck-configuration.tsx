@@ -2,7 +2,7 @@ import React from 'react';
 import { Config, DefaultComponentProps } from '@measured/puck';
 import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import { type ComponentFactoryData, type CustomComponentConfig } from '@typings/puck';
+import { CustomConfig, type ComponentFactoryData, type CustomComponentConfig } from '@typings/puck';
 import { createComponent } from './helpers/createPuckComponent';
 
 interface ComponentModule {
@@ -10,9 +10,9 @@ interface ComponentModule {
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData) {
-  const components: Config['components'] = {};
-  const rootConfigs: Array<Config['root'] & { _remoteName?: string }> = [];
-  const categories: NonNullable<Config['categories']> = {} as NonNullable<Config['categories']>;
+  const components: Record<string, CustomComponentConfig<DefaultComponentProps>> = {};
+  const rootConfigs: Array<CustomConfig['root'] & { _remoteName?: string }> = [];
+  const categories: NonNullable<CustomConfig['categories']> = {} as NonNullable<Config['categories']>;
 
   const remotes: UserOptions['remotes'] = [
     {
@@ -49,10 +49,11 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
         const componentFactory = await createComponent(component);
         const componentConfig = await componentFactory(data);
         if (componentConfig.label === 'Root') {
+          const rootConfig = componentConfig as CustomConfig['root'];
           // add every root config to the list to render under one root
           // this could cause conflicts in the wild depending on the nature of the root components
           const rootConfigWithRemote = {
-            ...(componentConfig as Config['root']),
+            ...rootConfig,
             _remoteName: remote.name, // track which remote this came from
           };
           rootConfigs.push(rootConfigWithRemote);
@@ -101,7 +102,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // Merge all root configurations
   const mergedRoot = mergeRootConfigurations(rootConfigs);
 
-  const config: Config = {
+  const config: CustomConfig = {
     components,
     categories,
     root: mergedRoot,
@@ -147,7 +148,7 @@ function createDividerField(remoteName: string) {
 }
 
 // Helper function to merge multiple root configurations
-function mergeRootConfigurations(rootConfigs: Array<Config['root'] & { _remoteName?: string }>): Config['root'] {
+function mergeRootConfigurations(rootConfigs: Array<CustomConfig['root'] & { _remoteName?: string }>): CustomConfig['root'] {
   // Start with the first root config as base
   const baseConfig = rootConfigs[0];
 
@@ -156,7 +157,7 @@ function mergeRootConfigurations(rootConfigs: Array<Config['root'] & { _remoteNa
   }
 
   // Merge all fields from all root configs, adding dividers between remotes
-  let mergedFields: NonNullable<Config['root']>['fields'] = {};
+  let mergedFields: NonNullable<CustomConfig['root']>['fields'] = {};
 
   rootConfigs.forEach((rootConfig, index) => {
     const remoteName = rootConfig._remoteName || `Remote ${index + 1}`;
@@ -172,7 +173,7 @@ function mergeRootConfigurations(rootConfigs: Array<Config['root'] & { _remoteNa
   });
 
   // Create the merged root configuration
-  const mergedRoot: Config['root'] = {
+  const mergedRoot: CustomConfig['root'] = {
     // Merge other properties from base config (excluding render and fields)
     ...Object.fromEntries(Object.entries(baseConfig || {}).filter(([key]) => key !== 'render' && key !== 'fields')),
     // Set the merged fields

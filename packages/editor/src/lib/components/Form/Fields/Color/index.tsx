@@ -4,10 +4,10 @@ import { useClickAway } from '@lib/hooks/useClickAway';
 import styled from '@emotion/styled';
 
 const Swatch = styled.div`
-  width: 28px;
-  height: 28px;
+  width: 80px;
+  height: 40px;
   border-radius: 8px;
-  border: 3px solid #fff;
+  border: 1px solid var(--color-gray-500);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.1),
     inset 0 0 0 1px rgba(0, 0, 0, 0.1);

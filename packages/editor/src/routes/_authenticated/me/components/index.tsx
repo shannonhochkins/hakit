@@ -76,7 +76,7 @@ function RouteComponent() {
     <ComponentsContainer>
       <PageHeader>
         <PageTitle>My Components</PageTitle>
-        <PrimaryButton startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
+        <PrimaryButton aria-label='' startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
           Create Component
         </PrimaryButton>
       </PageHeader>
@@ -91,10 +91,10 @@ function RouteComponent() {
           enhance your Home Assistant experience.
         </EmptyStateDescription>
         <ActionButtons>
-          <PrimaryButton startIcon={<DownloadIcon size={16} />} onClick={handleBrowseAddons}>
+          <PrimaryButton aria-label='' startIcon={<DownloadIcon size={16} />} onClick={handleBrowseAddons}>
             Browse Addons
           </PrimaryButton>
-          <SecondaryButton startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
+          <SecondaryButton aria-label='' startIcon={<PlusIcon size={16} />} onClick={handleCreateComponent}>
             Create Custom Component
           </SecondaryButton>
         </ActionButtons>

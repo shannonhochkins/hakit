@@ -343,8 +343,8 @@ describe('puckToDBValue', () => {
     });
   });
 
-  test('should handle fields with disableBreakpoints: true', () => {
-    // Create a modified config where number field has disableBreakpoints: true
+  test('should handle fields with responsiveMode: true with the mode map as false', () => {
+    // Create a modified config where number field has responsiveMode: true
     const modifiedUserConfig: CustomConfig<{
       'Field Test': {
         options: {
@@ -369,7 +369,7 @@ describe('puckToDBValue', () => {
                   default: 16,
                   min: 0,
                   description: 'Number Field',
-                  disableBreakpoints: true, // this field should not have breakpoints
+                  responsiveMode: true, // this field should not have breakpoints
                 },
               },
             },
@@ -400,7 +400,7 @@ describe('puckToDBValue', () => {
     const fieldsWithBreakpointsEnabled: ComponentBreakpointModeMap = {
       ['Field Test-d60b055e-d02a-4ff0-b6b5-74c4d6c26a00']: {
         'options.text': true,
-        'options.number': true, // even though number has disableBreakpoints: true, we still want to test it
+        'options.number': false, // even though number has responsiveMode: true, we still want to test it
         'options.deep.deepText': true,
       },
     };
@@ -408,14 +408,14 @@ describe('puckToDBValue', () => {
     const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
-    // Number field should still be wrapped in $xlg even with disableBreakpoints: true
+    // Number field should still be wrapped in $xlg even with responsiveMode: true
     expect(component?.props?.options?.number).toEqual({
       $xlg: 24,
     });
   });
 
-  test('should handle fields with disableBreakpoints: false', () => {
-    // Create a modified config where number field has disableBreakpoints: true
+  test('should handle fields with responsiveMode: true with the mode map as true', () => {
+    // Create a modified config where number field has responsiveMode: true
     const modifiedUserConfig = {
       ...userConfig,
       components: {
@@ -430,7 +430,7 @@ describe('puckToDBValue', () => {
                 ...(userConfig.components['Field Test'].fields.options as CustomObjectField).objectFields!,
                 number: {
                   ...(userConfig.components['Field Test'].fields.options as CustomObjectField).objectFields!.number,
-                  disableBreakpoints: false,
+                  responsiveMode: true,
                 },
               },
             },
@@ -485,7 +485,7 @@ describe('puckToDBValue', () => {
     const fieldsWithBreakpointsEnabled: ComponentBreakpointModeMap = {
       ['Field Test-d60b055e-d02a-4ff0-b6b5-74c4d6c26a00']: {
         'options.text': true,
-        'options.number': true, // even though number has disableBreakpoints: true, we still want to test it
+        'options.number': true, // even though number has responsiveMode: true, we still want to test it
         'options.deep.deepText': true,
       },
     };
@@ -493,7 +493,7 @@ describe('puckToDBValue', () => {
     const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
-    // Number field should still be wrapped in $xlg even with disableBreakpoints: true
+    // Number field should still be wrapped in $xlg even with responsiveMode: true
     expect(component?.props?.options?.number).toEqual({
       $xlg: 16,
       $sm: 14,
@@ -770,7 +770,7 @@ describe('puckToDBValue', () => {
                 type: 'number',
                 label: 'Count',
                 default: 0,
-                disableBreakpoints: true,
+                responsiveMode: true,
               },
             },
           },
@@ -816,7 +816,7 @@ describe('puckToDBValue', () => {
 
       expect(result?.root?.props?.title).toEqual({ $xlg: 'Test Title' });
       expect(result?.root?.props?.settings?.theme).toEqual({ $xlg: 'dark' });
-      expect(result?.root?.props?.settings?.count).toEqual({ $xlg: 5 }); // disableBreakpoints: true
+      expect(result?.root?.props?.settings?.count).toEqual({ $xlg: 5 }); // responsiveMode: true
       expect(result?.root?.props?.items).toEqual({ $xlg: [{ name: 'Item 1' }] }); // arrays use $xlg
     });
 

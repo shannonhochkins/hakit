@@ -23,6 +23,8 @@ const StyledHeader = styled.header<{ $hidden?: boolean }>`
   align-items: center;
   justify-content: space-between;
   height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
 `;
 
 const HeaderLeft = styled.div`

@@ -167,7 +167,7 @@ export const BenefitsSection = () => {
               ))}
             </BenefitsList>
             <CTASection>
-              <PrimaryButton>Explore Benefits</PrimaryButton>
+              <PrimaryButton aria-label=''>Explore Benefits</PrimaryButton>
             </CTASection>
           </ContentSection>
         </ContentWrapper>

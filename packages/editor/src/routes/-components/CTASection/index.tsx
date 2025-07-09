@@ -245,7 +245,7 @@ export const CTASection = () => {
                   <FeatureItem>Basic Templates</FeatureItem>
                   <FeatureItem>Community Support</FeatureItem>
                 </FeaturesList>
-                <PlanButton>Start Free</PlanButton>
+                <PlanButton aria-label=''>Start Free</PlanButton>
               </PricingCard>
 
               <FeaturedCard>
@@ -264,7 +264,7 @@ export const CTASection = () => {
                   <FeatureItem>Priority Support</FeatureItem>
                   <FeatureItem>Custom Styling</FeatureItem>
                 </FeaturesList>
-                <FeaturedPlanButton>Start Pro Trial</FeaturedPlanButton>
+                <FeaturedPlanButton aria-label=''>Start Pro Trial</FeaturedPlanButton>
               </FeaturedCard>
 
               <PricingCard>
@@ -280,7 +280,7 @@ export const CTASection = () => {
                   <FeatureItem>Dedicated Support</FeatureItem>
                   <FeatureItem>API Access</FeatureItem>
                 </FeaturesList>
-                <PlanButton>Contact Sales</PlanButton>
+                <PlanButton aria-label=''>Contact Sales</PlanButton>
               </PricingCard>
             </PricingGrid>
 

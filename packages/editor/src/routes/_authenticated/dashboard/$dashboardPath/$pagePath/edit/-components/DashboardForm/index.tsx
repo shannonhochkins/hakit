@@ -223,6 +223,9 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
         onSubmit={handleSubmit}
         style={{
           width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-4)',
         }}
       >
         <FieldGroup>

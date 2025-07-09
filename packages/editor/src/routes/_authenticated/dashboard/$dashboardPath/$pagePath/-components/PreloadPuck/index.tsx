@@ -9,7 +9,6 @@ import { useDashboardWithData } from '@lib/hooks/queeries/useDashboardWithData';
 import { getPuckConfiguration } from './dynamic-puck-configuration';
 import { useStore } from '@hakit/core';
 import { getServices as _getServices } from 'home-assistant-js-websocket';
-import { trimPuckDataToConfig } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/trimPuckDataToConfig';
 
 interface DashboardProps {
   dashboardPath?: string;
@@ -35,7 +34,7 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
 
   useEffect(() => {
     const { connection, entities } = useStore.getState();
-    const { setUserConfig, setBreakPointItems, setPuckPageData, puckPageData, userConfig } = useGlobalStore.getState();
+    const { setUserConfig, setBreakPointItems, userConfig } = useGlobalStore.getState();
 
     if (connection && dashboard && dashboard.pages.length && !userConfig) {
       // if there's breakpoints set, use them, else use the default breakpoints
@@ -49,15 +48,6 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
         getAllServices: getServices,
       }).then(config => {
         setUserConfig(config);
-        if (matchedPage && !puckPageData) {
-          const updated = trimPuckDataToConfig(matchedPage.data, config);
-          if (updated) {
-            console.log('config', { updated, config });
-            setPuckPageData(updated);
-          }
-          // puckPageData may have already been set by the RecoveryPrompt component
-          // setPuckPageData(matchedPage.data);
-        }
       });
     }
   }, [dashboard, matchedPage]);
@@ -66,10 +56,10 @@ export function PreloadPuck({ dashboardPath, pagePath, children }: DashboardProp
     return <Spinner absolute text='Loading dashboard data' />;
   }
 
-  if (dashboard && dashboard.pages.length > 0 && matchedPage && userConfig) {
-    return <>{children}</>;
+  if (userConfig) {
+    return children;
   }
   // TODO - Maybe the page we're viewing doesn't have page data?
   // redirect to dashboard home or display a message?
-  return <Spinner absolute text='No page data found??' />;
+  return <Spinner absolute text='Connecting the dots...' />;
 }

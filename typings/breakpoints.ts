@@ -1,4 +1,7 @@
 import type { BreakPoint } from '@hakit/components';
+import { BREAKPOINT_ICONS } from '../packages/editor/src/lib/constants';
+
+export type IconKey = keyof typeof BREAKPOINT_ICONS;
 
 export type BreakpointItem = {
   id: BreakPoint;
@@ -6,4 +9,5 @@ export type BreakpointItem = {
   width: number;
   disabled: boolean;
   editable: boolean;
+  icon?: IconKey;
 };

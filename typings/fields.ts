@@ -28,11 +28,12 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
   required?: boolean;
   /** The default value of the field if no value is saved or present */
   default: unknown;
-  /** if enabled, the breakpoint wrapper logic will not be applied @default false */
-  disableBreakpoints?: boolean;
-  /** if provided, the field will be collapsible @default undefined */
-  collapsible?: {
-    open?: boolean;
+  /** if enabled, this field will be able to configure different values at different breakpoints @default true */
+  responsiveMode?: boolean;
+  /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
+  collapseOptions?: {
+    /** Should the collapsable area start expanded @default true */
+    startExpanded?: boolean;
   };
   label: string;
   /** used to determine if we want to show the current field either based on the current data or just a hard coded boolean value */
@@ -88,7 +89,7 @@ export type GridField = BaseField & {
   step?: number;
 };
 
-export type HiddenField = Pick<ExtendedFieldTypes, 'default' | 'disableBreakpoints'> & {
+export type HiddenField = Pick<ExtendedFieldTypes, 'default' | 'responsiveMode'> & {
   type: 'hidden';
 };
 

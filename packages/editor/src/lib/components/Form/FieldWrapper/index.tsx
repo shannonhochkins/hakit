@@ -22,8 +22,8 @@ type FieldLabelProps = {
   readOnly?: boolean;
   className?: string;
   type?: string;
-  collapsible?: {
-    open?: boolean;
+  collapseOptions?: {
+    startExpanded?: boolean;
   };
 };
 
@@ -34,7 +34,7 @@ type FieldWrapperProps = FieldLabelProps & {
   breakpointMode: boolean;
   activeBreakpoint: BreakPoint;
   providedBreakpointValues: [string, string][];
-  disableBreakpoints: boolean;
+  responsiveMode: boolean;
 };
 
 const Label = styled.fieldset`
@@ -45,13 +45,13 @@ const Label = styled.fieldset`
   color: var(--color-gray-300);
   background: transparent;
   &.collapsible {
-    padding-top: 12px;
+    padding-top: var(--space-3);
     cursor: pointer;
     color: var(--color-gray-200);
   }
   &.bp-mode-enabled {
     position: relative;
-    .puck-field {
+    .hakit-field {
       border-left: 4px solid var(--color-primary-500);
     }
   }
@@ -61,7 +61,6 @@ const Field = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 12px;
   [class*='_Input-input_'] {
     background-color: var(--color-gray-950) !important;
   }
@@ -125,19 +124,19 @@ export function FieldWrapper({
   className = '',
   activeBreakpoint,
   providedBreakpointValues,
-  disableBreakpoints,
+  responsiveMode,
   type,
-  collapsible,
+  collapseOptions,
   ...props
 }: FieldWrapperProps) {
-  const [open, setOpen] = useState(collapsible ? (collapsible?.open ?? false) : true);
+  const [open, setOpen] = useState(collapseOptions ? (collapseOptions?.startExpanded ?? false) : true);
   const [confirmBreakpointChange, setConfirmBreakpointChange] = useState(false);
 
   const fieldOptions = useMemo(() => {
     const options: FieldOption[] = [];
     // don't show the breakpoint option if it's disabled
-    // TODO -  figure out why is this wrapped in collapsible?
-    if (!disableBreakpoints) {
+    // TODO -  figure out why is this wrapped in collapseOptions?
+    if (!responsiveMode) {
       options.push({
         label: 'Enable Breakpoints',
         description: 'Enable breakpoint values for this field',
@@ -152,7 +151,7 @@ export function FieldWrapper({
       });
     }
     return options;
-  }, [disableBreakpoints, breakpointMode, providedBreakpointValues.length, onToggleBreakpointMode]);
+  }, [responsiveMode, breakpointMode, providedBreakpointValues.length, onToggleBreakpointMode]);
 
   if (omitLabel) {
     return (
@@ -164,9 +163,9 @@ export function FieldWrapper({
   }
   return (
     <Label
-      className={`${className ?? ''} ${type ? `field-${type}` : ''} ${collapsible ? 'collapsible' : ''} ${breakpointMode && !disableBreakpoints ? 'bp-mode-enabled' : ''}`}
+      className={`${className ?? ''} ${type ? `field-${type}` : ''} ${collapseOptions ? 'collapsible' : ''} ${breakpointMode && !responsiveMode ? 'bp-mode-enabled' : ''}`}
       onClick={() => {
-        if (typeof collapsible === 'object') {
+        if (typeof collapseOptions === 'object') {
           setOpen(!open);
         }
       }}
@@ -190,14 +189,17 @@ export function FieldWrapper({
         description={description}
         icon={icon}
         readOnly={readOnly}
-        className={`puck-field-label ${!open && collapsible ? 'collapsed' : ''}`}
+        className={`hakit-field-label ${!open && collapseOptions ? 'collapsed' : ''}`}
         endAdornment={
           <>
-            {fieldOptions.length > 0 && !collapsible && <FieldOptions options={fieldOptions} />}
-            {collapsible && (
+            {fieldOptions.length > 0 && !collapseOptions && <FieldOptions options={fieldOptions} />}
+            {collapseOptions && (
               <IconButton
                 icon={open ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                onClick={onToggleBreakpointMode}
+                onClick={e => {
+                  e.stopPropagation();
+                  setOpen(!open);
+                }}
                 variant='transparent'
                 size='xs'
                 tooltipProps={{
@@ -209,8 +211,8 @@ export function FieldWrapper({
           </>
         }
       />
-      <Field className={`puck-field ${!open && collapsible ? 'collapsed' : ''} `}>{children}</Field>
-      {breakpointMode && !disableBreakpoints && (
+      <Field className={`hakit-field ${!open && collapseOptions ? 'collapsed' : ''} `}>{children}</Field>
+      {breakpointMode && !responsiveMode && (
         <>
           <Description>
             <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>

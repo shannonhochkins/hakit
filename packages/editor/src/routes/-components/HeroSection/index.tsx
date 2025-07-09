@@ -190,8 +190,8 @@ export const HeroSection = () => {
               Powerful drag-and-drop editor that lets you create fully customized React dashboards for your smart home - no coding required.
             </Description>
             <ButtonGroup>
-              <PrimaryButton>Get Started Free</PrimaryButton>
-              <SecondaryButton>Watch Demo</SecondaryButton>
+              <PrimaryButton aria-label=''>Get Started Free</PrimaryButton>
+              <SecondaryButton aria-label=''>Watch Demo</SecondaryButton>
             </ButtonGroup>
             <FeatureList>
               <FeatureItem>

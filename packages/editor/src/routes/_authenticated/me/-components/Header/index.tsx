@@ -11,6 +11,8 @@ const StyledHeader = styled.header`
   align-items: center;
   justify-content: space-between;
   height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
 `;
 
 const HeaderLeft = styled.div`
@@ -28,12 +30,12 @@ const MenuButton = styled.button`
   border: none;
   cursor: pointer;
   transition: all var(--transition-normal);
-  
+
   &:hover {
     color: var(--color-text-primary);
     background-color: var(--color-border);
   }
-  
+
   @media (min-width: 768px) {
     display: none;
   }
@@ -61,12 +63,10 @@ export function Header({ onMenuClick }: HeaderProps) {
   return (
     <StyledHeader>
       <HeaderLeft>
-        <MenuButton onClick={onMenuClick} aria-label="Toggle sidebar">
+        <MenuButton onClick={onMenuClick} aria-label='Toggle sidebar'>
           <MenuIcon size={20} />
         </MenuButton>
-        <BrandContainer>
-          Hi{name ? ` ${name}` : ''}
-        </BrandContainer>
+        <BrandContainer>Hi{name ? ` ${name}` : ''}</BrandContainer>
       </HeaderLeft>
       {/* <HeaderRight>
         

@@ -17,6 +17,12 @@ export type ComponentBreakpointModeMap = Record<ComponentId, Record<FieldDotNota
 type PuckConfigurationStore = {
   activeBreakpoint: BreakPoint;
   setActiveBreakpoint: (activeBreakpoint: BreakPoint) => void;
+  previewCanvasWidth: number; // Width of the preview canvas, controlled by the toolbar
+  setPreviewCanvasWidth: (width: number) => void;
+  previewZoom: number; // Zoom level for the preview (1 = 100%, 0.5 = 50%, etc.)
+  setPreviewZoom: (zoom: number) => void;
+  previewFitToWidth: boolean; // Whether to automatically fit content to available width
+  setPreviewFitToWidth: (fitToWidth: boolean) => void;
   breakpointItems: BreakpointItem[];
   setBreakPointItems: (breakpointItems: BreakpointItem[]) => void;
   editorIframeDocument: Document | null; // Document of the iframe
@@ -50,7 +56,19 @@ type PuckConfigurationStore = {
 export const useGlobalStore = create<PuckConfigurationStore>(set => {
   let nextId = 0;
   return {
-    activeBreakpoint: 'xlg', // Default to 'xlg' or any other breakpoint you prefer
+    previewCanvasWidth: 0,
+    setPreviewCanvasWidth: (width: number) => {
+      return set(state => ({ ...state, previewCanvasWidth: width }));
+    },
+    previewZoom: 1,
+    setPreviewZoom: (zoom: number) => {
+      return set(state => ({ ...state, previewZoom: zoom }));
+    },
+    previewFitToWidth: true,
+    setPreviewFitToWidth: (fitToWidth: boolean) => {
+      return set(state => ({ ...state, previewFitToWidth: fitToWidth }));
+    },
+    activeBreakpoint: 'sm', // Default to 'sm' to trigger smart initialization
     setActiveBreakpoint: (activeBreakpoint: BreakPoint) => {
       return set(state => ({ ...state, activeBreakpoint }));
     },
@@ -80,7 +98,6 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData | null) => {
       return set(state => {
         if (!state.hasInitializedData) return state;
-        if (JSON.stringify(state.unsavedPuckPageData) === JSON.stringify(state.puckPageData)) return state;
         return { ...state, unsavedPuckPageData };
       });
     },

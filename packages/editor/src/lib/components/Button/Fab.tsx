@@ -119,11 +119,12 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
 
       &:active:not(:disabled) {
         &::before {
-          background: var(--color-gray-700);
+          background: var(--color-gray-500);
+          color: var(--color-text-primary);
         }
       }
       &.active {
-        background-color: var(--color-gray-700);
+        background-color: var(--color-gray-500);
         color: var(--color-text-primary);
       }
     `;
@@ -150,6 +151,7 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
         }
       }
       &.active {
+        background: rgba(255, 255, 255, 0.05);
         color: var(--color-text-primary);
       }
     `;

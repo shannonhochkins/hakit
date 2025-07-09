@@ -2,8 +2,8 @@ import styled from '@emotion/styled';
 import { TextField, type TextFieldProps } from '@mui/material';
 
 const StyledTextField = styled(TextField)`
-  padding-top: var(--space-1);
-  padding-bottom: var(--space-4);
+  padding: 0;
+  margin: 0;
 
   label {
     color: var(--color-text-primary);

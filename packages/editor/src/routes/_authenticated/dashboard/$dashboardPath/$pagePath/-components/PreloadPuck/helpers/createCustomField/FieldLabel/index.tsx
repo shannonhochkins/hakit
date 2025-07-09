@@ -1,15 +1,14 @@
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
 import { Tooltip } from '@lib/components/Tooltip';
-import {} from '@tanstack/react-router';
 import { InfoIcon, Lock } from 'lucide-react';
 import { ReactNode } from 'react';
 
 const LabelContainer = styled.span`
   align-items: center;
   display: flex;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   padding: 0;
   color: var(--color-text-primary);
   &.collapsed {
@@ -20,9 +19,8 @@ const LabelContainer = styled.span`
 
 const LabelIcon = styled.div`
   display: flex;
-  margin-right: var(--space-1);
-  padding-left: var(--space-1);
-  color: var(--color-text-secondary);
+  padding-left: 0;
+  color: var(--color-gray-500);
 `;
 
 const DisabledIcon = styled.div`
@@ -45,7 +43,7 @@ export function FieldLabel({ label, description, icon = null, readOnly, startAdo
       <Row fullWidth alignItems='center' justifyContent='space-between'>
         {startAdornment}
         <Tooltip title={description} placement='left'>
-          <Row alignItems='center' wrap='nowrap'>
+          <Row alignItems='center' justifyContent='center' wrap='nowrap' gap='var(--space-3)'>
             {icon || description ? <LabelIcon>{icon || <InfoIcon size={16} />}</LabelIcon> : null}
             {label}
             {readOnly && (

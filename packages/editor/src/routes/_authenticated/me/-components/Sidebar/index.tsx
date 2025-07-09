@@ -43,6 +43,8 @@ const SidebarHeader = styled.div`
   padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
   height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
 `;
 
 const SidebarTitle = styled.h2`

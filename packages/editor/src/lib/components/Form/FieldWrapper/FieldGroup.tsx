@@ -3,7 +3,10 @@ import styled from '@emotion/styled';
 export const FieldGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
+  &.full-width {
+    width: 100%;
+  }
 `;
 
 export const ErrorMessage = styled.p`

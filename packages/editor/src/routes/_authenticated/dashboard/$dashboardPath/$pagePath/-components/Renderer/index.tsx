@@ -1,4 +1,4 @@
-import { Render } from '@measured/puck';
+import { Config, Render } from '@measured/puck';
 import { useEffect } from 'react';
 import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 import { Spinner } from '@lib/components/Spinner';
@@ -17,7 +17,7 @@ export function Renderer() {
   }
   return (
     <>
-      <Render config={userConfig} data={puckPageData} />
+      <Render config={userConfig as Config} data={puckPageData} />
     </>
   );
 }
