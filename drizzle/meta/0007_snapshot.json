@@ -1,0 +1,230 @@
+{
+  "id": "59846f68-9f0e-4a5c-b321-c8a212043af0",
+  "prevId": "0342bf4b-080d-41d1-af78-8e807460a568",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.dashboard": {
+      "name": "dashboard",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path": {
+          "name": "path",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "breakpoints": {
+          "name": "breakpoints",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "thumbnail": {
+          "name": "thumbnail",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "dashboard_user_id_idx": {
+          "name": "dashboard_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_user_path": {
+          "name": "unique_user_path",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "path"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "valid_path": {
+          "name": "valid_path",
+          "value": "\"dashboard\".\"path\" ~ '^[a-z0-9-]+$'"
+        },
+        "valid_user_id": {
+          "name": "valid_user_id",
+          "value": "\"dashboard\".\"user_id\" ~ '^kp_[a-f0-9]{32}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.pages": {
+      "name": "pages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path": {
+          "name": "path",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dashboard_id": {
+          "name": "dashboard_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "thumbnail": {
+          "name": "thumbnail",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "pages_dashboard_id_idx": {
+          "name": "pages_dashboard_id_idx",
+          "columns": [
+            {
+              "expression": "dashboard_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pages_dashboard_id_dashboard_id_fk": {
+          "name": "pages_dashboard_id_dashboard_id_fk",
+          "tableFrom": "pages",
+          "tableTo": "dashboard",
+          "columnsFrom": [
+            "dashboard_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_dashboard_page_path": {
+          "name": "unique_dashboard_page_path",
+          "nullsNotDistinct": false,
+          "columns": [
+            "dashboard_id",
+            "path"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "valid_path": {
+          "name": "valid_path",
+          "value": "\"pages\".\"path\" ~ '^[a-z0-9-]+$'"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
