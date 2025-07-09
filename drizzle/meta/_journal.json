@@ -57,6 +57,13 @@
       "when": 1752046472351,
       "tag": "0007_warm_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752052965413,
+      "tag": "0008_warm_crystal",
+      "breakpoints": true
     }
   ]
 }
