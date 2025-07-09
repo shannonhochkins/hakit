@@ -671,7 +671,6 @@ export function Dashboards() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           variant='outlined'
-          size='small'
           fullWidth
           slotProps={{
             input: {

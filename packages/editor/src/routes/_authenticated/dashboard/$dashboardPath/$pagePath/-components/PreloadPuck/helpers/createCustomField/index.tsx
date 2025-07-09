@@ -33,7 +33,7 @@ import { Row } from '@hakit/components';
 import { deepCopy } from 'deep-copy-ts';
 import { Alert } from '@lib/components/Alert';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
-import { useGlobalStore } from '@lib/hooks/useGlobalStore';
+// import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 // import { Tooltip } from '@lib/components/Tooltip';
 
 // Create an object with keys based on the extracted type values
@@ -143,7 +143,10 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   }, [selectedItemProps, getPuck, field]);
 
   const onToggleBreakpointMode = useCallback(() => {
-    const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
+    // TODO - Can't be achieved until https://github.com/puckeditor/puck/pull/1131 is merged and released
+    // we need the nested name value to work properly with custom fields and currently it doesn't
+    // once we have the name field populated, we can extract or update from the breakpoint map below
+    // const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
     console.log('Toggling breakpoint mode for field', name);
     setBreakpointMode(prev => {
       const isBreakpointModeEnabled = !prev;
