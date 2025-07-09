@@ -40,9 +40,10 @@ import {
   ChildTableRow,
   ExpandIcon,
 } from '@lib/components/Table';
-import { Fab, SecondaryButton } from '@lib/components/Button';
+import { Fab } from '@lib/components/Button';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
+import { IconButton } from '@lib/components/Button/IconButton';
 
 // Table column configuration
 const TABLE_COLUMNS = {
@@ -889,33 +890,24 @@ export function Dashboards() {
                               </StyledTableCell>
                               <StyledTableCell>
                                 <ActionButtons>
-                                  <SecondaryButton
+                                  <IconButton
                                     aria-label='View Page'
-                                    fullHeight
                                     size='sm'
-                                    startIcon={<EyeIcon size={14} />}
+                                    icon={<EyeIcon size={14} />}
                                     onClick={() => handleView('page', page.id, dashboard.id)}
-                                  >
-                                    View
-                                  </SecondaryButton>
-                                  <SecondaryButton
+                                  />
+                                  <IconButton
                                     aria-label='Design Page'
-                                    fullHeight
                                     size='sm'
-                                    startIcon={<LayoutDashboardIcon size={14} />}
+                                    icon={<LayoutDashboardIcon size={14} />}
                                     onClick={() => handleDesign('page', page.id, dashboard.id)}
-                                  >
-                                    Design
-                                  </SecondaryButton>
-                                  <SecondaryButton
+                                  />
+                                  <IconButton
                                     aria-label='Actions'
-                                    fullHeight
-                                    autoWidth
+                                    icon={<MoreVertical size={14} />}
                                     size='sm'
                                     onClick={e => handleMenuOpen(e, 'page', dashboard.id, page.id)}
-                                  >
-                                    <MoreVertical size={14} />
-                                  </SecondaryButton>
+                                  />
                                 </ActionButtons>
                               </StyledTableCell>
                             </ChildTableRow>
@@ -972,33 +964,24 @@ export function Dashboards() {
                   </StyledTableCell>
                   <StyledTableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
                     <ActionButtons>
-                      <SecondaryButton
+                      <IconButton
                         aria-label='View Dashboard'
-                        fullHeight
                         size='sm'
-                        startIcon={<EyeIcon size={14} />}
+                        icon={<EyeIcon size={14} />}
                         onClick={() => handleView('dashboard', dashboard.id)}
-                      >
-                        View
-                      </SecondaryButton>
-                      <SecondaryButton
+                      />
+                      <IconButton
                         aria-label='Design Dashboard'
-                        fullHeight
                         size='sm'
-                        startIcon={<LayoutDashboardIcon size={14} />}
+                        icon={<LayoutDashboardIcon size={14} />}
                         onClick={() => handleDesign('dashboard', dashboard.id)}
-                      >
-                        Design
-                      </SecondaryButton>
-                      <SecondaryButton
+                      />
+                      <IconButton
                         aria-label='Actions'
-                        fullHeight
-                        autoWidth
+                        icon={<MoreVertical size={14} />}
                         size='sm'
                         onClick={e => handleMenuOpen(e, 'dashboard', dashboard.id)}
-                      >
-                        <MoreVertical size={14} />
-                      </SecondaryButton>
+                      />
                     </ActionButtons>
                   </StyledTableCell>
                 </CollapsibleRow>

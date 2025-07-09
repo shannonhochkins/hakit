@@ -33,6 +33,7 @@ import { Row } from '@hakit/components';
 import { deepCopy } from 'deep-copy-ts';
 import { Alert } from '@lib/components/Alert';
 import { useActiveBreakpoint } from '@lib/hooks/useActiveBreakpoint';
+import { useGlobalStore } from '@lib/hooks/useGlobalStore';
 // import { Tooltip } from '@lib/components/Tooltip';
 
 // Create an object with keys based on the extracted type values
@@ -142,6 +143,8 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   }, [selectedItemProps, getPuck, field]);
 
   const onToggleBreakpointMode = useCallback(() => {
+    const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
+    console.log('Toggling breakpoint mode for field', name);
     setBreakpointMode(prev => {
       const isBreakpointModeEnabled = !prev;
       if (!isBreakpointModeEnabled) {
@@ -149,7 +152,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       }
       return isBreakpointModeEnabled;
     });
-  }, [onChange]);
+  }, [onChange, name]);
 
   const onToggleExpand = useCallback(() => {
     toggleExpanded(prev => !prev);
@@ -252,6 +255,7 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
     type: 'custom',
     _field: field, // TODO - Assess if we still need this, my guess is no
     render({ name, onChange: puckOnChange, value, id }) {
+      console.log('Rendering custom field', field.type, name);
       return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} />;
     },
   };

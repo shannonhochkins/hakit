@@ -22,6 +22,7 @@ const LabelIcon = styled.div`
   display: flex;
   margin-right: var(--space-1);
   padding-left: var(--space-1);
+  color: var(--color-text-secondary);
 `;
 
 const DisabledIcon = styled.div`

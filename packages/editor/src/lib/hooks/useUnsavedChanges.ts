@@ -7,6 +7,7 @@ import { type PuckAction } from '@measured/puck';
 import { deepCopy } from 'deep-copy-ts';
 import { trimPuckDataToConfig } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/trimPuckDataToConfig';
 import { dbValueToPuck } from '@client/src/routes/_authenticated/dashboard/$dashboardPath/$pagePath/-components/PreloadPuck/helpers/pageData/dbValueToPuck';
+import { toast } from 'react-toastify';
 
 interface UnsavedChangesState {
   // Status flags
@@ -142,28 +143,40 @@ export function useUnsavedChanges(): UnsavedChangesState {
     removeStoredData();
     const page = dashboard?.pages.find(page => page.path === params?.pagePath);
     if (!dashboard || !page) {
-      console.error('Dashboard or page unavailable, unable to restore');
+      toast('Dashboard or page unavailable, unable to restore', {
+        type: 'error',
+      });
       return;
     }
     if (!userConfig) {
-      console.error('User configuration is missing, unable to restore');
+      toast('User configuration is missing, unable to restore', {
+        type: 'error',
+      });
       return;
     }
     const updated = trimPuckDataToConfig(stored.data, userConfig);
     if (!updated) {
-      console.error('Failed to trim stored data to user config, unable to restore');
+      toast('Failed to trim stored data to user config, unable to restore', {
+        type: 'error',
+      });
       return;
     }
     const puckValue = dbValueToPuck(updated, activeBreakpoint);
-    console.log('revorting to stored data', puckValue);
     // Update internal puck data
     setPuckPageData(puckValue);
     // the user has accepted the recovery, so we update the dashboard page data
     // in the db
-    updateDashboardPageForUser(dashboard.id, {
-      id: page.id,
-      data: puckValue,
-    }).finally(() => {
+    updateDashboardPageForUser(
+      dashboard.id,
+      {
+        id: page.id,
+        data: puckValue,
+      },
+      {
+        success: 'Recovery successful, Dashboard saved',
+        error: 'Failed to update dashboard page data after recovery',
+      }
+    ).finally(() => {
       setShowRecoveryPrompt(false);
     });
   }, [params, getStoredData, removeStoredData]);

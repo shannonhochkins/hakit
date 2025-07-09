@@ -35,6 +35,10 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const _onChange = onChange as any;
 
+  if (!name) {
+    debugger;
+  }
+
   if (field.type === 'hidden') {
     return <input type='hidden' value={_value} />;
   }
@@ -68,13 +72,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   }
   if (field.type === 'text') {
     return (
-      <InputField
-        value={_value || ''}
-        onChange={e => _onChange(e.target.value)}
-        readOnly={field.readOnly}
-        name={field.name}
-        id={field.id}
-      />
+      <InputField value={_value || ''} onChange={e => _onChange(e.target.value)} readOnly={field.readOnly} name={name} id={field.id} />
     );
   }
   if (field.type === 'number') {
@@ -86,7 +84,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
         max={field.max}
         step={field.step}
         readOnly={field.readOnly}
-        name={field.name}
+        name={name}
         id={field.id}
       />
     );
@@ -107,7 +105,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
           }
         }}
         size='small'
-        name={field.name}
+        name={name}
         id={field.id}
         readOnly={field.readOnly}
       />
@@ -120,7 +118,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
         options={[...field.options]}
         onChange={_onChange}
         orientation='horizontal'
-        name={field.name}
+        name={name}
         id={field.id}
         readOnly={field.readOnly}
       />
@@ -143,6 +141,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     );
   }
   if (field.type === 'object') {
+    console.log('object field', name);
     return (
       <AutoField
         field={{

@@ -239,6 +239,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
         onSubmit={handleSubmit}
         style={{
           width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-4)',
         }}
       >
         <FieldGroup>
