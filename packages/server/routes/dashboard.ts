@@ -402,7 +402,6 @@ const dashboardRoute = new Hono()
             name: data.name,
             path: data.path,
             data: data.data,
-            themeId: data.themeId,
             breakpoints: data.breakpoints,
             thumbnail: data.thumbnail,
           })
@@ -546,7 +545,6 @@ const dashboardRoute = new Hono()
             data: originalDashboard.data,
             breakpoints: originalDashboard.breakpoints,
             thumbnail: thumbnail || originalDashboard.thumbnail,
-            themeId: originalDashboard.themeId,
           })
           .returning();
 

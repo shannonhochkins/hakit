@@ -46,6 +46,14 @@ const StyledTextField = styled(TextField)`
       font-size: var(--font-size-sm);
     }
 
+    .MuiInputAdornment-sizeMedium {
+      + input[type='text'],
+      + input[type='number'] {
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--font-size-md);
+      }
+    }
+
     fieldset {
       border-color: var(--color-border);
       transition: all var(--transition-normal);
@@ -125,12 +133,14 @@ const StyledTextField = styled(TextField)`
 
 export const InputField = ({
   className,
+  size = 'small',
   ...props
 }: TextFieldProps & {
   readOnly?: boolean;
 }) => {
   return (
     <StyledTextField
+      size={size}
       className={`${className ?? ''} ${props.readOnly ? 'read-only' : ''}`}
       slotProps={{
         ...props.slotProps,

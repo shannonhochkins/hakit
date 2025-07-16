@@ -97,10 +97,6 @@ export const repositoriesTable = pgTable(
     // Computed/cached fields for search performance
     totalDownloads: integer('total_downloads').notNull().default(0),
     latestVersion: varchar('latest_version', { length: 50 }),
-    componentNames: jsonb('component_names')
-      .$type<string[]>()
-      .notNull()
-      .default(sql`'[]'::jsonb`),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -119,12 +115,8 @@ export const repositoriesTable = pgTable(
     index('repositories_updated_idx').on(table.lastUpdated),
     // Index for search by popularity
     index('repositories_popularity_idx').on(table.totalDownloads),
-    // Index for component name searches (GIN index for JSONB)
-    index('repositories_components_idx').using('gin', table.componentNames),
     // Validate GitHub URL format
     check('valid_github_url', sql`${table.githubUrl} ~ '^https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+/?$'`),
-    // Validate repository name (alphanumeric, hyphens, underscores)
-    check('valid_repo_name', sql`${table.name} ~ '^[a-zA-Z0-9_-]+$'`),
   ]
 );
 
@@ -141,13 +133,13 @@ export const repositoryVersionsTable = pgTable(
       .notNull(),
     // Version string from package.json (semantic versioning)
     version: varchar('version', { length: 50 }).notNull(),
-    // Snapshot of component names available in this version
-    componentNames: jsonb('component_names')
-      .$type<string[]>()
+    // Array of component objects with name and enabled status
+    components: jsonb('components')
+      .$type<Array<{ name: string }>>()
       .notNull()
       .default(sql`'[]'::jsonb`),
-    // URL to the manifest.json file in the cloud (CDN, S3, etc.)
-    manifestUrl: varchar('manifest_url', { length: 500 }),
+    // URL to the manifest.json file in the cloud (CDN, S3, etc.) - REQUIRED
+    manifestUrl: varchar('manifest_url', { length: 500 }).notNull(),
     // Version metadata
     releaseNotes: text('release_notes'),
     isPrerelease: jsonb('is_prerelease').notNull().default(false),
@@ -167,8 +159,6 @@ export const repositoryVersionsTable = pgTable(
     index('repo_versions_stable_idx').on(table.repositoryId, table.isPrerelease),
     // Composite index for finding latest stable version per repo
     index('repo_versions_latest_stable_idx').on(table.repositoryId, table.isPrerelease, table.createdAt),
-    // Validate semantic version format
-    check('valid_version', sql`${table.version} ~ '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?$'`),
   ]
 );
 
@@ -206,6 +196,43 @@ export const userRepositoriesTable = pgTable(
     index('user_repo_recent_idx').on(table.userId, table.connectedAt),
     // Index for active users per repository (for analytics)
     index('user_repo_usage_idx').on(table.repositoryId, table.lastUsedAt),
+    // Validate user ID format (Kinde format)
+    check('valid_user_id', sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
+  ]
+);
+
+/* ------------------------------------------------------------------
+   USER COMPONENT PREFERENCES - User's component enable/disable preferences
+-------------------------------------------------------------------*/
+export const userComponentPreferencesTable = pgTable(
+  'user_component_preferences',
+  {
+    id: uuid('id').primaryKey().notNull(),
+    // User ID from Kinde authentication
+    userId: varchar('user_id', { length: 50 }).notNull(),
+    // Reference to the user repository
+    userRepositoryId: uuid('user_repository_id')
+      .references(() => userRepositoriesTable.id, { onDelete: 'cascade' })
+      .notNull(),
+    // Component name
+    componentName: varchar('component_name', { length: 200 }).notNull(),
+    // Whether the component is enabled for this user
+    enabled: jsonb('enabled').notNull().default(true),
+    // Timestamps
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  table => [
+    // Enforce "one preference per component per user repo"
+    unique('unique_user_repo_component').on(table.userId, table.userRepositoryId, table.componentName),
+    // Index for user's component preferences (most common query)
+    index('user_component_prefs_user_idx').on(table.userId),
+    // Index for user repository lookups
+    index('user_component_prefs_user_repo_idx').on(table.userRepositoryId),
+    // Index for component name lookups
+    index('user_component_prefs_component_idx').on(table.componentName),
+    // Composite index for user + repo + component lookups
+    index('user_component_prefs_lookup_idx').on(table.userId, table.userRepositoryId, table.componentName),
     // Validate user ID format (Kinde format)
     check('valid_user_id', sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
   ]

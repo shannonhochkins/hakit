@@ -1,28 +1,31 @@
-import { Hono } from "hono";
-import { logger } from "hono/logger";
-import { cors } from 'hono/cors'
-import { serveStatic } from "hono/bun";
+import { Hono } from 'hono';
+import { logger } from 'hono/logger';
+import { cors } from 'hono/cors';
+import { serveStatic } from 'hono/bun';
 // routes
 // import uploadRoute from "./routes/upload";
-import dashboardRoute from "./routes/dashboard";
-import componentRoute from "./routes/component";
-import authRoute from "./routes/auth";
-import uploadRoute from "./routes/upload";
+import dashboardRoute from './routes/dashboard';
+import componentsRoute from './routes/components';
+import authRoute from './routes/auth';
+import uploadRoute from './routes/upload';
 
 const app = new Hono();
 
-app.use("*", logger());
-app.use("*", cors());
+app.use('*', logger());
+app.use('*', cors());
+
+const healthRoute = new Hono().get('/health', c => c.json({ status: 'ok' }));
 
 export const apiRoutes = app
-  .basePath("/api")
-  .route("/dashboard", dashboardRoute)
-  .route("/component", componentRoute)
-  .route("/upload", uploadRoute)
-  .route("/", authRoute);
+  .basePath('/api')
+  .route('/dashboard', dashboardRoute)
+  .route('/components', componentsRoute)
+  .route('/upload', uploadRoute)
+  .route('/', authRoute)
+  .route('/', healthRoute);
 
-app.get("*", serveStatic({ root: "./packages/client/dist" }));
-app.get("*", serveStatic({ path: "./packages/client/dist/index.html" }));
+app.get('*', serveStatic({ root: './packages/client/dist' }));
+app.get('*', serveStatic({ path: './packages/client/dist/index.html' }));
 
 export default app;
 export type ApiRoutes = typeof apiRoutes;

@@ -30,7 +30,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   for (const remote of remotes) {
     await preloadRemote([
       {
-        nameOrAlias: '@hakit/test',
+        nameOrAlias: remote.name,
       },
     ]);
     const snapshot = await host.snapshotHandler.getGlobalRemoteInfo(remote);
@@ -38,7 +38,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
       throw new Error('No manifest information found');
     }
     // type guard to ensure we have the correct type when iterating modules
-    if ('publicPath' in snapshot.remoteSnapshot) {
+    if ('getPublicPath' in snapshot.remoteSnapshot) {
       for (const module of snapshot.remoteSnapshot.modules) {
         const component = await loadRemote<ComponentModule>(`${remote.name}/${module.moduleName}`).then(loadedModule => {
           if (!loadedModule) {

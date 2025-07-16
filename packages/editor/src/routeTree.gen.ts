@@ -13,7 +13,6 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedMeIndexRouteImport } from './routes/_authenticated/me/index'
-import { Route as AuthenticatedAddonsIndexRouteImport } from './routes/_authenticated/addons/index'
 import { Route as AuthenticatedMeSettingsIndexRouteImport } from './routes/_authenticated/me/settings/index'
 import { Route as AuthenticatedMeLogoutIndexRouteImport } from './routes/_authenticated/me/logout/index'
 import { Route as AuthenticatedMeHelpIndexRouteImport } from './routes/_authenticated/me/help/index'
@@ -41,12 +40,6 @@ const AuthenticatedMeIndexRoute = AuthenticatedMeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedMeRoute,
 } as any)
-const AuthenticatedAddonsIndexRoute =
-  AuthenticatedAddonsIndexRouteImport.update({
-    id: '/addons/',
-    path: '/addons/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedMeSettingsIndexRoute =
   AuthenticatedMeSettingsIndexRouteImport.update({
     id: '/settings/',
@@ -93,7 +86,6 @@ const AuthenticatedDashboardDashboardPathPagePathEditIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/me': typeof AuthenticatedMeRouteWithChildren
-  '/addons': typeof AuthenticatedAddonsIndexRoute
   '/me/': typeof AuthenticatedMeIndexRoute
   '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
@@ -105,7 +97,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/addons': typeof AuthenticatedAddonsIndexRoute
   '/me': typeof AuthenticatedMeIndexRoute
   '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
@@ -120,7 +111,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/me': typeof AuthenticatedMeRouteWithChildren
-  '/_authenticated/addons/': typeof AuthenticatedAddonsIndexRoute
   '/_authenticated/me/': typeof AuthenticatedMeIndexRoute
   '/_authenticated/me/components/': typeof AuthenticatedMeComponentsIndexRoute
   '/_authenticated/me/dashboards/': typeof AuthenticatedMeDashboardsIndexRoute
@@ -135,7 +125,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/me'
-    | '/addons'
     | '/me/'
     | '/me/components'
     | '/me/dashboards'
@@ -147,7 +136,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/addons'
     | '/me'
     | '/me/components'
     | '/me/dashboards'
@@ -161,7 +149,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_authenticated/me'
-    | '/_authenticated/addons/'
     | '/_authenticated/me/'
     | '/_authenticated/me/components/'
     | '/_authenticated/me/dashboards/'
@@ -206,13 +193,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/me/'
       preLoaderRoute: typeof AuthenticatedMeIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/addons/': {
-      id: '/_authenticated/addons/'
-      path: '/addons'
-      fullPath: '/addons'
-      preLoaderRoute: typeof AuthenticatedAddonsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/me/settings/': {
       id: '/_authenticated/me/settings/'
@@ -290,14 +270,12 @@ const AuthenticatedMeRouteWithChildren = AuthenticatedMeRoute._addFileChildren(
 
 interface AuthenticatedRouteChildren {
   AuthenticatedMeRoute: typeof AuthenticatedMeRouteWithChildren
-  AuthenticatedAddonsIndexRoute: typeof AuthenticatedAddonsIndexRoute
   AuthenticatedDashboardDashboardPathPagePathIndexRoute: typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
   AuthenticatedDashboardDashboardPathPagePathEditIndexRoute: typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMeRoute: AuthenticatedMeRouteWithChildren,
-  AuthenticatedAddonsIndexRoute: AuthenticatedAddonsIndexRoute,
   AuthenticatedDashboardDashboardPathPagePathIndexRoute:
     AuthenticatedDashboardDashboardPathPagePathIndexRoute,
   AuthenticatedDashboardDashboardPathPagePathEditIndexRoute:

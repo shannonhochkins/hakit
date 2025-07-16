@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
   GithubIcon,
@@ -16,18 +16,14 @@ import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { IconButton } from '@lib/components/Button/IconButton';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@lib/components/Table';
-import { Repository, Component } from './ComponentsManager';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { UserRepositoryWithDetails, userRepositoriesQueryOptions, toggleComponentStatus, disconnectRepository } from '@lib/api/components';
+import { Confirm } from '@lib/components/Modal/confirm';
 
-interface RepositoryCardProps {
-  repository: Repository;
-  components: Component[];
+interface RepositoryComponentListProps {
+  repositoryWithDetails: UserRepositoryWithDetails;
   isExpanded: boolean;
   onToggleExpand: () => void;
-  onToggleComponent: (componentId: string) => void;
-  onUpdate: () => void;
-  onRemove: () => void;
-  onCheckUpdates: () => void;
-  incrementVersion: (version: string) => string;
 }
 
 const Card = styled.div`
@@ -63,12 +59,6 @@ const ThumbnailContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const ThumbnailImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 `;
 
 const ThumbnailPlaceholder = styled.div`
@@ -180,10 +170,6 @@ const ComponentName = styled.span`
   color: var(--color-text-primary);
 `;
 
-const ComponentVersion = styled.span`
-  color: var(--color-text-muted);
-`;
-
 const StatusContainer = styled.div`
   display: flex;
   align-items: center;
@@ -195,18 +181,89 @@ const StatusText = styled.span`
   color: var(--color-text-secondary);
 `;
 
-export function RepositoryCard({
-  repository,
-  components,
-  isExpanded,
-  onToggleExpand,
-  onToggleComponent,
-  onUpdate,
-  onRemove,
-  onCheckUpdates,
-  incrementVersion,
-}: RepositoryCardProps) {
-  const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onToggleExpand }: RepositoryComponentListProps) {
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [togglingComponents, setTogglingComponents] = useState<Set<string>>(new Set());
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const repository = repositoryWithDetails.version;
+  const hasUpdate = repositoryWithDetails.repository.latestVersion !== repository.version;
+
+  const toggleComponentMutation = useMutation({
+    mutationFn: ({ componentName }: { componentName: string }) => toggleComponentStatus(repositoryWithDetails.id, componentName),
+    onMutate: async ({ componentName }) => {
+      setTogglingComponents(prev => new Set(prev).add(componentName));
+
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
+
+      // Optimistically update the cache
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+        if (!old) return old;
+
+        return old.map(repo => {
+          if (repo.id === repositoryWithDetails.id) {
+            return {
+              ...repo,
+              version: {
+                ...repo.version,
+                components: repo.version.components.map(comp => {
+                  if (comp.name === componentName) {
+                    return { ...comp, enabled: !comp.enabled };
+                  }
+                  return comp;
+                }),
+              },
+            };
+          }
+          return repo;
+        });
+      });
+
+      return { previousData };
+    },
+    onSuccess: (_, { componentName }) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(componentName);
+        return newSet;
+      });
+    },
+    onError: (_, { componentName }, context) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(componentName);
+        return newSet;
+      });
+
+      // Rollback to previous data
+      if (context?.previousData) {
+        queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, context.previousData);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
+  });
+
+  const disconnectRepositoryMutation = useMutation({
+    mutationFn: () => disconnectRepository(repositoryWithDetails.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
+  });
+
+  const handleToggleComponent = (componentName: string) => {
+    toggleComponentMutation.mutate({ componentName });
+  };
+
+  const isTogglingComponent = (componentName: string) => {
+    return togglingComponents.has(componentName);
+  };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -217,14 +274,27 @@ export function RepositoryCard({
     setMenuAnchorEl(null);
   };
 
+  const handleRemove = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    disconnectRepositoryMutation.mutate();
+    setDeleteConfirmOpen(false);
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmOpen(false);
+  };
+
   const handleRemoveClick = () => {
     handleMenuClose();
-    onRemove();
+    handleRemove();
   };
 
   const handleCheckUpdatesClick = () => {
     handleMenuClose();
-    onCheckUpdates();
+    // TODO: Implement check updates functionality
   };
 
   return (
@@ -238,34 +308,32 @@ export function RepositoryCard({
             icon={isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
           />
           <ThumbnailContainer>
-            {repository.thumbnail ? (
-              <ThumbnailImage src={repository.thumbnail} alt={repository.name} />
-            ) : (
-              <ThumbnailPlaceholder>
-                <GithubIcon size={16} />
-              </ThumbnailPlaceholder>
-            )}
+            <ThumbnailPlaceholder>
+              <GithubIcon size={16} />
+            </ThumbnailPlaceholder>
           </ThumbnailContainer>
           <RepositoryInfo>
-            <RepositoryName>{repository.name}</RepositoryName>
+            <RepositoryName>{repositoryWithDetails.repository.name}</RepositoryName>
             <RepositoryUrl>
               <GitBranchIcon size={12} />
-              <span>{repository.url}</span>
+              <span>{repositoryWithDetails.repository.githubUrl}</span>
             </RepositoryUrl>
           </RepositoryInfo>
         </HeaderLeft>
 
         <HeaderRight>
-          {repository.hasUpdate ? (
+          {hasUpdate ? (
             <SecondaryButton
               startIcon={<RefreshCwIcon size={14} />}
-              onClick={onUpdate}
-              aria-label={`Update to version ${incrementVersion(repository.version)}`}
+              onClick={() => {
+                // TODO: Implement update functionality
+              }}
+              aria-label={`Update to version ${repositoryWithDetails.repository.latestVersion}`}
             >
-              Update to v{incrementVersion(repository.version)}
+              Update to {repositoryWithDetails.repository.latestVersion}
             </SecondaryButton>
           ) : (
-            <VersionText>v{repository.version}</VersionText>
+            <VersionText>{repository.version}</VersionText>
           )}
           <IconButton
             variant='transparent'
@@ -282,22 +350,24 @@ export function RepositoryCard({
           <ExpandedInfo>
             <InfoText>
               <InfoItem>
-                Components: <span className='value'>{components.length}</span>
+                Components: <span className='value'>{repository.components.length}</span>
               </InfoItem>
               <InfoSeparator>|</InfoSeparator>
               <InfoItem>
                 Version: <span className='value'>{repository.version}</span>
               </InfoItem>
             </InfoText>
-            <ViewRepoLink href={repository.url} target='_blank' rel='noopener noreferrer'>
-              <span>View repository</span>
-              <ExternalLinkIcon size={14} />
-            </ViewRepoLink>
+            {repositoryWithDetails.repository.githubUrl && (
+              <ViewRepoLink href={repositoryWithDetails.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+                <span>View repository</span>
+                <ExternalLinkIcon size={14} />
+              </ViewRepoLink>
+            )}
           </ExpandedInfo>
         </ExpandedContent>
       )}
 
-      {isExpanded && components.length > 0 && (
+      {isExpanded && repository.components.length > 0 && (
         <TableContainer
           style={{
             borderRadius: 'none',
@@ -313,27 +383,36 @@ export function RepositoryCard({
               </TableRow>
             </TableHead>
             <TableBody>
-              {components.map(component => (
-                <TableRow key={component.id}>
-                  <TableCell>
-                    <ComponentInfo>
-                      <ComponentIcon>
-                        <PackageIcon size={16} />
-                      </ComponentIcon>
-                      <ComponentName>{component.name}</ComponentName>
-                    </ComponentInfo>
-                  </TableCell>
-                  <TableCell hiddenBelow='md'>
-                    <ComponentVersion>{component.version}</ComponentVersion>
-                  </TableCell>
-                  <TableCell>
-                    <StatusContainer>
-                      <SwitchField checked={component.enabled} onChange={() => onToggleComponent(component.id)} label='' />
-                      <StatusText>{component.enabled ? 'Enabled' : 'Disabled'}</StatusText>
-                    </StatusContainer>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {repository.components.map((component, index) => {
+                const isToggling = isTogglingComponent(component.name);
+
+                return (
+                  <TableRow key={`${component.name}-${index}`}>
+                    <TableCell>
+                      <ComponentInfo>
+                        <ComponentIcon>
+                          <PackageIcon size={16} />
+                        </ComponentIcon>
+                        <ComponentName>{component.name}</ComponentName>
+                      </ComponentInfo>
+                    </TableCell>
+                    <TableCell hiddenBelow='md'>
+                      <span>{repository.version}</span>
+                    </TableCell>
+                    <TableCell>
+                      <StatusContainer>
+                        <SwitchField
+                          checked={component.enabled ?? true}
+                          onChange={() => handleToggleComponent(component.name)}
+                          disabled={isToggling}
+                          label=''
+                        />
+                        <StatusText>{isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}</StatusText>
+                      </StatusContainer>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
@@ -361,6 +440,10 @@ export function RepositoryCard({
           Remove Repository
         </MenuItem>
       </Menu>
+
+      <Confirm open={deleteConfirmOpen} title='Remove Repository' onConfirm={confirmDelete} onCancel={cancelDelete}>
+        Are you sure you want to remove {repositoryWithDetails.repository.name}? This will disable all components from this repository.
+      </Confirm>
     </Card>
   );
 }

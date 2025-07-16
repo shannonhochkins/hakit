@@ -189,7 +189,6 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput, to
       name: dashboard.name,
       path: dashboard.path,
       data: dashboard.data,
-      themeId: dashboard.themeId,
       breakpoints: dashboard.breakpoints,
       thumbnail: dashboard.thumbnail,
     },

@@ -662,11 +662,8 @@ export function Dashboards() {
 
       <SearchAndFilter>
         <InputField
-          style={{
-            width: '100%',
-            paddingTop: '0',
-          }}
           type='text'
+          size='medium'
           placeholder='Search dashboards and pages...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
