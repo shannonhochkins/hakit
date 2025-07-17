@@ -6,11 +6,31 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../kinde';
-import { streamSSE } from 'hono/streaming';
+import { streamSSE, type SSEStreamingApi } from 'hono/streaming';
 import * as https from 'https';
-import { validateRepositoryZipFromBuffer } from '../../helpers/upload';
+import { validateRepositoryZipFromBuffer } from './validate-zip';
+import { uploadRepositoryZipContents } from '../../helpers/upload';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
+
+type SSEStatus = 'success' | 'warning' | 'error';
+
+interface SSEMessage {
+  message: string;
+  status: SSEStatus;
+  data?: Record<string, unknown>;
+}
+
+// Generic helper function for writing SSE messages
+async function writeSSEMessage(stream: SSEStreamingApi, { message, status, data }: SSEMessage): Promise<void> {
+  await stream.writeSSE({
+    data: JSON.stringify({
+      message,
+      status,
+      ...(data && { data }),
+    }),
+  });
+}
 
 const githubInstallSchema = z.object({
   repositoryUrl: z
@@ -25,19 +45,15 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
 
   return streamSSE(c, async stream => {
     try {
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Starting GitHub repository installation...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Starting GitHub repository installation...',
+        status: 'success',
       });
 
       // Parse GitHub URL to extract owner and repo
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Parsing repository URL...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Parsing repository URL...',
+        status: 'success',
       });
 
       const githubUrlMatch = repositoryUrl.match(/github\.com\/([^/]+)\/([^/?#]+)/);
@@ -48,19 +64,15 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       const [, owner, repoName] = githubUrlMatch;
       const cleanRepoName = repoName.replace(/\.git$/, '');
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Found repository: ${owner}/${cleanRepoName}`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Found repository: ${owner}/${cleanRepoName}`,
+        status: 'success',
       });
 
       // Fetch package.json from main branch
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Fetching package.json from main branch...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Fetching package.json from main branch...',
+        status: 'success',
       });
 
       let packageJsonContent = '';
@@ -88,19 +100,15 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       const description = packageJson.description || null;
       const author = packageJson.author || owner;
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Found version ${version} for ${repositoryName}`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Found version ${version} for ${repositoryName}`,
+        status: 'success',
       });
 
       // Check if this repository/version already exists in our database
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Checking if repository exists in database...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Checking if repository exists in database...',
+        status: 'success',
       });
 
       const existingRepo = await db.select().from(repositoriesTable).where(eq(repositoriesTable.githubUrl, repositoryUrl)).limit(1);
@@ -121,14 +129,12 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         if (existingVersion.length > 0) {
           repositoryVersion = existingVersion[0];
 
-          await stream.writeSSE({
-            data: JSON.stringify({
-              message: 'Repository version already exists, installing existing version...',
-              status: 'success',
-            }),
+          await writeSSEMessage(stream, {
+            message: 'Repository version already exists, checking user installation...',
+            status: 'success',
           });
 
-          // Check if user already has this installed
+          // Check if user already has this repository installed
           const existingUserRepo = await db
             .select()
             .from(userRepositoriesTable)
@@ -146,22 +152,18 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
                 })
                 .where(eq(userRepositoriesTable.id, existingUserRepo[0].id));
 
-              await stream.writeSSE({
-                data: JSON.stringify({
-                  message: 'Updated to latest version!',
-                  status: 'success',
-                }),
+              await writeSSEMessage(stream, {
+                message: 'Updated current user version to latest version!',
+                status: 'success',
               });
             } else {
-              await stream.writeSSE({
-                data: JSON.stringify({
-                  message: 'Repository already installed with this version!',
-                  status: 'warning',
-                }),
+              await writeSSEMessage(stream, {
+                message: `Repository already installed with this version (${version})!`,
+                status: 'warning',
               });
             }
           } else {
-            // Install for user
+            // Install for user - repository and version exist, but user doesn't have it
             await db.insert(userRepositoriesTable).values({
               id: uuidv4(),
               userId: user.id,
@@ -171,11 +173,9 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
               lastUsedAt: null,
             });
 
-            await stream.writeSSE({
-              data: JSON.stringify({
-                message: 'Repository installed successfully!',
-                status: 'success',
-              }),
+            await writeSSEMessage(stream, {
+              message: 'Repository installed successfully!',
+              status: 'success',
             });
           }
           return;
@@ -183,11 +183,9 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       }
 
       // Need to download and process the zip file
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Downloading zip from versions/v${version}.zip...`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Downloading zip from versions/v${version}.zip...`,
+        status: 'success',
       });
 
       let zipBuffer: Buffer;
@@ -206,11 +204,9 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         );
       }
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Downloaded ${Math.round(zipBuffer.length / 1024)}KB, validating contents...`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Downloaded ${Math.round(zipBuffer.length / 1024)}KB, validating contents...`,
+        status: 'success',
       });
 
       // Validate zip contents using JSZip
@@ -222,27 +218,21 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       // Extract metadata from validation
       const componentNames = validation.metadata?.componentNames || [];
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Found ${componentNames.length} components: ${componentNames.join(', ')}`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Found ${componentNames.length} components: ${componentNames.join(', ')}`,
+        status: 'success',
       });
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Zip validation passed, processing repository...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Zip validation passed, processing repository...',
+        status: 'success',
       });
 
       // Create repository if it doesn't exist
       if (!repository) {
-        await stream.writeSSE({
-          data: JSON.stringify({
-            message: 'Creating new repository record...',
-            status: 'success',
-          }),
+        await writeSSEMessage(stream, {
+          message: 'Creating new repository record...',
+          status: 'success',
         });
 
         const [newRepo] = await db
@@ -265,11 +255,9 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       }
 
       // Create version record
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Validating semver format for version ${version}...`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Validating semver format for version ${version}...`,
+        status: 'success',
       });
 
       // Validate version format before database insert
@@ -278,11 +266,26 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         throw new Error(`Invalid version format: ${version}. Must follow semantic versioning (e.g., 1.0.0, 1.0.0-alpha.1)`);
       }
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Creating new version record for ${version}...`,
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Version ${version} is valid, uploading assets...`,
+        status: 'success',
+      });
+
+      // Upload all files from the zip to Supabase storage
+      const uploadResult = await uploadRepositoryZipContents(repository.id, version, zipBuffer, stream, writeSSEMessage);
+
+      await writeSSEMessage(stream, {
+        message: `Uploaded ${uploadResult.uploadedFiles.length} files to storage`,
+        status: 'success',
+      });
+
+      if (!uploadResult.manifestUrl) {
+        throw new Error('No manifest file (mf-manifest.json) found in uploaded files');
+      }
+
+      await writeSSEMessage(stream, {
+        message: `Creating new version record for ${version}...`,
+        status: 'success',
       });
 
       const [newVersion] = await db
@@ -292,7 +295,7 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
           repositoryId: repository.id,
           version,
           components: componentNames.map(name => ({ name })),
-          manifestUrl: '', // TODO: Upload manifest and set URL
+          manifestUrl: uploadResult.manifestUrl,
           releaseNotes: null,
           isPrerelease: false,
           downloadCount: 0,
@@ -300,11 +303,9 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         .returning();
 
       // Update the repository's latestVersion if this is a newer version
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Updating repository latest version...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Updating repository latest version...',
+        status: 'success',
       });
 
       // Simple version comparison - in production, you'd use proper semver comparison
@@ -322,50 +323,71 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       }
 
       // Install for user
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Installing repository for user...',
-          status: 'success',
-        }),
+      await writeSSEMessage(stream, {
+        message: 'Installing repository for user...',
+        status: 'success',
       });
 
-      await db.insert(userRepositoriesTable).values({
-        id: uuidv4(),
-        userId: user.id,
-        repositoryId: repository.id,
-        versionId: newVersion.id,
-        connectedAt: new Date(),
-        lastUsedAt: null,
-      });
+      // Check if user already has this repository installed (with any version)
+      const existingUserRepo = await db
+        .select()
+        .from(userRepositoriesTable)
+        .where(and(eq(userRepositoriesTable.userId, user.id), eq(userRepositoriesTable.repositoryId, repository.id)))
+        .limit(1);
 
-      // TODO: Process the zip file and upload to your storage solution
-      // This is where you'd extract the zip, read the manifest,
-      // upload files to Supabase/S3, and update the manifest URL
+      if (existingUserRepo.length > 0) {
+        // Update existing connection to new version
+        await db
+          .update(userRepositoriesTable)
+          .set({
+            versionId: newVersion.id,
+            lastUsedAt: new Date(),
+          })
+          .where(eq(userRepositoriesTable.id, existingUserRepo[0].id));
 
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: 'Repository installed successfully!',
+        await writeSSEMessage(stream, {
+          message: 'Updated existing repository to new version!',
           status: 'success',
-          data: {
-            repository: {
-              id: repository.id,
-              name: repository.name,
-              version,
-              componentNames,
-              componentCount: componentNames.length,
-            },
-            owner,
-            repoName: cleanRepoName,
+        });
+      } else {
+        // Create new connection
+        await db.insert(userRepositoriesTable).values({
+          id: uuidv4(),
+          userId: user.id,
+          repositoryId: repository.id,
+          versionId: newVersion.id,
+          connectedAt: new Date(),
+          lastUsedAt: null,
+        });
+
+        await writeSSEMessage(stream, {
+          message: 'Repository connected successfully!',
+          status: 'success',
+        });
+      }
+
+      await writeSSEMessage(stream, {
+        message: 'Repository installed successfully!',
+        status: 'success',
+        data: {
+          repository: {
+            id: repository.id,
+            name: repository.name,
+            version,
+            componentNames,
+            componentCount: componentNames.length,
+            manifestUrl: uploadResult.manifestUrl,
           },
-        }),
+          owner,
+          repoName: cleanRepoName,
+          uploadedFiles: uploadResult.uploadedFiles.length,
+        },
       });
     } catch (error) {
       console.error('GitHub installation error:', error);
-      await stream.writeSSE({
-        data: JSON.stringify({
-          message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-          status: 'error',
-        }),
+      await writeSSEMessage(stream, {
+        message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        status: 'error',
       });
     }
   });

@@ -72,28 +72,8 @@ const searchRoute = new Hono()
         // Query repositories with their latest versions in a single query
         const repositoriesWithLatestVersions = await db
           .select({
-            // Repository fields
-            id: repositoriesTable.id,
-            name: repositoriesTable.name,
-            description: repositoriesTable.description,
-            author: repositoriesTable.author,
-            githubUrl: repositoriesTable.githubUrl,
-            deprecated: repositoriesTable.deprecated,
-            isPublic: repositoriesTable.isPublic,
-            totalDownloads: repositoriesTable.totalDownloads,
-            latestVersion: repositoriesTable.latestVersion,
-            lastUpdated: repositoriesTable.lastUpdated,
-            createdAt: repositoriesTable.createdAt,
-            updatedAt: repositoriesTable.updatedAt,
-            // Latest version fields
-            versionId: repositoryVersionsTable.id,
-            version: repositoryVersionsTable.version,
-            components: repositoryVersionsTable.components,
-            manifestUrl: repositoryVersionsTable.manifestUrl,
-            releaseNotes: repositoryVersionsTable.releaseNotes,
-            isPrerelease: repositoryVersionsTable.isPrerelease,
-            downloadCount: repositoryVersionsTable.downloadCount,
-            versionCreatedAt: repositoryVersionsTable.createdAt,
+            repository: repositoriesTable,
+            version: repositoryVersionsTable,
           })
           .from(repositoriesTable)
           .leftJoin(
@@ -108,39 +88,9 @@ const searchRoute = new Hono()
           .limit(limit)
           .offset(offset);
 
-        // Transform the results to match the expected structure
-        const repositories = repositoriesWithLatestVersions.map(row => ({
-          id: row.id,
-          name: row.name,
-          description: row.description,
-          author: row.author,
-          githubUrl: row.githubUrl,
-          deprecated: row.deprecated,
-          isPublic: row.isPublic,
-          totalDownloads: row.totalDownloads,
-          latestVersion: row.latestVersion,
-          lastUpdated: row.lastUpdated?.toISOString() || null,
-          createdAt: row.createdAt.toISOString(),
-          updatedAt: row.updatedAt.toISOString(),
-          // Include latest version data
-          latestVersionData: row.versionId
-            ? {
-                id: row.versionId,
-                repositoryId: row.id,
-                version: row.version || '',
-                components: row.components || [],
-                manifestUrl: row.manifestUrl || '',
-                releaseNotes: row.releaseNotes,
-                isPrerelease: row.isPrerelease,
-                downloadCount: row.downloadCount || 0,
-                createdAt: row.versionCreatedAt?.toISOString() || new Date().toISOString(),
-              }
-            : null,
-        }));
-
         return c.json(
           {
-            repositories,
+            repositories: repositoriesWithLatestVersions,
             pagination: {
               limit,
               offset,

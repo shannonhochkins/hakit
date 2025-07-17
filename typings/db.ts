@@ -42,6 +42,7 @@ export type DashboardPageAPI = Omit<DashboardPage, 'createdAt' | 'updatedAt'> & 
 };
 
 // Extended repository type for search results that includes latest version data
-export type RepositoryWithLatestVersionAPI = RepositoryAPI & {
-  latestVersionData: RepositoryVersionAPI | null;
+export type RepositoryWithLatestVersionAPI = {
+  repository: RepositoryAPI;
+  version: RepositoryVersionAPI;
 };

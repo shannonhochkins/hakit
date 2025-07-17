@@ -12,13 +12,15 @@ import {
   MoreVerticalIcon,
 } from 'lucide-react';
 import { Menu, MenuItem } from '@mui/material';
-import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { IconButton } from '@lib/components/Button/IconButton';
 import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@lib/components/Table';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserRepositoryWithDetails, userRepositoriesQueryOptions, toggleComponentStatus, disconnectRepository } from '@lib/api/components';
 import { Confirm } from '@lib/components/Modal/confirm';
+import { PrimaryButton } from '@lib/components/Button';
+import { ComponentTags } from './ComponentTags';
+import { UpdateRepositoryModal } from './UpdateRepositoryModal';
 
 interface RepositoryComponentListProps {
   repositoryWithDetails: UserRepositoryWithDetails;
@@ -73,6 +75,7 @@ const ThumbnailPlaceholder = styled.div`
 const RepositoryInfo = styled.div`
   display: flex;
   flex-direction: column;
+  gap: var(--space-2);
 `;
 
 const RepositoryName = styled.h3`
@@ -185,6 +188,7 @@ export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onT
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [togglingComponents, setTogglingComponents] = useState<Set<string>>(new Set());
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const repository = repositoryWithDetails.version;
   const hasUpdate = repositoryWithDetails.repository.latestVersion !== repository.version;
@@ -292,11 +296,6 @@ export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onT
     handleRemove();
   };
 
-  const handleCheckUpdatesClick = () => {
-    handleMenuClose();
-    // TODO: Implement check updates functionality
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -318,20 +317,15 @@ export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onT
               <GitBranchIcon size={12} />
               <span>{repositoryWithDetails.repository.githubUrl}</span>
             </RepositoryUrl>
+            <ComponentTags components={repository.components} />
           </RepositoryInfo>
         </HeaderLeft>
 
         <HeaderRight>
           {hasUpdate ? (
-            <SecondaryButton
-              startIcon={<RefreshCwIcon size={14} />}
-              onClick={() => {
-                // TODO: Implement update functionality
-              }}
-              aria-label={`Update to version ${repositoryWithDetails.repository.latestVersion}`}
-            >
+            <PrimaryButton startIcon={<RefreshCwIcon size={14} />} onClick={() => setUpdateModalOpen(true)} aria-label={`Update Available`}>
               Update to {repositoryWithDetails.repository.latestVersion}
-            </SecondaryButton>
+            </PrimaryButton>
           ) : (
             <VersionText>{repository.version}</VersionText>
           )}
@@ -431,10 +425,6 @@ export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onT
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={handleCheckUpdatesClick}>
-          <RefreshCwIcon size={16} style={{ marginRight: 8 }} />
-          Check for Updates
-        </MenuItem>
         <MenuItem onClick={handleRemoveClick} style={{ color: 'var(--color-error-500)' }}>
           <TrashIcon size={16} style={{ marginRight: 8 }} />
           Remove Repository
@@ -444,6 +434,12 @@ export function RepositoryComponentList({ repositoryWithDetails, isExpanded, onT
       <Confirm open={deleteConfirmOpen} title='Remove Repository' onConfirm={confirmDelete} onCancel={cancelDelete}>
         Are you sure you want to remove {repositoryWithDetails.repository.name}? This will disable all components from this repository.
       </Confirm>
+
+      <UpdateRepositoryModal
+        open={updateModalOpen}
+        onClose={() => setUpdateModalOpen(false)}
+        repositoryWithDetails={repositoryWithDetails}
+      />
     </Card>
   );
 }

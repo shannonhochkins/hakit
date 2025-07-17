@@ -1,18 +1,7 @@
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import {
-  SearchIcon,
-  PlusIcon,
-  PackageIcon,
-  StarIcon,
-  DownloadIcon,
-  CalendarIcon,
-  GitBranchIcon,
-  ExternalLinkIcon,
-  TrashIcon,
-} from 'lucide-react';
+import { SearchIcon, PlusIcon, PackageIcon, DownloadIcon, GitBranchIcon, TrashIcon, RefreshCw, GithubIcon } from 'lucide-react';
 import { PrimaryButton } from '@lib/components/Button/Primary';
-import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { Modal } from '@lib/components/Modal';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment } from '@mui/material';
@@ -26,7 +15,8 @@ import {
   userRepositoriesQueryOptions,
 } from '@lib/api/components';
 import { toast } from 'react-toastify';
-import { RepositoryAPI } from '@typings/db';
+import { RepositoryAPI, RepositoryWithLatestVersionAPI } from '@typings/db';
+import { ComponentTags } from './ComponentTags';
 
 interface ExploreModalProps {
   isOpen: boolean;
@@ -59,16 +49,8 @@ const RepositoryItem = styled(Row)`
 
   &:hover {
     border-color: var(--color-border-hover);
-    background: var(--color-surface-elevated);
+    background: var(--color-surface-overlay);
   }
-`;
-
-const RepositoryHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-3);
 `;
 
 const RepositoryInfo = styled.div`
@@ -96,7 +78,10 @@ const RepositoryDescription = styled.p`
 const RepositoryMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: 0;
+  width: 100%;
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 `;
@@ -105,6 +90,15 @@ const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  margin-right: var(--space-4);
+`;
+
+const MetaLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-right: var(--space-4);
+  color: var(--color-text-muted);
 `;
 
 const EmptyState = styled.div`
@@ -125,20 +119,25 @@ const ErrorState = styled.div`
   color: var(--color-error-500);
 `;
 
-const ComponentTag = styled.span`
-  background: var(--color-primary-100);
-  color: var(--color-primary-700);
-  font-size: var(--font-size-xs);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-weight-medium);
+const ThumbnailContainer = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const ComponentsRow = styled.div`
+const ThumbnailPlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
 `;
 
 export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModalProps) {
@@ -186,7 +185,11 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
 
   // Mutation for disconnecting from a repository
   const disconnectRepoMutation = useMutation({
-    mutationFn: (userRepositoryId: string) => disconnectRepository(userRepositoryId),
+    mutationFn: (userRepositoryId: string) =>
+      disconnectRepository(userRepositoryId, {
+        success: 'Repository uninstall successfully',
+        error: 'Failed to uninstall repository',
+      }),
     onSuccess: () => {
       // Refetch both user repositories and the repository lists
       queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
@@ -200,27 +203,26 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
 
   // Helper function to check if a repository is already connected
   const isRepositoryConnected = (repositoryId: string) => {
-    return userRepositoriesQuery.data?.some(ur => ur.repository.id === repositoryId) || false;
+    return userRepositoriesQuery.data?.some(ur => ur.versionId === repositoryId) || false;
   };
 
   // Helper function to get the user repository ID for disconnection
   const getUserRepositoryId = (repositoryId: string) => {
-    return userRepositoriesQuery.data?.find(ur => ur.repository.id === repositoryId)?.id;
+    return userRepositoriesQuery.data?.find(ur => ur.versionId === repositoryId)?.id;
   };
 
-  const handleInstallRepository = (repository: RepositoryAPI) => {
-    console.log('userRepositoriesQuery', userRepositoriesQuery);
-    const isConnected = isRepositoryConnected(repository.id);
+  const handleInstallRepository = (repository: RepositoryWithLatestVersionAPI) => {
+    const isConnected = isRepositoryConnected(repository.version.id);
 
     if (isConnected) {
       // Disconnect the repository
-      const userRepoId = getUserRepositoryId(repository.id);
+      const userRepoId = getUserRepositoryId(repository.version.id);
       if (userRepoId) {
         disconnectRepoMutation.mutate(userRepoId);
       }
     } else {
       // Connect the repository
-      connectRepoMutation.mutate(repository);
+      connectRepoMutation.mutate(repository.repository);
     }
   };
 
@@ -269,7 +271,7 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
 
       <RepositoryList fullWidth>
         {isLoading ? (
-          <LoadingState>Loading {isSearching ? 'search results' : 'popular repositories'}...</LoadingState>
+          <LoadingState>{isSearching ? 'Searching now...' : 'Loading...'}...</LoadingState>
         ) : error ? (
           <ErrorState>Failed to load repositories: {error.message}</ErrorState>
         ) : repositories.length === 0 ? (
@@ -285,76 +287,71 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
             ) : (
               <>
                 <PackageIcon size={48} style={{ margin: '0 auto var(--space-4)' }} />
-                <div>No popular repositories found</div>
+                <div>No repositories found</div>
               </>
             )}
           </EmptyState>
         ) : (
           repositories.map(repo => (
-            <RepositoryItem key={repo.id} fullWidth>
-              <RepositoryHeader>
-                <RepositoryInfo>
-                  <RepositoryName>{repo.name}</RepositoryName>
-                  <RepositoryAuthor>by {repo.author}</RepositoryAuthor>
-                </RepositoryInfo>
-                <Row gap='var(--space-2)'>
-                  {repo.githubUrl && (
-                    <SecondaryButton
-                      size='sm'
-                      startIcon={<ExternalLinkIcon size={14} />}
-                      onClick={() => window.open(repo.githubUrl!, '_blank')}
-                      aria-label={`View ${repo.name} repository on GitHub`}
-                    >
-                      View
-                    </SecondaryButton>
-                  )}
+            <RepositoryItem
+              key={repo.version.id}
+              fullWidth
+              alignItems='flex-start'
+              justifyContent='stretch'
+              gap='var(--space-3)'
+              wrap='nowrap'
+            >
+              <ThumbnailContainer>
+                <ThumbnailPlaceholder>
+                  <PackageIcon size={32} />
+                </ThumbnailPlaceholder>
+              </ThumbnailContainer>
+              <RepositoryInfo>
+                <Row fullWidth justifyContent='space-between' alignItems='center'>
+                  <div>
+                    <RepositoryName>{repo.repository?.name}</RepositoryName>
+                    <RepositoryAuthor>by {repo.repository?.author}</RepositoryAuthor>
+                  </div>
                   <PrimaryButton
                     size='sm'
-                    startIcon={isRepositoryConnected(repo.id) ? <TrashIcon size={14} /> : <DownloadIcon size={14} />}
+                    startIcon={isRepositoryConnected(repo.version.id) ? <TrashIcon size={14} /> : <DownloadIcon size={14} />}
                     onClick={() => handleInstallRepository(repo)}
                     disabled={connectRepoMutation.isPending || disconnectRepoMutation.isPending}
-                    aria-label={`${isRepositoryConnected(repo.id) ? 'Uninstall' : 'Install'} ${repo.name} repository`}
+                    aria-label={`${isRepositoryConnected(repo.version.id) ? 'Uninstall' : 'Install'} repository`}
                   >
                     {connectRepoMutation.isPending || disconnectRepoMutation.isPending
-                      ? isRepositoryConnected(repo.id)
+                      ? isRepositoryConnected(repo.version.id)
                         ? 'Disconnecting...'
                         : 'Connecting...'
-                      : isRepositoryConnected(repo.id)
+                      : isRepositoryConnected(repo.version.id)
                         ? 'Uninstall'
                         : 'Install'}
                   </PrimaryButton>
                 </Row>
-              </RepositoryHeader>
 
-              {repo.description && <RepositoryDescription>{repo.description}</RepositoryDescription>}
-
-              {repo.latestVersionData?.components && repo.latestVersionData.components.length > 0 && (
-                <ComponentsRow>
-                  {repo.latestVersionData.components.slice(0, 3).map(component => (
-                    <ComponentTag key={component.name}>{component.name}</ComponentTag>
-                  ))}
-                  {repo.latestVersionData.components.length > 3 && (
-                    <ComponentTag>+{repo.latestVersionData.components.length - 3} more</ComponentTag>
-                  )}
-                </ComponentsRow>
-              )}
-
-              <RepositoryMeta>
-                <MetaItem>
-                  <StarIcon size={14} />
-                  <span>
-                    {formatNumber(repo.totalDownloads)} download{repo.totalDownloads > 1 ? 's' : ''}
-                  </span>
-                </MetaItem>
-                <MetaItem>
-                  <GitBranchIcon size={14} />
-                  <span>v{repo.latestVersion || '1.0.0'}</span>
-                </MetaItem>
-                <MetaItem>
-                  <CalendarIcon size={14} />
-                  <span>Updated {formatDate(repo.lastUpdated)}</span>
-                </MetaItem>
-              </RepositoryMeta>
+                {repo.repository.description && <RepositoryDescription>{repo.repository.description}</RepositoryDescription>}
+                <ComponentTags components={repo.version.components} />
+                <RepositoryMeta>
+                  <MetaItem>
+                    <DownloadIcon size={14} />
+                    <span>
+                      {formatNumber(repo.repository.totalDownloads)} download{repo.repository.totalDownloads === 1 ? '' : 's'}
+                    </span>
+                  </MetaItem>
+                  <MetaLink href={repo.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+                    <GithubIcon size={14} />
+                    <span>{repo.repository?.author}</span>
+                  </MetaLink>
+                  <MetaItem>
+                    <GitBranchIcon size={14} />
+                    <span>v{repo.repository.latestVersion || '1.0.0'}</span>
+                  </MetaItem>
+                  <MetaItem>
+                    <RefreshCw size={14} />
+                    <span>Updated {formatDate(repo.repository.lastUpdated)}</span>
+                  </MetaItem>
+                </RepositoryMeta>
+              </RepositoryInfo>
             </RepositoryItem>
           ))
         )}

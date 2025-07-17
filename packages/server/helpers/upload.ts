@@ -1,71 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { join } from 'node:path';
 import JSZip from 'jszip';
-import { z } from 'zod';
-
-// Constants
-const MAX_ZIP_SIZE = 50 * 1024 * 1024; // 50MB limit for zip files
-
-// Module Federation manifest schema
-const mfAssetSchema = z.object({
-  js: z.object({
-    sync: z.array(z.string()),
-    async: z.array(z.string()),
-  }),
-  css: z.object({
-    sync: z.array(z.string()),
-    async: z.array(z.string()),
-  }),
-});
-
-const mfExposeSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  assets: mfAssetSchema,
-  path: z.string(),
-});
-
-const mfRemoteEntrySchema = z.object({
-  name: z.string(),
-  path: z.string(),
-  type: z.string(),
-});
-
-const mfTypesSchema = z.object({
-  path: z.string(),
-  name: z.string(),
-  zip: z.string(),
-  api: z.string(),
-});
-
-const mfBuildInfoSchema = z.object({
-  buildVersion: z.string(),
-  buildName: z.string(),
-});
-
-const mfMetaDataSchema = z.object({
-  name: z.string(),
-  type: z.string(),
-  buildInfo: mfBuildInfoSchema,
-  remoteEntry: mfRemoteEntrySchema,
-  types: mfTypesSchema,
-  globalName: z.string(),
-  pluginVersion: z.string(),
-  prefetchInterface: z.boolean(),
-  getPublicPath: z.string(),
-});
-
-const mfManifestSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  metaData: mfMetaDataSchema,
-  shared: z.array(z.unknown()), // Can be array of shared dependencies
-  remotes: z.array(z.unknown()), // Can be array of remote modules
-  exposes: z.array(mfExposeSchema),
-});
-
-// Infer the TypeScript type from the schema
-export type MfManifest = z.infer<typeof mfManifestSchema>;
+import type { SSEStreamingApi } from 'hono/streaming';
 
 // Create Supabase client
 const supabase = createClient(process.env.SUPABASE_PROJECT_URL!, process.env.SUPABASE_ANON_KEY!);
@@ -170,129 +106,139 @@ export async function uploadRepositoryFile(
   }
 }
 
-// Delete repository files
-export async function deleteRepositoryFiles(repositoryId: string, version: string) {
+// Upload all files from a zip buffer to repository storage
+export async function uploadRepositoryZipContents(
+  repositoryId: string,
+  version: string,
+  zipBuffer: Buffer,
+  stream?: SSEStreamingApi,
+  writeSSEMessage?: (stream: SSEStreamingApi, message: { message: string; status: 'success' | 'warning' | 'error' }) => Promise<void>
+): Promise<{ uploadedFiles: Array<{ filename: string; publicUrl: string; path: string }>; manifestUrl: string | null }> {
   try {
-    const prefix = repositoryContentPrefix(repositoryId, version, '');
+    // Parse the zip file
+    const zip = await JSZip.loadAsync(zipBuffer);
+    const uploadedFiles: Array<{ filename: string; publicUrl: string; path: string }> = [];
+    let manifestUrl: string | null = null;
 
-    // List all files in the repository version folder
-    const { data, error } = await supabase.storage.from(process.env.SUPABASE_BUCKET_NAME!).list(prefix);
+    const files = Object.entries(zip.files).filter(([, zipObject]) => !zipObject.dir);
 
-    if (error) {
-      throw new Error(error.message);
+    if (stream && writeSSEMessage) {
+      await writeSSEMessage(stream, {
+        message: `Uploading ${files.length} files to storage...`,
+        status: 'success',
+      });
     }
 
-    if (data && data.length > 0) {
-      const filePaths = data.map(file => join(prefix, file.name));
+    // Process each file in the zip
+    for (const [index, [filename, zipObject]] of files.entries()) {
+      if (stream && writeSSEMessage) {
+        await writeSSEMessage(stream, {
+          message: `Uploading ${filename} (${index + 1}/${files.length})...`,
+          status: 'success',
+        });
+      }
 
-      const { error: deleteError } = await supabase.storage.from(process.env.SUPABASE_BUCKET_NAME!).remove(filePaths);
+      // Get file content as buffer
+      let fileContent = await zipObject.async('arraybuffer');
 
-      if (deleteError) {
-        throw new Error(deleteError.message);
+      // Determine MIME type based on file extension
+      const mimeType = getMimeType(filename);
+
+      // For text-based files, replace the asset prefix placeholder
+      if (isTextBasedFile(mimeType)) {
+        try {
+          // For module federation to work, the remote application needs to have a publicPath of
+          // {{{_HAKIT_ASSET_PREFIX_}}}, so that we can dynamically replace it before we upload with the right path
+          // to the repository assets so that when the runtime modules load, they can resolve the correct paths
+          // Convert to string, replace placeholder, convert back to buffer
+          const textContent = new TextDecoder('utf-8').decode(fileContent);
+          const repositoryPath = repositoryContentPrefix(repositoryId, version, '');
+          const fullPath = join(process.env.SUPABASE_BUCKET_NAME!, repositoryPath);
+          const basePath = getPublicUrl(fullPath);
+          const updatedContent = textContent.replace(/{{{_HAKIT_ASSET_PREFIX_}}}/g, basePath);
+          // save converted content back to buffer, ArrayBufferLike is similar to ArrayBuffer enough for us to cast it here.
+          fileContent = new TextEncoder().encode(updatedContent).buffer as ArrayBuffer;
+        } catch (error) {
+          console.warn(`Failed to process text replacement for ${filename}:`, error);
+          // Continue with original content if replacement fails
+        }
+      }
+
+      // Upload the file
+      const uploadResult = await uploadRepositoryFile(repositoryId, version, fileContent, filename, mimeType);
+
+      uploadedFiles.push({
+        filename,
+        publicUrl: uploadResult.publicUrl,
+        path: uploadResult.data.fullPath,
+      });
+
+      // Check if this is the manifest file
+      if (filename === 'mf-manifest.json') {
+        manifestUrl = uploadResult.publicUrl;
       }
     }
 
-    return { success: true };
+    return { uploadedFiles, manifestUrl };
   } catch (e) {
-    console.error('Error deleting repository files:', e);
+    console.error('Error uploading repository zip contents:', e);
     throw e;
   }
 }
 
-// Comprehensive zip validation with metadata extraction
-export interface ZipValidationResult {
-  isValid: boolean;
-  error?: string;
-  metadata?: {
-    mfManifest?: MfManifest;
-    componentNames?: string[];
-    fileCount?: number;
-    hasManifest?: boolean;
-    hasFederationFiles?: boolean;
-  };
+// Helper function to determine MIME type based on file extension
+function getMimeType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'js':
+      return 'application/javascript';
+    case 'css':
+      return 'text/css';
+    case 'json':
+      return 'application/json';
+    case 'html':
+      return 'text/html';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'ts':
+    case 'tsx':
+      return 'application/typescript';
+    case 'jsx':
+      return 'application/javascript';
+    case 'md':
+      return 'text/markdown';
+    case 'txt':
+      return 'text/plain';
+    case 'xml':
+      return 'application/xml';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'gif':
+      return 'image/gif';
+    case 'woff':
+      return 'font/woff';
+    case 'woff2':
+      return 'font/woff2';
+    case 'ttf':
+      return 'font/ttf';
+    case 'eot':
+      return 'application/vnd.ms-fontobject';
+    default:
+      return 'application/octet-stream';
+  }
 }
 
-// Validate zip contents from a buffer (used for GitHub downloads)
-export async function validateRepositoryZipFromBuffer(zipBuffer: Buffer): Promise<ZipValidationResult> {
-  try {
-    // Check buffer size
-    if (zipBuffer.length > MAX_ZIP_SIZE) {
-      return {
-        isValid: false,
-        error: `Zip file too large. Maximum size is ${MAX_ZIP_SIZE / (1024 * 1024)}MB`,
-      };
-    }
-
-    // Parse the zip file from buffer
-    const zip = await JSZip.loadAsync(zipBuffer);
-
-    // Check for mf-manifest.json
-    const manifestFile = zip.file('mf-manifest.json');
-    if (!manifestFile) {
-      return {
-        isValid: false,
-        error: 'Missing mf-manifest.json file in the zip',
-      };
-    }
-
-    // Parse manifest
-    let mfManifest: MfManifest;
-    try {
-      const manifestContent = await manifestFile.async('text');
-      const parsedManifest = JSON.parse(manifestContent);
-
-      // Use Zod to validate and parse the manifest
-      const result = mfManifestSchema.safeParse(parsedManifest);
-      if (!result.success) {
-        const errorMessages = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
-        return {
-          isValid: false,
-          error: `Invalid mf-manifest.json structure: ${errorMessages}`,
-        };
-      }
-
-      mfManifest = result.data;
-    } catch (parseError) {
-      return {
-        isValid: false,
-        error: `Invalid mf-manifest.json format: ${parseError instanceof Error ? parseError.message : 'Unknown parsing error'}`,
-      };
-    }
-
-    // Check for federation files
-    const federationFiles = Object.keys(zip.files).filter(filename => filename.endsWith('.js') || filename.endsWith('.css'));
-
-    // Basic security validation - check for dangerous files
-    const dangerousExtensions = ['.exe', '.bat', '.sh', '.ps1', '.cmd', '.scr', '.vbs'];
-    const suspiciousFiles = Object.keys(zip.files).filter(filename => {
-      const lower = filename.toLowerCase();
-      return dangerousExtensions.some(ext => lower.endsWith(ext)) || filename.includes('..') || filename.startsWith('/');
-    });
-
-    if (suspiciousFiles.length > 0) {
-      return {
-        isValid: false,
-        error: `Potentially dangerous files detected: ${suspiciousFiles.join(', ')}`,
-      };
-    }
-
-    // Extract component names from manifest
-    const componentNames = mfManifest.exposes.map((expose: { name: string }) => expose.name);
-
-    return {
-      isValid: true,
-      metadata: {
-        mfManifest,
-        componentNames,
-        fileCount: Object.keys(zip.files).length,
-        hasManifest: true,
-        hasFederationFiles: federationFiles.length > 0,
-      },
-    };
-  } catch (error) {
-    return {
-      isValid: false,
-      error: `Failed to parse zip file: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    };
-  }
+// Helper function to determine if file is text-based and could contain placeholders
+function isTextBasedFile(mimeType: string): boolean {
+  return (
+    mimeType.startsWith('text/') ||
+    mimeType.startsWith('application/javascript') ||
+    mimeType.startsWith('application/json') ||
+    mimeType.startsWith('application/xml') ||
+    mimeType.startsWith('application/typescript') ||
+    mimeType.includes('svg')
+  );
 }

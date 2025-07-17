@@ -25,8 +25,9 @@ interface InstallationStatus {
 const Description = styled.p`
   width: 100%;
   font-size: var(--font-size-sm);
+  text-align: left;
   text-align: center;
-  color: var(--color-text-muted);
+  color: var(--color-text-primary);
   margin: 0 0 var(--space-6) 0;
   line-height: var(--line-height-relaxed);
 `;
@@ -316,10 +317,6 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
     <Modal open={isOpen} onClose={canClose ? onClose : () => {}} title='Add Custom Repository' hideCloseButton={!canClose}>
       {installationStatus.status === 'idle' ? (
         <>
-          <Description>
-            Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.
-          </Description>
-
           <FieldGroup className='full-width'>
             <FieldLabel htmlFor='repo-url' label='Repository URL' />
             <InputField
@@ -331,6 +328,7 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
               variant='outlined'
               size='small'
               fullWidth
+              helperText='Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.'
               slotProps={{
                 input: {
                   startAdornment: (
