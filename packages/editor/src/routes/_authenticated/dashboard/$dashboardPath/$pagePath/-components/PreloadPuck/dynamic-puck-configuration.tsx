@@ -18,10 +18,23 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const categories: NonNullable<CustomConfig['categories']> = {} as NonNullable<Config['categories']>;
   const userRepositories = await getUserRepositories();
   const remoteManifest = new Map<string, MfManifest>();
-  // Process all remotes asynchronously, get all the manifest files content so we can load
-  // the names of the components in the exposed section for the manifest
-  // we can then use this to skip over loading components that are "disabled" in the user preferences
-  // for the repository they have installed
+  // Create a map of excluded components by repository name
+  const excludedComponents = new Map<string, Set<string>>();
+
+  // Process user preferences to build excluded components list
+  userRepositories.forEach(userRepo => {
+    const excludedForRepo = new Set<string>();
+    userRepo.version.components.forEach(component => {
+      if (!component.enabled) {
+        excludedForRepo.add(component.name);
+      }
+    });
+    if (excludedForRepo.size > 0) {
+      excludedComponents.set(userRepo.repository.name, excludedForRepo);
+    }
+  });
+
+  // Process all remotes asynchronously and get all the manifest files content
   const remotes: UserOptions['remotes'] = await Promise.all(
     userRepositories.map(async userRepo => {
       const manifestUrl = userRepo.version.manifestUrl;
@@ -66,6 +79,13 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
       continue;
     }
     for (const module of remoteManifestData.exposes) {
+      // Skip loading components that are disabled in user preferences
+      const excludedForRepo = excludedComponents.get(remote.name);
+      if (excludedForRepo && excludedForRepo.has(module.name)) {
+        console.log(`Skipping disabled component "${module.name}" from remote "${remote.name}"`);
+        continue;
+      }
+
       // load the module contents from the current instance
       const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`).then(loadedModule => {
         if (!loadedModule) {
