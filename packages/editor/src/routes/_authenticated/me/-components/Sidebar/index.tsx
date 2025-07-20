@@ -1,10 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import styled from '@emotion/styled';
 import { FeatureText } from '@lib/components/FeatureText';
 import { useNavigate } from '@tanstack/react-router';
 
-import { LayoutDashboardIcon, PackageIcon, SettingsIcon, HelpCircleIcon, LogOutIcon, XIcon } from 'lucide-react';
+import {
+  LayoutDashboardIcon,
+  PackageIcon,
+  SettingsIcon,
+  HelpCircleIcon,
+  LogOutIcon,
+  XIcon,
+  ChevronRightIcon,
+  SearchIcon,
+  Component,
+} from 'lucide-react';
+import { Row } from '@hakit/components';
+
+// Navigation structure definition
+interface NavSubItem {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+}
+
+interface NavGroupItem {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  subItems?: NavSubItem[];
+}
+
+const navigationStructure: NavGroupItem[] = [
+  {
+    to: '/me/dashboards',
+    icon: <LayoutDashboardIcon size={18} />,
+    label: 'Dashboards',
+  },
+  {
+    to: '/me/components',
+    icon: <PackageIcon size={18} />,
+    label: 'Components',
+    subItems: [
+      {
+        to: '/me/components',
+        icon: <Component size={16} />,
+        label: 'Installed',
+      },
+      {
+        to: '/me/components/explore',
+        icon: <SearchIcon size={16} />,
+        label: 'Explore',
+      },
+    ],
+  },
+  {
+    to: '/me/settings',
+    icon: <SettingsIcon size={18} />,
+    label: 'Settings',
+  },
+  {
+    to: '/me/help',
+    icon: <HelpCircleIcon size={18} />,
+    label: 'Help & Support',
+  },
+  {
+    to: '/api/logout',
+    icon: <LogOutIcon size={18} />,
+    label: 'Logout',
+  },
+];
 
 // Styled Components
 const SidebarOverlay = styled.div<{ open: boolean }>`
@@ -90,6 +155,7 @@ const NavDivider = styled.div`
 const NavItemLink = styled(Link)`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
@@ -97,6 +163,10 @@ const NavItemLink = styled(Link)`
   background-color: transparent;
   text-decoration: none;
   transition: all var(--transition-normal);
+
+  span {
+    margin-left: var(--space-2);
+  }
 
   &:hover {
     color: var(--color-text-primary);
@@ -113,6 +183,86 @@ const NavItemLink = styled(Link)`
   }
 `;
 
+const ChevronIcon = styled.div<{ isExpanded: boolean }>`
+  transition: transform var(--transition-normal);
+  transform: ${props => (props.isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)')};
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ChevronButton = styled.button`
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  margin: -var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-normal);
+
+  &:hover {
+    background-color: var(--color-border);
+  }
+`;
+
+const SubNavContainer = styled.div<{ isExpanded: boolean }>`
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  max-height: ${props => (props.isExpanded ? '200px' : '0')};
+  opacity: ${props => (props.isExpanded ? '1' : '0')};
+`;
+
+const SubNavItem = styled.div`
+  position: relative;
+  margin-left: var(--space-6);
+`;
+
+const TreeSpace = styled.div`
+  position: absolute;
+  left: calc(var(--space-3) * -1);
+  top: calc(var(--space-1) * -1);
+  bottom: var(--space-3);
+  width: var(--space-3);
+  border-left: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  border-bottom-left-radius: var(--radius-md);
+  background-color: transparent;
+`;
+
+const SubNavItemLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-sm);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-border);
+  }
+
+  &[data-status='active'] {
+    color: var(--color-text-primary);
+    background-color: var(--color-primary-900);
+
+    &:hover {
+      background-color: var(--color-primary-600);
+    }
+  }
+`;
+
 // React Components
 interface SidebarProps {
   open: boolean;
@@ -121,6 +271,16 @@ interface SidebarProps {
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
   const navigate = useNavigate();
+
+  // Auto-expand groups that have sub-items by default
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(() =>
+    navigationStructure.filter(item => item.subItems && item.subItems.length > 0).map(item => item.to)
+  );
+
+  const toggleGroup = (groupTo: string) => {
+    setExpandedGroups(prev => (prev.includes(groupTo) ? prev.filter(item => item !== groupTo) : [...prev, groupTo]));
+  };
+
   return (
     <>
       <SidebarOverlay open={open} onClick={() => setOpen(false)} />
@@ -140,12 +300,12 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           </CloseButton>
         </SidebarHeader>
         <Navigation>
-          <NavItem to='/me/dashboards' icon={<LayoutDashboardIcon size={18} />} label='Dashboards' />
-          <NavItem to='/me/components' icon={<PackageIcon size={18} />} label='Components' />
-          <NavDivider />
-          <NavItem to='/me/settings' icon={<SettingsIcon size={18} />} label='Settings' />
-          <NavItem to='/me/help' icon={<HelpCircleIcon size={18} />} label='Help & Support' />
-          <NavItem to='/api/logout' icon={<LogOutIcon size={18} />} label='Logout' />
+          {navigationStructure.map((item, index) => (
+            <React.Fragment key={item.to}>
+              {index === navigationStructure.length - 3 && <NavDivider />}
+              <NavGroup item={item} isExpanded={expandedGroups.includes(item.to)} onToggle={() => item.subItems && toggleGroup(item.to)} />
+            </React.Fragment>
+          ))}
         </Navigation>
       </SidebarContainer>
     </>
@@ -158,11 +318,62 @@ interface NavItemProps {
   label: string;
 }
 
+interface NavGroupProps {
+  item: NavGroupItem;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
+  if (!item.subItems || item.subItems.length === 0) {
+    // Simple nav item without sub-items
+    return <NavItem to={item.to} icon={item.icon} label={item.label} />;
+  }
+
+  // Nav group with expandable sub-items - separate navigation and toggle
+  return (
+    <>
+      <NavItemLink to={item.to} activeOptions={{ exact: false }}>
+        <Row justifyContent='center'>
+          {item.icon}
+          <span>{item.label}</span>
+        </Row>
+        <ChevronButton
+          onClick={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggle();
+          }}
+          type='button'
+          aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.label} submenu`}
+        >
+          <ChevronIcon isExpanded={isExpanded}>
+            <ChevronRightIcon size={14} />
+          </ChevronIcon>
+        </ChevronButton>
+      </NavItemLink>
+      <SubNavContainer isExpanded={isExpanded}>
+        {item.subItems.map(subItem => (
+          <SubNavItem key={subItem.to}>
+            <TreeSpace />
+            <SubNavItemLink to={subItem.to} activeOptions={{ exact: true }}>
+              {subItem.icon}
+              <span>{subItem.label}</span>
+            </SubNavItemLink>
+          </SubNavItem>
+        ))}
+      </SubNavContainer>
+    </>
+  );
+}
+
 function NavItem({ to, icon, label }: NavItemProps) {
   return (
-    <NavItemLink to={to} activeOptions={{ exact: false }}>
-      {icon}
-      <span>{label}</span>
+    <NavItemLink to={to} activeOptions={{ exact: true }}>
+      <Row>
+        {icon}
+        <span>{label}</span>
+      </Row>
     </NavItemLink>
   );
 }

@@ -1,34 +1,73 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { SearchIcon, PlusIcon, PackageIcon, DownloadIcon, GitBranchIcon, TrashIcon, RefreshCw, GithubIcon } from 'lucide-react';
 import { PrimaryButton } from '@lib/components/Button/Primary';
-import { Modal } from '@lib/components/Modal';
+import { SecondaryButton } from '@lib/components/Button/Secondary';
+import { PlusIcon, SearchIcon, PackageIcon, DownloadIcon, GitBranchIcon, TrashIcon, RefreshCw, GithubIcon, EyeIcon } from 'lucide-react';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment } from '@mui/material';
 import { Column, Row } from '@hakit/components';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import {
   searchRepositoriesQueryOptions,
   connectRepository,
   disconnectRepository,
   getRepositoryVersions,
   userRepositoriesQueryOptions,
+  popularRepositoriesQueryOptions,
 } from '@lib/api/components';
 import { toast } from 'react-toastify';
 import { RepositoryAPI, RepositoryWithLatestVersionAPI } from '@typings/db';
-import { ComponentTags } from './ComponentTags';
+import { ComponentTags } from '../-components/ComponentTags';
 import { formatNumber } from '@lib/helpers/number';
 import { timeAgo } from '@hakit/core';
 
-interface ExploreModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onShowCustomRepo: () => void;
-}
+export const Route = createFileRoute('/_authenticated/me/components/explore/')({
+  component: RouteComponent,
+});
 
-const SearchAndActions = styled(Row)`
-  margin-bottom: var(--space-4);
-  gap: var(--space-3);
+// Styled Components
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+`;
+
+const PageHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  .mq-md & {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+`;
+
+const PageTitle = styled.h1`
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+`;
+
+const PageSubtitle = styled.p`
+  color: var(--color-text-muted);
+  margin: 0;
+`;
+
+const SearchAndFilter = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 
   .mq-md & {
     flex-direction: row;
@@ -37,21 +76,19 @@ const SearchAndActions = styled(Row)`
 `;
 
 const RepositoryList = styled(Column)`
-  max-height: 60vh;
-  overflow-y: auto;
   gap: var(--space-3);
 `;
 
 const RepositoryItem = styled(Row)`
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   transition: var(--transition-normal);
-
+  cursor: pointer;
   &:hover {
     border-color: var(--color-border-hover);
-    background: var(--color-surface-overlay);
+    background: var(--color-surface-muted);
   }
 `;
 
@@ -82,7 +119,7 @@ const RepositoryMeta = styled.div`
   align-items: center;
   gap: 0;
   width: 100%;
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   flex-wrap: wrap;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -93,14 +130,6 @@ const MetaItem = styled.div`
   align-items: center;
   gap: var(--space-1);
   margin-right: var(--space-4);
-`;
-
-const MetaLink = styled.a`
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-right: var(--space-4);
-  color: var(--color-text-muted);
 `;
 
 const EmptyState = styled.div`
@@ -126,7 +155,7 @@ const ThumbnailContainer = styled.div`
   height: 80px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--color-surface);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -142,25 +171,22 @@ const ThumbnailPlaceholder = styled.div`
   color: var(--color-text-muted);
 `;
 
-export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModalProps) {
+function RouteComponent() {
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Determine if we're searching based on trimmed query
   const isSearching = useMemo(() => searchQuery.trim().length > 0, [searchQuery]);
 
   // Query for user repositories to check what's already connected
-  // TODO - Replace this with the available function in api/component.ts
-  const userRepositoriesQuery = useQuery({
-    ...userRepositoriesQueryOptions,
-    enabled: isOpen,
-  });
+  const userRepositoriesQuery = useQuery(userRepositoriesQueryOptions);
 
-  // Single query for repositories - handles both search and popular
-  const repositoriesQuery = useQuery({
-    ...searchRepositoriesQueryOptions(isSearching ? searchQuery : '', { limit: 20 }),
-    enabled: isOpen,
-  });
+  // Query for popular repositories (used when not searching)
+  const popularRepositoriesQuery = useQuery(popularRepositoriesQueryOptions(20));
+
+  // Query for search results (only enabled when actively searching)
+  const searchRepositoriesQuery = useQuery(searchRepositoriesQueryOptions(searchQuery, { limit: 20 }));
 
   // Mutation for connecting to a repository
   const connectRepoMutation = useMutation({
@@ -179,9 +205,10 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
       });
     },
     onSuccess: () => {
-      // Refetch both user repositories and the repository lists
+      // Refetch all relevant queries
       queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
       queryClient.invalidateQueries({ queryKey: ['search-repositories'] });
+      queryClient.invalidateQueries({ queryKey: ['popular-repositories'] });
     },
   });
 
@@ -189,19 +216,23 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
   const disconnectRepoMutation = useMutation({
     mutationFn: (userRepositoryId: string) =>
       disconnectRepository(userRepositoryId, {
-        success: 'Repository uninstall successfully',
+        success: 'Repository uninstalled successfully',
         error: 'Failed to uninstall repository',
       }),
     onSuccess: () => {
-      // Refetch both user repositories and the repository lists
+      // Refetch all relevant queries
       queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
       queryClient.invalidateQueries({ queryKey: ['search-repositories'] });
+      queryClient.invalidateQueries({ queryKey: ['popular-repositories'] });
     },
   });
 
-  const repositories = repositoriesQuery.data || [];
-  const isLoading = repositoriesQuery.isLoading;
-  const error = repositoriesQuery.error;
+  // Use search results when searching, otherwise use popular repositories
+  const repositories = isSearching ? searchRepositoriesQuery.data || [] : popularRepositoriesQuery.data || [];
+
+  const isLoading = isSearching ? searchRepositoriesQuery.isLoading : popularRepositoriesQuery.isLoading;
+
+  const error = isSearching ? searchRepositoriesQuery.error : popularRepositoriesQuery.error;
 
   // Helper function to check if a repository is already connected
   const isRepositoryConnected = (repositoryId: string) => {
@@ -229,15 +260,27 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose} title={isSearching ? `Search Results (${repositories.length})` : 'Explore Components'}>
-      <SearchAndActions fullWidth wrap='nowrap'>
+    <Container>
+      <PageHeader>
+        <Row fullWidth justifyContent='space-between' alignItems='center'>
+          <HeaderContent>
+            <PageTitle>{isSearching ? `Search Results (${repositories.length})` : 'Explore Components'}</PageTitle>
+            <PageSubtitle>Discover and install components for your dashboards</PageSubtitle>
+          </HeaderContent>
+          <PrimaryButton aria-label='Add custom repository' startIcon={<PlusIcon size={16} />}>
+            Install Addon
+          </PrimaryButton>
+        </Row>
+      </PageHeader>
+
+      <SearchAndFilter>
         <InputField
+          size='medium'
           type='text'
-          placeholder='Search repositories...'
+          placeholder='Search components...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           variant='outlined'
-          size='medium'
           fullWidth
           slotProps={{
             input: {
@@ -249,14 +292,11 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
             },
           }}
         />
-        <PrimaryButton startIcon={<PlusIcon size={16} />} onClick={onShowCustomRepo} aria-label='Add custom repository'>
-          Custom Repository
-        </PrimaryButton>
-      </SearchAndActions>
+      </SearchAndFilter>
 
       <RepositoryList fullWidth>
         {isLoading ? (
-          <LoadingState>{isSearching ? 'Searching now...' : 'Loading...'}...</LoadingState>
+          <LoadingState>{isSearching ? 'Searching now...' : 'Loading popular components...'}...</LoadingState>
         ) : error ? (
           <ErrorState>Failed to load repositories: {error.message}</ErrorState>
         ) : repositories.length === 0 ? (
@@ -272,12 +312,15 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
             ) : (
               <>
                 <PackageIcon size={48} style={{ margin: '0 auto var(--space-4)' }} />
-                <div>No repositories found</div>
+                <div>No popular repositories found</div>
+                <div style={{ fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
+                  Try searching for specific components instead
+                </div>
               </>
             )}
           </EmptyState>
         ) : (
-          repositories.map(repo => (
+          repositories.map((repo: RepositoryWithLatestVersionAPI) => (
             <RepositoryItem
               key={repo.version.id}
               fullWidth
@@ -285,6 +328,10 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
               justifyContent='stretch'
               gap='var(--space-3)'
               wrap='nowrap'
+              onClick={e => {
+                e.stopPropagation();
+                navigate({ to: '/me/components/explore/$repository', params: { repository: repo.repository.id } });
+              }}
             >
               <ThumbnailContainer>
                 <ThumbnailPlaceholder>
@@ -297,21 +344,31 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
                     <RepositoryName>{repo.repository?.name}</RepositoryName>
                     <RepositoryAuthor>by {repo.repository?.author}</RepositoryAuthor>
                   </div>
-                  <PrimaryButton
-                    size='sm'
-                    startIcon={isRepositoryConnected(repo.version.id) ? <TrashIcon size={14} /> : <DownloadIcon size={14} />}
-                    onClick={() => handleInstallRepository(repo)}
-                    disabled={connectRepoMutation.isPending || disconnectRepoMutation.isPending}
-                    aria-label={`${isRepositoryConnected(repo.version.id) ? 'Uninstall' : 'Install'} repository`}
-                  >
-                    {connectRepoMutation.isPending || disconnectRepoMutation.isPending
-                      ? isRepositoryConnected(repo.version.id)
-                        ? 'Disconnecting...'
-                        : 'Connecting...'
-                      : isRepositoryConnected(repo.version.id)
-                        ? 'Uninstall'
-                        : 'Install'}
-                  </PrimaryButton>
+                  <Row gap='var(--space-2)'>
+                    <SecondaryButton
+                      size='sm'
+                      startIcon={<EyeIcon size={14} />}
+                      onClick={() => navigate({ to: '/me/components/explore/$repository', params: { repository: repo.repository.id } })}
+                      aria-label={`View details for ${repo.repository?.name}`}
+                    >
+                      View Details
+                    </SecondaryButton>
+                    <PrimaryButton
+                      size='sm'
+                      startIcon={isRepositoryConnected(repo.version.id) ? <TrashIcon size={14} /> : <DownloadIcon size={14} />}
+                      onClick={() => handleInstallRepository(repo)}
+                      disabled={connectRepoMutation.isPending || disconnectRepoMutation.isPending}
+                      aria-label={`${isRepositoryConnected(repo.version.id) ? 'Uninstall' : 'Install'} repository`}
+                    >
+                      {connectRepoMutation.isPending || disconnectRepoMutation.isPending
+                        ? isRepositoryConnected(repo.version.id)
+                          ? 'Disconnecting...'
+                          : 'Connecting...'
+                        : isRepositoryConnected(repo.version.id)
+                          ? 'Uninstall'
+                          : 'Install'}
+                    </PrimaryButton>
+                  </Row>
                 </Row>
 
                 {repo.repository.description && <RepositoryDescription>{repo.repository.description}</RepositoryDescription>}
@@ -323,10 +380,10 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
                       {formatNumber(repo.repository.totalDownloads)} download{repo.repository.totalDownloads === 1 ? '' : 's'}
                     </span>
                   </MetaItem>
-                  <MetaLink href={repo.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+                  <MetaItem>
                     <GithubIcon size={14} />
                     <span>{repo.repository?.author}</span>
-                  </MetaLink>
+                  </MetaItem>
                   <MetaItem>
                     <GitBranchIcon size={14} />
                     <span>v{repo.repository.latestVersion || '1.0.0'}</span>
@@ -341,6 +398,6 @@ export function ExploreModal({ isOpen, onClose, onShowCustomRepo }: ExploreModal
           ))
         )}
       </RepositoryList>
-    </Modal>
+    </Container>
   );
 }

@@ -88,9 +88,7 @@ const userRepositoriesRoute = new Hono()
         const [repository] = await db
           .select()
           .from(repositoriesTable)
-          .where(
-            and(eq(repositoriesTable.id, repositoryId), eq(repositoriesTable.isPublic, true), eq(repositoriesTable.deprecated, false))
-          );
+          .where(and(eq(repositoriesTable.id, repositoryId), eq(repositoriesTable.isPublic, true)));
 
         if (!repository) {
           throw new Error(`Repository not found with id ${repositoryId}`);

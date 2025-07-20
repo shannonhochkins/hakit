@@ -14,7 +14,7 @@ const repositoriesRoute = new Hono()
       const repositories = await db
         .select()
         .from(repositoriesTable)
-        .where(and(eq(repositoriesTable.isPublic, true), eq(repositoriesTable.deprecated, false)))
+        .where(eq(repositoriesTable.isPublic, true))
         .orderBy(desc(repositoriesTable.totalDownloads));
       return c.json<
         {
@@ -43,7 +43,7 @@ const repositoriesRoute = new Hono()
         const [repository] = await db
           .select()
           .from(repositoriesTable)
-          .where(and(eq(repositoriesTable.id, id), eq(repositoriesTable.isPublic, true), eq(repositoriesTable.deprecated, false)));
+          .where(and(eq(repositoriesTable.id, id), eq(repositoriesTable.isPublic, true)));
 
         if (!repository) {
           throw new Error(`Repository not found with id ${id}`);
@@ -73,7 +73,7 @@ const repositoriesRoute = new Hono()
         const [repository] = await db
           .select()
           .from(repositoriesTable)
-          .where(and(eq(repositoriesTable.id, id), eq(repositoriesTable.isPublic, true), eq(repositoriesTable.deprecated, false)));
+          .where(and(eq(repositoriesTable.id, id), eq(repositoriesTable.isPublic, true)));
 
         if (!repository) {
           throw new Error(`Repository not found with id ${id}`);

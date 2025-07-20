@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../../db';
-import { eq, and, desc, ilike, or, sql, count } from 'drizzle-orm';
+import { eq, and, desc, ilike, or, sql, count, type SQL } from 'drizzle-orm';
 import { repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
@@ -30,14 +30,13 @@ const searchRoute = new Hono()
         const { q, limit, offset, sortBy } = c.req.valid('query');
 
         // Build the base where clause for repositories
-        let repositoryWhereClause = and(eq(repositoriesTable.isPublic, true), eq(repositoriesTable.deprecated, false));
+        let repositoryWhereClause: SQL<unknown> = eq(repositoriesTable.isPublic, true);
 
         // Add search conditions if query is provided
         if (q && q.trim().length > 0) {
           const searchTerm = q.trim();
-          repositoryWhereClause = and(
+          const searchConditions = and(
             eq(repositoriesTable.isPublic, true),
-            eq(repositoriesTable.deprecated, false),
             or(
               ilike(repositoriesTable.name, `%${searchTerm}%`),
               ilike(repositoriesTable.description, `%${searchTerm}%`),
@@ -54,6 +53,9 @@ const searchRoute = new Hono()
               )`
             )
           );
+          if (searchConditions) {
+            repositoryWhereClause = searchConditions;
+          }
         }
 
         // Get total count for pagination
@@ -76,7 +78,7 @@ const searchRoute = new Hono()
             version: repositoryVersionsTable,
           })
           .from(repositoriesTable)
-          .leftJoin(
+          .innerJoin(
             repositoryVersionsTable,
             and(
               eq(repositoryVersionsTable.repositoryId, repositoriesTable.id),

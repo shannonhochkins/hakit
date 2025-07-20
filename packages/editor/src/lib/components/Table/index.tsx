@@ -37,18 +37,18 @@ export const TableBody = styled(MuiTableBody)``;
 
 export const TableRow = styled(MuiTableRow)<{ hover?: boolean }>`
   transition: background-color var(--transition-normal);
-  cursor: ${props => props.onClick ? 'pointer' : 'default'};
-  
+  cursor: ${props => (props.onClick ? 'pointer' : 'default')};
+
   &:hover {
-    background-color: ${props => props.hover !== false ? 'var(--color-border-subtle)' : 'transparent'};
+    background-color: ${props => (props.hover !== false ? 'var(--color-border-subtle)' : 'transparent')};
   }
-  
+
   &:last-child td {
     /* border-bottom: none; */
   }
 `;
 
-export const TableHeaderCell = styled(MuiTableCell)<{ 
+export const TableHeaderCell = styled(MuiTableCell)<{
   hiddenBelow?: 'md' | 'lg';
   width?: string;
   minWidth?: string;
@@ -58,12 +58,14 @@ export const TableHeaderCell = styled(MuiTableCell)<{
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border);
-  
+
   ${props => props.width && `width: ${props.width};`}
   ${props => props.minWidth && `min-width: ${props.minWidth};`}
   
-  ${props => props.hiddenBelow && `
-    @media (max-width: ${props.hiddenBelow === 'md' ? 'var(--breakpoint-md)' : 'var(--breakpoint-lg)'}) {
+  ${props =>
+    props.hiddenBelow &&
+    `
+    .mq-xs &, .mq-sm & ${props.hiddenBelow === 'lg' ? ', .mq-md &' : ''} {
       display: none;
     }
   `}
@@ -73,19 +75,21 @@ export const TableHeaderCell = styled(MuiTableCell)<{
   }
 `;
 
-export const TableCell = styled(MuiTableCell)<{ 
+export const TableCell = styled(MuiTableCell)<{
   hiddenBelow?: 'md' | 'lg';
   width?: string;
   minWidth?: string;
 }>`
   padding: var(--space-4) var(--space-6);
   border-bottom: 1px solid var(--color-border);
-  
+
   ${props => props.width && `width: ${props.width};`}
   ${props => props.minWidth && `min-width: ${props.minWidth};`}
   
-  ${props => props.hiddenBelow && `
-    @media (max-width: ${props.hiddenBelow === 'md' ? 'var(--breakpoint-md)' : 'var(--breakpoint-lg)'}) {
+  ${props =>
+    props.hiddenBelow &&
+    `
+    .mq-xs &, .mq-sm & ${props.hiddenBelow === 'lg' ? ', .mq-md &' : ''} {
       display: none;
     }
   `}
@@ -97,33 +101,32 @@ export const TableCell = styled(MuiTableCell)<{
 
 export const CollapsibleTableRow = styled(TableRow)<{ expanded?: boolean }>`
   transition: all var(--transition-normal);
-  border-bottom: ${props => props.expanded ? 'none' : '1px solid var(--color-border)'};
-  
+  border-bottom: ${props => (props.expanded ? 'none' : '1px solid var(--color-border)')};
+
   &:hover {
     background-color: var(--color-border-subtle);
   }
-  
+
   /* Add subtle indication when row is expandable */
-  cursor: ${props => props.onClick ? 'pointer' : 'default'};
-  
+  cursor: ${props => (props.onClick ? 'pointer' : 'default')};
 `;
 
 export const ChildTableRow = styled(TableRow)`
   background-color: var(--color-surface);
-  
+
   /* Override MUI hover styles completely */
   &:hover {
     background-color: var(--color-surface);
   }
-  
+
   /* Disable hover prop inheritance from TableRow */
   pointer-events: auto;
   cursor: default;
-  
+
   /* Add subtle visual indication that this is a child row */
   td:first-of-type {
     position: relative;
-    
+
     &::before {
       content: '';
       position: absolute;
@@ -134,12 +137,12 @@ export const ChildTableRow = styled(TableRow)`
       background-color: var(--color-primary-200);
     }
   }
-  
+
   /* Ensure cells have consistent width with parent table */
   td {
     border-bottom: 1px solid var(--color-border);
   }
-  
+
   &:last-child td {
     border-bottom: none;
   }
@@ -149,13 +152,13 @@ export const ExpandButton = styled(IconButton)`
   color: var(--color-text-muted);
   padding: var(--space-1);
   transition: all var(--transition-normal);
-  
+
   &:hover {
     color: var(--color-text-primary);
     background-color: var(--color-border-subtle);
     transform: scale(1.1);
   }
-  
+
   &:active {
     transform: scale(0.95);
   }
@@ -170,13 +173,7 @@ interface CollapsibleRowProps {
   colSpan?: number;
 }
 
-export const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
-  children,
-  expandedContent,
-  expanded = false,
-  onToggle,
-  colSpan = 1
-}) => {
+export const CollapsibleRow: React.FC<CollapsibleRowProps> = ({ children, expandedContent, expanded = false, onToggle, colSpan = 1 }) => {
   return (
     <>
       <CollapsibleTableRow expanded={expanded} onClick={onToggle}>
@@ -185,8 +182,8 @@ export const CollapsibleRow: React.FC<CollapsibleRowProps> = ({
       {expandedContent && (
         <TableRow>
           <TableCell style={{ padding: 0, border: 'none' }} colSpan={colSpan}>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-              <Box component="div" sx={{ margin: 0 }}>
+            <Collapse in={expanded} timeout='auto' unmountOnExit>
+              <Box component='div' sx={{ margin: 0 }}>
                 {expandedContent}
               </Box>
             </Collapse>
@@ -207,9 +204,9 @@ interface ExpandIconProps {
 export const ExpandIcon: React.FC<ExpandIconProps> = ({ expanded, onClick, style }) => {
   return (
     <ExpandButton
-      size="small"
+      size='small'
       style={style}
-      onClick={(e) => {
+      onClick={e => {
         e.stopPropagation();
         onClick?.(e);
       }}

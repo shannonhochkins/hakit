@@ -247,10 +247,10 @@ export function UpdateRepositoryModal({ open, onClose, repositoryWithDetails }: 
   };
 
   // Mock release notes for now - in a real implementation, you'd fetch this from the API
-  const releaseNotes = repositoryWithDetails.version.releaseNotes
+  const releaseNotes = repositoryWithDetails.version.releaseNotesUrl
     ? `What's new in version ${repositoryWithDetails.repository.latestVersion}:
 
-${repositoryWithDetails.version.releaseNotes}`
+${repositoryWithDetails.version.releaseNotesUrl}`
     : 'No release notes available.';
 
   return (

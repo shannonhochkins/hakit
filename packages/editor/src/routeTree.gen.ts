@@ -18,7 +18,9 @@ import { Route as AuthenticatedMeLogoutIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedMeHelpIndexRouteImport } from './routes/_authenticated/me/help/index'
 import { Route as AuthenticatedMeDashboardsIndexRouteImport } from './routes/_authenticated/me/dashboards/index'
 import { Route as AuthenticatedMeComponentsIndexRouteImport } from './routes/_authenticated/me/components/index'
+import { Route as AuthenticatedMeComponentsExploreIndexRouteImport } from './routes/_authenticated/me/components/explore/index'
 import { Route as AuthenticatedDashboardDashboardPathPagePathIndexRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/index'
+import { Route as AuthenticatedMeComponentsExploreRepositoryIndexRouteImport } from './routes/_authenticated/me/components/explore/$repository/index'
 import { Route as AuthenticatedDashboardDashboardPathPagePathEditIndexRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/edit/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -70,11 +72,23 @@ const AuthenticatedMeComponentsIndexRoute =
     path: '/components/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
+const AuthenticatedMeComponentsExploreIndexRoute =
+  AuthenticatedMeComponentsExploreIndexRouteImport.update({
+    id: '/components/explore/',
+    path: '/components/explore/',
+    getParentRoute: () => AuthenticatedMeRoute,
+  } as any)
 const AuthenticatedDashboardDashboardPathPagePathIndexRoute =
   AuthenticatedDashboardDashboardPathPagePathIndexRouteImport.update({
     id: '/dashboard/$dashboardPath/$pagePath/',
     path: '/dashboard/$dashboardPath/$pagePath/',
     getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMeComponentsExploreRepositoryIndexRoute =
+  AuthenticatedMeComponentsExploreRepositoryIndexRouteImport.update({
+    id: '/components/explore/$repository/',
+    path: '/components/explore/$repository/',
+    getParentRoute: () => AuthenticatedMeRoute,
   } as any)
 const AuthenticatedDashboardDashboardPathPagePathEditIndexRoute =
   AuthenticatedDashboardDashboardPathPagePathEditIndexRouteImport.update({
@@ -93,7 +107,9 @@ export interface FileRoutesByFullPath {
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
+  '/me/components/explore': typeof AuthenticatedMeComponentsExploreIndexRoute
   '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
+  '/me/components/explore/$repository': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,7 +120,9 @@ export interface FileRoutesByTo {
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
+  '/me/components/explore': typeof AuthenticatedMeComponentsExploreIndexRoute
   '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
+  '/me/components/explore/$repository': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,7 +136,9 @@ export interface FileRoutesById {
   '/_authenticated/me/logout/': typeof AuthenticatedMeLogoutIndexRoute
   '/_authenticated/me/settings/': typeof AuthenticatedMeSettingsIndexRoute
   '/_authenticated/dashboard/$dashboardPath/$pagePath/': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
+  '/_authenticated/me/components/explore/': typeof AuthenticatedMeComponentsExploreIndexRoute
   '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
+  '/_authenticated/me/components/explore/$repository/': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,7 +152,9 @@ export interface FileRouteTypes {
     | '/me/logout'
     | '/me/settings'
     | '/dashboard/$dashboardPath/$pagePath'
+    | '/me/components/explore'
     | '/dashboard/$dashboardPath/$pagePath/edit'
+    | '/me/components/explore/$repository'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -143,7 +165,9 @@ export interface FileRouteTypes {
     | '/me/logout'
     | '/me/settings'
     | '/dashboard/$dashboardPath/$pagePath'
+    | '/me/components/explore'
     | '/dashboard/$dashboardPath/$pagePath/edit'
+    | '/me/components/explore/$repository'
   id:
     | '__root__'
     | '/'
@@ -156,7 +180,9 @@ export interface FileRouteTypes {
     | '/_authenticated/me/logout/'
     | '/_authenticated/me/settings/'
     | '/_authenticated/dashboard/$dashboardPath/$pagePath/'
+    | '/_authenticated/me/components/explore/'
     | '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/'
+    | '/_authenticated/me/components/explore/$repository/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -229,12 +255,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeComponentsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
+    '/_authenticated/me/components/explore/': {
+      id: '/_authenticated/me/components/explore/'
+      path: '/components/explore'
+      fullPath: '/me/components/explore'
+      preLoaderRoute: typeof AuthenticatedMeComponentsExploreIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
+    }
     '/_authenticated/dashboard/$dashboardPath/$pagePath/': {
       id: '/_authenticated/dashboard/$dashboardPath/$pagePath/'
       path: '/dashboard/$dashboardPath/$pagePath'
       fullPath: '/dashboard/$dashboardPath/$pagePath'
       preLoaderRoute: typeof AuthenticatedDashboardDashboardPathPagePathIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/me/components/explore/$repository/': {
+      id: '/_authenticated/me/components/explore/$repository/'
+      path: '/components/explore/$repository'
+      fullPath: '/me/components/explore/$repository'
+      preLoaderRoute: typeof AuthenticatedMeComponentsExploreRepositoryIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/': {
       id: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/'
@@ -253,6 +293,8 @@ interface AuthenticatedMeRouteChildren {
   AuthenticatedMeHelpIndexRoute: typeof AuthenticatedMeHelpIndexRoute
   AuthenticatedMeLogoutIndexRoute: typeof AuthenticatedMeLogoutIndexRoute
   AuthenticatedMeSettingsIndexRoute: typeof AuthenticatedMeSettingsIndexRoute
+  AuthenticatedMeComponentsExploreIndexRoute: typeof AuthenticatedMeComponentsExploreIndexRoute
+  AuthenticatedMeComponentsExploreRepositoryIndexRoute: typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
 }
 
 const AuthenticatedMeRouteChildren: AuthenticatedMeRouteChildren = {
@@ -262,6 +304,10 @@ const AuthenticatedMeRouteChildren: AuthenticatedMeRouteChildren = {
   AuthenticatedMeHelpIndexRoute: AuthenticatedMeHelpIndexRoute,
   AuthenticatedMeLogoutIndexRoute: AuthenticatedMeLogoutIndexRoute,
   AuthenticatedMeSettingsIndexRoute: AuthenticatedMeSettingsIndexRoute,
+  AuthenticatedMeComponentsExploreIndexRoute:
+    AuthenticatedMeComponentsExploreIndexRoute,
+  AuthenticatedMeComponentsExploreRepositoryIndexRoute:
+    AuthenticatedMeComponentsExploreRepositoryIndexRoute,
 }
 
 const AuthenticatedMeRouteWithChildren = AuthenticatedMeRoute._addFileChildren(

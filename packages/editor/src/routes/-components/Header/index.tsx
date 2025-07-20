@@ -16,7 +16,7 @@ const StyledHeader = styled.header`
 `;
 
 const Container = styled.div`
-  max-width: var(--breakpoint-xl);
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-4);
   display: flex;
@@ -107,7 +107,7 @@ const MobileMenu = styled.div`
 `;
 
 const MobileMenuContainer = styled.div`
-  max-width: var(--breakpoint-xl);
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-4);
 `;

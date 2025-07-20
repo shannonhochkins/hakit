@@ -88,15 +88,13 @@ export const repositoriesTable = pgTable(
     description: text('description'),
     // Repository author/organization from GitHub
     author: varchar('author', { length: 100 }).notNull(),
-    // Repository status
-    deprecated: jsonb('deprecated').notNull().default(false),
     // Repository visibility
     isPublic: jsonb('is_public').notNull().default(true),
     // Repository metadata
     lastUpdated: timestamp('last_updated'),
     // Computed/cached fields for search performance
     totalDownloads: integer('total_downloads').notNull().default(0),
-    latestVersion: varchar('latest_version', { length: 50 }),
+    latestVersion: varchar('latest_version', { length: 50 }).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -109,8 +107,6 @@ export const repositoriesTable = pgTable(
     index('repositories_author_idx').on(table.author),
     // Index for public repositories (for browsing/discovery)
     index('repositories_public_idx').on(table.isPublic),
-    // Index for non-deprecated repositories
-    index('repositories_active_idx').on(table.deprecated),
     // Index for recently updated repositories
     index('repositories_updated_idx').on(table.lastUpdated),
     // Index for search by popularity
@@ -141,8 +137,8 @@ export const repositoryVersionsTable = pgTable(
     // URL to the manifest.json file in the cloud (CDN, S3, etc.) - REQUIRED
     manifestUrl: varchar('manifest_url', { length: 500 }).notNull(),
     // Version metadata
-    releaseNotes: text('release_notes'),
-    isPrerelease: jsonb('is_prerelease').notNull().default(false),
+    releaseNotesUrl: varchar('release_notes_url', { length: 500 }),
+    isBeta: jsonb('is_beta').notNull().default(false),
     downloadCount: integer('download_count').notNull().default(0),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
@@ -155,10 +151,10 @@ export const repositoryVersionsTable = pgTable(
     index('repo_versions_created_at_idx').on(table.createdAt),
     // Index for popular versions (by download count)
     index('repo_versions_downloads_idx').on(table.downloadCount),
-    // Index for release versions (excluding prereleases)
-    index('repo_versions_stable_idx').on(table.repositoryId, table.isPrerelease),
+    // Index for release versions (excluding betas)
+    index('repo_versions_stable_idx').on(table.repositoryId, table.isBeta),
     // Composite index for finding latest stable version per repo
-    index('repo_versions_latest_stable_idx').on(table.repositoryId, table.isPrerelease, table.createdAt),
+    index('repo_versions_latest_stable_idx').on(table.repositoryId, table.isBeta, table.createdAt),
   ]
 );
 

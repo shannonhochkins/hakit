@@ -23,7 +23,6 @@ import { DashboardForm } from '../../../../dashboard/$dashboardPath/$pagePath/ed
 import { PageForm } from '../../../../dashboard/$dashboardPath/$pagePath/edit/-components/PageForm';
 import { Confirm } from '@lib/components/Modal/confirm';
 import { Column, Row } from '@hakit/components';
-import { toReadableDate } from '@lib/helpers/date';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Tooltip } from '@lib/components/Tooltip';
@@ -44,6 +43,7 @@ import { Fab } from '@lib/components/Button';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
 import { IconButton } from '@lib/components/Button/IconButton';
+import { timeAgo } from '@hakit/core';
 
 // Table column configuration
 const TABLE_COLUMNS = {
@@ -74,7 +74,7 @@ const PageHeader = styled.div`
   flex-direction: column;
   gap: var(--space-4);
 
-  @media (min-width: var(--breakpoint-md)) {
+  .mq-md & {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -880,8 +880,8 @@ export function Dashboards() {
                                 <PagePathText>{page.path}</PagePathText>
                               </StyledTableCell>
                               <StyledTableCell hiddenBelow='lg'>
-                                <Tooltip title={`Updated on ${toReadableDate(page.updatedAt, true)}`}>
-                                  <DateText>{toReadableDate(page.createdAt)}</DateText>
+                                <Tooltip title={`Updated ${timeAgo(new Date(page.updatedAt))}`}>
+                                  <DateText>{timeAgo(new Date(page.createdAt))}</DateText>
                                 </Tooltip>
                               </StyledTableCell>
                               <StyledTableCell>
@@ -954,8 +954,8 @@ export function Dashboards() {
                     <PathText>{dashboard.path}</PathText>
                   </StyledTableCell>
                   <StyledTableCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg'>
-                    <Tooltip title={`Updated on ${toReadableDate(dashboard.updatedAt, true)}`}>
-                      <DateText>{toReadableDate(dashboard.createdAt)}</DateText>
+                    <Tooltip title={`Updated on ${timeAgo(new Date(dashboard.updatedAt))}`}>
+                      <DateText>{timeAgo(new Date(dashboard.createdAt))}</DateText>
                     </Tooltip>
                   </StyledTableCell>
                   <StyledTableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>

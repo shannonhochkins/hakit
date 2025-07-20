@@ -243,7 +243,6 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
             description,
             author: typeof author === 'string' ? author : author?.name || owner,
             githubUrl: repositoryUrl,
-            deprecated: false,
             isPublic: true,
             totalDownloads: 0,
             latestVersion: version,
@@ -288,6 +287,16 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         status: 'success',
       });
 
+      // Find release notes URL
+      const releaseNotesUrl = await findReleaseNotesUrl(owner, cleanRepoName, version);
+
+      if (releaseNotesUrl) {
+        await writeSSEMessage(stream, {
+          message: `Found release notes: ${releaseNotesUrl}`,
+          status: 'success',
+        });
+      }
+
       const [newVersion] = await db
         .insert(repositoryVersionsTable)
         .values({
@@ -296,8 +305,8 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
           version,
           components: componentNames.map(name => ({ name })),
           manifestUrl: uploadResult.manifestUrl,
-          releaseNotes: null,
-          isPrerelease: false,
+          releaseNotesUrl,
+          isBeta: false,
           downloadCount: 0,
         })
         .returning();
@@ -392,6 +401,41 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
     }
   });
 });
+
+// Helper function to find release notes URL
+async function findReleaseNotesUrl(owner: string, repo: string, version: string): Promise<string | null> {
+  // First, try to find a GitHub release matching the version
+  try {
+    const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/v${version}`;
+    const response = await fetchFromUrl(releaseUrl);
+    const release = JSON.parse(response);
+
+    if (release.html_url) {
+      return release.html_url;
+    }
+  } catch {
+    // Release not found, continue to check for markdown files
+    console.log(`No GitHub release found for version ${version}, checking for markdown files...`);
+  }
+
+  // If no release found, look for common release notes files
+  const releaseNotesFiles = ['RELEASE_NOTES.md', 'CHANGELOG.md', 'RELEASES.md', 'HISTORY.md', 'CHANGES.md'];
+
+  for (const filename of releaseNotesFiles) {
+    try {
+      const fileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${filename}`;
+      // Just check if the file exists (we don't need the content)
+      await fetchFromUrl(fileUrl);
+      // If we reach here, the file exists
+      return `https://github.com/${owner}/${repo}/blob/main/${filename}`;
+    } catch {
+      // File doesn't exist, continue to next
+      continue;
+    }
+  }
+
+  return null;
+}
 
 // Helper function to fetch text content from URL
 async function fetchFromUrl(url: string): Promise<string> {

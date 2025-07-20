@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { ButtonHTMLAttributes } from 'react';
-import { focusRing } from '@lib/styles/utils';
 import { Tooltip, TooltipProps } from '@lib/components/Tooltip';
 
 // Props interface for the FAB
@@ -229,7 +228,10 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
   }
 
   /* Focus state */
-  ${focusRing}
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-primary-focus);
+  }
 
   /* Active state */
   &:active:not(:disabled) {
