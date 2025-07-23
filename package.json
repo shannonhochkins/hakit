@@ -70,6 +70,7 @@
     "@hakit/core": "^5.1.1-canary.0",
     "@hono/zod-validator": "^0.4.3",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
+    "@octokit/rest": "^22.0.0",
     "@supabase/supabase-js": "^2.49.3",
     "deep-copy-ts": "^0.5.4",
     "deep-equal": "^2.2.3",

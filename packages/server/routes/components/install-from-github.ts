@@ -10,6 +10,10 @@ import { streamSSE, type SSEStreamingApi } from 'hono/streaming';
 import * as https from 'https';
 import { validateRepositoryZipFromBuffer } from './validate-zip';
 import { uploadRepositoryZipContents } from '../../helpers/upload';
+import { Octokit } from '@octokit/rest';
+
+// Create Octokit instance (no auth needed for public repos)
+const octokit = new Octokit();
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
 
@@ -75,7 +79,13 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         status: 'success',
       });
 
-      const defaultBranch = await getDefaultBranch(owner, cleanRepoName);
+      const repoInfo = await getDefaultBranch(owner, cleanRepoName);
+      const { defaultBranch, isPrivate } = repoInfo;
+
+      // Check if repository is private
+      if (isPrivate) {
+        throw new Error(`Repository ${owner}/${cleanRepoName} is private and cannot be installed`);
+      }
 
       await writeSSEMessage(stream, {
         message: `Using branch: ${defaultBranch}`,
@@ -465,17 +475,33 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
   });
 });
 
-// Helper function to get the default branch of a repository
-async function getDefaultBranch(owner: string, repo: string): Promise<string> {
+// Helper function to get the default branch of a repository and check if it's private
+async function getDefaultBranch(owner: string, repo: string): Promise<{ defaultBranch: string; isPrivate: boolean }> {
   try {
-    const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
-    const response = await fetchFromUrl(repoUrl);
-    const repoData = JSON.parse(response);
+    const response = await octokit.rest.repos.get({
+      owner,
+      repo,
+    });
 
-    return repoData.default_branch || 'main'; // fallback to 'main' if not found
+    const { default_branch, private: isPrivate } = response.data;
+    
+    return {
+      defaultBranch: default_branch || 'main',
+      isPrivate: Boolean(isPrivate),
+    };
   } catch (error) {
-    console.warn(`Failed to fetch default branch for ${owner}/${repo}, using 'main' as fallback:`, error);
-    return 'main'; // fallback to 'main' if API call fails
+    console.warn(`Failed to fetch repository info for ${owner}/${repo}:`, error);
+    
+    // If we can't access the repo (likely private or doesn't exist), throw an error
+    if (error instanceof Error && error.message.includes('404')) {
+      throw new Error(`Repository ${owner}/${repo} not found or is private`);
+    }
+    
+    // For other errors, return defaults with assumption it might be private
+    return {
+      defaultBranch: 'main',
+      isPrivate: true, // Assume private if we can't determine
+    };
   }
 }
 
@@ -483,13 +509,14 @@ async function getDefaultBranch(owner: string, repo: string): Promise<string> {
 async function findReleaseNotesUrl(owner: string, repo: string, version: string, defaultBranch: string = 'main'): Promise<string | null> {
   // First, try to find a GitHub release matching the version
   try {
-    const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/v${version}`;
+    const response = await octokit.rest.repos.getReleaseByTag({
+      owner,
+      repo,
+      tag: `v${version}`,
+    });
 
-    const response = await fetchFromUrl(releaseUrl);
-    const release = JSON.parse(response);
-
-    if (release.html_url) {
-      return release.html_url;
+    if (response.data.html_url) {
+      return response.data.html_url;
     }
   } catch (error) {
     // Log the specific error for debugging
@@ -502,9 +529,12 @@ async function findReleaseNotesUrl(owner: string, repo: string, version: string,
 
   for (const filename of releaseNotesFiles) {
     try {
-      const fileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${filename}`;
-      // Just check if the file exists (we don't need the content)
-      await fetchFromUrl(fileUrl);
+      await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: filename,
+        ref: defaultBranch,
+      });
       // If we reach here, the file exists
       return `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${filename}`;
     } catch {

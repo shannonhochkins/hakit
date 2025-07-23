@@ -30,6 +30,10 @@ import {
 } from '@lib/api/components';
 import { formatNumber } from '@lib/helpers/number';
 import { timeAgo } from '@hakit/core';
+import { Octokit } from '@octokit/rest';
+
+// Create Octokit instance (no auth needed for public repos)
+const octokit = new Octokit();
 
 export const Route = createFileRoute('/_authenticated/me/components/explore/$repository/')({
   component: RouteComponent,
@@ -297,21 +301,30 @@ async function fetchGitHubStats(githubUrl: string) {
     const [, owner, repo] = match;
     const cleanRepo = repo.replace(/\.git$/, '');
 
+    // Use Octokit to fetch repository data and issues
     const [repoResponse, issuesResponse] = await Promise.all([
-      fetch(`https://api.github.com/repos/${owner}/${cleanRepo}`),
-      fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/issues?state=open&per_page=1`),
+      octokit.rest.repos.get({
+        owner,
+        repo: cleanRepo,
+      }),
+      octokit.rest.issues.listForRepo({
+        owner,
+        repo: cleanRepo,
+        state: 'open',
+        per_page: 1,
+      }),
     ]);
 
-    const repoData = await repoResponse.json();
-    const issuesData = await issuesResponse.headers.get('link');
+    const repoData = repoResponse.data;
 
-    // Parse issue count from Link header
+    // Get total issue count from headers if available
     let openIssues = 0;
-    if (issuesData) {
-      const lastPageMatch = issuesData.match(/page=(\d+)[^>]*>;\s*rel="last"/);
-      openIssues = lastPageMatch ? parseInt(lastPageMatch[1]) : (await issuesResponse.json()).length;
+    const linkHeader = issuesResponse.headers.link;
+    if (linkHeader) {
+      const lastPageMatch = linkHeader.match(/page=(\d+)[^>]*>;\s*rel="last"/);
+      openIssues = lastPageMatch ? parseInt(lastPageMatch[1]) : issuesResponse.data.length;
     } else {
-      openIssues = (await issuesResponse.json()).length;
+      openIssues = issuesResponse.data.length;
     }
 
     return {
@@ -339,11 +352,14 @@ async function fetchReadme(githubUrl: string) {
     const [, owner, repo] = match;
     const cleanRepo = repo.replace(/\.git$/, '');
 
-    const response = await fetch(`https://api.github.com/repos/${owner}/${cleanRepo}/readme`);
-    const data = await response.json();
+    const response = await octokit.rest.repos.getReadme({
+      owner,
+      repo: cleanRepo,
+    });
 
-    if (data.content) {
-      return atob(data.content);
+    if (response.data.content) {
+      // Decode base64 content
+      return atob(response.data.content);
     }
 
     throw new Error('No README found');

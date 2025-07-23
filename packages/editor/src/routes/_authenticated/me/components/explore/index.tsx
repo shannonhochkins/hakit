@@ -13,6 +13,7 @@ import { searchRepositoriesQueryOptions, popularRepositoriesQueryOptions } from 
 import { RepositoryWithLatestVersionAPI } from '@typings/db';
 import { RepositoryListItem } from '../-components/RepositoryListItem';
 import { RepositoryInstallButton } from '../-components/RepositoryInstallButton';
+import { EmptyState } from '../../-components/EmptyState';
 
 export const Route = createFileRoute('/_authenticated/me/components/explore/')({
   component: RouteComponent,
@@ -68,12 +69,6 @@ const SearchAndFilter = styled.div`
 
 const RepositoryList = styled(Column)`
   gap: var(--space-3);
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: var(--space-12) var(--space-4);
-  color: var(--color-text-muted);
 `;
 
 const LoadingState = styled.div`
@@ -154,25 +149,24 @@ function RouteComponent() {
         ) : error ? (
           <ErrorState>Failed to load repositories: {error.message}</ErrorState>
         ) : repositories.length === 0 ? (
-          <EmptyState>
-            {isSearching ? (
-              <>
-                <PackageIcon size={48} style={{ margin: '0 auto var(--space-4)' }} />
-                <div>No repositories found matching &ldquo;{searchQuery}&rdquo;</div>
-                <div style={{ fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
-                  Try different search terms or add a custom repository
-                </div>
-              </>
-            ) : (
-              <>
-                <PackageIcon size={48} style={{ margin: '0 auto var(--space-4)' }} />
-                <div>No popular repositories found</div>
-                <div style={{ fontSize: 'var(--font-size-sm)', marginTop: 'var(--space-2)' }}>
-                  Try searching for specific components instead
-                </div>
-              </>
-            )}
-          </EmptyState>
+          isSearching ? (
+            <EmptyState
+              icon={<PackageIcon size={48} />}
+              title={`No repositories found matching "${searchQuery}"`}
+              description='Try different search terms or add a custom repository'
+            />
+          ) : (
+            <EmptyState
+              icon={<PackageIcon size={48} />}
+              title={`No repositories found`}
+              description='Install an addon from github'
+              actions={
+                <PrimaryButton startIcon={<PlusIcon size={16} />} onClick={handleOnInstall} aria-label='Install Addon'>
+                  Install Addon
+                </PrimaryButton>
+              }
+            />
+          )
         ) : (
           repositories.map((repo: RepositoryWithLatestVersionAPI) => (
             <RepositoryListItem

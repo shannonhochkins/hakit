@@ -7,7 +7,6 @@ import { RepositoryListItem } from './RepositoryListItem';
 import { Row } from '@hakit/components';
 import { InputField } from '@lib/components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
-import { EmptyState } from '../../-components/EmptyState';
 import { Confirm } from '@lib/components/Modal/confirm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus, UserRepositoryWithDetails } from '@lib/api/components';
@@ -15,6 +14,7 @@ import { SwitchField } from '@lib/components/Form/Fields/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@lib/components/Table';
 import { SecondaryButton } from '@lib/components/Button';
 import { RepositoryInstallButton } from './RepositoryInstallButton';
+import { EmptyState } from '../../-components/EmptyState';
 
 interface Component {
   id: string;
