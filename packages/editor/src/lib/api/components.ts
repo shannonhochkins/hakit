@@ -37,6 +37,20 @@ export async function getRepository(repositoryId: string, toastMessage?: ToastMe
   return response.repository;
 }
 
+export async function getRepositoryVersion(
+  repositoryId: string,
+  version: string,
+  toastMessage?: ToastMessages
+): Promise<RepositoryVersionAPI> {
+  const response = await callApi(
+    api.components.repositories[':id'].versions[':version'].$get({
+      param: { id: repositoryId, version },
+    }),
+    toastMessage
+  );
+  return response.version;
+}
+
 export async function getRepositoryVersions(repositoryId: string, toastMessage?: ToastMessages): Promise<RepositoryVersionAPI[]> {
   const response = await callApi(
     api.components.repositories[':id'].versions.$get({
@@ -245,6 +259,13 @@ export const repositoryQueryOptions = (repositoryId: string) =>
   queryOptions({
     queryKey: ['repository', repositoryId],
     queryFn: () => getRepository(repositoryId),
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const repositoryVersionQueryOptions = (repositoryId: string, version: string) =>
+  queryOptions({
+    queryKey: ['repository-version', repositoryId, version],
+    queryFn: () => getRepositoryVersion(repositoryId, version),
     staleTime: 5 * 60 * 1000,
   });
 

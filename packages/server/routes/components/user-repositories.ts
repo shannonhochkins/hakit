@@ -234,6 +234,15 @@ const userRepositoriesRoute = new Hono()
           })
           .where(eq(repositoryVersionsTable.id, versionId));
 
+        // Increment total downloads for the repository
+        await db
+          .update(repositoriesTable)
+          .set({
+            totalDownloads: sql`${repositoriesTable.totalDownloads} + 1`,
+            lastUpdated: new Date(),
+          })
+          .where(eq(repositoriesTable.id, existingConnection.repositoryId));
+
         return c.json(updatedUserRepo, 200);
       } catch (error) {
         return c.json(formatErrorResponse('Error updating repository version', error), 400);

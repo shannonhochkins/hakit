@@ -2,16 +2,19 @@ import { useNavigate } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { PrimaryButton } from '@lib/components/Button/Primary';
-import { DownloadCloudIcon, SearchIcon, PackageIcon } from 'lucide-react';
-import { RepositoryComponentList } from './RepositoryComponentList';
+import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
+import { RepositoryListItem } from './RepositoryListItem';
 import { Row } from '@hakit/components';
 import { InputField } from '@lib/components/Form/Fields/Input';
-import { InputAdornment } from '@mui/material';
+import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { EmptyState } from '../../-components/EmptyState';
 import { Confirm } from '@lib/components/Modal/confirm';
-import { useQuery } from '@tanstack/react-query';
-import { userRepositoriesQueryOptions, disconnectRepository } from '@lib/api/components';
-// import { CustomRepoModal } from './CustomRepoModal';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus, UserRepositoryWithDetails } from '@lib/api/components';
+import { SwitchField } from '@lib/components/Form/Fields/Switch';
+import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@lib/components/Table';
+import { SecondaryButton } from '@lib/components/Button';
+import { RepositoryInstallButton } from './RepositoryInstallButton';
 
 interface Component {
   id: string;
@@ -76,17 +79,117 @@ const RepositoriesContainer = styled.div`
   gap: var(--space-6);
 `;
 
+const ComponentInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+`;
+
+const ComponentIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+`;
+
+const ComponentName = styled.span`
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+`;
+
+const StatusContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+`;
+
+const StatusText = styled.span`
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+`;
+
 export function ComponentsManager() {
   const navigate = useNavigate();
-  // const [showCustomRepoModal, setShowCustomRepoModal] = useState(false);
+  const queryClient = useQueryClient();
 
   const userRepositoriesQuery = useQuery(userRepositoriesQueryOptions);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedRepos, setExpandedRepos] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingUserRepositoryId, setDeletingUserRepositoryId] = useState<string | null>(null);
+  const [togglingComponents, setTogglingComponents] = useState<Set<string>>(new Set());
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeRepoId, setActiveRepoId] = useState<string | null>(null);
 
   const userRepositories = useMemo(() => userRepositoriesQuery.data ?? [], [userRepositoriesQuery.data]);
+
+  // Mutations
+  const toggleComponentMutation = useMutation({
+    mutationFn: ({ userRepositoryId, componentName }: { userRepositoryId: string; componentName: string }) =>
+      toggleComponentStatus(userRepositoryId, componentName),
+    onMutate: async ({ userRepositoryId, componentName }) => {
+      setTogglingComponents(prev => new Set(prev).add(`${userRepositoryId}-${componentName}`));
+
+      await queryClient.cancelQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+      const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
+
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+        if (!old) return old;
+
+        return old.map(repo => {
+          if (repo.id === userRepositoryId) {
+            return {
+              ...repo,
+              version: {
+                ...repo.version,
+                components: repo.version.components.map(comp => {
+                  if (comp.name === componentName) {
+                    return { ...comp, enabled: !comp.enabled };
+                  }
+                  return comp;
+                }),
+              },
+            };
+          }
+          return repo;
+        });
+      });
+
+      return { previousData };
+    },
+    onSuccess: (_, { userRepositoryId, componentName }) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(`${userRepositoryId}-${componentName}`);
+        return newSet;
+      });
+    },
+    onError: (_, { userRepositoryId, componentName }, context) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(`${userRepositoryId}-${componentName}`);
+        return newSet;
+      });
+
+      if (context?.previousData) {
+        queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, context.previousData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
+  });
+
+  const disconnectRepositoryMutation = useMutation({
+    mutationFn: (userRepositoryId: string) => disconnectRepository(userRepositoryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
+  });
 
   // Create a stable list of components for search and rendering
   const components: Component[] = useMemo(() => {
@@ -142,15 +245,36 @@ export function ComponentsManager() {
 
   const { repositories: filteredRepositories, hasMatches } = filteredData;
 
-  const toggleRepo = (repoId: string) => {
-    setExpandedRepos(prev => (prev.includes(repoId) ? prev.filter(id => id !== repoId) : [...prev, repoId]));
+  // Helper functions
+  const handleToggleComponent = (userRepositoryId: string, componentName: string) => {
+    toggleComponentMutation.mutate({ userRepositoryId, componentName });
+  };
+
+  const isTogglingComponent = (userRepositoryId: string, componentName: string) => {
+    return togglingComponents.has(`${userRepositoryId}-${componentName}`);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setActiveRepoId(null);
+  };
+
+  const handleRemove = (userRepositoryId: string) => {
+    setDeleteConfirmOpen(true);
+    setDeletingUserRepositoryId(userRepositoryId);
+  };
+
+  const handleRemoveClick = () => {
+    if (activeRepoId) {
+      handleMenuClose();
+      handleRemove(activeRepoId);
+    }
   };
 
   const confirmDelete = async () => {
     if (deletingUserRepositoryId) {
       try {
-        await disconnectRepository(deletingUserRepositoryId);
-        // Refresh the query to update the UI
+        await disconnectRepositoryMutation.mutateAsync(deletingUserRepositoryId);
         userRepositoriesQuery.refetch();
       } catch (error) {
         console.error('Failed to disconnect repository:', error);
@@ -236,19 +360,110 @@ export function ComponentsManager() {
           />
         ) : (
           filteredRepositories.map(repo => {
-            const isExpanded = expandedRepos.includes(repo.id);
+            const repository = repo.version;
+
+            const components = searchQuery
+              ? repository.components.filter(component => component.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              : repository.components;
 
             return (
-              <RepositoryComponentList
+              <RepositoryListItem
                 key={repo.id}
-                repositoryWithDetails={repo}
-                isExpanded={isExpanded}
-                onToggleExpand={() => toggleRepo(repo.id)}
-              />
+                repository={repo}
+                defaultExpanded
+                actions={
+                  <Row gap='var(--space-2)'>
+                    <SecondaryButton
+                      size='sm'
+                      startIcon={<EyeIcon size={14} />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        navigate({ to: '/me/components/explore/$repository', params: { repository: repo.repository.id } });
+                      }}
+                      aria-label={`View details for ${repo.repository?.name}`}
+                    >
+                      View Details
+                    </SecondaryButton>
+                    <RepositoryInstallButton repository={repo} />
+                  </Row>
+                }
+              >
+                {components.length > 0 && (
+                  <TableContainer
+                    style={{
+                      borderRadius: 'none',
+                      border: 'none',
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableHeaderCell>Component</TableHeaderCell>
+                          <TableHeaderCell hiddenBelow='md'>Version</TableHeaderCell>
+                          <TableHeaderCell>Status</TableHeaderCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {components.map((component, index) => {
+                          const isToggling = isTogglingComponent(repo.id, component.name);
+
+                          return (
+                            <TableRow key={`${component.name}-${index}`}>
+                              <TableCell>
+                                <ComponentInfo>
+                                  <ComponentIcon>
+                                    <PackageIcon size={16} />
+                                  </ComponentIcon>
+                                  <ComponentName>{component.name}</ComponentName>
+                                </ComponentInfo>
+                              </TableCell>
+                              <TableCell hiddenBelow='md'>
+                                <span>{repository.version}</span>
+                              </TableCell>
+                              <TableCell>
+                                <StatusContainer>
+                                  <SwitchField
+                                    checked={component.enabled ?? true}
+                                    onChange={() => handleToggleComponent(repo.id, component.name)}
+                                    disabled={isToggling}
+                                    label=''
+                                  />
+                                  <StatusText>
+                                    {isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}
+                                  </StatusText>
+                                </StatusContainer>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </RepositoryListItem>
             );
           })
         )}
       </RepositoriesContainer>
+
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={handleRemoveClick} style={{ color: 'var(--color-error-500)' }}>
+          <TrashIcon size={16} style={{ marginRight: 8 }} />
+          Remove Repository
+        </MenuItem>
+      </Menu>
 
       <Confirm open={deleteConfirmOpen} title='Remove Repository' onConfirm={confirmDelete} onCancel={cancelDelete}>
         <p>
@@ -259,23 +474,3 @@ export function ComponentsManager() {
     </Container>
   );
 }
-
-// export function ComponentsManager() {
-//   const navigate = useNavigate();
-//   const [showCustomRepoModal, setShowCustomRepoModal] = useState(false);
-
-//   return (
-//     <>
-//       <InstalledComponentsDashboard
-//         onExploreComponents={() => navigate({ to: '/me/components/explore' })}
-//       />
-
-//       <CustomRepoModal
-//         isOpen={showCustomRepoModal}
-//         onClose={() => {
-//           setShowCustomRepoModal(false);
-//         }}
-//       />
-//     </>
-//   );
-// }

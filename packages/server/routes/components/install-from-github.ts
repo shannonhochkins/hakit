@@ -69,19 +69,32 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
         status: 'success',
       });
 
-      // Fetch package.json from main branch
+      // Get the default branch for this repository
       await writeSSEMessage(stream, {
-        message: 'Fetching package.json from main branch...',
+        message: 'Detecting default branch...',
+        status: 'success',
+      });
+
+      const defaultBranch = await getDefaultBranch(owner, cleanRepoName);
+
+      await writeSSEMessage(stream, {
+        message: `Using branch: ${defaultBranch}`,
+        status: 'success',
+      });
+
+      // Fetch package.json from default branch
+      await writeSSEMessage(stream, {
+        message: `Fetching package.json from ${defaultBranch} branch...`,
         status: 'success',
       });
 
       let packageJsonContent = '';
 
       try {
-        const packageJsonUrl = `https://raw.githubusercontent.com/${owner}/${cleanRepoName}/main/package.json`;
+        const packageJsonUrl = `https://raw.githubusercontent.com/${owner}/${cleanRepoName}/${defaultBranch}/package.json`;
         packageJsonContent = await fetchFromUrl(packageJsonUrl);
       } catch (e) {
-        throw new Error(`Failed to fetch package.json: ${(e as Error).message}`);
+        throw new Error(`Failed to fetch package.json from ${defaultBranch} branch: ${(e as Error).message}`);
       }
 
       let packageJson;
@@ -173,6 +186,17 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
               lastUsedAt: null,
             });
 
+            // Increment download counts
+            await db
+              .update(repositoriesTable)
+              .set({ totalDownloads: repository.totalDownloads + 1 })
+              .where(eq(repositoriesTable.id, repository.id));
+
+            await db
+              .update(repositoryVersionsTable)
+              .set({ downloadCount: repositoryVersion.downloadCount + 1 })
+              .where(eq(repositoryVersionsTable.id, repositoryVersion.id));
+
             await writeSSEMessage(stream, {
               message: 'Repository installed successfully!',
               status: 'success',
@@ -191,11 +215,28 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       let zipBuffer: Buffer;
 
       try {
-        // Try to download the zip file from versions directory
-        const zipUrl = `https://github.com/${owner}/${cleanRepoName}/raw/main/versions/v${version}.zip`;
+        // Try to download the zip file from versions directory using default branch
+        const zipUrl = `https://github.com/${owner}/${cleanRepoName}/raw/${defaultBranch}/versions/v${version}.zip`;
         zipBuffer = await downloadFile(zipUrl);
       } catch (e) {
-        throw new Error(`Failed to download zip file: ${(e as Error).message}`);
+        const error = e as Error;
+
+        // Provide more specific error messages based on common scenarios
+        if (error.message.includes('404')) {
+          throw new Error(
+            `Repository is missing v${version}.zip file in the versions/ directory. Please ensure the zip file exists at: versions/v${version}.zip`
+          );
+        } else if (error.message.includes('403')) {
+          throw new Error(
+            `Access denied when downloading v${version}.zip. The repository may be private or the file permissions are restricted.`
+          );
+        } else if (error.message.includes('500') || error.message.includes('502') || error.message.includes('503')) {
+          throw new Error(`GitHub server error when downloading v${version}.zip. Please try again later.`);
+        } else if (error.message.includes('timeout') || error.message.includes('ECONNRESET') || error.message.includes('ENOTFOUND')) {
+          throw new Error(`Network error when downloading v${version}.zip. Please check your connection and try again.`);
+        } else {
+          throw new Error(`Failed to download v${version}.zip: ${error.message}`);
+        }
       }
 
       if (zipBuffer.length > MAX_FILE_SIZE) {
@@ -244,7 +285,7 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
             author: typeof author === 'string' ? author : author?.name || owner,
             githubUrl: repositoryUrl,
             isPublic: true,
-            totalDownloads: 0,
+            totalDownloads: 0, // Start with 0, will be incremented when user connects
             latestVersion: version,
             lastUpdated: new Date(),
           })
@@ -288,7 +329,7 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
       });
 
       // Find release notes URL
-      const releaseNotesUrl = await findReleaseNotesUrl(owner, cleanRepoName, version);
+      const releaseNotesUrl = await findReleaseNotesUrl(owner, cleanRepoName, version, defaultBranch);
 
       if (releaseNotesUrl) {
         await writeSSEMessage(stream, {
@@ -307,7 +348,7 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
           manifestUrl: uploadResult.manifestUrl,
           releaseNotesUrl,
           isBeta: false,
-          downloadCount: 0,
+          downloadCount: 0, // Start with 0, will be incremented when user connects
         })
         .returning();
 
@@ -354,6 +395,17 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
           })
           .where(eq(userRepositoriesTable.id, existingUserRepo[0].id));
 
+        // Increment download counts for the new version
+        await db
+          .update(repositoriesTable)
+          .set({ totalDownloads: repository.totalDownloads + 1 })
+          .where(eq(repositoriesTable.id, repository.id));
+
+        await db
+          .update(repositoryVersionsTable)
+          .set({ downloadCount: newVersion.downloadCount + 1 })
+          .where(eq(repositoryVersionsTable.id, newVersion.id));
+
         await writeSSEMessage(stream, {
           message: 'Updated existing repository to new version!',
           status: 'success',
@@ -368,6 +420,17 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
           connectedAt: new Date(),
           lastUsedAt: null,
         });
+
+        // Increment download counts for new installation
+        await db
+          .update(repositoriesTable)
+          .set({ totalDownloads: repository.totalDownloads + 1 })
+          .where(eq(repositoriesTable.id, repository.id));
+
+        await db
+          .update(repositoryVersionsTable)
+          .set({ downloadCount: newVersion.downloadCount + 1 })
+          .where(eq(repositoryVersionsTable.id, newVersion.id));
 
         await writeSSEMessage(stream, {
           message: 'Repository connected successfully!',
@@ -402,20 +465,36 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
   });
 });
 
+// Helper function to get the default branch of a repository
+async function getDefaultBranch(owner: string, repo: string): Promise<string> {
+  try {
+    const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+    const response = await fetchFromUrl(repoUrl);
+    const repoData = JSON.parse(response);
+
+    return repoData.default_branch || 'main'; // fallback to 'main' if not found
+  } catch (error) {
+    console.warn(`Failed to fetch default branch for ${owner}/${repo}, using 'main' as fallback:`, error);
+    return 'main'; // fallback to 'main' if API call fails
+  }
+}
+
 // Helper function to find release notes URL
-async function findReleaseNotesUrl(owner: string, repo: string, version: string): Promise<string | null> {
+async function findReleaseNotesUrl(owner: string, repo: string, version: string, defaultBranch: string = 'main'): Promise<string | null> {
   // First, try to find a GitHub release matching the version
   try {
     const releaseUrl = `https://api.github.com/repos/${owner}/${repo}/releases/tags/v${version}`;
+
     const response = await fetchFromUrl(releaseUrl);
     const release = JSON.parse(response);
 
     if (release.html_url) {
       return release.html_url;
     }
-  } catch {
-    // Release not found, continue to check for markdown files
-    console.log(`No GitHub release found for version ${version}, checking for markdown files...`);
+  } catch (error) {
+    // Log the specific error for debugging
+    console.warn(`Failed to fetch GitHub release for ${owner}/${repo}/releases/tags/v${version}:`, error);
+    // Continue to check for markdown files
   }
 
   // If no release found, look for common release notes files
@@ -423,11 +502,11 @@ async function findReleaseNotesUrl(owner: string, repo: string, version: string)
 
   for (const filename of releaseNotesFiles) {
     try {
-      const fileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${filename}`;
+      const fileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${filename}`;
       // Just check if the file exists (we don't need the content)
       await fetchFromUrl(fileUrl);
       // If we reach here, the file exists
-      return `https://github.com/${owner}/${repo}/blob/main/${filename}`;
+      return `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${filename}`;
     } catch {
       // File doesn't exist, continue to next
       continue;
@@ -488,7 +567,7 @@ async function downloadFile(url: string, maxRedirects: number = 5): Promise<Buff
         }
 
         if (response.statusCode !== 200) {
-          reject(new Error(`Failed to download ${url}: ${response.statusCode}`));
+          reject(new Error(`HTTP ${response.statusCode}: Failed to download ${url}`));
           return;
         }
 

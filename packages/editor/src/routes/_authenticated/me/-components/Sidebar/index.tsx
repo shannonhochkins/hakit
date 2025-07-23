@@ -14,6 +14,7 @@ import {
   ChevronRightIcon,
   SearchIcon,
   Component,
+  PlusIcon,
 } from 'lucide-react';
 import { Row } from '@hakit/components';
 
@@ -51,6 +52,11 @@ const navigationStructure: NavGroupItem[] = [
         to: '/me/components/explore',
         icon: <SearchIcon size={16} />,
         label: 'Explore',
+      },
+      {
+        to: '/me/components/install',
+        icon: <PlusIcon size={16} />,
+        label: 'Install',
       },
     ],
   },

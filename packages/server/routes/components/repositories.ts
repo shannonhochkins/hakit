@@ -90,6 +90,48 @@ const repositoriesRoute = new Hono()
         return c.json(formatErrorResponse('Error fetching repository versions', error), 400);
       }
     }
+  )
+
+  // Get a specific version for a specific repository
+  .get(
+    '/:id/versions/:version',
+    zValidator(
+      'param',
+      z.object({
+        id: z.string(),
+        version: z.string(),
+      })
+    ),
+    async c => {
+      try {
+        const { id, version } = c.req.valid('param');
+
+        // First verify the repository exists and is public
+        const [repository] = await db
+          .select()
+          .from(repositoriesTable)
+          .where(and(eq(repositoriesTable.id, id), eq(repositoriesTable.isPublic, true)));
+
+        if (!repository) {
+          throw new Error(`Repository not found with id ${id}`);
+        }
+
+        // Get the specific version
+        const [repositoryVersion] = await db
+          .select()
+          .from(repositoryVersionsTable)
+          .where(and(eq(repositoryVersionsTable.repositoryId, id), eq(repositoryVersionsTable.version, version)))
+          .limit(1);
+
+        if (!repositoryVersion) {
+          throw new Error(`Version ${version} not found for repository ${id}`);
+        }
+
+        return c.json({ version: repositoryVersion }, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching repository version', error), 400);
+      }
+    }
   );
 
 export default repositoriesRoute;

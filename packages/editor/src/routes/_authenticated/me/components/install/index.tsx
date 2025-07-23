@@ -1,39 +1,84 @@
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+
 import { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { GitBranchIcon, CheckCircleIcon, AlertCircleIcon, ArrowRightIcon, CheckIcon, XIcon, LoaderIcon, ArrowLeftIcon } from 'lucide-react';
+import {
+  GitBranchIcon,
+  CheckCircleIcon,
+  AlertCircleIcon,
+  ArrowRightIcon,
+  CheckIcon,
+  ArrowLeftIcon,
+  PlusIcon,
+  RefreshCcwDot,
+} from 'lucide-react';
 import { PrimaryButton } from '@lib/components/Button/Primary';
-import { SecondaryButton } from '@lib/components/Button/Secondary';
 import { InputField } from '@lib/components/Form/Fields/Input';
-import { Modal, ModalActions } from '@lib/components/Modal';
 import { FieldGroup } from '@lib/components/Form/FieldWrapper/FieldGroup';
 import { FieldLabel } from '@lib/components/Form/FieldWrapper/FieldLabel';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { installRepositoryFromGithub, userRepositoriesQueryOptions } from '@lib/api/components';
-import { Column, Row } from '@hakit/components';
+import { Row } from '@hakit/components';
+import { SecondaryButton } from '@lib/components/Button';
+import { Alert } from '@lib/components/Alert';
 
-interface CustomRepoModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export const Route = createFileRoute('/_authenticated/me/components/install/')({
+  component: RouteComponent,
+});
 
 interface InstallationStatus {
-  status: 'idle' | 'installing' | 'complete' | 'error';
+  status: 'idle' | 'installing' | 'complete' | 'error' | 'already-installed';
   message: string;
   logs: Array<{ id: string; message: string; status: 'success' | 'warning' | 'error'; timestamp: Date }>;
 }
+
+// Styled Components
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+`;
+
+const PageHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  .mq-md & {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+const HeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+`;
+
+const PageTitle = styled.h1`
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+`;
+
+const PageSubtitle = styled.p`
+  color: var(--color-text-muted);
+  margin: 0;
+`;
 
 const Description = styled.p`
   width: 100%;
   font-size: var(--font-size-sm);
   text-align: left;
-  text-align: center;
   color: var(--color-text-primary);
-  margin: 0 0 var(--space-6) 0;
+  margin: 0;
   line-height: var(--line-height-relaxed);
 `;
 
 const InstallationLogContainer = styled.div`
-  margin-bottom: var(--space-6);
   width: 100%;
 `;
 
@@ -45,10 +90,10 @@ const InstallationLogTitle = styled.div`
 `;
 
 const InstallationLogScrollArea = styled.div`
-  background: #0d1117;
+  background: var(--color-surface);
   border: 1px solid #30363d;
   border-radius: var(--radius-md);
-  height: 192px; /* h-48 = 12rem = 192px */
+  height: 40vh;
   overflow-y: auto;
   padding: var(--space-2);
 `;
@@ -105,31 +150,17 @@ const InstallationLogEmpty = styled.div`
   padding: var(--space-4) 0;
 `;
 
-const ButtonContainer = styled(Row)`
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
-`;
-
-const StatusText = styled(Column)`
-  gap: var(--space-2);
-  font-size: var(--font-size-lg);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-3);
-`;
-
 const Important = styled.div`
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-3);
-  margin-top: var(--space-2);
 `;
 
 const ImportantTitle = styled.div`
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   gap: var(--space-2);
@@ -146,51 +177,6 @@ const ImportantBlock = styled.code`
   background: transparent;
 `;
 
-const StatusIcon = styled.div<{ status: InstallationStatus['status'] }>`
-  color: ${props => {
-    switch (props.status) {
-      case 'complete':
-        return 'var(--color-success-500)';
-      case 'installing':
-        return 'var(--color-primary-500)';
-      case 'error':
-        return 'var(--color-error-500)';
-      default:
-        return 'var(--color-text-muted)';
-    }
-  }};
-`;
-
-const SpinningIcon = styled.div`
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-// Helper function to get the icon for a log status
-const getStatusIcon = (status: InstallationStatus['status']) => {
-  switch (status) {
-    case 'idle':
-    case 'installing':
-      return (
-        <SpinningIcon>
-          <LoaderIcon size={48} />
-        </SpinningIcon>
-      );
-    case 'error':
-      return <XIcon size={48} />;
-    case 'complete':
-      return <CheckIcon size={48} />;
-  }
-};
-
 // Helper function to get the icon for a individual log entry
 const getLogStatusIcon = (status: 'success' | 'warning' | 'error') => {
   switch (status) {
@@ -203,14 +189,16 @@ const getLogStatusIcon = (status: 'success' | 'warning' | 'error') => {
   }
 };
 
-export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
+function RouteComponent() {
   const [url, setUrl] = useState('');
+  const [showAlert, setShowAlert] = useState(true);
   const [installationStatus, setInstallationStatus] = useState<InstallationStatus>({
     status: 'idle',
     message: '',
     logs: [],
   });
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const logsScrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when logs are updated
@@ -219,6 +207,12 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
       logsScrollAreaRef.current.scrollTop = logsScrollAreaRef.current.scrollHeight;
     }
   }, [installationStatus.logs]);
+
+  const handleToInstalledComponents = () => {
+    navigate({
+      to: '/me/components',
+    });
+  };
 
   // Mutation for installing repository from GitHub with streaming
   const installRepoMutation = useMutation({
@@ -229,12 +223,11 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
         message: 'Starting installation...',
         logs: [],
       });
+      setShowAlert(false);
 
       return installRepositoryFromGithub(repositoryUrl, progress => {
-        setInstallationStatus(prev => ({
-          ...prev,
-          message: progress.message,
-          logs: [
+        setInstallationStatus(prev => {
+          const newLogs = [
             ...prev.logs,
             {
               id: Date.now().toString() + Math.random().toString(),
@@ -242,31 +235,41 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
               status: progress.status,
               timestamp: new Date(),
             },
-          ],
-        }));
+          ];
+
+          // Check if this message indicates already installed during streaming
+          const isAlreadyInstalled = progress.message.toLowerCase().includes('already installed');
+
+          return {
+            ...prev,
+            message: progress.message,
+            logs: newLogs,
+            // If we detect "already installed" during streaming, mark it immediately
+            ...(isAlreadyInstalled && { status: 'already-installed' }),
+          };
+        });
       });
     },
     onSuccess: () => {
       // Refresh user repositories
       queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
 
-      // Mark installation as complete
-      setInstallationStatus(prev => ({
-        ...prev,
-        status: 'complete',
-        message: 'Installation completed successfully!',
-      }));
+      // Only set to complete if not already marked as already-installed during streaming
+      setInstallationStatus(prev => {
+        if (prev.status === 'already-installed') {
+          return {
+            ...prev,
+            message: 'Repository already installed',
+          };
+        }
 
-      // Auto-close after delay
-      // setTimeout(() => {
-      //   setInstallationStatus({
-      //     status: 'idle',
-      //     message: '',
-      //     logs: [],
-      //   });
-      //   setUrl('');
-      //   onClose();
-      // }, 1500);
+        return {
+          ...prev,
+          status: 'complete',
+          message: 'Installation completed successfully!',
+        };
+      });
+      setShowAlert(true);
     },
     onError: (error: Error) => {
       setInstallationStatus(prev => {
@@ -299,6 +302,7 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
           ],
         };
       });
+      setShowAlert(true);
     },
   });
 
@@ -311,10 +315,24 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
     installRepoMutation.mutate(url);
   };
 
-  const canClose = installationStatus.status === 'idle';
-
   return (
-    <Modal open={isOpen} onClose={canClose ? onClose : () => {}} title='Add Custom Repository' hideCloseButton={!canClose}>
+    <Container>
+      <PageHeader>
+        <Row fullWidth justifyContent='space-between' alignItems='center'>
+          <HeaderContent>
+            <PageTitle>{'Install Components'}</PageTitle>
+            <PageSubtitle>Install new component(s) from GitHub</PageSubtitle>
+          </HeaderContent>
+          <PrimaryButton
+            aria-label={url.trim() ? 'Install repository' : 'Provide repository URL'}
+            disabled={!url.trim()}
+            onClick={handleInstall}
+            startIcon={<PlusIcon size={16} />}
+          >
+            Install Addon
+          </PrimaryButton>
+        </Row>
+      </PageHeader>
       {installationStatus.status === 'idle' ? (
         <>
           <FieldGroup className='full-width'>
@@ -366,33 +384,9 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
               </ImportantBlock>
             </Important>
           </FieldGroup>
-
-          <ModalActions>
-            <SecondaryButton onClick={onClose} aria-label='Cancel'>
-              Cancel
-            </SecondaryButton>
-            <PrimaryButton onClick={handleInstall} disabled={!url.trim()} aria-label='Install repository'>
-              Install Repository
-            </PrimaryButton>
-          </ModalActions>
         </>
       ) : (
         <>
-          <StatusText fullWidth>
-            <StatusIcon status={installationStatus.status}>{getStatusIcon(installationStatus.status)}</StatusIcon>
-            <span>{installationStatus.message}</span>
-
-            {installationStatus.status === 'installing' && (
-              <Description>Please wait while the repository is being installed. This may take a few moments.</Description>
-            )}
-            {installationStatus.status === 'error' && (
-              <Description>An error occurred during installation. Please check the logs below for details.</Description>
-            )}
-            {installationStatus.status === 'complete' && (
-              <Description>The repository has been successfully installed. You can now use the components in your dashboard.</Description>
-            )}
-          </StatusText>
-
           <InstallationLogContainer>
             <InstallationLogTitle>Installation Log</InstallationLogTitle>
             <InstallationLogScrollArea ref={logsScrollAreaRef}>
@@ -411,12 +405,46 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
             </InstallationLogScrollArea>
           </InstallationLogContainer>
 
-          {(installationStatus.status === 'complete' || installationStatus.status === 'error') && (
-            <ButtonContainer fullWidth>
+          {showAlert && (
+            <Alert
+              title={installationStatus.message}
+              severity={
+                installationStatus.status === 'error' ? 'error' : installationStatus.status === 'already-installed' ? 'warning' : 'success'
+              }
+            >
+              {installationStatus.status === 'installing' && (
+                <Description>Please wait while the repository is being installed. This may take a few moments.</Description>
+              )}
+              {installationStatus.status === 'error' && (
+                <Description>An error occurred during installation. Please check the logs below for details.</Description>
+              )}
+              {installationStatus.status === 'complete' && (
+                <Description>The repository has been successfully installed. You can now use the components in your dashboard.</Description>
+              )}
+              {installationStatus.status === 'already-installed' && (
+                <Description>This repository is already installed with the latest version. No further action is needed.</Description>
+              )}
+            </Alert>
+          )}
+
+          {(installationStatus.status === 'complete' ||
+            installationStatus.status === 'error' ||
+            installationStatus.status === 'already-installed') && (
+            <Row fullWidth gap='var(--space-4)' justifyContent='flex-start' alignItems='flex-start'>
+              <SecondaryButton aria-label='View installed components' onClick={handleToInstalledComponents}>
+                <ArrowLeftIcon size={16} />
+                <span>My installed components</span>
+              </SecondaryButton>
               <PrimaryButton
-                variant={installationStatus.status === 'complete' ? 'success' : 'error'}
+                variant={
+                  installationStatus.status === 'complete'
+                    ? 'success'
+                    : installationStatus.status === 'already-installed'
+                      ? 'primary'
+                      : 'error'
+                }
                 onClick={() => {
-                  if (installationStatus.status === 'complete') {
+                  if (installationStatus.status === 'complete' || installationStatus.status === 'already-installed') {
                     // Reset everything and close modal
                     setInstallationStatus({
                       status: 'idle',
@@ -424,7 +452,7 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
                       logs: [],
                     });
                     setUrl('');
-                    onClose();
+                    // onClose();
                   } else {
                     // For error state, reset mutation and go back to the input
                     installRepoMutation.reset();
@@ -435,24 +463,32 @@ export function CustomRepoModal({ isOpen, onClose }: CustomRepoModalProps) {
                     });
                   }
                 }}
-                aria-label={installationStatus.status === 'complete' ? 'Done' : 'Try Again'}
+                aria-label={
+                  installationStatus.status === 'complete' || installationStatus.status === 'already-installed'
+                    ? 'Install another'
+                    : 'Try Again'
+                }
               >
-                {installationStatus.status === 'complete' ? (
+                {installationStatus.status === 'complete' || installationStatus.status === 'already-installed' ? (
                   <>
                     <CheckIcon size={16} />
-                    <span>Done</span>
+                    <span>
+                      {installationStatus.status === 'complete' || installationStatus.status === 'already-installed'
+                        ? 'Install another'
+                        : 'Try Again'}
+                    </span>
                   </>
                 ) : (
                   <>
-                    <ArrowLeftIcon size={16} />
+                    <RefreshCcwDot size={16} />
                     <span>Try Again</span>
                   </>
                 )}
               </PrimaryButton>
-            </ButtonContainer>
+            </Row>
           )}
         </>
       )}
-    </Modal>
+    </Container>
   );
 }

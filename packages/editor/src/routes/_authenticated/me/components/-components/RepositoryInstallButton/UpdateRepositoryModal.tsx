@@ -4,18 +4,18 @@ import { RefreshCwIcon, PackageIcon, ChevronRightIcon, GithubIcon } from 'lucide
 import { Modal, ModalActions } from '@lib/components/Modal';
 import { PrimaryButton } from '@lib/components/Button';
 import { SecondaryButton } from '@lib/components/Button/Secondary';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   UserRepositoryWithDetails,
   userRepositoriesQueryOptions,
   updateUserRepositoryVersion,
-  getRepositoryVersions,
+  repositoryVersionQueryOptions,
 } from '@lib/api/components';
 
 interface UpdateRepositoryModalProps {
   open: boolean;
   onClose: () => void;
-  repositoryWithDetails: UserRepositoryWithDetails;
+  repositories: UserRepositoryWithDetails;
 }
 
 const Header = styled.div`
@@ -122,6 +122,17 @@ const ReleaseNotesContent = styled.div`
   white-space: pre-wrap;
 `;
 
+const ReleaseNotesLink = styled.a`
+  color: var(--color-primary-400);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+
+  &:hover {
+    color: var(--color-primary-300);
+    text-decoration: underline;
+  }
+`;
+
 const ComponentChangesSection = styled.div`
   margin-bottom: var(--space-4);
   width: 100%;
@@ -171,26 +182,19 @@ const GitHubLink = styled.a`
   }
 `;
 
-export function UpdateRepositoryModal({ open, onClose, repositoryWithDetails }: UpdateRepositoryModalProps) {
+export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRepositoryModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const updatedRepositoryQuery = useQuery(repositoryVersionQueryOptions(repositories.repository.id, repositories.repository.latestVersion));
+  const updateRepository = updatedRepositoryQuery.data ?? null;
   const queryClient = useQueryClient();
-
-  // Fetch repository versions to get the latest version ID
-  const { data: versions } = useQuery({
-    queryKey: ['repository-versions', repositoryWithDetails.repositoryId],
-    queryFn: () => getRepositoryVersions(repositoryWithDetails.repositoryId),
-    enabled: open, // Only fetch when modal is open
-  });
-
-  // Find the latest version ID
-  const latestVersionId = versions?.find(v => v.version === repositoryWithDetails.repository.latestVersion)?.id;
 
   const updateMutation = useMutation({
     mutationFn: () => {
-      if (!latestVersionId) {
-        throw new Error('Latest version ID not found');
+      if (!updateRepository) {
+        throw new Error('Update repository data not available');
       }
-      return updateUserRepositoryVersion(repositoryWithDetails.id, latestVersionId, {
+      return updateUserRepositoryVersion(repositories.id, updateRepository.id, {
         success: 'Repository updated successfully',
         error: 'Failed to update repository',
       });
@@ -206,15 +210,21 @@ export function UpdateRepositoryModal({ open, onClose, repositoryWithDetails }: 
 
       // Optimistically update the cache
       queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
-        if (!old) return old;
+        if (!old || !updateRepository) return old;
 
         return old.map(repo => {
-          if (repo.id === repositoryWithDetails.id) {
+          if (repo.id === repositories.id) {
             return {
               ...repo,
+              versionId: updateRepository.id,
               version: {
                 ...repo.version,
-                version: repositoryWithDetails.repository.latestVersion!,
+                ...updateRepository,
+                components:
+                  updateRepository.components?.map(comp => ({
+                    name: comp.name,
+                    enabled: true, // Default to enabled for new components
+                  })) || repo.version.components,
               },
             };
           }
@@ -246,12 +256,19 @@ export function UpdateRepositoryModal({ open, onClose, repositoryWithDetails }: 
     updateMutation.mutate();
   };
 
-  // Mock release notes for now - in a real implementation, you'd fetch this from the API
-  const releaseNotes = repositoryWithDetails.version.releaseNotesUrl
-    ? `What's new in version ${repositoryWithDetails.repository.latestVersion}:
-
-${repositoryWithDetails.version.releaseNotesUrl}`
-    : 'No release notes available.';
+  // Release notes content with proper link rendering
+  const releaseNotesContent = updateRepository?.releaseNotesUrl ? (
+    <>
+      What&apos;s new in version {repositories.repository.latestVersion}:
+      <br />
+      <br />
+      <ReleaseNotesLink href={updateRepository.releaseNotesUrl} target='_blank' rel='noopener noreferrer'>
+        View Release Notes →
+      </ReleaseNotesLink>
+    </>
+  ) : (
+    'No release notes available.'
+  );
 
   return (
     <Modal open={open} onClose={onClose} title='Update Repository'>
@@ -260,11 +277,11 @@ ${repositoryWithDetails.version.releaseNotesUrl}`
           <PackageIcon size={24} />
         </RepositoryIcon>
         <RepositoryInfo>
-          <RepositoryName>{repositoryWithDetails.repository.name}</RepositoryName>
+          <RepositoryName>{repositories.repository.name}</RepositoryName>
           <RepositoryUrl>
-            <GitHubLink href={repositoryWithDetails.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+            <GitHubLink href={repositories.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
               <GithubIcon size={14} />
-              <span>{repositoryWithDetails.repository.githubUrl}</span>
+              <span>{repositories.repository.githubUrl}</span>
             </GitHubLink>
           </RepositoryUrl>
         </RepositoryInfo>
@@ -276,21 +293,21 @@ ${repositoryWithDetails.version.releaseNotesUrl}`
         </VersionUpdateHeader>
 
         <VersionComparison>
-          <VersionBadge type='current'>Current: {repositoryWithDetails.version.version}</VersionBadge>
+          <VersionBadge type='current'>Current: {repositories.version.version}</VersionBadge>
           <ChevronRightIcon size={16} color='var(--color-text-muted)' />
-          <VersionBadge type='new'>New: {repositoryWithDetails.repository.latestVersion}</VersionBadge>
+          <VersionBadge type='new'>New: {repositories.repository.latestVersion}</VersionBadge>
         </VersionComparison>
       </VersionUpdateSection>
 
       <ReleaseNotesSection>
         <ReleaseNotesTitle>Release Notes</ReleaseNotesTitle>
-        <ReleaseNotesContent>{releaseNotes}</ReleaseNotesContent>
+        <ReleaseNotesContent>{releaseNotesContent}</ReleaseNotesContent>
       </ReleaseNotesSection>
 
       <ComponentChangesSection>
-        <ComponentChangesTitle>Components ({repositoryWithDetails.version.components.length})</ComponentChangesTitle>
+        <ComponentChangesTitle>Components ({updateRepository?.components?.length})</ComponentChangesTitle>
         <ComponentList>
-          {repositoryWithDetails.version.components.map((component, index) => (
+          {updateRepository?.components?.map((component: { name: string }, index: number) => (
             <ComponentItem key={`${component.name}-${index}`}>
               <ComponentIcon>
                 <PackageIcon size={12} />
@@ -308,11 +325,11 @@ ${repositoryWithDetails.version.releaseNotesUrl}`
         <PrimaryButton
           onClick={handleUpdate}
           loading={isUpdating}
-          disabled={isUpdating || !latestVersionId}
+          disabled={isUpdating}
           startIcon={<RefreshCwIcon size={16} />}
-          aria-label={`Update to ${repositoryWithDetails.repository.latestVersion}`}
+          aria-label={`Update to ${repositories.repository.latestVersion}`}
         >
-          {isUpdating ? 'Updating...' : `Update to ${repositoryWithDetails.repository.latestVersion}`}
+          {isUpdating ? 'Updating...' : `Update to ${repositories.repository.latestVersion}`}
         </PrimaryButton>
       </ModalActions>
     </Modal>

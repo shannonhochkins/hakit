@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import ReactMarkdown from 'react-markdown';
 import { PrimaryButton, SecondaryButton } from '@lib/components/Button';
 import { Spinner } from '@lib/components/Spinner';
@@ -118,23 +118,6 @@ const MetaGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: var(--space-4);
-  margin-bottom: var(--space-6);
-
-  .mq-sm & {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .mq-md & {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .mq-lg & {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .mq-xl & {
-    grid-template-columns: repeat(5, 1fr);
-  }
 `;
 
 const MetaItem = styled(Row)`
@@ -372,7 +355,7 @@ async function fetchReadme(githubUrl: string) {
 
 function RouteComponent() {
   const { repository: repositoryId } = Route.useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   // Query for repository details
@@ -451,7 +434,7 @@ function RouteComponent() {
   }, [isInstalled, repository, userRepository]);
 
   const handleBack = () => {
-    navigate({ to: '/me/components/explore' });
+    router.history.back();
   };
 
   const handleInstallToggle = () => {
