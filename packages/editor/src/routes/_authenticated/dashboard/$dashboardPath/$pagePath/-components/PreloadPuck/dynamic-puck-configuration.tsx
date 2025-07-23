@@ -1,89 +1,140 @@
 import React from 'react';
 import { Config, DefaultComponentProps } from '@measured/puck';
-import { init, loadRemote, preloadRemote } from '@module-federation/enhanced/runtime';
+import { registerRemotes, loadRemote } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
 import { CustomConfig, type ComponentFactoryData, type CustomComponentConfig } from '@typings/puck';
 import { createComponent } from './helpers/createPuckComponent';
+import { getUserRepositories } from '@lib/api/components';
+import { MfManifest } from '@server/routes/components/validate-zip';
 
 interface ComponentModule {
-  default: CustomComponentConfig<DefaultComponentProps>;
+  config: Omit<CustomComponentConfig<DefaultComponentProps>, 'render'>;
+  Render: CustomComponentConfig<DefaultComponentProps>['render'];
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData) {
   const components: Record<string, CustomComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomConfig['root'] & { _remoteName?: string }> = [];
   const categories: NonNullable<CustomConfig['categories']> = {} as NonNullable<Config['categories']>;
+  const userRepositories = await getUserRepositories();
+  const remoteManifest = new Map<string, MfManifest>();
+  // Create a map of excluded components by repository name
+  const excludedComponents = new Map<string, Set<string>>();
 
-  const remotes: UserOptions['remotes'] = [
-    {
-      name: '@hakit/test',
-      entry: 'http://localhost:3001/mf-manifest.json',
-    },
-  ];
-
-  const host = init({
-    name: '@hakit/editor',
-    remotes: remotes,
-    shareStrategy: 'loaded-first',
+  // Process user preferences to build excluded components list
+  userRepositories.forEach(userRepo => {
+    const excludedForRepo = new Set<string>();
+    userRepo.version.components.forEach(component => {
+      if (!component.enabled) {
+        excludedForRepo.add(component.name);
+      }
+    });
+    if (excludedForRepo.size > 0) {
+      excludedComponents.set(userRepo.repository.name, excludedForRepo);
+    }
   });
 
+  // Process all remotes asynchronously and get all the manifest files content
+  const remotes: UserOptions['remotes'] = await Promise.all(
+    userRepositories.map(async userRepo => {
+      const manifestUrl = userRepo.version.manifestUrl;
+      try {
+        // Fetch the manifest to get publicPathVar and remoteEntry info
+        const manifestResponse = await fetch(manifestUrl);
+        if (!manifestResponse.ok) {
+          throw new Error(`Failed to fetch manifest: ${manifestResponse.status} ${manifestResponse.statusText}`);
+        }
+
+        const manifest = (await manifestResponse.json()) as MfManifest;
+        // Store base path for the plugin
+        remoteManifest.set(userRepo.repository.name, manifest);
+        return {
+          name: userRepo.repository.name,
+          entry: manifestUrl, // Use the actual JS entry file, not the manifest
+        };
+      } catch (error) {
+        console.error(`Failed to fetch manifest for remote ${userRepo.repository.name}:`, error);
+
+        return {
+          name: userRepo.repository.name,
+          entry: manifestUrl,
+        };
+      }
+    })
+  );
+
+  // tell the instance about all the dynamic remotes
+  // this will allow us to load the remotes dynamically at runtime
+  registerRemotes(remotes);
+
   for (const remote of remotes) {
-    await preloadRemote([
-      {
-        nameOrAlias: '@hakit/test',
-      },
-    ]);
-    const snapshot = await host.snapshotHandler.getGlobalRemoteInfo(remote);
-    if (!snapshot?.remoteSnapshot) {
-      throw new Error('No manifest information found');
+    const remoteManifestData = remoteManifest.get(remote.name);
+    if (!remoteManifestData) {
+      console.warn(`No manifest data found for remote "${remote.name}"`);
+      continue;
     }
     // type guard to ensure we have the correct type when iterating modules
-    if ('publicPath' in snapshot.remoteSnapshot) {
-      for (const module of snapshot.remoteSnapshot.modules) {
-        const component = await loadRemote<ComponentModule>(`${remote.name}/${module.moduleName}`).then(loadedModule => {
-          if (!loadedModule) {
-            throw new Error(`No "${module.moduleName}" component found`);
-          }
-          return loadedModule.default;
-        });
-        const componentFactory = await createComponent(component);
-        const componentConfig = await componentFactory(data);
-        if (componentConfig.label === 'Root') {
-          const rootConfig = componentConfig as CustomConfig['root'];
-          // add every root config to the list to render under one root
-          // this could cause conflicts in the wild depending on the nature of the root components
-          const rootConfigWithRemote = {
-            ...rootConfig,
-            _remoteName: remote.name, // track which remote this came from
-          };
-          rootConfigs.push(rootConfigWithRemote);
-        } else {
-          // it's the same reference to the same element, but just to make puck happy we'll create a new object
-          // and cast it here to the correct type
-          const customComponent = componentConfig as unknown as CustomComponentConfig<DefaultComponentProps>;
-          const componentLabel = customComponent.label;
-          if (!componentLabel) {
-            throw new Error(`Component from remote "${remote.name}" has no label`);
-          }
-          if (components[componentLabel]) {
-            console.warn(`Component "${componentLabel}" already exists`);
-            continue;
-          }
-          components[componentLabel] = {
-            ...componentConfig,
-            // @ts-expect-error - we know this doesn't exist, it's fine.
-            _remoteName: remote.name, // track which remote this came from
-          };
-          const categoryLabel = remote.name;
-          if (!categories[categoryLabel]) {
-            categories[categoryLabel] = {
-              title: categoryLabel,
-              defaultExpanded: true,
-              components: [],
-            };
-          }
-          categories[categoryLabel].components?.push(componentLabel);
+    if (!remoteManifestData.metaData.publicPath) {
+      console.warn(`Remote "${remote.name}" does not have publicPath defined in manifest metaData`);
+      continue;
+    }
+    for (const module of remoteManifestData.exposes) {
+      // Skip loading components that are disabled in user preferences
+      const excludedForRepo = excludedComponents.get(remote.name);
+      if (excludedForRepo && excludedForRepo.has(module.name)) {
+        console.log(`Skipping disabled component "${module.name}" from remote "${remote.name}"`);
+        continue;
+      }
+
+      // load the module contents from the current instance
+      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`).then(loadedModule => {
+        if (!loadedModule) {
+          throw new Error(`No "${module.name}" component found`);
         }
+        return loadedModule;
+      });
+      // create the puck definitions
+      const componentFactory = await createComponent({
+        ...component.config,
+        render: component.Render,
+      });
+      // use our component factory to convert out component structure to a puck component
+      const componentConfig = await componentFactory(data);
+      if (componentConfig.label === 'Root') {
+        const rootConfig = componentConfig as CustomConfig['root'];
+        // add every root config to the list to render under one root
+        // this could cause conflicts in the wild depending on the nature of the root components
+        const rootConfigWithRemote = {
+          ...rootConfig,
+          _remoteName: remote.name, // track which remote this came from
+        };
+        rootConfigs.push(rootConfigWithRemote);
+      } else {
+        // it's the same reference to the same element, but just to make puck happy we'll create a new object
+        // and cast it here to the correct type
+        const customComponent = componentConfig as unknown as CustomComponentConfig<DefaultComponentProps>;
+        const componentLabel = customComponent.label;
+        if (!componentLabel) {
+          throw new Error(`Component from remote "${remote.name}" has no label`);
+        }
+        if (components[componentLabel]) {
+          console.warn(`Component "${componentLabel}" already exists`);
+          continue;
+        }
+        components[componentLabel] = {
+          ...componentConfig,
+          // @ts-expect-error - we know this doesn't exist, it's fine.
+          _remoteName: remote.name, // track which remote this came from
+        };
+        const categoryLabel = remote.name;
+        if (!categories[categoryLabel]) {
+          categories[categoryLabel] = {
+            title: categoryLabel,
+            defaultExpanded: true,
+            components: [],
+          };
+        }
+        categories[categoryLabel].components?.push(componentLabel);
       }
     }
   }

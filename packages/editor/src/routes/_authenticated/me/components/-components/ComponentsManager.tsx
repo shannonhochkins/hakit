@@ -1,55 +1,28 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { PrimaryButton } from '@lib/components/Button/Primary';
-import { DownloadCloudIcon, SearchIcon, PackageIcon } from 'lucide-react';
-import { RepositoryCard } from './RepositoryCard';
-import { ExploreModal } from './ExploreModal';
-import { CustomRepoModal } from './CustomRepoModal';
+import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
+import { RepositoryListItem } from './RepositoryListItem';
 import { Row } from '@hakit/components';
 import { InputField } from '@lib/components/Form/Fields/Input';
-import { InputAdornment } from '@mui/material';
-import { EmptyState } from '../../-components/EmptyState';
+import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Confirm } from '@lib/components/Modal/confirm';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus, UserRepositoryWithDetails } from '@lib/api/components';
+import { SwitchField } from '@lib/components/Form/Fields/Switch';
+import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@lib/components/Table';
+import { SecondaryButton } from '@lib/components/Button';
+import { RepositoryInstallButton } from './RepositoryInstallButton';
+import { EmptyState } from '../../-components/EmptyState';
 
-// Types
-export interface Repository {
-  id: string;
-  name: string;
-  url: string;
-  thumbnail: string | null;
-  version: string;
-  hasUpdate: boolean;
-  description: string;
-  installCount: number;
-  lastUpdated: string;
-}
-
-export interface Component {
+interface Component {
   id: string;
   name: string;
   version: string;
   enabled: boolean;
   repoId: string;
-}
-
-export interface AvailableRepository {
-  id: string;
-  name: string;
-  url: string;
-  thumbnail: string | null;
-  description: string;
-  author: string;
-  stars: number;
-  downloads: number;
-  lastUpdated: string;
-  componentCount: number;
-  version: string;
-}
-
-export interface InstallationStatus {
-  status: 'idle' | 'downloading' | 'validating' | 'installing' | 'complete';
-  message: string;
-  progress: number;
+  userRepoId: string;
 }
 
 // Styled Components
@@ -64,7 +37,7 @@ const PageHeader = styled.div`
   flex-direction: column;
   gap: var(--space-4);
 
-  @media (min-width: var(--breakpoint-md)) {
+  .mq-md & {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -94,7 +67,7 @@ const SearchAndFilter = styled.div`
   flex-direction: column;
   gap: var(--space-4);
 
-  @media (min-width: var(--breakpoint-md)) {
+  .mq-md & {
     flex-direction: row;
     align-items: center;
   }
@@ -106,108 +79,155 @@ const RepositoriesContainer = styled.div`
   gap: var(--space-6);
 `;
 
-// Mock data
-const mockRepositories: Repository[] = [
-  {
-    id: 'repo-1',
-    name: 'HACS Default',
-    url: 'https://github.com/hacs/default',
-    thumbnail: null,
-    version: '1.32.1',
-    hasUpdate: true,
-    description: 'Default HACS repository with core integrations',
-    installCount: 45,
-    lastUpdated: '2024-12-15',
-  },
-  {
-    id: 'repo-2',
-    name: 'Mushroom Cards',
-    url: 'https://github.com/piitaya/lovelace-mushroom',
-    thumbnail: null,
-    version: '3.2.4',
-    hasUpdate: false,
-    description: 'Beautiful card collection for Lovelace',
-    installCount: 12,
-    lastUpdated: '2024-12-10',
-  },
-];
+const ComponentInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+`;
 
-const mockComponents: Component[] = [
-  { id: 'comp-1', name: 'Mushroom Person Card', version: '3.2.4', enabled: true, repoId: 'repo-2' },
-  { id: 'comp-2', name: 'Mushroom Entity Card', version: '3.2.4', enabled: true, repoId: 'repo-2' },
-  { id: 'comp-3', name: 'Mushroom Climate Card', version: '3.2.4', enabled: false, repoId: 'repo-2' },
-  { id: 'comp-4', name: 'HACS Integration', version: '1.32.1', enabled: true, repoId: 'repo-1' },
-  { id: 'comp-5', name: 'Frontend Manager', version: '1.32.1', enabled: true, repoId: 'repo-1' },
-];
+const ComponentIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+`;
 
-const mockAvailableRepositories: AvailableRepository[] = [
-  {
-    id: 'available-1',
-    name: 'Mini Graph Card',
-    url: 'https://github.com/kalkih/mini-graph-card',
-    thumbnail: null,
-    description: 'Minimalistic graph card for Home Assistant Lovelace UI',
-    author: 'kalkih',
-    stars: 2800,
-    downloads: 150000,
-    lastUpdated: '2024-12-01',
-    componentCount: 1,
-    version: '0.11.0',
-  },
-  {
-    id: 'available-2',
-    name: 'Button Card',
-    url: 'https://github.com/custom-cards/button-card',
-    thumbnail: null,
-    description: 'Customizable button card with extensive styling options',
-    author: 'RomRider',
-    stars: 1900,
-    downloads: 120000,
-    lastUpdated: '2024-11-28',
-    componentCount: 1,
-    version: '4.1.1',
-  },
-];
+const ComponentName = styled.span`
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+`;
+
+const StatusContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+`;
+
+const StatusText = styled.span`
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+`;
 
 export function ComponentsManager() {
-  const [repositories, setRepositories] = useState<Repository[]>(mockRepositories);
-  const [components, setComponents] = useState<Component[]>(mockComponents);
-  const [availableRepositories] = useState<AvailableRepository[]>(mockAvailableRepositories);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const userRepositoriesQuery = useQuery(userRepositoriesQueryOptions);
   const [searchQuery, setSearchQuery] = useState('');
-  const [exploreSearchQuery, setExploreSearchQuery] = useState('');
-  const [expandedRepos, setExpandedRepos] = useState<string[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deletingRepositoryId, setDeletingRepositoryId] = useState<string | null>(null);
-  const [showExploreModal, setShowExploreModal] = useState(false);
-  const [showCustomRepoModal, setShowCustomRepoModal] = useState(false);
-  const [customRepoUrl, setCustomRepoUrl] = useState('');
-  const [installationStatus, setInstallationStatus] = useState<InstallationStatus>({
-    status: 'idle',
-    message: '',
-    progress: 0,
+  const [deletingUserRepositoryId, setDeletingUserRepositoryId] = useState<string | null>(null);
+  const [togglingComponents, setTogglingComponents] = useState<Set<string>>(new Set());
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeRepoId, setActiveRepoId] = useState<string | null>(null);
+
+  const userRepositories = useMemo(() => userRepositoriesQuery.data ?? [], [userRepositoriesQuery.data]);
+
+  // Mutations
+  const toggleComponentMutation = useMutation({
+    mutationFn: ({ userRepositoryId, componentName }: { userRepositoryId: string; componentName: string }) =>
+      toggleComponentStatus(userRepositoryId, componentName),
+    onMutate: async ({ userRepositoryId, componentName }) => {
+      setTogglingComponents(prev => new Set(prev).add(`${userRepositoryId}-${componentName}`));
+
+      await queryClient.cancelQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+      const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
+
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+        if (!old) return old;
+
+        return old.map(repo => {
+          if (repo.id === userRepositoryId) {
+            return {
+              ...repo,
+              version: {
+                ...repo.version,
+                components: repo.version.components.map(comp => {
+                  if (comp.name === componentName) {
+                    return { ...comp, enabled: !comp.enabled };
+                  }
+                  return comp;
+                }),
+              },
+            };
+          }
+          return repo;
+        });
+      });
+
+      return { previousData };
+    },
+    onSuccess: (_, { userRepositoryId, componentName }) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(`${userRepositoryId}-${componentName}`);
+        return newSet;
+      });
+    },
+    onError: (_, { userRepositoryId, componentName }, context) => {
+      setTogglingComponents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(`${userRepositoryId}-${componentName}`);
+        return newSet;
+      });
+
+      if (context?.previousData) {
+        queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, context.previousData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
   });
 
-  // Filter components and repositories based on search
+  const disconnectRepositoryMutation = useMutation({
+    mutationFn: (userRepositoryId: string) => disconnectRepository(userRepositoryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
+    },
+  });
+
+  // Create a stable list of components for search and rendering
+  const components: Component[] = useMemo(() => {
+    return userRepositories.flatMap(
+      userRepo =>
+        userRepo.version.components?.map(component => ({
+          id: `${userRepo.id}-${component.name}`, // Use component name for stable ID
+          name: component.name,
+          version: userRepo.version.version,
+          enabled: component.enabled ?? true, // Default to true if undefined
+          repoId: userRepo.repository.id,
+          userRepoId: userRepo.id, // Add for easier lookup
+        })) || []
+    );
+  }, [userRepositories]);
+
+  // Filter repositories and components based on search
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) {
       return {
-        repositories,
+        repositories: userRepositories,
         hasMatches: true,
         matchedComponents: components,
       };
     }
 
     const query = searchQuery.toLowerCase();
-    const matchedRepositories: Repository[] = [];
+    const matchedRepositories = [];
     const matchedComponents: Component[] = [];
 
     // First find all components that match the search
     const allMatchedComponents = components.filter(component => component.name.toLowerCase().includes(query));
 
     // Then find repositories that either match by name/description or have matching components
-    for (const repo of repositories) {
-      const repoNameMatch = repo.name.toLowerCase().includes(query) || repo.description.toLowerCase().includes(query);
-      const repoComponents = allMatchedComponents.filter(c => c.repoId === repo.id);
+    for (const repo of userRepositories) {
+      const repoNameMatch =
+        repo.repository.name.toLowerCase().includes(query) || repo.repository.description?.toLowerCase().includes(query);
+      const repoComponents = allMatchedComponents.filter(c => c.repoId === repo.repository.id);
 
       if (repoNameMatch || repoComponents.length > 0) {
         matchedRepositories.push(repo);
@@ -221,125 +241,63 @@ export function ComponentsManager() {
       hasMatches: matchedRepositories.length > 0,
       matchedComponents,
     };
-  }, [repositories, components, searchQuery]);
+  }, [userRepositories, components, searchQuery]);
 
-  const { repositories: filteredRepositories, hasMatches, matchedComponents: filteredComponents } = filteredData;
+  const { repositories: filteredRepositories, hasMatches } = filteredData;
 
-  // Filter available repositories based on search
-  const filteredAvailableRepos = useMemo(() => {
-    if (!exploreSearchQuery.trim()) return availableRepositories;
-    const query = exploreSearchQuery.toLowerCase();
-    return availableRepositories.filter(
-      repo =>
-        repo.name.toLowerCase().includes(query) ||
-        repo.description.toLowerCase().includes(query) ||
-        repo.author.toLowerCase().includes(query)
-    );
-  }, [availableRepositories, exploreSearchQuery]);
-
-  const toggleRepo = (repoId: string) => {
-    setExpandedRepos(prev => (prev.includes(repoId) ? prev.filter(id => id !== repoId) : [...prev, repoId]));
+  // Helper functions
+  const handleToggleComponent = (userRepositoryId: string, componentName: string) => {
+    toggleComponentMutation.mutate({ userRepositoryId, componentName });
   };
 
-  const toggleComponent = (componentId: string) => {
-    setComponents(prev => prev.map(comp => (comp.id === componentId ? { ...comp, enabled: !comp.enabled } : comp)));
+  const isTogglingComponent = (userRepositoryId: string, componentName: string) => {
+    return togglingComponents.has(`${userRepositoryId}-${componentName}`);
   };
 
-  const removeRepository = (repoId: string) => {
-    setDeletingRepositoryId(repoId);
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setActiveRepoId(null);
+  };
+
+  const handleRemove = (userRepositoryId: string) => {
     setDeleteConfirmOpen(true);
+    setDeletingUserRepositoryId(userRepositoryId);
+  };
+
+  const handleRemoveClick = () => {
+    if (activeRepoId) {
+      handleMenuClose();
+      handleRemove(activeRepoId);
+    }
   };
 
   const confirmDelete = async () => {
-    if (deletingRepositoryId) {
-      setRepositories(prev => prev.filter(repo => repo.id !== deletingRepositoryId));
-      setComponents(prev => prev.filter(comp => comp.repoId !== deletingRepositoryId));
-      setDeleteConfirmOpen(false);
-      setDeletingRepositoryId(null);
+    if (deletingUserRepositoryId) {
+      try {
+        await disconnectRepositoryMutation.mutateAsync(deletingUserRepositoryId);
+        userRepositoriesQuery.refetch();
+      } catch (error) {
+        console.error('Failed to disconnect repository:', error);
+      } finally {
+        setDeleteConfirmOpen(false);
+        setDeletingUserRepositoryId(null);
+      }
     }
   };
 
   const cancelDelete = () => {
     setDeleteConfirmOpen(false);
-    setDeletingRepositoryId(null);
+    setDeletingUserRepositoryId(null);
   };
 
-  const updateRepository = (repoId: string) => {
-    setRepositories(prev =>
-      prev.map(repo => (repo.id === repoId ? { ...repo, hasUpdate: false, version: incrementVersion(repo.version) } : repo))
-    );
-  };
+  const deletingRepository = useMemo(() => {
+    if (!deletingUserRepositoryId) return null;
+    const userRepo = userRepositories.find(ur => ur.id === deletingUserRepositoryId);
+    return userRepo?.repository || null;
+  }, [deletingUserRepositoryId, userRepositories]);
 
-  const checkForUpdates = (repoId: string) => {
-    // TODO: Implement actual update checking logic
-    console.log('Checking for updates for repository:', repoId);
-  };
-
-  const incrementVersion = (version: string): string => {
-    const parts = version.split('.');
-    const patch = parseInt(parts[2] || '0', 10) + 1;
-    return `${parts[0]}.${parts[1]}.${patch}`;
-  };
-
-  const installRepository = (repoUrl: string) => {
-    const newRepo: Repository = {
-      id: `repo-${Date.now()}`,
-      name: `Repository ${repositories.length + 1}`,
-      url: repoUrl,
-      thumbnail: null,
-      version: '1.0.0',
-      hasUpdate: false,
-      description: 'Newly installed repository',
-      installCount: 1,
-      lastUpdated: new Date().toISOString().split('T')[0],
-    };
-    setRepositories(prev => [...prev, newRepo]);
-  };
-
-  const startCustomRepoInstallation = () => {
-    if (!customRepoUrl.trim()) return;
-
-    setInstallationStatus({
-      status: 'downloading',
-      message: 'Downloading repository metadata...',
-      progress: 10,
-    });
-
-    setTimeout(() => {
-      setInstallationStatus({
-        status: 'validating',
-        message: 'Validating repository structure...',
-        progress: 40,
-      });
-
-      setTimeout(() => {
-        setInstallationStatus({
-          status: 'installing',
-          message: 'Installing components...',
-          progress: 70,
-        });
-
-        setTimeout(() => {
-          setInstallationStatus({
-            status: 'complete',
-            message: 'Installation complete!',
-            progress: 100,
-          });
-
-          installRepository(customRepoUrl);
-
-          setTimeout(() => {
-            setInstallationStatus({
-              status: 'idle',
-              message: '',
-              progress: 0,
-            });
-            setCustomRepoUrl('');
-            setShowCustomRepoModal(false);
-          }, 1500);
-        }, 2000);
-      }, 1500);
-    }, 1500);
+  const onExploreComponents = () => {
+    navigate({ to: '/me/components/explore' });
   };
 
   return (
@@ -347,10 +305,10 @@ export function ComponentsManager() {
       <PageHeader>
         <Row fullWidth justifyContent='space-between' alignItems='center'>
           <HeaderContent>
-            <PageTitle>Components</PageTitle>
+            <PageTitle>Installed Components</PageTitle>
             <PageSubtitle>Manage your dashboard components</PageSubtitle>
           </HeaderContent>
-          <PrimaryButton aria-label='' onClick={() => setShowExploreModal(true)} startIcon={<DownloadCloudIcon size={16} />}>
+          <PrimaryButton aria-label='Explore components' onClick={onExploreComponents} startIcon={<DownloadCloudIcon size={16} />}>
             Explore Components
           </PrimaryButton>
         </Row>
@@ -358,10 +316,7 @@ export function ComponentsManager() {
 
       <SearchAndFilter>
         <InputField
-          style={{
-            width: '100%',
-            paddingTop: '0',
-          }}
+          size='medium'
           type='text'
           placeholder='Search components...'
           value={searchQuery}
@@ -381,17 +336,17 @@ export function ComponentsManager() {
       </SearchAndFilter>
 
       <RepositoriesContainer>
-        {repositories.length === 0 ? (
+        {userRepositoriesQuery.isLoading ? (
+          <div>Loading repositories...</div>
+        ) : userRepositoriesQuery.error ? (
+          <div>Error loading repositories: {userRepositoriesQuery.error.message}</div>
+        ) : userRepositories.length === 0 ? (
           <EmptyState
             icon={<PackageIcon size={48} />}
             title='No repositories installed'
             description='Install component repositories to add functionality to your dashboards'
             actions={
-              <PrimaryButton
-                startIcon={<DownloadCloudIcon size={16} />}
-                onClick={() => setShowExploreModal(true)}
-                aria-label='Explore components'
-              >
+              <PrimaryButton startIcon={<DownloadCloudIcon size={16} />} onClick={onExploreComponents} aria-label='Explore components'>
                 Explore Components
               </PrimaryButton>
             }
@@ -405,59 +360,115 @@ export function ComponentsManager() {
           />
         ) : (
           filteredRepositories.map(repo => {
-            const repoComponents = filteredComponents.filter(c => c.repoId === repo.id);
-            const isExpanded = expandedRepos.includes(repo.id);
+            const repository = repo.version;
+
+            const components = searchQuery
+              ? repository.components.filter(component => component.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              : repository.components;
 
             return (
-              <RepositoryCard
+              <RepositoryListItem
                 key={repo.id}
                 repository={repo}
-                components={repoComponents}
-                isExpanded={isExpanded}
-                onToggleExpand={() => toggleRepo(repo.id)}
-                onToggleComponent={toggleComponent}
-                onUpdate={() => updateRepository(repo.id)}
-                onRemove={() => removeRepository(repo.id)}
-                onCheckUpdates={() => checkForUpdates(repo.id)}
-                incrementVersion={incrementVersion}
-              />
+                defaultExpanded
+                actions={
+                  <Row gap='var(--space-2)'>
+                    <SecondaryButton
+                      size='sm'
+                      startIcon={<EyeIcon size={14} />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        navigate({ to: '/me/components/explore/$repository', params: { repository: repo.repository.id } });
+                      }}
+                      aria-label={`View details for ${repo.repository?.name}`}
+                    >
+                      View Details
+                    </SecondaryButton>
+                    <RepositoryInstallButton repository={repo} />
+                  </Row>
+                }
+              >
+                {components.length > 0 && (
+                  <TableContainer
+                    style={{
+                      borderRadius: 'none',
+                      border: 'none',
+                    }}
+                  >
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableHeaderCell>Component</TableHeaderCell>
+                          <TableHeaderCell hiddenBelow='md'>Version</TableHeaderCell>
+                          <TableHeaderCell>Status</TableHeaderCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {components.map((component, index) => {
+                          const isToggling = isTogglingComponent(repo.id, component.name);
+
+                          return (
+                            <TableRow key={`${component.name}-${index}`}>
+                              <TableCell>
+                                <ComponentInfo>
+                                  <ComponentIcon>
+                                    <PackageIcon size={16} />
+                                  </ComponentIcon>
+                                  <ComponentName>{component.name}</ComponentName>
+                                </ComponentInfo>
+                              </TableCell>
+                              <TableCell hiddenBelow='md'>
+                                <span>{repository.version}</span>
+                              </TableCell>
+                              <TableCell>
+                                <StatusContainer>
+                                  <SwitchField
+                                    checked={component.enabled ?? true}
+                                    onChange={() => handleToggleComponent(repo.id, component.name)}
+                                    disabled={isToggling}
+                                    label=''
+                                  />
+                                  <StatusText>
+                                    {isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}
+                                  </StatusText>
+                                </StatusContainer>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </RepositoryListItem>
             );
           })
         )}
       </RepositoriesContainer>
 
-      <ExploreModal
-        isOpen={showExploreModal}
-        onClose={() => setShowExploreModal(false)}
-        repositories={filteredAvailableRepos}
-        installedRepositories={repositories}
-        searchQuery={exploreSearchQuery}
-        onSearchChange={setExploreSearchQuery}
-        onInstall={installRepository}
-        onShowCustomRepo={() => {
-          setShowExploreModal(false);
-          setShowCustomRepoModal(true);
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
         }}
-      />
-
-      <CustomRepoModal
-        isOpen={showCustomRepoModal}
-        onClose={() => {
-          if (installationStatus.status === 'idle') {
-            setShowCustomRepoModal(false);
-            setShowExploreModal(true);
-          }
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
         }}
-        url={customRepoUrl}
-        onUrlChange={setCustomRepoUrl}
-        onInstall={startCustomRepoInstallation}
-        installationStatus={installationStatus}
-      />
+      >
+        <MenuItem onClick={handleRemoveClick} style={{ color: 'var(--color-error-500)' }}>
+          <TrashIcon size={16} style={{ marginRight: 8 }} />
+          Remove Repository
+        </MenuItem>
+      </Menu>
 
       <Confirm open={deleteConfirmOpen} title='Remove Repository' onConfirm={confirmDelete} onCancel={cancelDelete}>
         <p>
-          Are you sure you want to remove <strong>&ldquo;{repositories.find(r => r.id === deletingRepositoryId)?.name}&rdquo;</strong>? This
-          action cannot be undone and will remove all associated components.
+          Are you sure you want to remove <strong>&ldquo;{deletingRepository?.name}&rdquo;</strong>? This action cannot be undone and will
+          remove all associated components.
         </p>
       </Confirm>
     </Container>

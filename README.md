@@ -111,5 +111,3 @@ See the [LICENSE](LICENSE) file for complete terms and conditions.
 - All contributors and early adopters helping shape HAKIT
 
 ---
-
-**Ready to revolutionize your Home Assistant dashboard experience?** [Get started today!](#-quick-start)

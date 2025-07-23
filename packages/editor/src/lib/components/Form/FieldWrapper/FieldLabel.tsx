@@ -8,7 +8,7 @@ import { ReactNode } from 'react';
 const LabelContainer = styled.span`
   align-items: center;
   display: flex;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   padding: 0;
   color: var(--color-text-primary);
@@ -37,9 +37,10 @@ type FieldLabelProps = {
   readOnly?: boolean;
   endAdornment?: ReactNode;
   startAdornment?: ReactNode;
+  htmlFor: string;
 } & React.ComponentPropsWithoutRef<'span'>;
 
-export function FieldLabel({ label, description, icon = null, readOnly, startAdornment, endAdornment, ...rest }: FieldLabelProps) {
+export function FieldLabel({ label, htmlFor, description, icon = null, readOnly, startAdornment, endAdornment, ...rest }: FieldLabelProps) {
   return (
     <LabelContainer {...rest}>
       <Row fullWidth alignItems='center' justifyContent='space-between'>
@@ -47,7 +48,7 @@ export function FieldLabel({ label, description, icon = null, readOnly, startAdo
         <Tooltip title={description} placement='left'>
           <Row alignItems='center' wrap='nowrap'>
             {icon || description ? <LabelIcon>{icon || <InfoIcon size={16} />}</LabelIcon> : null}
-            {label}
+            <label htmlFor={htmlFor}>{label}</label>
             {readOnly && (
               <DisabledIcon title='Read-only'>
                 <Lock size='12' />

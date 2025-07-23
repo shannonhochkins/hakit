@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { ToastContainer } from 'react-toastify';
+import { MediaQueries } from '@lib/components/MediaQueries';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
@@ -50,6 +51,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
       <QueryClientProvider client={queryClient}>
+        <MediaQueries />
         <RouterProvider router={router} />
       </QueryClientProvider>
       <ToastContainer stacked />
@@ -226,12 +228,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             --radius-xl: 0.75rem; /* 12px */
             --radius-2xl: 1rem; /* 16px */
             --radius-full: 9999px;
-
-            /* === BREAKPOINTS === */
-            --breakpoint-sm: 640px;
-            --breakpoint-md: 768px;
-            --breakpoint-lg: 1024px;
-            --breakpoint-xl: 1200px;
 
             /* === EFFECTS === */
             --blur-sm: 4px;

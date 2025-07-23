@@ -46,6 +46,14 @@ const StyledTextField = styled(TextField)`
       font-size: var(--font-size-sm);
     }
 
+    .MuiInputAdornment-sizeMedium {
+      + input[type='text'],
+      + input[type='number'] {
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--font-size-md);
+      }
+    }
+
     fieldset {
       border-color: var(--color-border);
       transition: all var(--transition-normal);
@@ -68,12 +76,33 @@ const StyledTextField = styled(TextField)`
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     }
 
+    .MuiInputBase-input {
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus,
+      &:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px var(--color-surface) inset !important;
+        -webkit-text-fill-color: var(--color-text-primary) !important;
+        caret-color: var(--color-text-primary) !important;
+        background-color: var(--color-surface) !important;
+        color: var(--color-text-primary) !important;
+        transition: background-color 5000s ease-in-out 0s;
+      }
+      &:-internal-autofill-selected {
+        appearance: none !important;
+        background-color: var(--color-surface) !important;
+        background-image: none !important;
+        color: var(--color-text-primary) !important;
+        -webkit-text-fill-color: var(--color-text-primary) !important;
+      }
+    }
+
     &.Mui-disabled.MuiOutlinedInput-root {
       background: var(--color-surface-muted);
 
       input {
         color: var(--color-text-muted);
-        -webkit-text-fill-color: var(--color-text-muted);
+        -webkit-text-fill-color: transparent;
       }
 
       div:has(> svg) {
@@ -125,12 +154,14 @@ const StyledTextField = styled(TextField)`
 
 export const InputField = ({
   className,
+  size = 'small',
   ...props
 }: TextFieldProps & {
   readOnly?: boolean;
 }) => {
   return (
     <StyledTextField
+      size={size}
       className={`${className ?? ''} ${props.readOnly ? 'read-only' : ''}`}
       slotProps={{
         ...props.slotProps,

@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { ButtonHTMLAttributes } from 'react';
-import { focusRing } from '@lib/styles/utils';
 import { Tooltip, TooltipProps } from '@lib/components/Tooltip';
 
 // Props interface for the FAB
@@ -12,7 +11,7 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Size variant of the FAB */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Color variant of the FAB */
-  variant?: 'primary' | 'secondary' | 'transparent';
+  variant?: 'primary' | 'secondary' | 'transparent' | 'error';
   /** Whether the FAB should pulse to draw attention */
   pulse?: boolean;
   /** Custom border radius for the FAB */
@@ -100,7 +99,7 @@ const getFabPosition = (position: FabProps['position']) => {
   }
 };
 
-const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
+const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent' | 'error') => {
   if (variant === 'secondary') {
     return css`
       background: var(--color-surface-elevated);
@@ -152,6 +151,33 @@ const getFabVariant = (variant: 'primary' | 'secondary' | 'transparent') => {
       }
       &.active {
         background: rgba(255, 255, 255, 0.05);
+        color: var(--color-text-primary);
+      }
+    `;
+  }
+
+  if (variant === 'error') {
+    return css`
+      background: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+      color: var(--color-text-primary);
+      border: none;
+      box-shadow: var(--shadow-error-base), var(--shadow-lg);
+
+      &::before {
+        background: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-700) 100%);
+      }
+
+      &:hover:not(:disabled) {
+        box-shadow: var(--shadow-error-hover), var(--shadow-xl);
+      }
+
+      &:active:not(:disabled) {
+        &::before {
+          background: linear-gradient(135deg, var(--color-error-700) 0%, var(--color-error-800) 100%);
+        }
+      }
+      &.active {
+        background-color: var(--color-error-600);
         color: var(--color-text-primary);
       }
     `;
@@ -229,7 +255,10 @@ const StyledFab = styled.button<Omit<FabProps, 'icon'>>`
   }
 
   /* Focus state */
-  ${focusRing}
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-primary-focus);
+  }
 
   /* Active state */
   &:active:not(:disabled) {

@@ -24,7 +24,7 @@ const FooterContainer = styled.footer`
 `;
 
 const Container = styled.div`
-  max-width: var(--breakpoint-xl);
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-4);
   padding-top: var(--space-12);

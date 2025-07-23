@@ -1,0 +1,1 @@
+ALTER TABLE "repository_versions" DROP CONSTRAINT "valid_version";

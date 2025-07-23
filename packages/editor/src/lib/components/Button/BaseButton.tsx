@@ -295,7 +295,15 @@ export const BaseButton: React.FC<BaseButtonProps> = ({
   ...props
 }) => {
   return (
-    <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps}>
+    <Tooltip
+      title={props['aria-label'] || ''}
+      placement='top'
+      {...tooltipProps}
+      style={{
+        width: fullWidth ? '100%' : undefined,
+        height: fullHeight ? '100%' : undefined,
+      }}
+    >
       <StyledBaseButton
         size={size}
         loading={loading}

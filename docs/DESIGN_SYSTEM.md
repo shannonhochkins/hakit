@@ -93,14 +93,87 @@ This document outlines the design system and CSS variables used throughout the H
 --radius-full: 9999px /* Pills/circular */
 ```
 
-## 📱 Breakpoints
+## 📱 Responsive Breakpoints
+
+The application uses a dynamic JavaScript-based responsive system instead of CSS media queries. Responsive classes are automatically added to the `<body>` element based on the current viewport width:
+
+### Breakpoint Thresholds
+- **xs**: `< 640px` (mobile phones)
+- **sm**: `>= 640px` (small tablets)  
+- **md**: `>= 768px` (tablets)
+- **lg**: `>= 1024px` (desktop)
+- **xl**: `>= 1200px` (large desktop)
+
+### Dynamic Body Classes
 
 ```css
---breakpoint-sm: 640px   /* Small devices */
---breakpoint-md: 768px   /* Medium devices */
---breakpoint-lg: 1024px  /* Large devices */
---breakpoint-xl: 1200px  /* Extra large */
+.mq-xs   /* < 640px (mobile) */
+.mq-sm   /* >= 640px (small tablets) */
+.mq-md   /* >= 768px (tablets) */
+.mq-lg   /* >= 1024px (desktop) */
+.mq-xl   /* >= 1200px (large desktop) */
 ```
+
+**Only one class is active at any time**, automatically updated on window resize.
+
+**Usage in CSS/Emotion:**
+```css
+/* Base styles */
+.some-element {
+  grid-template-columns: 1fr;
+}
+
+/* Responsive styles using body classes */
+.mq-sm & {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.mq-md & {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.mq-lg & {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.mq-xl & {
+  grid-template-columns: repeat(5, 1fr);
+}
+```
+
+**Usage in Emotion styled components:**
+```tsx
+const ResponsiveGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  .mq-sm & {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mq-md & {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mq-lg & {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mq-xl & {
+    grid-template-columns: repeat(5, 1fr);
+  }
+`;
+```
+
+**Benefits:**
+- ✅ No hardcoded breakpoint values anywhere in the codebase
+- ✅ Centralized breakpoint management in JavaScript
+- ✅ Dynamic updates on window resize without CSS recalculation
+- ✅ Cleaner, more maintainable responsive code
+- ✅ Consistent breakpoint behavior across the entire app
+- ✅ Better performance than CSS media queries
+- ✅ Single source of truth for breakpoint logic
 
 ## 🌀 Effects
 
@@ -133,12 +206,15 @@ This document outlines the design system and CSS variables used throughout the H
 - ✅ Use semantic color names (e.g., `--color-text-primary`)
 - ✅ Follow the spacing scale for consistent layouts
 - ✅ Use the typography scale for consistent text sizing
+- ✅ Use responsive classes (`.mq-sm &`, `.mq-md &`) for breakpoints
 
 ### Don'ts
 - ❌ Don't use arbitrary color values
 - ❌ Don't use inconsistent spacing (stick to the scale)
 - ❌ Don't bypass the design system for one-off styles
 - ❌ Don't use hardcoded z-index values
+- ❌ Don't use CSS media queries (`@media`) - use responsive classes instead
+- ❌ Don't hardcode breakpoint pixel values in components
 
 ### Component Examples
 
