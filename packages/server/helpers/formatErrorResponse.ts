@@ -1,11 +1,7 @@
-
 import { z } from 'zod';
 import { fromZodError, fromZodIssue } from 'zod-validation-error';
 
-export function formatErrorResponse(
-  title: string,
-  error?: unknown,
-): { error: string; message: string } {
+export function formatErrorResponse(title: string, error?: unknown): { error: string; message: string } {
   // Handle full ZodError
   if (error instanceof z.ZodError) {
     return {
@@ -15,16 +11,9 @@ export function formatErrorResponse(
   }
 
   // Handle plain object with `issues` array
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'issues' in error &&
-    Array.isArray(error.issues)
-  ) {
+  if (typeof error === 'object' && error !== null && 'issues' in error && Array.isArray(error.issues)) {
     const issues = (error as { issues: z.ZodIssue[] }).issues;
-    const message = issues
-      .map(issue => fromZodIssue(issue).toString())
-      .join('\n');
+    const message = issues.map(issue => fromZodIssue(issue).toString()).join('\n');
     return {
       error: title,
       message,

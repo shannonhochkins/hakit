@@ -190,7 +190,6 @@ interface EntityProps {
 }
 
 export function Entity({ value, options, onChange }: EntityProps) {
-
   // Transform the entities data into the format expected by the picker
   const entities = useMemo(() => {
     return options.map(entity => ({

@@ -484,19 +484,19 @@ async function getDefaultBranch(owner: string, repo: string): Promise<{ defaultB
     });
 
     const { default_branch, private: isPrivate } = response.data;
-    
+
     return {
       defaultBranch: default_branch || 'main',
       isPrivate: Boolean(isPrivate),
     };
   } catch (error) {
     console.warn(`Failed to fetch repository info for ${owner}/${repo}:`, error);
-    
+
     // If we can't access the repo (likely private or doesn't exist), throw an error
     if (error instanceof Error && error.message.includes('404')) {
       throw new Error(`Repository ${owner}/${repo} not found or is private`);
     }
-    
+
     // For other errors, return defaults with assumption it might be private
     return {
       defaultBranch: 'main',

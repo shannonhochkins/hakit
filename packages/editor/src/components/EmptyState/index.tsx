@@ -46,13 +46,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({ 
-  icon, 
-  title, 
-  description, 
-  actions,
-  className 
-}: EmptyStateProps) {
+export function EmptyState({ icon, title, description, actions, className }: EmptyStateProps) {
   return (
     <Container className={className}>
       {icon && <IconContainer>{icon}</IconContainer>}

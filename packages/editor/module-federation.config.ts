@@ -1,5 +1,5 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
-import { dependencies } from "./package.json";
+import { dependencies } from './package.json';
 
 export default createModuleFederationConfig({
   name: 'editor',

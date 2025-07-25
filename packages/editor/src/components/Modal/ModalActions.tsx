@@ -1,4 +1,4 @@
-import { Row, type RowProps } from "@hakit/components";
+import { Row, type RowProps } from '@hakit/components';
 
 export function ModalActions({ children, ...rest }: { children: React.ReactNode } & RowProps) {
   return (
@@ -9,7 +9,7 @@ export function ModalActions({ children, ...rest }: { children: React.ReactNode 
       style={{
         marginTop: 24,
       }}
-      gap="1rem"
+      gap='1rem'
       {...rest}
     >
       {children}

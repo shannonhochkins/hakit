@@ -1,11 +1,8 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 const SIDEBAR_VARIABLE_NAME = '--sidebar-panel-width';
 
-export function useSidebarSizeChange(
-  onChange: (newValue: string) => void,
-  target: HTMLElement = document.documentElement
-) {
+export function useSidebarSizeChange(onChange: (newValue: string) => void, target: HTMLElement = document.documentElement) {
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const newVal = getComputedStyle(target).getPropertyValue(SIDEBAR_VARIABLE_NAME).trim();
@@ -14,7 +11,7 @@ export function useSidebarSizeChange(
 
     observer.observe(target, {
       attributes: true,
-      attributeFilter: ["style"],
+      attributeFilter: ['style'],
     });
 
     // Trigger once on mount

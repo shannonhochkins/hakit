@@ -8,7 +8,7 @@ export type SecondaryButtonProps = BaseButtonProps;
 const StyledSecondaryButton = styled(BaseButton)`
   /* CSS variables are already set to secondary button defaults in BaseButton */
   /* Only override if we need different values */
-  
+
   /* Secondary buttons use the default values from BaseButton:
    * --button-bg: var(--color-surface-elevated);
    * --button-bg-hover: var(--color-border-subtle);

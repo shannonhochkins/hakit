@@ -1,19 +1,16 @@
-import { useEffect, RefObject } from "react";
+import { useEffect, RefObject } from 'react';
 
 export interface ElementSize {
   width: number;
   height: number;
 }
 
-export function useElementSizeChange(
-  ref: RefObject<HTMLElement | null>,
-  onChange: (size: ElementSize) => void
-) {
+export function useElementSizeChange(ref: RefObject<HTMLElement | null>, onChange: (size: ElementSize) => void) {
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = new ResizeObserver((entries) => {
+    const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         onChange({ width, height });

@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
 
-
 const GradientText = styled.span`
   font-size: inherit;
   font-weight: var(--font-weight-bold);
@@ -23,8 +22,10 @@ interface FeatureTextProps {
 }
 
 export function FeatureText({ primary, secondary, className }: FeatureTextProps) {
-  return <>
-    {primary && <GradientText className={`${className || ''} primary`}>{primary}</GradientText>}
-    {secondary && <GradientText className={`${className || ''} secondary`}>{secondary}</GradientText>}
-  </>
+  return (
+    <>
+      {primary && <GradientText className={`${className || ''} primary`}>{primary}</GradientText>}
+      {secondary && <GradientText className={`${className || ''} secondary`}>{secondary}</GradientText>}
+    </>
+  );
 }

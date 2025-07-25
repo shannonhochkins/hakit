@@ -41,19 +41,16 @@ export const Route = createFileRoute('/_authenticated/me/settings/')({
 });
 
 function RouteComponent() {
-
   return (
     <SettingsContainer>
       <PageTitle>Settings</PageTitle>
-      
+
       <ComingSoon>
         <ComingSoonIcon>
           <SettingsIcon size={64} />
         </ComingSoonIcon>
         <ComingSoonTitle>Coming Soon</ComingSoonTitle>
-        <ComingSoonDescription>
-          User settings and preferences will be available here in a future update.
-        </ComingSoonDescription>
+        <ComingSoonDescription>User settings and preferences will be available here in a future update.</ComingSoonDescription>
       </ComingSoon>
     </SettingsContainer>
   );

@@ -30,18 +30,22 @@ const LoadingSpinner = styled.div`
   border-radius: 50%;
   animation: spin 1s linear infinite;
   z-index: 1;
-  
+
   @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
   }
 `;
 
 const SwitchContainer = styled.div<{ loading?: boolean }>`
   position: relative;
   display: inline-flex;
-  opacity: ${props => props.loading ? 0.7 : 1};
-  pointer-events: ${props => props.loading ? 'none' : 'auto'};
+  opacity: ${props => (props.loading ? 0.7 : 1)};
+  pointer-events: ${props => (props.loading ? 'none' : 'auto')};
 `;
 
 const StyledSwitchField = styled(Switch)<{ loading?: boolean }>`
@@ -49,7 +53,7 @@ const StyledSwitchField = styled(Switch)<{ loading?: boolean }>`
   .MuiSwitch-switchBase {
     transition: var(--transition-normal);
   }
-  
+
   // Unchecked state
   .MuiSwitch-thumb {
     background-color: white;
@@ -65,7 +69,7 @@ const StyledSwitchField = styled(Switch)<{ loading?: boolean }>`
   .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track {
     background-color: var(--color-border-subtle);
   }
-  
+
   // Checked states - using gradient for enabled state
   .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb {
     background-color: white;
@@ -74,7 +78,7 @@ const StyledSwitchField = styled(Switch)<{ loading?: boolean }>`
   .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
     background: var(--gradient-primary);
     transition: background var(--transition-normal);
-  }  
+  }
   .MuiSwitch-switchBase.Mui-checked.Mui-disabled + .MuiSwitch-track {
     background-color: var(--color-border-subtle);
     opacity: 0.5;
@@ -92,7 +96,9 @@ const StyledSwitchField = styled(Switch)<{ loading?: boolean }>`
   }
 
   // Loading state adjustments
-  ${props => props.loading && `
+  ${props =>
+    props.loading &&
+    `
     .MuiSwitch-thumb {
       opacity: 0.8;
     }
@@ -120,23 +126,22 @@ export const SwitchField = ({
 }) => {
   return (
     <StyledFormGroup style={style}>
-      <StyledFormControlLabel 
-        {...props} 
+      <StyledFormControlLabel
+        {...props}
         label={label}
         disabled={disabled || loading}
         control={
           <SwitchContainer loading={loading}>
-            <StyledSwitchField 
-              loading={loading} 
-              disabled={disabled || loading}
-              checked={checked}
-              onChange={onChange}
-            />
+            <StyledSwitchField loading={loading} disabled={disabled || loading} checked={checked} onChange={onChange} />
             {loading && <LoadingSpinner />}
           </SwitchContainer>
-        } 
+        }
       />
-      {helperText && <FormHelperText disabled={disabled || loading} error={error}>{helperText}</FormHelperText>}
+      {helperText && (
+        <FormHelperText disabled={disabled || loading} error={error}>
+          {helperText}
+        </FormHelperText>
+      )}
     </StyledFormGroup>
   );
 };

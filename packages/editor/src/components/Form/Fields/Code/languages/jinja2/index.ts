@@ -5,23 +5,78 @@ export const monarchTokens: languages.IMonarchLanguage = {
   tokenPostfix: '.jinja2',
 
   keywords: [
-    'and', 'as', 'block', 'endblock', 'by', 'cycle', 'debug', 'else', 'elif',
-    'extends', 'filter', 'endfilter', 'firstof', 'do', 'for',
-    'endfor', 'if', 'endif', 'ifchanged', 'endifchanged',
-    'ifequal', 'endifequal', 'ifnotequal', 'endifnotequal',
-    'set', 'raw', 'endraw', 'in', 'include', 'load', 'not', 'now', 'or',
-    'parsed', 'regroup', 'reversed', 'spaceless', 'call', 'endcall', 'macro',
-    'endmacro', 'endspaceless', 'ssi', 'templatetag', 'openblock',
-    'closeblock', 'openvariable', 'closevariable', 'without', 'context',
-    'openbrace', 'closebrace', 'opencomment', 'closecomment', 'widthratio',
-    'url', 'with', 'endwith', 'get_current_language', 'trans', 'endtrans',
-    'noop', 'blocktrans', 'endblocktrans', 'get_available_languages',
-    'get_current_language_bidi', 'pluralize', 'autoescape', 'endautoescape'
+    'and',
+    'as',
+    'block',
+    'endblock',
+    'by',
+    'cycle',
+    'debug',
+    'else',
+    'elif',
+    'extends',
+    'filter',
+    'endfilter',
+    'firstof',
+    'do',
+    'for',
+    'endfor',
+    'if',
+    'endif',
+    'ifchanged',
+    'endifchanged',
+    'ifequal',
+    'endifequal',
+    'ifnotequal',
+    'endifnotequal',
+    'set',
+    'raw',
+    'endraw',
+    'in',
+    'include',
+    'load',
+    'not',
+    'now',
+    'or',
+    'parsed',
+    'regroup',
+    'reversed',
+    'spaceless',
+    'call',
+    'endcall',
+    'macro',
+    'endmacro',
+    'endspaceless',
+    'ssi',
+    'templatetag',
+    'openblock',
+    'closeblock',
+    'openvariable',
+    'closevariable',
+    'without',
+    'context',
+    'openbrace',
+    'closebrace',
+    'opencomment',
+    'closecomment',
+    'widthratio',
+    'url',
+    'with',
+    'endwith',
+    'get_current_language',
+    'trans',
+    'endtrans',
+    'noop',
+    'blocktrans',
+    'endblocktrans',
+    'get_available_languages',
+    'get_current_language_bidi',
+    'pluralize',
+    'autoescape',
+    'endautoescape',
   ],
 
-  operators: [
-    '=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '!=', '&&', '||', '+', '-', '*', '/', '%', '**'
-  ],
+  operators: ['=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '!=', '&&', '||', '+', '-', '*', '/', '%', '**'],
 
   symbols: /[=><!~?:&|+\-*\/\^%]+/,
 
@@ -48,7 +103,7 @@ export const monarchTokens: languages.IMonarchLanguage = {
 
     comment: [
       [/#\}/, 'comment.end', '@pop'],
-      [/./, 'comment.content']
+      [/./, 'comment.content'],
     ],
 
     block: [
@@ -58,14 +113,17 @@ export const monarchTokens: languages.IMonarchLanguage = {
       [/\d+(\.\d+)?/, 'number'],
       [/".*?"/, 'string'],
       [/'.*?'/, 'string'],
-      [/\w+/, {
-        cases: {
-          '@keywords': 'keyword',
-          '@default': 'variable'
-        }
-      }],
+      [
+        /\w+/,
+        {
+          cases: {
+            '@keywords': 'keyword',
+            '@default': 'variable',
+          },
+        },
+      ],
     ],
-  
+
     variable: [
       [/\-?\}\}/, 'delimiter.variable.end', '@pop'],
       [/\s+/, 'white'],
@@ -73,15 +131,18 @@ export const monarchTokens: languages.IMonarchLanguage = {
       [/\d+(\.\d+)?/, 'number'],
       [/".*?"/, 'string'],
       [/'.*?'/, 'string'],
-      [/\w+/, {
-        cases: {
-          '@keywords': 'keyword',
-          '@default': 'variable'
-        }
-      }],
+      [
+        /\w+/,
+        {
+          cases: {
+            '@keywords': 'keyword',
+            '@default': 'variable',
+          },
+        },
+      ],
     ],
   },
-}
+};
 
 export const languageConfiguration = {
   brackets: [

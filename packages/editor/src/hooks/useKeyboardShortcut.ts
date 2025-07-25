@@ -30,11 +30,7 @@ interface ShortcutOptions {
  *   console.log('Custom shortcut triggered!');
  * }, { shift: true, alt: true });
  */
-export function useKeyboardShortcut(
-  key: string,
-  callback: CallbackFunction,
-  modifiers?: ShortcutOptions
-): void {
+export function useKeyboardShortcut(key: string, callback: CallbackFunction, modifiers?: ShortcutOptions): void {
   useEffect(() => {
     const handleKeyChange = (event: KeyboardEvent) => {
       const pressedKey = event.key.toLowerCase();
@@ -42,18 +38,9 @@ export function useKeyboardShortcut(
       const isKeyUp = event.type === 'keyup';
 
       if (modifiers) {
-        const {
-          shift = false,
-          ctrl = false,
-          alt = false,
-          meta = false,
-        } = modifiers;
+        const { shift = false, ctrl = false, alt = false, meta = false } = modifiers;
 
-        const modifierMatch =
-          event.shiftKey === shift &&
-          event.ctrlKey === ctrl &&
-          event.altKey === alt &&
-          event.metaKey === meta;
+        const modifierMatch = event.shiftKey === shift && event.ctrlKey === ctrl && event.altKey === alt && event.metaKey === meta;
 
         if (modifierMatch && pressedKey === expectedKey) {
           event.preventDefault();
