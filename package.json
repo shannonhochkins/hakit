@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
-    "prebuild": "bun run type-check",
+    "prebuild": "bun run type-check && npm run lint && npm run format",
     "build": "bun --filter 'hakit-editor' build",
     "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
@@ -52,6 +52,7 @@
     "eslint": "^9.26.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^16.1.0",
     "prettier": "^3.6.2",
     "tsx": "^4.19.3",

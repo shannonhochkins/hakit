@@ -1,11 +1,11 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { userQueryOptions } from '../lib/api/user';
-import { useLocalStorage } from '@lib/hooks/useLocalStorage';
+import { userQueryOptions } from '../services/user';
+import { useLocalStorage } from '@hooks/useLocalStorage';
 import { HassConnect } from '@hakit/core';
 import { useEffect } from 'react';
-import { useAuthButtonState } from '@lib/hooks/useAuthButtonState';
-import { Spinner } from '@lib/components/Spinner';
-import { HassModal } from '../lib/components/HassModal';
+import { useAuthButtonState } from '@hooks/useAuthButtonState';
+import { Spinner } from '@components/Spinner';
+import { HassModal } from '@components/HassModal';
 
 const Login = () => {
   const { buttonState } = useAuthButtonState();
@@ -46,7 +46,16 @@ const Component = () => {
   }
 
   return (
-    <HassConnect loading={<Spinner absolute text='Connecting to Home Assistant' />} hassUrl={hassUrl} hassToken={hassToken}>
+    <HassConnect
+      loading={<Spinner absolute text='Connecting to Home Assistant' />}
+      hassUrl={hassUrl}
+      hassToken={hassToken}
+      options={{
+        renderError: error => {
+          return <HassModal error={error} />;
+        },
+      }}
+    >
       <Outlet />
     </HassConnect>
   );

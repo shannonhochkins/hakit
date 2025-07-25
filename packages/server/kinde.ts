@@ -1,14 +1,9 @@
-import {
-  createKindeServerClient,
-  GrantType,
-  type SessionManager,
-  type UserType,
-} from "@kinde-oss/kinde-typescript-sdk";
-import { type Context } from "hono";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { createMiddleware } from "hono/factory";
-import type { CookieOptions } from "hono/utils/cookie";
-import { z } from "zod";
+import { createKindeServerClient, GrantType, type SessionManager, type UserType } from '@kinde-oss/kinde-typescript-sdk';
+import { type Context } from 'hono';
+import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
+import { createMiddleware } from 'hono/factory';
+import type { CookieOptions } from 'hono/utils/cookie';
+import { z } from 'zod';
 
 const KindeEnv = z.object({
   KINDE_DOMAIN: z.string(),
@@ -22,16 +17,13 @@ const KindeEnv = z.object({
 const ProcessEnv = KindeEnv.parse(process.env);
 
 // Client for authorization code flow
-export const kindeClient = createKindeServerClient(
-  GrantType.AUTHORIZATION_CODE,
-  {
-    authDomain: ProcessEnv.KINDE_DOMAIN,
-    clientId: ProcessEnv.KINDE_CLIENT_ID,
-    clientSecret: ProcessEnv.KINDE_CLIENT_SECRET,
-    redirectURL: ProcessEnv.KINDE_REDIRECT_URI,
-    logoutRedirectURL: ProcessEnv.KINDE_LOGOUT_REDIRECT_URI,
-  }
-);
+export const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
+  authDomain: ProcessEnv.KINDE_DOMAIN,
+  clientId: ProcessEnv.KINDE_CLIENT_ID,
+  clientSecret: ProcessEnv.KINDE_CLIENT_SECRET,
+  redirectURL: ProcessEnv.KINDE_REDIRECT_URI,
+  logoutRedirectURL: ProcessEnv.KINDE_LOGOUT_REDIRECT_URI,
+});
 
 export const sessionManager = (c: Context): SessionManager => ({
   async getSessionItem(key: string) {
@@ -42,10 +34,10 @@ export const sessionManager = (c: Context): SessionManager => ({
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: true,
-      sameSite: "Lax",
-      maxAge: 60 * 60 * 24 * 365
+      sameSite: 'Lax',
+      maxAge: 60 * 60 * 24 * 365,
     } as const;
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       setCookie(c, key, value, cookieOptions);
     } else {
       setCookie(c, key, JSON.stringify(value), cookieOptions);
@@ -55,7 +47,7 @@ export const sessionManager = (c: Context): SessionManager => ({
     deleteCookie(c, key);
   },
   async destroySession() {
-    ["id_token", "access_token", "user", "refresh_token"].forEach((key) => {
+    ['id_token', 'access_token', 'user', 'refresh_token'].forEach(key => {
       deleteCookie(c, key);
     });
   },
@@ -72,13 +64,13 @@ export const getUser = createMiddleware<Env>(async (c, next) => {
     const manager = sessionManager(c);
     const isAuthenticated = await kindeClient.isAuthenticated(manager);
     if (!isAuthenticated) {
-      return c.json({ error: "Unauthorized" }, 401);
+      return c.json({ error: 'Unauthorized' }, 401);
     }
     const user = await kindeClient.getUserProfile(manager);
-    c.set("user", user);
+    c.set('user', user);
     await next();
   } catch (e) {
     console.error(e);
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ error: 'Unauthorized' }, 401);
   }
 });

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import styled from '@emotion/styled';
 import { HelpCircleIcon, BookOpenIcon, MessageCircleIcon } from 'lucide-react';
-import { SecondaryButton } from '@lib/components/Button/Secondary';
+import { SecondaryButton } from '@components/Button/Secondary';
 
 // Styled Components
 const HelpContainer = styled.div`

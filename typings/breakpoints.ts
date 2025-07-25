@@ -1,5 +1,5 @@
 import type { BreakPoint } from '@hakit/components';
-import { BREAKPOINT_ICONS } from '../packages/editor/src/lib/constants';
+import { BREAKPOINT_ICONS } from '../packages/editor/src/constants';
 
 export type IconKey = keyof typeof BREAKPOINT_ICONS;
 

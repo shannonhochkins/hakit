@@ -21,8 +21,14 @@
 
     "paths": {
       "@typings/*": ["../../typings/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@client/*": ["./*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@services/*": ["./src/services/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@features/*": ["./src/features/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@constants": ["./src/constants/index.ts"],
+      "@components/*": ["./src/components/*"],
       "@server/*": ["../server/*"]
     }
   },
