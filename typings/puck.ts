@@ -10,7 +10,7 @@ import {
 } from '@measured/puck';
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import type { DashboardPageWithoutData } from './dashboard';
+import type { DashboardWithoutPageData } from './dashboard';
 import type { CustomFieldsConfiguration } from './fields';
 
 export type InternalFields = {
@@ -30,7 +30,7 @@ export type DefaultPropsCallbackData = {
 export type AdditionalRenderProps = {
   /** the hakit context, this houses additional information to send to each render of each component */
   _activeBreakpoint: keyof AvailableQueries;
-  _dashboard: DashboardPageWithoutData | null;
+  _dashboard: DashboardWithoutPageData | null;
   _editor?: {
     document: Document | null;
     window: Window | null;

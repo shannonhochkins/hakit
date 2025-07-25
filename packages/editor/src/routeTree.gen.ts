@@ -14,14 +14,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedMeIndexRouteImport } from './routes/_authenticated/me/index'
 import { Route as AuthenticatedMeSettingsIndexRouteImport } from './routes/_authenticated/me/settings/index'
+import { Route as AuthenticatedMeRepositoriesIndexRouteImport } from './routes/_authenticated/me/repositories/index'
 import { Route as AuthenticatedMeLogoutIndexRouteImport } from './routes/_authenticated/me/logout/index'
 import { Route as AuthenticatedMeHelpIndexRouteImport } from './routes/_authenticated/me/help/index'
 import { Route as AuthenticatedMeDashboardsIndexRouteImport } from './routes/_authenticated/me/dashboards/index'
-import { Route as AuthenticatedMeComponentsIndexRouteImport } from './routes/_authenticated/me/components/index'
-import { Route as AuthenticatedMeComponentsInstallIndexRouteImport } from './routes/_authenticated/me/components/install/index'
-import { Route as AuthenticatedMeComponentsExploreIndexRouteImport } from './routes/_authenticated/me/components/explore/index'
+import { Route as AuthenticatedMeRepositoriesInstallIndexRouteImport } from './routes/_authenticated/me/repositories/install/index'
+import { Route as AuthenticatedMeRepositoriesExploreIndexRouteImport } from './routes/_authenticated/me/repositories/explore/index'
 import { Route as AuthenticatedDashboardDashboardPathPagePathIndexRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/index'
-import { Route as AuthenticatedMeComponentsExploreRepositoryIndexRouteImport } from './routes/_authenticated/me/components/explore/$repository/index'
+import { Route as AuthenticatedMeRepositoriesExploreRepositoryIndexRouteImport } from './routes/_authenticated/me/repositories/explore/$repository/index'
 import { Route as AuthenticatedDashboardDashboardPathPagePathEditIndexRouteImport } from './routes/_authenticated/dashboard/$dashboardPath/$pagePath/edit/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -49,6 +49,12 @@ const AuthenticatedMeSettingsIndexRoute =
     path: '/settings/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
+const AuthenticatedMeRepositoriesIndexRoute =
+  AuthenticatedMeRepositoriesIndexRouteImport.update({
+    id: '/repositories/',
+    path: '/repositories/',
+    getParentRoute: () => AuthenticatedMeRoute,
+  } as any)
 const AuthenticatedMeLogoutIndexRoute =
   AuthenticatedMeLogoutIndexRouteImport.update({
     id: '/logout/',
@@ -67,22 +73,16 @@ const AuthenticatedMeDashboardsIndexRoute =
     path: '/dashboards/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
-const AuthenticatedMeComponentsIndexRoute =
-  AuthenticatedMeComponentsIndexRouteImport.update({
-    id: '/components/',
-    path: '/components/',
+const AuthenticatedMeRepositoriesInstallIndexRoute =
+  AuthenticatedMeRepositoriesInstallIndexRouteImport.update({
+    id: '/repositories/install/',
+    path: '/repositories/install/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
-const AuthenticatedMeComponentsInstallIndexRoute =
-  AuthenticatedMeComponentsInstallIndexRouteImport.update({
-    id: '/components/install/',
-    path: '/components/install/',
-    getParentRoute: () => AuthenticatedMeRoute,
-  } as any)
-const AuthenticatedMeComponentsExploreIndexRoute =
-  AuthenticatedMeComponentsExploreIndexRouteImport.update({
-    id: '/components/explore/',
-    path: '/components/explore/',
+const AuthenticatedMeRepositoriesExploreIndexRoute =
+  AuthenticatedMeRepositoriesExploreIndexRouteImport.update({
+    id: '/repositories/explore/',
+    path: '/repositories/explore/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
 const AuthenticatedDashboardDashboardPathPagePathIndexRoute =
@@ -91,10 +91,10 @@ const AuthenticatedDashboardDashboardPathPagePathIndexRoute =
     path: '/dashboard/$dashboardPath/$pagePath/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedMeComponentsExploreRepositoryIndexRoute =
-  AuthenticatedMeComponentsExploreRepositoryIndexRouteImport.update({
-    id: '/components/explore/$repository/',
-    path: '/components/explore/$repository/',
+const AuthenticatedMeRepositoriesExploreRepositoryIndexRoute =
+  AuthenticatedMeRepositoriesExploreRepositoryIndexRouteImport.update({
+    id: '/repositories/explore/$repository/',
+    path: '/repositories/explore/$repository/',
     getParentRoute: () => AuthenticatedMeRoute,
   } as any)
 const AuthenticatedDashboardDashboardPathPagePathEditIndexRoute =
@@ -108,30 +108,30 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/me': typeof AuthenticatedMeRouteWithChildren
   '/me/': typeof AuthenticatedMeIndexRoute
-  '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
+  '/me/repositories': typeof AuthenticatedMeRepositoriesIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
-  '/me/components/explore': typeof AuthenticatedMeComponentsExploreIndexRoute
-  '/me/components/install': typeof AuthenticatedMeComponentsInstallIndexRoute
+  '/me/repositories/explore': typeof AuthenticatedMeRepositoriesExploreIndexRoute
+  '/me/repositories/install': typeof AuthenticatedMeRepositoriesInstallIndexRoute
   '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
-  '/me/components/explore/$repository': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
+  '/me/repositories/explore/$repository': typeof AuthenticatedMeRepositoriesExploreRepositoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/me': typeof AuthenticatedMeIndexRoute
-  '/me/components': typeof AuthenticatedMeComponentsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
+  '/me/repositories': typeof AuthenticatedMeRepositoriesIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
-  '/me/components/explore': typeof AuthenticatedMeComponentsExploreIndexRoute
-  '/me/components/install': typeof AuthenticatedMeComponentsInstallIndexRoute
+  '/me/repositories/explore': typeof AuthenticatedMeRepositoriesExploreIndexRoute
+  '/me/repositories/install': typeof AuthenticatedMeRepositoriesInstallIndexRoute
   '/dashboard/$dashboardPath/$pagePath/edit': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
-  '/me/components/explore/$repository': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
+  '/me/repositories/explore/$repository': typeof AuthenticatedMeRepositoriesExploreRepositoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -139,16 +139,16 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/me': typeof AuthenticatedMeRouteWithChildren
   '/_authenticated/me/': typeof AuthenticatedMeIndexRoute
-  '/_authenticated/me/components/': typeof AuthenticatedMeComponentsIndexRoute
   '/_authenticated/me/dashboards/': typeof AuthenticatedMeDashboardsIndexRoute
   '/_authenticated/me/help/': typeof AuthenticatedMeHelpIndexRoute
   '/_authenticated/me/logout/': typeof AuthenticatedMeLogoutIndexRoute
+  '/_authenticated/me/repositories/': typeof AuthenticatedMeRepositoriesIndexRoute
   '/_authenticated/me/settings/': typeof AuthenticatedMeSettingsIndexRoute
   '/_authenticated/dashboard/$dashboardPath/$pagePath/': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
-  '/_authenticated/me/components/explore/': typeof AuthenticatedMeComponentsExploreIndexRoute
-  '/_authenticated/me/components/install/': typeof AuthenticatedMeComponentsInstallIndexRoute
+  '/_authenticated/me/repositories/explore/': typeof AuthenticatedMeRepositoriesExploreIndexRoute
+  '/_authenticated/me/repositories/install/': typeof AuthenticatedMeRepositoriesInstallIndexRoute
   '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/': typeof AuthenticatedDashboardDashboardPathPagePathEditIndexRoute
-  '/_authenticated/me/components/explore/$repository/': typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
+  '/_authenticated/me/repositories/explore/$repository/': typeof AuthenticatedMeRepositoriesExploreRepositoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,46 +156,46 @@ export interface FileRouteTypes {
     | '/'
     | '/me'
     | '/me/'
-    | '/me/components'
     | '/me/dashboards'
     | '/me/help'
     | '/me/logout'
+    | '/me/repositories'
     | '/me/settings'
     | '/dashboard/$dashboardPath/$pagePath'
-    | '/me/components/explore'
-    | '/me/components/install'
+    | '/me/repositories/explore'
+    | '/me/repositories/install'
     | '/dashboard/$dashboardPath/$pagePath/edit'
-    | '/me/components/explore/$repository'
+    | '/me/repositories/explore/$repository'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/me'
-    | '/me/components'
     | '/me/dashboards'
     | '/me/help'
     | '/me/logout'
+    | '/me/repositories'
     | '/me/settings'
     | '/dashboard/$dashboardPath/$pagePath'
-    | '/me/components/explore'
-    | '/me/components/install'
+    | '/me/repositories/explore'
+    | '/me/repositories/install'
     | '/dashboard/$dashboardPath/$pagePath/edit'
-    | '/me/components/explore/$repository'
+    | '/me/repositories/explore/$repository'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/_authenticated/me'
     | '/_authenticated/me/'
-    | '/_authenticated/me/components/'
     | '/_authenticated/me/dashboards/'
     | '/_authenticated/me/help/'
     | '/_authenticated/me/logout/'
+    | '/_authenticated/me/repositories/'
     | '/_authenticated/me/settings/'
     | '/_authenticated/dashboard/$dashboardPath/$pagePath/'
-    | '/_authenticated/me/components/explore/'
-    | '/_authenticated/me/components/install/'
+    | '/_authenticated/me/repositories/explore/'
+    | '/_authenticated/me/repositories/install/'
     | '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/'
-    | '/_authenticated/me/components/explore/$repository/'
+    | '/_authenticated/me/repositories/explore/$repository/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -240,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
+    '/_authenticated/me/repositories/': {
+      id: '/_authenticated/me/repositories/'
+      path: '/repositories'
+      fullPath: '/me/repositories'
+      preLoaderRoute: typeof AuthenticatedMeRepositoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
+    }
     '/_authenticated/me/logout/': {
       id: '/_authenticated/me/logout/'
       path: '/logout'
@@ -261,25 +268,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeDashboardsIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
-    '/_authenticated/me/components/': {
-      id: '/_authenticated/me/components/'
-      path: '/components'
-      fullPath: '/me/components'
-      preLoaderRoute: typeof AuthenticatedMeComponentsIndexRouteImport
+    '/_authenticated/me/repositories/install/': {
+      id: '/_authenticated/me/repositories/install/'
+      path: '/repositories/install'
+      fullPath: '/me/repositories/install'
+      preLoaderRoute: typeof AuthenticatedMeRepositoriesInstallIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
-    '/_authenticated/me/components/install/': {
-      id: '/_authenticated/me/components/install/'
-      path: '/components/install'
-      fullPath: '/me/components/install'
-      preLoaderRoute: typeof AuthenticatedMeComponentsInstallIndexRouteImport
-      parentRoute: typeof AuthenticatedMeRoute
-    }
-    '/_authenticated/me/components/explore/': {
-      id: '/_authenticated/me/components/explore/'
-      path: '/components/explore'
-      fullPath: '/me/components/explore'
-      preLoaderRoute: typeof AuthenticatedMeComponentsExploreIndexRouteImport
+    '/_authenticated/me/repositories/explore/': {
+      id: '/_authenticated/me/repositories/explore/'
+      path: '/repositories/explore'
+      fullPath: '/me/repositories/explore'
+      preLoaderRoute: typeof AuthenticatedMeRepositoriesExploreIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/dashboard/$dashboardPath/$pagePath/': {
@@ -289,11 +289,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardDashboardPathPagePathIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/me/components/explore/$repository/': {
-      id: '/_authenticated/me/components/explore/$repository/'
-      path: '/components/explore/$repository'
-      fullPath: '/me/components/explore/$repository'
-      preLoaderRoute: typeof AuthenticatedMeComponentsExploreRepositoryIndexRouteImport
+    '/_authenticated/me/repositories/explore/$repository/': {
+      id: '/_authenticated/me/repositories/explore/$repository/'
+      path: '/repositories/explore/$repository'
+      fullPath: '/me/repositories/explore/$repository'
+      preLoaderRoute: typeof AuthenticatedMeRepositoriesExploreRepositoryIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/': {
@@ -308,29 +308,29 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedMeRouteChildren {
   AuthenticatedMeIndexRoute: typeof AuthenticatedMeIndexRoute
-  AuthenticatedMeComponentsIndexRoute: typeof AuthenticatedMeComponentsIndexRoute
   AuthenticatedMeDashboardsIndexRoute: typeof AuthenticatedMeDashboardsIndexRoute
   AuthenticatedMeHelpIndexRoute: typeof AuthenticatedMeHelpIndexRoute
   AuthenticatedMeLogoutIndexRoute: typeof AuthenticatedMeLogoutIndexRoute
+  AuthenticatedMeRepositoriesIndexRoute: typeof AuthenticatedMeRepositoriesIndexRoute
   AuthenticatedMeSettingsIndexRoute: typeof AuthenticatedMeSettingsIndexRoute
-  AuthenticatedMeComponentsExploreIndexRoute: typeof AuthenticatedMeComponentsExploreIndexRoute
-  AuthenticatedMeComponentsInstallIndexRoute: typeof AuthenticatedMeComponentsInstallIndexRoute
-  AuthenticatedMeComponentsExploreRepositoryIndexRoute: typeof AuthenticatedMeComponentsExploreRepositoryIndexRoute
+  AuthenticatedMeRepositoriesExploreIndexRoute: typeof AuthenticatedMeRepositoriesExploreIndexRoute
+  AuthenticatedMeRepositoriesInstallIndexRoute: typeof AuthenticatedMeRepositoriesInstallIndexRoute
+  AuthenticatedMeRepositoriesExploreRepositoryIndexRoute: typeof AuthenticatedMeRepositoriesExploreRepositoryIndexRoute
 }
 
 const AuthenticatedMeRouteChildren: AuthenticatedMeRouteChildren = {
   AuthenticatedMeIndexRoute: AuthenticatedMeIndexRoute,
-  AuthenticatedMeComponentsIndexRoute: AuthenticatedMeComponentsIndexRoute,
   AuthenticatedMeDashboardsIndexRoute: AuthenticatedMeDashboardsIndexRoute,
   AuthenticatedMeHelpIndexRoute: AuthenticatedMeHelpIndexRoute,
   AuthenticatedMeLogoutIndexRoute: AuthenticatedMeLogoutIndexRoute,
+  AuthenticatedMeRepositoriesIndexRoute: AuthenticatedMeRepositoriesIndexRoute,
   AuthenticatedMeSettingsIndexRoute: AuthenticatedMeSettingsIndexRoute,
-  AuthenticatedMeComponentsExploreIndexRoute:
-    AuthenticatedMeComponentsExploreIndexRoute,
-  AuthenticatedMeComponentsInstallIndexRoute:
-    AuthenticatedMeComponentsInstallIndexRoute,
-  AuthenticatedMeComponentsExploreRepositoryIndexRoute:
-    AuthenticatedMeComponentsExploreRepositoryIndexRoute,
+  AuthenticatedMeRepositoriesExploreIndexRoute:
+    AuthenticatedMeRepositoriesExploreIndexRoute,
+  AuthenticatedMeRepositoriesInstallIndexRoute:
+    AuthenticatedMeRepositoriesInstallIndexRoute,
+  AuthenticatedMeRepositoriesExploreRepositoryIndexRoute:
+    AuthenticatedMeRepositoriesExploreRepositoryIndexRoute,
 }
 
 const AuthenticatedMeRouteWithChildren = AuthenticatedMeRoute._addFileChildren(
