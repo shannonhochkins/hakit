@@ -160,6 +160,89 @@ Components are exposed via Module Federation, allowing them to be dynamically lo
 - Development server with hot module replacement
 - Production packaging into distributable archives
 
+## Publishing
+
+### Stable Release
+
+To publish a new stable version of the create-editor package:
+
+1. **Update version** in `package.json`:
+   ```json
+   {
+     "version": "1.2.3"
+   }
+   ```
+
+2. **Update CHANGELOG.md** with new features, fixes, and breaking changes:
+   ```markdown
+   ## [1.2.3] - 2025-07-30
+   ### Added
+   - New component scaffolding improvements
+   ### Fixed
+   - Fixed TypeScript declaration generation
+   ### Changed
+   - Updated dependency versions
+   ```
+
+3. **Build and test** the package:
+   ```bash
+   npm run build
+   npm run test:script
+   ```
+
+4. **Commit changes**:
+   ```bash
+   git add .
+   git commit -m "chore(create-editor): release v1.2.3"
+   git tag @hakit/create-editor@1.2.3
+   ```
+
+5. **Publish to npm**:
+   ```bash
+   npm publish
+   git push origin main --tags
+   ```
+
+The stable release will be available via `npm create @hakit/editor@latest`.
+
+### Canary Release
+
+To publish a canary/pre-release version for testing:
+
+1. **Update version** with canary suffix:
+   ```json
+   {
+     "version": "1.2.3-canary.1"
+   }
+   ```
+
+2. **Build and test**:
+   ```bash
+   npm run build
+   npm run test:script
+   ```
+
+3. **Publish with canary tag**:
+   ```bash
+   npm publish --tag canary
+   ```
+
+   Optionally, tag the commit for tracking:
+   ```bash
+   git tag @hakit/create-editor@1.2.3-canary.1
+   git push origin main --tags
+   ```
+
+4. **Test canary version**:
+   ```bash
+   # Install specific canary version
+   npm create @hakit/editor@canary
+   # Or specific version
+   npm create @hakit/editor@1.2.3-canary.1
+   ```
+
+**Note**: Canary versions will **not** be installed when users run `npm create @hakit/editor@latest` - they must explicitly specify the canary tag or version number.
+
 
 ## Support
 

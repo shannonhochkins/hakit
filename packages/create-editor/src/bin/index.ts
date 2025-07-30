@@ -152,7 +152,7 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   const dependencies: string[] = [];
 
   const devDependencies = [
-    // '@hakit/create-editor',
+    '@hakit/create-editor',
     '@module-federation/rsbuild-plugin',
     '@rsbuild/core',
     '@rsbuild/plugin-react',
