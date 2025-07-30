@@ -1,7 +1,7 @@
 {
   "name": "@hakit/create-editor",
   "description": "Create HAKIT editor applications with a single command",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",
