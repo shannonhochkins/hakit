@@ -3,7 +3,7 @@ import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { merge } from 'ts-deepmerge';
 import { ComponentData } from '@measured/puck';
-import type { CustomFieldsConfiguration } from '@typings/fields';
+import type { FieldConfiguration } from '@typings/fields';
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from './constants';
 
 /**
@@ -63,7 +63,7 @@ export function puckToDBValue(
   const newDataWithBp: PuckPageData = JSON.parse(JSON.stringify(changedData));
 
   // Helper function to check if field type should disable breakpoints
-  const shouldDisableBreakpoints = (fieldConfig: CustomFieldsConfiguration[string]): boolean => {
+  const shouldDisableBreakpoints = (fieldConfig: FieldConfiguration[string]): boolean => {
     // Check if responsiveMode is explicitly set on the field
     if ('responsiveMode' in fieldConfig && fieldConfig.responsiveMode === false) return true;
     const type = fieldConfig?.type;
@@ -73,7 +73,7 @@ export function puckToDBValue(
   // Helper function to process a field value based on its configuration
   const processFieldValue = (
     fieldPath: string,
-    fieldConfig: CustomFieldsConfiguration[string],
+    fieldConfig: FieldConfiguration[string],
     currentValue: unknown,
     originalValue: unknown,
     componentId?: string
@@ -109,7 +109,7 @@ export function puckToDBValue(
 
   // Helper function to traverse object fields recursively
   const traverseObjectFields = (
-    objectFields: Record<string, CustomFieldsConfiguration[string]>,
+    objectFields: Record<string, FieldConfiguration[string]>,
     currentObj: Record<string, unknown>,
     originalObj: Record<string, unknown> | undefined,
     basePath: string,
@@ -170,7 +170,7 @@ export function puckToDBValue(
 
         if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
           newProps[fieldKey] = traverseObjectFields(
-            fieldConfig.objectFields as Record<string, CustomFieldsConfiguration[string]>,
+            fieldConfig.objectFields as Record<string, FieldConfiguration[string]>,
             currentValue as Record<string, unknown>,
             originalValue as Record<string, unknown> | undefined,
             fieldKey,
@@ -184,7 +184,7 @@ export function puckToDBValue(
         } else {
           newProps[fieldKey] = processFieldValue(
             fieldKey,
-            fieldConfig as CustomFieldsConfiguration[string],
+            fieldConfig as FieldConfiguration[string],
             currentValue,
             originalValue,
             componentId
@@ -218,7 +218,7 @@ export function puckToDBValue(
 
       if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
         newRootProps[fieldKey] = traverseObjectFields(
-          fieldConfig.objectFields as Record<string, CustomFieldsConfiguration[string]>,
+          fieldConfig.objectFields as Record<string, FieldConfiguration[string]>,
           currentValue as Record<string, unknown>,
           originalValue as Record<string, unknown> | undefined,
           fieldKey,
@@ -232,7 +232,7 @@ export function puckToDBValue(
       } else {
         newRootProps[fieldKey] = processFieldValue(
           fieldKey,
-          fieldConfig as CustomFieldsConfiguration[string],
+          fieldConfig as FieldConfiguration[string],
           currentValue,
           originalValue,
           'root' // Use 'root' as componentId for root fields

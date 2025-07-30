@@ -197,4 +197,8 @@ export type FieldConfiguration<ComponentProps extends DefaultComponentProps = De
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: CustomFields<ComponentProps[PropName], object, DataShape>;
 };
 
+export type FieldConfigurationWithDefinition<ComponentProps extends DefaultComponentProps = DefaultComponentProps, DataShape = unknown> = {
+  [PropName in keyof Omit<ComponentProps, 'editMode'>]: CustomFieldsWithDefinition<ComponentProps[PropName], DataShape>;
+};
+
 export type FieldTypes = CustomFields extends { type: infer T } ? T : never;
