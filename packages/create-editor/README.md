@@ -12,13 +12,13 @@ Create a new HAKIT editor project using any of the following package managers:
 
 ### npm
 ```bash
-npm create @hakit/editor@latest
+npx @hakit/create-editor@latest
 ```
 
 ### Yarn
 ```bash
 # Yarn 1.x (Classic)
-yarn create @hakit/editor@latest
+yarn create @hakit/create-editor@latest
 
 # Yarn 2+ (Berry) 
 yarn dlx @hakit/create-editor@latest
@@ -26,16 +26,13 @@ yarn dlx @hakit/create-editor@latest
 
 ### pnpm
 ```bash
-# Using create shorthand
-pnpm create @hakit/editor@latest
-
 # Using dlx
 pnpm dlx @hakit/create-editor@latest
 ```
 
 ### Bun
 ```bash
-bun create @hakit/editor@latest
+bunx @hakit/create-editor@latest
 ```
 
 The CLI will prompt you for:
@@ -194,16 +191,14 @@ To publish a new stable version of the create-editor package:
    ```bash
    git add .
    git commit -m "chore(create-editor): release v1.2.3"
-   git tag @hakit/create-editor@1.2.3
    ```
 
 5. **Publish to npm**:
    ```bash
    npm publish
-   git push origin main --tags
    ```
 
-The stable release will be available via `npm create @hakit/editor@latest`.
+The stable release will be available via `npx @hakit/create-editor@latest`.
 
 ### Canary Release
 
@@ -236,12 +231,12 @@ To publish a canary/pre-release version for testing:
 4. **Test canary version**:
    ```bash
    # Install specific canary version
-   npm create @hakit/editor@canary
+   npx @hakit/create-editor@canary
    # Or specific version
-   npm create @hakit/editor@1.2.3-canary.1
+   npx @hakit/create-editor@1.2.3-canary.1
    ```
 
-**Note**: Canary versions will **not** be installed when users run `npm create @hakit/editor@latest` - they must explicitly specify the canary tag or version number.
+**Note**: Canary versions will **not** be installed when users run `npx @hakit/create-editor@latest` - they must explicitly specify the canary tag or version number.
 
 
 ## Support

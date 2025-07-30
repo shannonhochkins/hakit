@@ -1,10 +1,11 @@
 {
   "name": "@hakit/create-editor",
   "description": "Create HAKIT editor applications with a single command",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",
+  "private": false,
   "bin": {
     "create-hakit-component": "./dist/bin/index.js",
     "@hakit/create-editor": "./dist/bin/index.js",
