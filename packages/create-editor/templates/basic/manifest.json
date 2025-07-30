@@ -1,0 +1,8 @@
+{
+  "components": [
+    {
+      "name": "__COMPONENT_NAME__",
+      "src": "./src/components/__COMPONENT_NAME__/index.tsx"
+    }
+  ]
+}

@@ -1,11 +1,6 @@
-import { ClientResponse, hc } from 'hono/client';
-import { type ApiRoutes } from '@server/app';
+import { ClientResponse } from 'hono/client';
 import { Id, toast, ToastOptions } from 'react-toastify';
 import { formatErrorResponse } from '@server/helpers/formatErrorResponse';
-
-const client = hc<ApiRoutes>('/');
-
-export const api = client.api;
 
 // dodgey helper to extract the 200 response out as this is the only response that can be returned
 type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200, 'json'> ? Data : never;

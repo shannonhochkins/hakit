@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { CustomConfig, PuckPageData } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
-import type { DashboardWithoutPageData, DashboardWithPageData } from '@typings/dashboard';
+import type { DashboardWithPageData, Dashboard } from '@typings/hono';
 import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
@@ -35,8 +35,8 @@ type PuckConfigurationStore = {
   setServices: (services: HassServices | null) => void;
   dashboard: DashboardWithPageData | null;
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
-  dashboardWithoutData: DashboardWithoutPageData | null;
-  setDashboardWithoutData: (dashboard: DashboardWithoutPageData | null) => void;
+  dashboardWithoutData: Dashboard | null;
+  setDashboardWithoutData: (dashboard: Dashboard | null) => void;
   hasInitializedData: boolean; // Flag to indicate if the initial data has been set
   setHasInitializedData: (hasInitializedData: boolean) => void;
   puckPageData: PuckPageData | null;
@@ -87,7 +87,7 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     services: null,
     setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
     dashboardWithoutData: null,
-    setDashboardWithoutData: (dashboard: DashboardWithoutPageData | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
+    setDashboardWithoutData: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
     hasInitializedData: false,

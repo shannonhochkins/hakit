@@ -12,7 +12,7 @@ import { InputField } from '@components/Form/Fields/Input';
 import { ImageUpload } from '@components/Form/Fields/Image';
 import { Modal } from '@components/Modal';
 import { InputAdornment } from '@mui/material';
-import { DashboardPageWithoutData } from '@typings/dashboard';
+import { DashboardPageWithoutData } from '@typings/hono';
 
 // Styled Components
 const FormActions = styled.div`

@@ -5,7 +5,6 @@ import { repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
-import { Repository } from '@typings/db';
 
 const repositoriesRoute = new Hono()
   // Get all public repositories (for browsing/discovery)
@@ -16,12 +15,7 @@ const repositoriesRoute = new Hono()
         .from(repositoriesTable)
         .where(eq(repositoriesTable.isPublic, true))
         .orderBy(desc(repositoriesTable.totalDownloads));
-      return c.json<
-        {
-          repositories: Repository[];
-        },
-        200
-      >({ repositories }, 200);
+      return c.json({ repositories }, 200);
     } catch (error) {
       return c.json(formatErrorResponse('Error fetching repositories', error), 400);
     }

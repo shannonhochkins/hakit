@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "paths": {
+      "@hakit/create-editor": ["./dist/index.d.ts"],
+      "@hakit/create-editor/*": ["./dist/*"],
+      "@typings/*": ["../shared/typings/*"],
+      "@helpers/*": ["../editor/src/helpers/*"],
+      "@services/*": ["../editor/src/services/*"],
+      "@routes/*": ["../editor/src/routes/*"],
+      "@features/*": ["../editor/src/features/*"],
+      "@hooks/*": ["../editor/src/hooks/*"],
+      "@constants/*": ["../editor/src/constants/*"],
+      "@constants": ["../editor/src/constants/index.ts"],
+      "@components/*": ["../editor/src/components/*"],
+      "@server/*": ["../server/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tmp", "templates", "../../typings/**/*"]
+}

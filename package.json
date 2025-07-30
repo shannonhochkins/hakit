@@ -19,17 +19,20 @@
     "url": "https://github.com/your-username/hakit.git"
   },
   "workspaces": [
-    "packages/editor"
+    "packages/editor",
+    "packages/create-editor"
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
     "prebuild": "bun run type-check && npm run lint && npm run format",
     "build": "bun --filter 'hakit-editor' build",
-    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit",
+    "build:create-editor": "bun --filter '@hakit/create-editor' build",
+    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit && cd ../create-editor && tsc --noEmit",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
+    "dev:create-editor": "bun --filter '@hakit/create-editor' dev",
     "dbml": "bun run ./packages/server/db/schema/dbml.ts",
     "test": "bun test --verbose",
     "lint": "eslint .",
@@ -40,6 +43,7 @@
   "devDependencies": {
     "@eslint/js": "^9.26.0",
     "@happy-dom/global-registrator": "^17.4.4",
+    "@microsoft/api-extractor": "^7.52.9",
     "@originjs/vite-plugin-federation": "^1.4.0",
     "@types/bun": "latest",
     "@types/deep-equal": "^1.0.4",

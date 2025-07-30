@@ -20,7 +20,7 @@
     "noPropertyAccessFromIndexSignature": false,
 
     "paths": {
-      "@typings/*": ["../../typings/*"]
+      "@typings/*": ["../shared/typings/*"]
     }
   },
   "include": ["**/*"],

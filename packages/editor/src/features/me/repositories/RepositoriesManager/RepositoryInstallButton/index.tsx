@@ -4,12 +4,12 @@ import { DownloadIcon, TrashIcon, RefreshCwIcon } from 'lucide-react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { userRepositoriesQueryOptions, connectRepository, disconnectRepository, getRepositoryVersions } from '@services/repositories';
 import { toast } from 'react-toastify';
-import { RepositoryWithLatestVersionAPI } from '@typings/db';
+import { RepositoryWithLatestVersion } from '@typings/hono';
 import { UpdateRepositoryModal } from './UpdateRepositoryModal';
 import { IconButton } from '@components/Button/IconButton';
 
 interface RepositoryInstallButtonProps {
-  repository: RepositoryWithLatestVersionAPI;
+  repository: RepositoryWithLatestVersion;
   size?: 'sm' | 'md' | 'lg';
   onClick?: (event: React.MouseEvent) => void;
 }
@@ -164,7 +164,7 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
       {hasUpdate && <IconButton onClick={uninstallRepository} aria-label='Uninstall' icon={<TrashIcon size={16} />} variant='error' />}
 
       {showUpdateModal && userRepository && (
-        <UpdateRepositoryModal open={showUpdateModal} onClose={() => setShowUpdateModal(false)} repositories={userRepository} />
+        <UpdateRepositoryModal open={showUpdateModal} onClose={() => setShowUpdateModal(false)} userRepository={userRepository} />
       )}
     </>
   );

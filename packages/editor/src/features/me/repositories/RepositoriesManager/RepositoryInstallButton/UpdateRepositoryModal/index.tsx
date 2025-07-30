@@ -5,17 +5,13 @@ import { Modal, ModalActions } from '@components/Modal';
 import { PrimaryButton } from '@components/Button';
 import { SecondaryButton } from '@components/Button/Secondary';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  UserRepositoryWithDetails,
-  userRepositoriesQueryOptions,
-  updateUserRepositoryVersion,
-  repositoryVersionQueryOptions,
-} from '@services/repositories';
+import { userRepositoriesQueryOptions, updateUserRepositoryVersion, repositoryVersionQueryOptions } from '@services/repositories';
+import { UserRepository } from '@typings/hono';
 
 interface UpdateRepositoryModalProps {
   open: boolean;
   onClose: () => void;
-  repositories: UserRepositoryWithDetails;
+  userRepository: UserRepository;
 }
 
 const Header = styled.div`
@@ -182,10 +178,12 @@ const GitHubLink = styled.a`
   }
 `;
 
-export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRepositoryModalProps) {
+export function UpdateRepositoryModal({ open, onClose, userRepository }: UpdateRepositoryModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const updatedRepositoryQuery = useQuery(repositoryVersionQueryOptions(repositories.repository.id, repositories.repository.latestVersion));
+  const updatedRepositoryQuery = useQuery(
+    repositoryVersionQueryOptions(userRepository.repository.id, userRepository.repository.latestVersion)
+  );
   const updateRepository = updatedRepositoryQuery.data ?? null;
   const queryClient = useQueryClient();
 
@@ -194,7 +192,7 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
       if (!updateRepository) {
         throw new Error('Update repository data not available');
       }
-      return updateUserRepositoryVersion(repositories.id, updateRepository.id, {
+      return updateUserRepositoryVersion(userRepository.id, updateRepository.id, {
         success: 'Repository updated successfully',
         error: 'Failed to update repository',
       });
@@ -209,11 +207,11 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
       const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
 
       // Optimistically update the cache
-      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepository[] | undefined) => {
         if (!old || !updateRepository) return old;
 
         return old.map(repo => {
-          if (repo.id === repositories.id) {
+          if (repo.id === userRepository.id) {
             return {
               ...repo,
               versionId: updateRepository.id,
@@ -259,7 +257,7 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
   // Release notes content with proper link rendering
   const releaseNotesContent = updateRepository?.releaseNotesUrl ? (
     <>
-      What&apos;s new in version {repositories.repository.latestVersion}:
+      What&apos;s new in version {userRepository.repository.latestVersion}:
       <br />
       <br />
       <ReleaseNotesLink href={updateRepository.releaseNotesUrl} target='_blank' rel='noopener noreferrer'>
@@ -277,11 +275,11 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
           <PackageIcon size={24} />
         </RepositoryIcon>
         <RepositoryInfo>
-          <RepositoryName>{repositories.repository.name}</RepositoryName>
+          <RepositoryName>{userRepository.repository.name}</RepositoryName>
           <RepositoryUrl>
-            <GitHubLink href={repositories.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+            <GitHubLink href={userRepository.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
               <GithubIcon size={14} />
-              <span>{repositories.repository.githubUrl}</span>
+              <span>{userRepository.repository.githubUrl}</span>
             </GitHubLink>
           </RepositoryUrl>
         </RepositoryInfo>
@@ -293,9 +291,9 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
         </VersionUpdateHeader>
 
         <VersionComparison>
-          <VersionBadge type='current'>Current: {repositories.version.version}</VersionBadge>
+          <VersionBadge type='current'>Current: {userRepository.version.version}</VersionBadge>
           <ChevronRightIcon size={16} color='var(--color-text-muted)' />
-          <VersionBadge type='new'>New: {repositories.repository.latestVersion}</VersionBadge>
+          <VersionBadge type='new'>New: {userRepository.repository.latestVersion}</VersionBadge>
         </VersionComparison>
       </VersionUpdateSection>
 
@@ -327,9 +325,9 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
           loading={isUpdating}
           disabled={isUpdating}
           startIcon={<RefreshCwIcon size={16} />}
-          aria-label={`Update to ${repositories.repository.latestVersion}`}
+          aria-label={`Update to ${userRepository.repository.latestVersion}`}
         >
-          {isUpdating ? 'Updating...' : `Update to ${repositories.repository.latestVersion}`}
+          {isUpdating ? 'Updating...' : `Update to ${userRepository.repository.latestVersion}`}
         </PrimaryButton>
       </ModalActions>
     </Modal>

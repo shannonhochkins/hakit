@@ -9,12 +9,9 @@ import { InputField } from '@components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Confirm } from '@components/Modal/confirm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  userRepositoriesQueryOptions,
-  disconnectRepository,
-  toggleComponentStatus,
-  UserRepositoryWithDetails,
-} from '@services/repositories';
+import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus } from '@services/repositories';
+
+import { UserRepository } from '@typings/hono';
 import { SwitchField } from '@components/Form/Fields/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@components/Table';
 import { SecondaryButton } from '@components/Button';
@@ -142,7 +139,7 @@ export function RepositoriesManager() {
       await queryClient.cancelQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
       const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
 
-      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepository[] | undefined) => {
         if (!old) return old;
 
         return old.map(repo => {

@@ -1,4 +1,5 @@
-import { api, callApi } from './callApi';
+import { callApi } from './callApi';
+import { api } from './client';
 
 export async function uploadImage(files: FileList | null) {
   if (!files || files.length === 0) return;

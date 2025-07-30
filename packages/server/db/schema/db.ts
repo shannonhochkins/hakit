@@ -1,5 +1,8 @@
 import { pgTable, varchar, unique, jsonb, check, index, timestamp, uuid, text, integer } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
+import { PuckPageData } from '@typings/puck';
+import { Json } from 'drizzle-zod';
+import type { BreakpointItem } from '@typings/breakpoints';
 
 // ----------------------
 // DASHBOARD TABLE - multiple dashboards per user
@@ -15,11 +18,11 @@ export const dashboardTable = pgTable(
     // the user id of the dashboard owner
     userId: varchar('user_id', { length: 50 }).notNull(),
     // breakpoints for the dashboard as json
-    breakpoints: jsonb('breakpoints').notNull().default({}),
+    breakpoints: jsonb('breakpoints').$type<BreakpointItem[]>().notNull().default([]),
     // optional thumbnail path or URL
     thumbnail: varchar('thumbnail', { length: 255 }),
     // any data to store against the dashboard, basically global settings
-    data: jsonb('data').notNull(),
+    data: jsonb('data').$type<Json>().notNull(),
     createdAt: timestamp('created_at', { withTimezone: false }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: false }).defaultNow().notNull(),
   },
@@ -45,7 +48,7 @@ export const pagesTable = pgTable(
     // the route name used to access the page
     path: varchar('path', { length: 50 }).notNull(),
     // the data for the page in the format of puck data
-    data: jsonb('data').notNull(),
+    data: jsonb('data').$type<PuckPageData>().notNull(),
     // the dashboard id that this page belongs to
     dashboardId: uuid('dashboard_id')
       .references(() => dashboardTable.id, {

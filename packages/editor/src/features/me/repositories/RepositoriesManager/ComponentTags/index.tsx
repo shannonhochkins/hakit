@@ -1,4 +1,4 @@
-import { RepositoryVersionAPI } from '@typings/db';
+import { RepositoryVersion } from '@typings/hono';
 import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
 
@@ -11,7 +11,7 @@ const ComponentTag = styled.span`
   font-weight: var(--font-weight-medium);
 `;
 
-export function ComponentTags({ components }: { components: RepositoryVersionAPI['components'] }) {
+export function ComponentTags({ components }: { components: RepositoryVersion['components'] }) {
   return (
     components &&
     components.length > 0 && (

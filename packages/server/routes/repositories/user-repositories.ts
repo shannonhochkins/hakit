@@ -243,7 +243,12 @@ const userRepositoriesRoute = new Hono()
           })
           .where(eq(repositoriesTable.id, existingConnection.repositoryId));
 
-        return c.json(updatedUserRepo, 200);
+        return c.json(
+          {
+            userRepository: updatedUserRepo,
+          },
+          200
+        );
       } catch (error) {
         return c.json(formatErrorResponse('Error updating repository version', error), 400);
       }

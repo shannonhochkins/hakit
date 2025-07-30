@@ -1,33 +1,34 @@
 import { queryOptions } from '@tanstack/react-query';
-import { api, callApi, ToastMessages } from '@services/callApi';
-import { RepositoryAPI, RepositoryVersionAPI, UserRepositoryAPI, RepositoryWithLatestVersionAPI } from '@typings/db';
-
-export interface UserRepositoryWithDetails {
-  id: string;
-  userId: string;
-  connectedAt: string;
-  repositoryId: string;
-  versionId: string;
-  lastUsedAt: string | null;
-  repository: RepositoryAPI;
-  version: Omit<RepositoryVersionAPI, 'components'> & {
-    components: Array<{
-      name: string;
-      enabled: boolean;
-    }>;
-  };
-}
+import { callApi, ToastMessages } from '@services/callApi';
+import { Repository, UserRepository, RepositoryWithLatestVersion, RepositoryVersion } from '@typings/hono';
+// import { RepositoryAPI, RepositoryVersionAPI, UserRepositoryAPI, RepositoryWithLatestVersionAPI } from '@typings/db';
+import { api } from './client';
+// export interface UserRepositoryWithDetails {
+//   id: string;
+//   userId: string;
+//   connectedAt: string;
+//   repositoryId: string;
+//   versionId: string;
+//   lastUsedAt: string | null;
+//   repository: RepositoryAPI;
+//   version: Omit<RepositoryVersionAPI, 'components'> & {
+//     components: Array<{
+//       name: string;
+//       enabled: boolean;
+//     }>;
+//   };
+// }
 
 // ============================
 // REPOSITORY BROWSING
 // ============================
 
-export async function getRepositories(toastMessage?: ToastMessages): Promise<RepositoryAPI[]> {
+export async function getRepositories(toastMessage?: ToastMessages): Promise<Repository[]> {
   const response = await callApi(api.repositories.repositories.$get(), toastMessage);
   return response.repositories;
 }
 
-export async function getRepository(repositoryId: string, toastMessage?: ToastMessages): Promise<RepositoryAPI> {
+export async function getRepository(repositoryId: string, toastMessage?: ToastMessages): Promise<Repository> {
   const response = await callApi(
     api.repositories.repositories[':id'].$get({
       param: { id: repositoryId },
@@ -41,7 +42,7 @@ export async function getRepositoryVersion(
   repositoryId: string,
   version: string,
   toastMessage?: ToastMessages
-): Promise<RepositoryVersionAPI> {
+): Promise<RepositoryVersion> {
   const response = await callApi(
     api.repositories.repositories[':id'].versions[':version'].$get({
       param: { id: repositoryId, version },
@@ -51,7 +52,7 @@ export async function getRepositoryVersion(
   return response.version;
 }
 
-export async function getRepositoryVersions(repositoryId: string, toastMessage?: ToastMessages): Promise<RepositoryVersionAPI[]> {
+export async function getRepositoryVersions(repositoryId: string, toastMessage?: ToastMessages): Promise<RepositoryVersion[]> {
   const response = await callApi(
     api.repositories.repositories[':id'].versions.$get({
       param: { id: repositoryId },
@@ -69,7 +70,7 @@ export async function searchRepositories(
   query?: string,
   options: { limit?: number; offset?: number; sortBy?: 'popularity' | 'updated' } = {},
   toastMessage?: ToastMessages
-): Promise<RepositoryWithLatestVersionAPI[]> {
+): Promise<RepositoryWithLatestVersion[]> {
   const { limit = 20, offset = 0, sortBy = 'popularity' } = options;
 
   const response = await callApi(
@@ -91,17 +92,17 @@ export async function searchRepositoriesByComponent(
   component: string,
   options: { limit?: number; offset?: number } = {},
   toastMessage?: ToastMessages
-): Promise<RepositoryWithLatestVersionAPI[]> {
+): Promise<RepositoryWithLatestVersion[]> {
   // Use the unified search with the component name as query
   return searchRepositories(component, options, toastMessage);
 }
 
-export async function getPopularRepositories(limit: number = 10, toastMessage?: ToastMessages): Promise<RepositoryWithLatestVersionAPI[]> {
+export async function getPopularRepositories(limit: number = 10, toastMessage?: ToastMessages): Promise<RepositoryWithLatestVersion[]> {
   // Use the unified search without query to get popular repositories
   return searchRepositories(undefined, { limit, sortBy: 'popularity' }, toastMessage);
 }
 
-export async function getRecentRepositories(limit: number = 10, toastMessage?: ToastMessages): Promise<RepositoryWithLatestVersionAPI[]> {
+export async function getRecentRepositories(limit: number = 10, toastMessage?: ToastMessages): Promise<RepositoryWithLatestVersion[]> {
   // Use the unified search without query to get recent repositories
   return searchRepositories(undefined, { limit, sortBy: 'updated' }, toastMessage);
 }
@@ -110,12 +111,12 @@ export async function getRecentRepositories(limit: number = 10, toastMessage?: T
 // USER REPOSITORIES
 // ============================
 
-export async function getUserRepositories(toastMessage?: ToastMessages): Promise<UserRepositoryWithDetails[]> {
+export async function getUserRepositories(toastMessage?: ToastMessages): Promise<UserRepository[]> {
   const response = await callApi(api.repositories['user-repositories'].$get(), toastMessage);
   return response.userRepositories;
 }
 
-export async function connectRepository(repositoryId: string, versionId: string, toastMessage?: ToastMessages): Promise<UserRepositoryAPI> {
+export async function connectRepository(repositoryId: string, versionId: string, toastMessage?: ToastMessages): Promise<UserRepository> {
   const response = await callApi(
     api.repositories['user-repositories'].$post({
       json: {
@@ -128,11 +129,7 @@ export async function connectRepository(repositoryId: string, versionId: string,
   return response;
 }
 
-export async function updateUserRepositoryVersion(
-  userRepositoryId: string,
-  versionId: string,
-  toastMessage?: ToastMessages
-): Promise<UserRepositoryAPI> {
+export async function updateUserRepositoryVersion(userRepositoryId: string, versionId: string, toastMessage?: ToastMessages) {
   return await callApi(
     api.repositories['user-repositories'][':userRepoId'].$put({
       param: { userRepoId: userRepositoryId },
