@@ -111,6 +111,7 @@ export const SwitchField = ({
   style,
   label = '',
   loading = false,
+  readOnly = false,
   checked,
   onChange,
   disabled,
@@ -121,6 +122,7 @@ export const SwitchField = ({
   error?: boolean;
   loading?: boolean;
   checked?: boolean;
+  readOnly?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
 }) => {
@@ -132,7 +134,14 @@ export const SwitchField = ({
         disabled={disabled || loading}
         control={
           <SwitchContainer loading={loading}>
-            <StyledSwitchField loading={loading} disabled={disabled || loading} checked={checked} onChange={onChange} />
+            <StyledSwitchField
+              readOnly={readOnly}
+              name={props.name}
+              loading={loading}
+              disabled={disabled || loading}
+              checked={checked}
+              onChange={onChange}
+            />
             {loading && <LoadingSpinner />}
           </SwitchContainer>
         }
