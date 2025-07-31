@@ -1,15 +1,15 @@
-import { ComponentConfig, RenderProps } from '@hakit/create-editor';
+import { ComponentConfig, RenderProps } from '@hakit/addon';
 
 interface DefaultComponentNameProps {
   // Add your props here
-  title?: string;
+  description?: string;
 }
 
 export function Render(props: RenderProps<DefaultComponentNameProps>) {
   return (
-    <div className={props.title} {...props}>
+    <div>
       <h1>DefaultComponentName</h1>
-      <p>Your component implementation goes here.</p>
+      <p>{props.description}</p>
     </div>
   );
 }
@@ -18,9 +18,9 @@ export function Render(props: RenderProps<DefaultComponentNameProps>) {
 export const config: ComponentConfig<DefaultComponentNameProps> = {
   label: 'Default Component Name',
   fields: {
-    title: {
+    description: {
       type: 'text',
-      label: 'Title',
+      label: 'Description',
       default: '',
     },
   },

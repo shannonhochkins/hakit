@@ -122,7 +122,7 @@ If you prefer not to use the scaffolding tool:
 Each component should follow this pattern:
 
 ```tsx
-import { ComponentConfig, RenderProps } from '@hakit/create-editor';
+import { ComponentConfig, RenderProps } from '@hakit/addon';
 
 interface YourComponentNameProps {
   // Add your props here

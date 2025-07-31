@@ -35,7 +35,7 @@ const getLatestNpmVersion = (packageName: string): string => {
 const program = new Command();
 
 program
-  .name('@hakit/create-editor')
+  .name('@hakit/addon')
   .description('Create a new HAKIT editor application')
   .version('1.0.0')
   .action(async () => {
@@ -135,6 +135,15 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
     },
   });
 
+  // Copy GIT_IGNORE template file and rename it to .gitignore
+  const templateGitignorePath = path.join(templatePath, 'GIT_IGNORE');
+  const projectGitignorePath = path.join(projectPath, '.gitignore');
+
+  if (await fs.pathExists(templateGitignorePath)) {
+    await fs.copy(templateGitignorePath, projectGitignorePath);
+    console.log(chalk.gray('  ✓ Copied .gitignore'));
+  }
+
   // Replace placeholders in copied files
   console.log(chalk.blue('🔧 Customizing template...'));
 
@@ -149,25 +158,9 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   // Get latest versions for dependencies
   console.log(chalk.blue('📦 Fetching latest package versions...'));
 
-  const dependencies: string[] = [];
+  const dependencies: string[] = ['react', 'react-dom'];
 
-  const devDependencies = [
-    '@hakit/create-editor',
-    '@module-federation/rsbuild-plugin',
-    '@rsbuild/core',
-    '@rsbuild/plugin-react',
-    '@types/archiver',
-    '@swc/plugin-emotion',
-    '@types/node',
-    '@types/react',
-    '@eslint/js',
-    'eslint',
-    'eslint-plugin-react-hooks',
-    'eslint-plugin-react-refresh',
-    'typescript',
-  ];
-
-  const peerDependencies = ['react', 'react-dom', 'home-assistant-js-websocket', '@emotion/react', '@hakit/core', 'archiver'];
+  const devDependencies = ['@hakit/addon', 'typescript', '@types/react'];
 
   // Fetch latest versions
   packageJson.dependencies = {};
@@ -187,18 +180,8 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
     version: getLatestNpmVersion(dep),
   }));
 
-  // Fetch peer dependencies
-  const peerDependencyPromises = peerDependencies.map(async dep => ({
-    name: dep,
-    version: getLatestNpmVersion(dep),
-  }));
-
   // Fetch all versions in parallel
-  const [depResults, devDepResults, peerDepResults] = await Promise.all([
-    Promise.all(dependencyPromises),
-    Promise.all(devDependencyPromises),
-    Promise.all(peerDependencyPromises),
-  ]);
+  const [depResults, devDepResults] = await Promise.all([Promise.all(dependencyPromises), Promise.all(devDependencyPromises)]);
 
   // Populate dependencies
   for (const { name, version } of depResults) {
@@ -208,11 +191,6 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   // Populate dev dependencies
   for (const { name, version } of devDepResults) {
     packageJson.devDependencies[name] = version;
-  }
-
-  // Populate peer dependencies
-  for (const { name, version } of peerDepResults) {
-    packageJson.peerDependencies[name] = version;
   }
 
   await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });

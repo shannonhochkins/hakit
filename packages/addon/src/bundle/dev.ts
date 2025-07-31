@@ -121,7 +121,7 @@ export async function startDevServer(options: DevOptions): Promise<void> {
 const program = new Command();
 
 program
-  .name('@hakit/create-editor dev')
+  .name('@hakit/addon dev')
   .description('Start HAKIT editor development server with Module Federation')
   .option('--debug', 'Enable debug logging', false)
   .option('-p, --port <port>', 'Port number for the development server', '3000')

@@ -53,6 +53,12 @@ export function createRsbuildConfig(moduleFederationConfig: ModuleFederationPlug
           },
         },
       },
+      dev: {
+        hmr: false,
+      },
+      server: {
+        port: 0, // Don't start a server during build
+      },
       plugins: [
         pluginReact({
           swcReactOptions: {

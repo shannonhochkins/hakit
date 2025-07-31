@@ -17,8 +17,8 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
     "paths": {
-      "@hakit/create-editor": ["./dist/index.d.ts"],
-      "@hakit/create-editor/*": ["./dist/*"],
+      "@hakit/addon": ["./dist/index.d.ts"],
+      "@hakit/addon/*": ["./dist/*"],
       "@typings/*": ["../shared/typings/*"],
       "@helpers/*": ["../editor/src/helpers/*"],
       "@services/*": ["../editor/src/services/*"],

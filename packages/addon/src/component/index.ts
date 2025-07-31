@@ -92,7 +92,7 @@ async function createComponent() {
     await fs.ensureDir(componentDir);
 
     // Copy component template and replace placeholders
-    const componentTemplatePath = path.join(__dirname, '../../templates/component.tsx');
+    const componentTemplatePath = path.join(__dirname, '../../templates/basic/src/components/__COMPONENT_NAME__/index.tsx');
     let componentContent = await fs.readFile(componentTemplatePath, 'utf8');
     componentContent = componentContent
       .replace(/DefaultComponentName/g, componentName)

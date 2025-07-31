@@ -244,9 +244,8 @@ export async function buildProject(options: BuildOptions): Promise<void> {
 
   const distMfDir = path.join(projectPath, 'dist', 'mf');
 
-  // Clean existing dist directory
+  log('🧹 Cleaning existing build...');
   if (fs.existsSync(distMfDir)) {
-    log('🧹 Cleaning existing build...');
     fs.rmSync(distMfDir, { recursive: true, force: true });
   }
 
@@ -288,7 +287,7 @@ export async function buildProject(options: BuildOptions): Promise<void> {
 const program = new Command();
 
 program
-  .name('@hakit/create-editor bundle')
+  .name('@hakit/addon bundle')
   .description('Build HAKIT editor components with Module Federation')
   .option('--debug', 'Enable debug logging', false)
   .action(async options => {

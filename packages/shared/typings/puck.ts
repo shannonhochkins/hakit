@@ -13,8 +13,6 @@ import { type HassEntities, type HassServices } from 'home-assistant-js-websocke
 import type { Dashboard } from './hono';
 import type { FieldConfiguration } from './fields';
 
-export type ComponentProps = DefaultComponentProps;
-
 export type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly
   breakpoint: keyof AvailableQueries;
@@ -41,8 +39,9 @@ export type AdditionalRenderProps = {
 };
 
 /**
- * This gross type, is so we can override puck values in certain scenarios
+ * This type, is so we can override puck values in certain scenarios
  * This type will also be used for external component definitions for users when defining custom components
+ * NOTE: Any time this type or related types are updated, the `@hakit/addon` package should be updated to ensure compatibility
  */
 export type CustomComponentConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
@@ -59,8 +58,6 @@ export type CustomComponentConfig<
   render: PuckComponent<Props & AdditionalRenderProps>;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
-
-export type CustomRenderProps<T extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<T>['render'];
 
 export type ComponentFactoryData = {
   getAllEntities: () => HassEntities;

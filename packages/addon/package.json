@@ -1,14 +1,17 @@
 {
-  "name": "@hakit/create-editor",
+  "name": "@hakit/addon",
   "description": "Create HAKIT editor applications with a single command",
-  "version": "0.0.3",
+  "version": "0.0.11",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "create-hakit-component": "./dist/bin/index.js",
-    "@hakit/create-editor": "./dist/bin/index.js",
+    "@hakit/addon": "./dist/bin/index.js",
     "hakit-create-component": "./dist/component/index.js",
     "hakit-bundle": "./dist/bundle/bundle.js",
     "hakit-dev": "./dist/bundle/dev.js"
@@ -41,7 +44,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/shannonhochkins/hakit.git",
-    "directory": "packages/create-editor"
+    "directory": "packages/addon"
   },
   "scripts": {
     "dev": "tsup --watch",
@@ -51,26 +54,33 @@
     "test:script": "rm -rf tmp && mkdir tmp && cd tmp && node ../dist/bin/index.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.0.0",
+    "@hakit/core": "^5.1.1",
+    "@measured/puck": "^0.19.3",
     "@module-federation/rsbuild-plugin": "^0.7.0",
     "@rsbuild/core": "^1.3.4",
     "@rsbuild/plugin-react": "^1.3.4",
     "@rslib/core": "^0.11.0",
+    "@swc/plugin-emotion": "^11.0.0",
     "archiver": "^7.0.1",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "fs-extra": "^11.2.0",
-    "prompts": "^2.4.2"
+    "home-assistant-js-websocket": "^9.5.0",
+    "prompts": "^2.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.2",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.2",
     "@types/prompts": "^2.4.9",
-    "home-assistant-js-websocket": "^9.5.0",
     "tsup": "^8.5.0",
     "type-fest": "^4.41.0",
     "typescript": "^5.7.2"
   },
+  "peerDependencies": {},
   "engines": {
     "node": ">=18.0.0"
   }

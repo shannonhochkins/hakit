@@ -1,7 +1,7 @@
-# @hakit/create-editor
+# @hakit/addon
 
 ![HAKIT Logo](https://img.shields.io/badge/HAKIT-Editor-blue)
-![npm version](https://img.shields.io/npm/v/@hakit/create-editor)
+![npm version](https://img.shields.io/npm/v/@hakit/addon)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 
 Create [hakit.dev](https://hakit.dev) compatible addon repositories with a single command.
@@ -12,27 +12,27 @@ Create a new HAKIT editor project using any of the following package managers:
 
 ### npm
 ```bash
-npx @hakit/create-editor@latest
+npx @hakit/addon@latest
 ```
 
 ### Yarn
 ```bash
 # Yarn 1.x (Classic)
-yarn create @hakit/create-editor@latest
+yarn create @hakit/addon@latest
 
 # Yarn 2+ (Berry) 
-yarn dlx @hakit/create-editor@latest
+yarn dlx @hakit/addon@latest
 ```
 
 ### pnpm
 ```bash
 # Using dlx
-pnpm dlx @hakit/create-editor@latest
+pnpm dlx @hakit/addon@latest
 ```
 
 ### Bun
 ```bash
-bunx @hakit/create-editor@latest
+bunx @hakit/addon@latest
 ```
 
 The CLI will prompt you for:
@@ -67,7 +67,7 @@ Each command uses the bundled tools from this package to provide a seamless deve
 
 ### Testing the Package
 
-To test changes to the create-editor package:
+To test changes to the addon package:
 
 ```bash
 # Build and pack the package
@@ -90,7 +90,7 @@ If you need to test with a specific packed version:
 
 ```bash
 # Install the packed .tgz file
-npm install ../hakit-create-editor-1.0.0.tgz
+npm install ../hakit-addon-1.0.0.tgz
 npm run build
 ```
 
@@ -99,7 +99,7 @@ npm run build
 ### Project Structure
 
 ```
-@hakit/create-editor/
+@hakit/addon/
 ├── package.json
 ├── tsconfig.json
 ├── tsup.config.ts
@@ -135,7 +135,7 @@ npm run build
 
 The package provides several CLI commands:
 
-- `@hakit/create-editor` / `create-hakit-component` - Create new projects
+- `@hakit/addon` / `create-hakit-component` - Create new projects
 - `hakit-bundle` - Build and package components
 - `hakit-dev` - Start development server  
 - `hakit-create-component` - Generate new components
@@ -161,7 +161,7 @@ Components are exposed via Module Federation, allowing them to be dynamically lo
 
 ### Stable Release
 
-To publish a new stable version of the create-editor package:
+To publish a new stable version of the addon package:
 
 1. **Update version** in `package.json`:
    ```json
@@ -190,15 +190,15 @@ To publish a new stable version of the create-editor package:
 4. **Commit changes**:
    ```bash
    git add .
-   git commit -m "chore(create-editor): release v1.2.3"
+   git commit -m "chore(addon): release v1.2.3"
    ```
 
 5. **Publish to npm**:
    ```bash
    npm publish
    ```
-
-The stable release will be available via `npx @hakit/create-editor@latest`.
+   
+The stable release will be available via `npx @hakit/addon@latest`.
 
 ### Canary Release
 
@@ -224,19 +224,19 @@ To publish a canary/pre-release version for testing:
 
    Optionally, tag the commit for tracking:
    ```bash
-   git tag @hakit/create-editor@1.2.3-canary.1
+   git tag @hakit/addon@1.2.3-canary.1
    git push origin main --tags
    ```
 
 4. **Test canary version**:
    ```bash
    # Install specific canary version
-   npx @hakit/create-editor@canary
+   npx @hakit/addon@canary
    # Or specific version
-   npx @hakit/create-editor@1.2.3-canary.1
+   npx @hakit/addon@1.2.3-canary.1
    ```
 
-**Note**: Canary versions will **not** be installed when users run `npx @hakit/create-editor@latest` - they must explicitly specify the canary tag or version number.
+**Note**: Canary versions will **not** be installed when users run `npx @hakit/addon@latest` - they must explicitly specify the canary tag or version number.
 
 
 ## Support
