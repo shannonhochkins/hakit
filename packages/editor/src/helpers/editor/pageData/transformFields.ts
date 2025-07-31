@@ -1,5 +1,5 @@
 import { createCustomField } from '@helpers/editor/createCustomField';
-import type { CustomFieldsConfiguration } from '@typings/fields';
+import type { FieldConfiguration, FieldConfigurationWithDefinition } from '@typings/fields';
 import type { ComponentData, DefaultComponentProps } from '@measured/puck';
 
 function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
@@ -40,10 +40,10 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
  * ```
  */
 export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
-  fields: CustomFieldsConfiguration<P, false, DataShape>,
+  fields: FieldConfiguration<P, DataShape>,
   isTopLevel: boolean = true
-): CustomFieldsConfiguration<P, true> {
-  const result = {} as CustomFieldsConfiguration<P, true>;
+): FieldConfigurationWithDefinition<P, true> {
+  const result = {} as FieldConfigurationWithDefinition<P, true>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
     // Skip processing 'id' fields only at the top level (they are system fields for components)

@@ -25,7 +25,7 @@ import { Column, Row } from '@hakit/components';
 import { InputField } from '@components/Form/Fields/Input';
 import { InputAdornment } from '@mui/material';
 import { Tooltip } from '@components/Tooltip';
-import { DashboardWithoutPageData, DashboardPageWithoutData } from '@typings/dashboard';
+import { Dashboard, DashboardPageWithoutData } from '@typings/hono';
 import {
   TableContainer as StyledTableContainer,
   Table as StyledTable,
@@ -283,7 +283,7 @@ const SortIcon = styled.div<{ direction?: 'asc' | 'desc' }>`
   transition: opacity var(--transition-normal);
 `;
 
-function getDashboardById(dashboards: DashboardWithoutPageData[], id: string) {
+function getDashboardById(dashboards: Dashboard[], id: string) {
   return dashboards.find(dashboard => dashboard.id === id) || null;
 }
 
@@ -526,7 +526,7 @@ export function Dashboards() {
   };
 
   // Type for dashboard with optional matched pages
-  type DashboardWithMatching = DashboardWithoutPageData & {
+  type DashboardWithMatching = Dashboard & {
     matchedPages?: DashboardPageWithoutData[];
     hasPageMatch?: boolean;
   };

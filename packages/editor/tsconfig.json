@@ -20,7 +20,7 @@
     "noUnusedParameters": true,
 
     "paths": {
-      "@typings/*": ["../../typings/*"],
+      "@typings/*": ["../shared/typings/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@services/*": ["./src/services/*"],
       "@routes/*": ["./src/routes/*"],
@@ -29,7 +29,8 @@
       "@constants/*": ["./src/constants/*"],
       "@constants": ["./src/constants/index.ts"],
       "@components/*": ["./src/components/*"],
-      "@server/*": ["../server/*"]
+      "@server/*": ["../server/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["src/**/*"],

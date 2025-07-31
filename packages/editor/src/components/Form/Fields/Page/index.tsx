@@ -1,7 +1,7 @@
 import { AutoField } from '@measured/puck';
 import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
-import { DashboardPageWithoutData } from '@typings/dashboard';
+import { DashboardPageWithoutData } from '@typings/hono';
 import { useDashboard } from '@hooks/queeries/useDashboard';
 
 interface NavigateProps {

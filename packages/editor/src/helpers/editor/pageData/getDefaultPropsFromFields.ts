@@ -1,12 +1,12 @@
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { DefaultPropsCallbackData } from '@typings/puck';
-import type { CustomFields, CustomFieldsConfiguration } from '@typings/fields';
+import type { CustomFields, FieldConfiguration } from '@typings/fields';
 
 /**
  * Recursively gathers default values from fields definitions.
  */
 export async function getDefaultPropsFromFields<P extends DefaultComponentProps>(
-  fields: CustomFieldsConfiguration<P, false, Omit<ComponentData<P>, 'type'>['props']>,
+  fields: FieldConfiguration<P, Omit<ComponentData<P>, 'type'>['props']>,
   data: DefaultPropsCallbackData
 ): Promise<P> {
   const result: DefaultComponentProps = {};
@@ -39,7 +39,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
           } else {
             nestedDefaults[nestedFieldName] =
               nestedFieldDef.type === 'object'
-                ? await getDefaultPropsFromFields(nestedFieldDef.objectFields as CustomFieldsConfiguration, data)
+                ? await getDefaultPropsFromFields(nestedFieldDef.objectFields as FieldConfiguration, data)
                 : nestedFieldDef.default;
           }
         }
@@ -59,7 +59,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
           } else {
             nestedArrayDefaults[key] =
               nestedArrayField.type === 'object'
-                ? await getDefaultPropsFromFields(nestedArrayField.objectFields as CustomFieldsConfiguration, data)
+                ? await getDefaultPropsFromFields(nestedArrayField.objectFields as FieldConfiguration, data)
                 : nestedArrayField.default;
           }
         }

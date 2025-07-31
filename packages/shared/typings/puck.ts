@@ -10,8 +10,8 @@ import {
 } from '@measured/puck';
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import type { DashboardWithoutPageData } from './dashboard';
-import type { CustomFieldsConfiguration } from './fields';
+import type { Dashboard } from './hono';
+import type { FieldConfiguration } from './fields';
 
 export type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly
@@ -30,7 +30,7 @@ export type DefaultPropsCallbackData = {
 export type AdditionalRenderProps = {
   /** the hakit context, this houses additional information to send to each render of each component */
   _activeBreakpoint: keyof AvailableQueries;
-  _dashboard: DashboardWithoutPageData | null;
+  _dashboard: Dashboard | null;
   _editor?: {
     document: Document | null;
     window: Window | null;
@@ -39,8 +39,9 @@ export type AdditionalRenderProps = {
 };
 
 /**
- * This gross type, is so we can override puck values in certain scenarios
+ * This type, is so we can override puck values in certain scenarios
  * This type will also be used for external component definitions for users when defining custom components
+ * NOTE: Any time this type or related types are updated, the `@hakit/addon` package should be updated to ensure compatibility
  */
 export type CustomComponentConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
@@ -53,37 +54,7 @@ export type CustomComponentConfig<
   // Label is required
   label: string;
   // Custom fields configuration instead of Puck's Fields
-  fields: CustomFieldsConfiguration<Props, false, Omit<ComponentData<FieldProps>, 'type'>['props']>;
-  // Enhanced resolveFields with custom field configuration
-  // resolveFields?: (
-  //   data: DeepPartial<DataShape>,
-  //   params: {
-  //     changed: Partial<Record<keyof FieldProps, boolean>>;
-  //     fields: CustomFieldsConfiguration<FieldProps, WithField>;
-  //     lastFields: CustomFieldsConfiguration<FieldProps, WithField>;
-  //     lastData: DataShape | null;
-  //     appState: AppState;
-  //     parent: ComponentData | null;
-  //   }
-  // ) => Promise<CustomFieldsConfiguration<FieldProps, WithField>> | CustomFieldsConfiguration<FieldProps, WithField>;
-  // // Enhanced resolveData with additional context
-  // resolveData?: (
-  //   data: DeepPartial<DataShape>,
-  //   params: {
-  //     // Additional context we can provide
-  //     entities: HassEntities;
-  //     services: HassServices | null;
-  //     // puck stuff
-  //     changed: Partial<
-  //       Record<keyof FieldProps, boolean> & {
-  //         id: string;
-  //       }
-  //     >;
-  //     lastData: DataShape | null;
-  //     metadata: Metadata;
-  //     trigger: ResolveDataTrigger;
-  //   }
-  // ) => Promise<DeepPartial<DataShape>> | DeepPartial<DataShape>;
+  fields: FieldConfiguration<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   render: PuckComponent<Props & AdditionalRenderProps>;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };

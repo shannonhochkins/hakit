@@ -5,11 +5,11 @@ import { PackageIcon, DownloadIcon, GitBranchIcon, RefreshCw, GithubIcon, Chevro
 import { ComponentTags } from '../ComponentTags';
 import { formatNumber } from '@helpers/number';
 import { timeAgo } from '@hakit/core';
-import { RepositoryWithLatestVersionAPI } from '@typings/db';
+import { RepositoryWithLatestVersion } from '@typings/hono';
 import { Tooltip } from '@components/Tooltip';
 
 interface RepositoryListItemProps {
-  repository: RepositoryWithLatestVersionAPI;
+  repository: RepositoryWithLatestVersion;
   actions?: React.ReactNode;
   children?: React.ReactNode;
   defaultExpanded?: boolean;

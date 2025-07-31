@@ -9,7 +9,7 @@ import { Column, Row } from '@hakit/components';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { searchRepositoriesQueryOptions, popularRepositoriesQueryOptions } from '@services/repositories';
-import { RepositoryWithLatestVersionAPI } from '@typings/db';
+import { RepositoryWithLatestVersion } from '@typings/hono';
 import { RepositoryListItem } from '@features/me/repositories/RepositoriesManager/RepositoryListItem';
 import { RepositoryInstallButton } from '@features/me/repositories/RepositoriesManager/RepositoryInstallButton';
 import { EmptyState } from '@components/EmptyState';
@@ -163,7 +163,7 @@ export function Explore() {
             />
           )
         ) : (
-          repositories.map((repo: RepositoryWithLatestVersionAPI) => (
+          repositories.map((repo: RepositoryWithLatestVersion) => (
             <RepositoryListItem
               key={repo.version.id}
               repository={repo}
