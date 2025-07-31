@@ -54,6 +54,7 @@ const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   grid: <TableCellsSplit size={16} />,
   code: <CodeXml size={16} />,
   divider: <Minus size={16} />,
+  switch: <CheckCircle size={16} />,
   // not seen anyway
   hidden: <Hash size={16} />,
 };

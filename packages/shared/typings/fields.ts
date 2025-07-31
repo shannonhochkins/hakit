@@ -82,6 +82,10 @@ export type SliderField = BaseField & {
   step?: number;
 };
 
+export type SwitchField = BaseField & {
+  type: 'switch';
+};
+
 export type GridField = BaseField & {
   type: 'grid';
   min?: number;
@@ -157,6 +161,7 @@ export type CustomFields<
   | (Omit<SliderField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
+  | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape>, 'default'> & E)

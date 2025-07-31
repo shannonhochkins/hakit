@@ -15,6 +15,7 @@ import { NumberField as CustomNumberField } from '@components/Form/Fields/Number
 import { HassEntity } from 'home-assistant-js-websocket';
 import { Alert } from '@components/Alert';
 import styled from '@emotion/styled';
+import { SwitchField } from '@components/Form/Fields/Switch';
 
 const StyledAlert = styled(Alert)`
   margin: 0;
@@ -117,6 +118,20 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
         name={name}
         id={field.id}
         readOnly={field.readOnly}
+      />
+    );
+  }
+  if (field.type === 'switch') {
+    return (
+      <SwitchField
+        checked={_value}
+        name={field.name}
+        readOnly={field.readOnly}
+        id={field.id}
+        onChange={e => {
+          const checked = (e.target as HTMLInputElement).checked;
+          _onChange(checked);
+        }}
       />
     );
   }
