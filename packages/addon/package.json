@@ -1,6 +1,6 @@
 {
   "name": "@hakit/addon",
-  "description": "Create HAKIT editor applications with a single command",
+  "description": "Create hakit.dev compatible addons with a single command",
   "version": "0.0.11",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
@@ -10,7 +10,6 @@
     "access": "public"
   },
   "bin": {
-    "create-hakit-component": "./dist/bin/index.js",
     "@hakit/addon": "./dist/bin/index.js",
     "hakit-create-component": "./dist/component/index.js",
     "hakit-bundle": "./dist/bundle/bundle.js",
@@ -18,7 +17,8 @@
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -36,6 +36,10 @@
   },
   "keywords": [
     "hakit",
+    "hakit.dev",
+    "homeassistant",
+    "home-assistant",
+    "react",
     "editor",
     "scaffold",
     "template",

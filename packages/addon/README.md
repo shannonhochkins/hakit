@@ -135,7 +135,7 @@ npm run build
 
 The package provides several CLI commands:
 
-- `@hakit/addon` / `create-hakit-component` - Create new projects
+- `@hakit/addon` - Create new projects
 - `hakit-bundle` - Build and package components
 - `hakit-dev` - Start development server  
 - `hakit-create-component` - Generate new components
