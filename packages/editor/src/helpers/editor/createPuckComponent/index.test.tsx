@@ -184,7 +184,6 @@ export const definition: CustomComponentConfig<NavigationProps> = {
     },
   },
   permissions: { delete: true, drag: true, duplicate: false },
-  inline: true,
   render({ puck, options, clockOptions }) {
     return <NavigationBar clockOptions={clockOptions} options={options} ref={puck.dragRef} />;
   },

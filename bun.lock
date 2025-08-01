@@ -70,6 +70,7 @@
       },
       "dependencies": {
         "@emotion/react": "^11.0.0",
+        "@hakit/components": "^5.1.1",
         "@hakit/core": "^5.1.1",
         "@measured/puck": "^0.19.3",
         "@module-federation/rsbuild-plugin": "^0.7.0",

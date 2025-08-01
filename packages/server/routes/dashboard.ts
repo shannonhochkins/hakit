@@ -526,7 +526,7 @@ const dashboardRoute = new Hono()
           {
             page: pageRecord,
           },
-          201
+          200
         );
       } catch (error) {
         return c.json(formatErrorResponse('Error', error), 400);
@@ -607,7 +607,7 @@ const dashboardRoute = new Hono()
               pages: newPages,
             },
           },
-          201
+          200
         );
       } catch (error) {
         return c.json(formatErrorResponse('Error', error), 400);
@@ -676,7 +676,7 @@ const dashboardRoute = new Hono()
           {
             page: newPage,
           },
-          201
+          200
         );
       } catch (error) {
         return c.json(formatErrorResponse('Error', error), 400);

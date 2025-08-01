@@ -9,6 +9,7 @@ import type {
   BaseField as PuckBaseField,
   ObjectField,
   ArrayField,
+  SlotField,
   CustomField as PuckCustomField,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
@@ -166,6 +167,7 @@ export type CustomFields<
   | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape>, 'default'> & E)
   | CustomField<Props, E>
+  | SlotField
   | (HiddenField & E)
   | (EntityField<DataShape> & E);
 

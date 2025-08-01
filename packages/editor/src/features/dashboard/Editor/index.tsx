@@ -113,7 +113,7 @@ export function Editor() {
           // this was causing puck to load indefinitely
           waitForStyles: false,
         }}
-        plugins={[emotionCachePlugin, overridesPlugin]}
+        plugins={[overridesPlugin, emotionCachePlugin]}
         dnd={{
           disableAutoScroll: false,
         }}

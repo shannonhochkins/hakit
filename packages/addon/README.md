@@ -238,6 +238,9 @@ To publish a canary/pre-release version for testing:
 
 **Note**: Canary versions will **not** be installed when users run `npx @hakit/addon@latest` - they must explicitly specify the canary tag or version number.
 
+## Component Styling
+
+HAKIT supports emotion-based styling for components. For complete documentation, best practices, and important considerations about style inheritance, see [EMOTION_STYLING.md](./EMOTION_STYLING.md).
 
 ## Support
 

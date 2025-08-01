@@ -160,7 +160,7 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
 
   const dependencies: string[] = ['react', 'react-dom'];
 
-  const devDependencies = ['@hakit/addon', 'typescript', '@types/react'];
+  const devDependencies = ['@hakit/addon', 'typescript', '@types/react', '@emotion/styled', '@emotion/react'];
 
   // Fetch latest versions
   packageJson.dependencies = {};
