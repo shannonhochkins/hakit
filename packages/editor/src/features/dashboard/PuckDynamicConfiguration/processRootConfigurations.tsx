@@ -5,11 +5,12 @@ import { defaultRootConfig } from './defaultRoot';
 import { WithChildren } from '@measured/puck';
 import { Fragment } from 'react';
 import { css, Global } from '@emotion/react';
+import { FieldConfiguration } from '@typings/fields';
 
 // CustomRootConfig<RootData>['fields']
 
 export async function processRootConfigurations(rootConfigs: CustomRootConfigWithRemote[], data: ComponentFactoryData) {
-  const mergedFields: CustomRootConfig<RootData>['fields'] = {};
+  const mergedFields: FieldConfiguration<RootData> = {};
   const remoteKeys = new Set<string>();
 
   // casting here as types are correct on the defaultRootConfig value
@@ -25,6 +26,9 @@ export async function processRootConfigurations(rootConfigs: CustomRootConfigWit
     mergedFields[rootConfig._remoteRepositoryId] = {
       type: 'object',
       label: rootConfig._remoteRepositoryName || rootConfig.label,
+      collapseOptions: {
+        startExpanded: true,
+      },
       // @ts-expect-error - we know typescript, this is a dodgey hack
       objectFields: {
         ...rootConfig.fields,
@@ -43,8 +47,8 @@ export async function processRootConfigurations(rootConfigs: CustomRootConfigWit
     // Merge other properties from base config (excluding render and fields)
     ...baseConfig,
     // Set the merged fields
-    // @ts-expect-error - we know typescript, this is a dodgey hack
     fields: mergedFields,
+    // @ts-expect-error - intentionally empty, we're going to be updating this later with the component factory
     defaultProps: {},
     render() {
       return <></>;

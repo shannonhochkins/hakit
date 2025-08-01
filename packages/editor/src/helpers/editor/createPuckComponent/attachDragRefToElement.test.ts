@@ -217,16 +217,16 @@ describe('attachDragRefToElement', () => {
   test('should accept emotion CSS parameter without errors', () => {
     const element = createElement('div', {}, 'test');
     const mockDragRef = (() => {}) as (element: Element | null) => void;
-    
+
     // Test with undefined emotion CSS (should work the same as before)
     const result1 = attachDragRefToElement(element, mockDragRef, 'TestComponent', undefined);
     expect(result1).toBeDefined();
-    
-    // Test with null emotion CSS 
+
+    // Test with null emotion CSS
     const result2 = attachDragRefToElement(element, mockDragRef, 'TestComponent', undefined);
     expect(result2).toBeDefined();
-    
-    // Note: Testing with actual emotion CSS object would require @emotion/react 
+
+    // Note: Testing with actual emotion CSS object would require @emotion/react
     // to be properly set up in the test environment, so we just test the signature
     expect(consoleWarnings).toHaveLength(0);
   });

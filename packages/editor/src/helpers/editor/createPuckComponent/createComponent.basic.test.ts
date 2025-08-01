@@ -50,7 +50,7 @@ describe('createComponent - basic functionality', () => {
     const factory = createComponent(mockConfig);
 
     const result = await factory();
-    
+
     expect(result.label).toBe('Test Component');
     expect(result.permissions).toEqual({ delete: true, drag: false });
     expect(result.inline).toBe(true);
@@ -84,7 +84,7 @@ describe('createComponent - basic functionality', () => {
 
     const result = await factory();
     const renderedResult = result.render();
-    
+
     expect(renderedResult).toBe('wrapped(original-component)');
     expect(originalRender).toHaveBeenCalled();
   });

@@ -6,7 +6,8 @@ import {
   type Data,
   type Config,
   type Slot as InternalSlot,
-  RootConfig,
+  AsFieldProps,
+  RootData,
 } from '@measured/puck';
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
@@ -74,7 +75,9 @@ export type ComponentFactoryData = {
 
 export type PuckPageData = Data<DefaultComponentProps, DefaultComponentProps>;
 
-export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = RootConfig<RootProps>;
+export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
+  CustomComponentConfig<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
+>;
 
 export type CustomConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,

@@ -34,7 +34,6 @@ export function createComponent<
       services,
     });
     const isRootComponent = config.label === 'Root';
-    console.log(`HAKIT: Creating component "${config.label}" with default props`, defaultProps);
     const styleField: FieldConfiguration<{
       _styleOverrides: {
         style: string;

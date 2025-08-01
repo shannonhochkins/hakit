@@ -128,12 +128,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
         });
       } else {
         // create the puck definitions
-        const componentFactory = await createComponent(
-          {
-            ...component.config,
-          },
-          isRootComponent ? false : true
-        );
+        const componentFactory = await createComponent(component.config);
         // use our component factory to convert out component structure to a puck component
         const componentConfig = await componentFactory(data);
         // it's the same reference to the same element, but just to make puck happy we'll create a new object
@@ -167,9 +162,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // generate the merged root configuration
   const rootConfig = await processRootConfigurations(rootConfigs, data);
   // create the puck definitions
-  const config: CustomConfig<object, RootData> = {
+  const config: CustomConfig<DefaultComponentProps, RootData> = {
     components,
-    // @ts-expect-error - impossible to type this as the keys are dynamic
     categories,
     root: rootConfig,
   };

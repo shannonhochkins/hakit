@@ -48,7 +48,7 @@ mock.module('@hooks/usePuckIframeElements', () => ({
 }));
 
 mock.module('@components/Alert', () => ({
-  Alert: ({ title, children }: { title: string; children: React.ReactNode }) => 
+  Alert: ({ title, children }: { title: string; children: React.ReactNode }) =>
     createElement('div', { 'data-testid': 'alert', 'data-title': title }, children),
 }));
 
@@ -263,7 +263,7 @@ describe('createComponent', () => {
 
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
-    
+
     const result1 = await componentFactory(data);
     const result2 = await componentFactory(data);
 
@@ -292,7 +292,7 @@ describe('createComponent', () => {
     // Verify the component was wrapped with error boundary and dragRef attachment
     expect(result.render).toBeDefined();
     expect(typeof result.render).toBe('function');
-    
+
     // Verify inline is always true for drag behavior
     expect(result.inline).toBe(true);
   });
@@ -318,11 +318,13 @@ describe('createComponent', () => {
   });
 
   test('should handle styles function correctly', async () => {
-    const mockStylesFunction = mock((props: SimpleProps) => `
+    const mockStylesFunction = mock(
+      (props: SimpleProps) => `
       background: ${props.text === 'red' ? 'red' : 'blue'};
       padding: 10px;
-    `);
-    
+    `
+    );
+
     const config: CustomComponentConfig<SimpleProps> = {
       label: 'Styled Component',
       fields: {
@@ -338,7 +340,7 @@ describe('createComponent', () => {
 
     expect(result).toBeDefined();
     expect(typeof result.render).toBe('function');
-    
+
     // The styles function itself should be available in the config
     expect(config.styles).toBe(mockStylesFunction);
   });
