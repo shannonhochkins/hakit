@@ -115,7 +115,6 @@ export function Header() {
           setOpenNewPage(false);
         }}
         onSuccess={newPage => {
-          console.log('newPage', newPage);
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',
             // quickest pathway forward to load new data

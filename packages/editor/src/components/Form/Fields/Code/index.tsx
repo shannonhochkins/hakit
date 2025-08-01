@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { type EditorProps, type OnMount } from '@monaco-editor/react';
 import { monarchTokens, languageConfiguration } from './languages/jinja2';
 import { configureMonacoYaml } from 'monaco-yaml';
@@ -18,6 +18,10 @@ async function loadMonaco() {
     getWorker(_moduleId, label) {
       // Use dynamic imports instead of new Worker with URLs for better bundler compatibility
       switch (label) {
+        case 'css':
+          return new Worker(new URL('monaco-editor/esm/vs/language/css/css.worker', import.meta.url), {
+            type: 'module',
+          });
         case 'json':
           return new Worker(new URL('monaco-editor/esm/vs/language/json/json.worker', import.meta.url), {
             type: 'module',
@@ -63,16 +67,23 @@ export const CodeField = ({ value, language = 'css', onChange, onValidate }: Cod
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const parentRef = useRef<HTMLDivElement | null>(null);
   const [Editor, setEditor] = useState<React.FC<EditorProps> | null>(null);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadMonaco().then(Editor => {
       setEditor(Editor);
     });
   }, []);
-  // simple hack to get the color value from the css variable
-  const getCssVariable = (variableName: string) => {
-    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    const timeoutRef = debounceTimeoutRef;
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useSidebarSizeChange(() => {
     if (!parentRef.current) return;
@@ -87,14 +98,56 @@ export const CodeField = ({ value, language = 'css', onChange, onValidate }: Cod
     });
   });
 
+  const debouncedOnChange = useCallback(
+    (value: string) => {
+      // Clear any existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      // Set new timeout
+      debounceTimeoutRef.current = setTimeout(() => {
+        onChange(value);
+      }, 250);
+    },
+    [onChange]
+  );
+
+  const handleOnChange = (value: string | undefined) => {
+    if (typeof value !== 'undefined') {
+      debouncedOnChange(value);
+    }
+  };
+
+  // Memoize editor options to prevent re-renders
+  const editorOptions: editor.IStandaloneEditorConstructionOptions = useMemo(
+    () => ({
+      automaticLayout: true,
+      fixedOverflowWidgets: true,
+      lineNumbersMinChars: 2, // default is 5
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      renderLineHighlight: 'none',
+      scrollbar: {
+        vertical: 'auto' as const,
+        horizontal: 'auto' as const,
+        verticalScrollbarSize: 8,
+        horizontalScrollbarSize: 8,
+      },
+    }),
+    []
+  );
+
   const handleEditorMount: OnMount = (editor, monaco) => {
-    editor.focus();
     editorRef.current = editor;
+    editor.focus();
+
     if (language === 'jinja2') {
       monaco.languages.register({ id: 'jinja2' });
       monaco.languages.setMonarchTokensProvider('jinja2', monarchTokens);
       monaco.languages.setLanguageConfiguration('jinja2', languageConfiguration);
     }
+
     const widgetId = 'languageBubbleWidget';
 
     const domNode = document.createElement('div');
@@ -142,7 +195,7 @@ export const CodeField = ({ value, language = 'css', onChange, onValidate }: Cod
       inherit: true,
       rules: [],
       colors: {
-        'editor.background': getCssVariable('--color-gray-950'),
+        'editor.background': '#0000001A',
       },
     });
   };
@@ -162,20 +215,11 @@ export const CodeField = ({ value, language = 'css', onChange, onValidate }: Cod
       <Editor
         height='300px'
         width={'100%'}
-        defaultValue={value}
+        value={value}
         theme='custom-dark-theme'
         language={language}
-        options={{
-          automaticLayout: true,
-          fixedOverflowWidgets: true,
-          lineNumbersMinChars: 2, // default is 5
-          minimap: { enabled: false },
-        }}
-        onChange={value => {
-          if (value) {
-            onChange(value);
-          }
-        }}
+        options={editorOptions}
+        onChange={handleOnChange}
         beforeMount={handleEditorWillMount}
         onMount={handleEditorMount}
         onValidate={onValidate}

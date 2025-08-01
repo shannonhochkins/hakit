@@ -6,13 +6,13 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useStore } from '@hakit/core';
 import { ThemeProvider } from '@hakit/components';
 
-function IframeOverride({ children, document }: PropsOf<Overrides['iframe']>) {
+function IframeOverrideComponent({ children, document }: PropsOf<Overrides['iframe']>) {
   const emotionCache = useGlobalStore(state => state.emotionCache);
   useEffect(() => {
-    if (!document || emotionCache) return;
+    if (!document) return;
     // @ts-expect-error - next version will have this
     const { setWindowContext } = useStore.getState();
-    const { setEmotionCache, setEditorIframeDocument, editorIframeDocument } = useGlobalStore.getState();
+    const { setEmotionCache, setEditorIframeDocument, editorIframeDocument, emotionCache } = useGlobalStore.getState();
 
     if (!editorIframeDocument) {
       setEditorIframeDocument(document);
@@ -20,7 +20,7 @@ function IframeOverride({ children, document }: PropsOf<Overrides['iframe']>) {
 
     const applyCache = () => {
       const head = document?.head;
-      if (head) {
+      if (head && !emotionCache) {
         setEmotionCache(
           createCache({
             key: 'hakit-addons',
@@ -36,11 +36,11 @@ function IframeOverride({ children, document }: PropsOf<Overrides['iframe']>) {
       setWindowContext(win);
       applyCache();
     }
-  }, [emotionCache, document]);
+  }, [document]);
 
   if (emotionCache) {
     return (
-      <CacheProvider value={emotionCache}>
+      <CacheProvider value={emotionCache} key={emotionCache.key}>
         <ThemeProvider>{children}</ThemeProvider>
       </CacheProvider>
     );
@@ -52,7 +52,7 @@ function IframeOverride({ children, document }: PropsOf<Overrides['iframe']>) {
 export const createEmotionCachePlugin = (): Plugin => {
   return {
     overrides: {
-      iframe: IframeOverride,
+      iframe: IframeOverrideComponent,
     },
   };
 };

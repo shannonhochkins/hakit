@@ -6,76 +6,65 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { ComponentConfig, CustomField, DefaultComponentProps, Fields } from '@measured/puck';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, InternalFields } from '@typings/puck';
-import { useEffect, Component, ReactNode } from 'react';
-import { Alert } from '@components/Alert';
+import { useEffect, useMemo } from 'react';
 import { attachDragRefToElement } from './attachDragRefToElement';
-
-// Error boundary component to catch rendering errors
-class ComponentRenderErrorBoundary<P extends DefaultComponentProps> extends Component<
-  { children: ReactNode; componentConfig?: CustomComponentConfig<P>; dragRef?: ((element: Element | null) => void) | null },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: {
-    children: ReactNode;
-    componentConfig?: CustomComponentConfig<P>;
-    dragRef?: ((element: Element | null) => void) | null;
-  }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('HAKIT: Component render error:', error, errorInfo);
-    console.error('HAKIT: Component type:', this.props.componentConfig?.label);
-  }
-
-  componentDidUpdate(prevProps: { children: ReactNode; componentConfig?: CustomComponentConfig<P> }) {
-    // Reset error state if the component type changes (new component being rendered)
-    if (prevProps.componentConfig?.label !== this.props.componentConfig?.label && this.state.hasError) {
-      this.setState({ hasError: false, error: undefined });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div ref={this.props.dragRef} style={{ position: 'relative', width: '100%' }}>
-          <Alert
-            title={`Component Render Error${this.props.componentConfig?.label ? ` (${this.props.componentConfig?.label})` : ''}`}
-            severity='error'
-          >
-            <p style={{ margin: '0 0 var(--space-2) 0' }}>
-              {this.state.error?.message || 'An error occurred while rendering this component'}
-            </p>
-          </Alert>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
+import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
+import { FieldConfiguration } from '@typings/fields';
+import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
-export function createComponent<P extends DefaultComponentProps>(
-  config: CustomComponentConfig<P>
-): (data: ComponentFactoryData) => Promise<ComponentConfig<P>> {
+export function createComponent<
+  P extends DefaultComponentProps & {
+    _styleOverrides?: {
+      style: string;
+    };
+  },
+>(config: CustomComponentConfig<P>): (data: ComponentFactoryData) => Promise<ComponentConfig<P>> {
   return async function (data: ComponentFactoryData) {
     const fields = config.fields;
     const entities = data.getAllEntities();
     const services = await data.getAllServices();
+
     // get all the default prop values from the field definition
     const defaultProps = await getDefaultPropsFromFields(fields, {
       entities,
       services,
     });
+    const isRootComponent = config.label === 'Root';
+    console.log(`HAKIT: Creating component "${config.label}" with default props`, defaultProps);
+    const styleField: FieldConfiguration<{
+      _styleOverrides: {
+        style: string;
+      };
+    }> = {
+      _styleOverrides: {
+        type: 'object',
+        label: isRootComponent ? 'Global styles' : 'Style Overrides',
+        collapseOptions: {
+          startExpanded: false,
+        },
+        description: isRootComponent
+          ? 'Provide global CSS styles for the entire dashboard'
+          : 'Provide css updates to override the default styles of this component',
+        objectFields: {
+          style: {
+            type: 'code',
+            language: 'css',
+            label: 'CSS Styles',
+            description: isRootComponent
+              ? 'Provide global CSS styles for the entire dashboard'
+              : 'Provide css updates to override the default styles of this component',
+            default: '',
+          },
+        },
+      },
+    };
+    const actualField = styleField._styleOverrides;
+    // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
+    fields._styleOverrides = actualField;
     // convert the input field structure to custom field definitions
     const transformedFields = transformFields(fields);
     // include a local breakpoint field that we can use automatically to determine the current breakpoint
@@ -99,32 +88,59 @@ export function createComponent<P extends DefaultComponentProps>(
       ...config,
       // replace the default props
       defaultProps,
-      // always enforce inline as we attach the ref automatically
+      // All components are inline by default for automatic dragRef attachment
       inline: true,
-      render(props) {
+      render({ _styleOverrides, ...props }) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const editorElements = usePuckIframeElements();
 
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const dashboard = useGlobalStore(state => state.dashboardWithoutData);
         // Extract the correct type for renderProps from the config's render function
-        const renderProps: AdditionalRenderProps = {
-          _activeBreakpoint: props._activeBreakpoint as keyof AvailableQueries,
-          _editor: editorElements,
-          _dashboard: dashboard,
-        };
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const fullProps = useMemo(() => {
+          const renderProps: AdditionalRenderProps = {
+            _activeBreakpoint: props._activeBreakpoint as keyof AvailableQueries,
+            _editor: editorElements,
+            _dashboard: dashboard,
+          };
+
+          return {
+            ...props,
+            ...renderProps,
+          } as Parameters<typeof config.render>[0];
+        }, [props, editorElements, dashboard]);
+
+        // Generate style strings for emotion CSS processing in iframe context
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const styleStrings = useMemo(() => {
+          try {
+            const componentStyles = config.styles ? config.styles(fullProps) : '';
+            const overrideStyles = _styleOverrides?.style ?? '';
+            return {
+              componentStyles,
+              overrideStyles,
+            } satisfies StyleStrings;
+          } catch (error) {
+            console.error('HAKIT: Error generating styles for component:', config.label, error);
+            return {
+              componentStyles: '',
+              overrideStyles: '',
+            } satisfies StyleStrings;
+          }
+        }, [fullProps, _styleOverrides]);
+
+        // Generate emotion CSS in iframe context where correct cache is active
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const emotionCss = useEmotionCss(styleStrings);
 
         // Wrap the config.render call in an error boundary to catch rendering errors
         return (
-          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={props.puck.dragRef}>
+          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={props?.puck?.dragRef}>
             {(() => {
-              const renderedElement = config.render({
-                ...props,
-                ...renderProps,
-              } as Parameters<typeof config.render>[0]);
-
-              // Automatically attach dragRef to the top-level element
-              return attachDragRefToElement(renderedElement, props.puck.dragRef, config.label);
+              const renderedElement = config.render(fullProps);
+              // Automatically attach dragRef to the top-level element with emotion CSS
+              return attachDragRefToElement(renderedElement, props.puck.dragRef, config.label, emotionCss);
             })()}
           </ComponentRenderErrorBoundary>
         );

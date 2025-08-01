@@ -316,4 +316,49 @@ describe('createComponent', () => {
     expect(mockGetDefaultPropsFromFields).toHaveBeenCalled();
     expect(mockTransformFields).toHaveBeenCalled();
   });
+
+  test('should handle styles function correctly', async () => {
+    const mockStylesFunction = mock((props: SimpleProps) => `
+      background: ${props.text === 'red' ? 'red' : 'blue'};
+      padding: 10px;
+    `);
+    
+    const config: CustomComponentConfig<SimpleProps> = {
+      label: 'Styled Component',
+      fields: {
+        text: { type: 'text', label: 'Text', default: 'red' },
+      },
+      render: SimpleComponent,
+      styles: mockStylesFunction,
+    };
+
+    const data = createMockComponentFactoryData();
+    const componentFactory = createComponent(config);
+    const result = await componentFactory(data);
+
+    expect(result).toBeDefined();
+    expect(typeof result.render).toBe('function');
+    
+    // The styles function itself should be available in the config
+    expect(config.styles).toBe(mockStylesFunction);
+  });
+
+  test('should work without styles function', async () => {
+    const config: CustomComponentConfig<SimpleProps> = {
+      label: 'Unstyled Component',
+      fields: {
+        text: { type: 'text', label: 'Text', default: 'hello' },
+      },
+      render: SimpleComponent,
+      // No styles function provided
+    };
+
+    const data = createMockComponentFactoryData();
+    const componentFactory = createComponent(config);
+    const result = await componentFactory(data);
+
+    expect(result).toBeDefined();
+    expect(typeof result.render).toBe('function');
+    expect(config.styles).toBeUndefined();
+  });
 });

@@ -51,6 +51,13 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
       continue;
     }
 
+    if (fieldDef.type === 'slot') {
+      // If it's a slot field, we can just create it directly
+      // @ts-expect-error - slots behave differently, we know this is fine
+      result[fieldName] = fieldDef;
+      continue;
+    }
+
     // If it's an object field, recurse into objectFields
     if (fieldDef.type === 'object' && fieldDef.objectFields) {
       // @ts-expect-error - Fix later

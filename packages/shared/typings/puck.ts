@@ -5,8 +5,8 @@ import {
   type ComponentData,
   type Data,
   type Config,
-  type AsFieldProps,
-  type RootData,
+  type Slot as InternalSlot,
+  RootConfig,
 } from '@measured/puck';
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
@@ -38,6 +38,15 @@ export type AdditionalRenderProps = {
   };
 };
 
+export type IgnorePuckConfigurableOptions =
+  | 'resolveFields'
+  | 'defaultProps'
+  | 'resolveFields'
+  | 'resolveData'
+  | 'resolvePermissions'
+  | 'inline'
+  | 'category'; // category is handled internally
+
 /**
  * This type, is so we can override puck values in certain scenarios
  * This type will also be used for external component definitions for users when defining custom components
@@ -47,15 +56,14 @@ export type CustomComponentConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
   FieldProps extends DefaultComponentProps = Props,
   DataShape = Omit<ComponentData<FieldProps>, 'type'>,
-> = Omit<
-  ComponentConfig<Props, FieldProps, DataShape>,
-  'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label' | 'resolveFields' | 'resolveData' | 'resolvePermissions' | 'inline'
-> & {
+> = Omit<ComponentConfig<Props, FieldProps, DataShape>, IgnorePuckConfigurableOptions | 'fields' | 'render' | 'label'> & {
   // Label is required
   label: string;
   // Custom fields configuration instead of Puck's Fields
   fields: FieldConfiguration<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
   render: PuckComponent<Props & AdditionalRenderProps>;
+  // Optional styles function that returns CSS string for component-scoped styling
+  styles?: (props: Props & AdditionalRenderProps) => string;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
@@ -66,9 +74,7 @@ export type ComponentFactoryData = {
 
 export type PuckPageData = Data<DefaultComponentProps, DefaultComponentProps>;
 
-export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
-  CustomComponentConfig<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
->;
+export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = RootConfig<RootProps>;
 
 export type CustomConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
@@ -80,3 +86,11 @@ export type CustomConfig<
   };
   root?: CustomRootConfig<RootProps>;
 };
+
+export type Slot = InternalSlot;
+
+// render function type that matches exactly what CustomComponentConfig expects
+export type RenderFn<T extends DefaultComponentProps> = CustomComponentConfig<T>['render'];
+
+// props type for typing the props parameter in render functions
+export type RenderProps<T extends DefaultComponentProps> = Parameters<RenderFn<T>>[0];

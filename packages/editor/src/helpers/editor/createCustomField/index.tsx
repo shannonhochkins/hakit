@@ -36,6 +36,7 @@ import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
+  slot: null,
   text: <Type size={16} />,
   imageUpload: <ImagePlus size={16} />,
   number: <Hash size={16} />,
@@ -108,6 +109,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   value,
   id,
 }: CustomFieldComponentProps<Props>) {
+  console.log('value', value);
   const [breakpointMode, setBreakpointMode] = useState(false);
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
 
@@ -248,16 +250,17 @@ const CustomFieldComponent = memo(CustomFieldComponentInner, (a, b) => {
 }) as <Props extends DefaultComponentProps>(props: CustomFieldComponentProps<Props>) => React.ReactElement;
 
 export function createCustomField<Props extends DefaultComponentProps>(_field: CustomFields<Props>): CustomFieldsWithDefinition<Props> {
-  // default values for the field
-  _field.responsiveMode = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(_field.type)
-    ? false
-    : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
+  if (_field.type !== 'slot') {
+    // default values for the field
+    _field.responsiveMode = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(_field.type)
+      ? false
+      : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
+  }
   const field = deepCopy(_field) as CustomFieldsWithDefinition<Props>['_field'];
   return {
     type: 'custom',
     _field: field, // TODO - Assess if we still need this, my guess is no
     render({ name, onChange: puckOnChange, value, id }) {
-      console.log('Rendering custom field', field.type, name);
       return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} />;
     },
   };
