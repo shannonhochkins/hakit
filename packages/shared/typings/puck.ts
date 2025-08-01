@@ -49,7 +49,7 @@ export type CustomComponentConfig<
   DataShape = Omit<ComponentData<FieldProps>, 'type'>,
 > = Omit<
   ComponentConfig<Props, FieldProps, DataShape>,
-  'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label' | 'resolveFields' | 'resolveData' | 'resolvePermissions'
+  'resolveFields' | 'fields' | 'render' | 'defaultProps' | 'label' | 'resolveFields' | 'resolveData' | 'resolvePermissions' | 'inline'
 > & {
   // Label is required
   label: string;

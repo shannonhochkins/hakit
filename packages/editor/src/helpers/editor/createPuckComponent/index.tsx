@@ -8,6 +8,7 @@ import { ComponentConfig, CustomField, DefaultComponentProps, Fields } from '@me
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, InternalFields } from '@typings/puck';
 import { useEffect, Component, ReactNode } from 'react';
 import { Alert } from '@components/Alert';
+import { attachDragRefToElement } from './attachDragRefToElement';
 
 // Error boundary component to catch rendering errors
 class ComponentRenderErrorBoundary<P extends DefaultComponentProps> extends Component<
@@ -98,6 +99,8 @@ export function createComponent<P extends DefaultComponentProps>(
       ...config,
       // replace the default props
       defaultProps,
+      // always enforce inline as we attach the ref automatically
+      inline: true,
       render(props) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const editorElements = usePuckIframeElements();
@@ -114,10 +117,15 @@ export function createComponent<P extends DefaultComponentProps>(
         // Wrap the config.render call in an error boundary to catch rendering errors
         return (
           <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={props.puck.dragRef}>
-            {config.render({
-              ...props,
-              ...renderProps,
-            } as Parameters<typeof config.render>[0])}
+            {(() => {
+              const renderedElement = config.render({
+                ...props,
+                ...renderProps,
+              } as Parameters<typeof config.render>[0]);
+
+              // Automatically attach dragRef to the top-level element
+              return attachDragRefToElement(renderedElement, props.puck.dragRef, config.label);
+            })()}
           </ComponentRenderErrorBoundary>
         );
       },
