@@ -5,8 +5,7 @@ import { CustomConfig, type ComponentFactoryData, type CustomComponentConfig } f
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
-// import { defaultRootConfig } from './defaultRoot';
-import { createRootComponent } from '../../../helpers/editor/createRootComponent';
+import { createRootComponent } from '@helpers/editor/createRootComponent';
 
 interface ComponentModule {
   config: CustomComponentConfig<DefaultComponentProps>;
