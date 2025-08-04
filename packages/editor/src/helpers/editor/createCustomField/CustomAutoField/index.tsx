@@ -36,6 +36,10 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const _onChange = onChange as any;
 
+  if (field.type === 'slot') {
+    return null;
+  }
+
   if (field.type === 'hidden') {
     return <input type='hidden' value={_value} />;
   }
@@ -152,7 +156,6 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     );
   }
   if (field.type === 'object') {
-    console.log('object field', name);
     return (
       <AutoField
         field={{

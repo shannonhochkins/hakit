@@ -36,6 +36,7 @@ import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
+  slot: null,
   text: <Type size={16} />,
   imageUpload: <ImagePlus size={16} />,
   number: <Hash size={16} />,
@@ -99,6 +100,7 @@ type CustomFieldComponentProps<Props extends DefaultComponentProps> = {
   onChange: (value: Props) => void;
   value: Props;
   id: string;
+  repositoryId?: string;
 };
 
 function CustomFieldComponentInner<Props extends DefaultComponentProps>({
@@ -107,6 +109,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   onChange: puckOnChange,
   value,
   id,
+  repositoryId,
 }: CustomFieldComponentProps<Props>) {
   const [breakpointMode, setBreakpointMode] = useState(false);
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
@@ -114,7 +117,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const activeBreakpoint = useActiveBreakpoint();
   const getPuck = useGetPuck();
-  const selectedItemProps = usePuck(s => s.selectedItem?.props);
+  const selectedItemProps = usePuck(s => s.selectedItem?.props ?? s.appState.data.root?.props);
 
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
@@ -136,10 +139,12 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemProps ? selectedItemProps : appState.data.root?.props;
       if (!visibleData) return;
-      return field.visible(visibleData);
+      // when a repositoryId is available, we're a root component field and we need to only send a subset of data
+      const data = repositoryId ? visibleData[repositoryId] : visibleData;
+      return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemProps, getPuck, field]);
+  }, [selectedItemProps, getPuck, field, repositoryId]);
 
   const onToggleBreakpointMode = useCallback(() => {
     // TODO - Can't be achieved until https://github.com/puckeditor/puck/pull/1131 is merged and released
@@ -248,17 +253,19 @@ const CustomFieldComponent = memo(CustomFieldComponentInner, (a, b) => {
 }) as <Props extends DefaultComponentProps>(props: CustomFieldComponentProps<Props>) => React.ReactElement;
 
 export function createCustomField<Props extends DefaultComponentProps>(_field: CustomFields<Props>): CustomFieldsWithDefinition<Props> {
-  // default values for the field
-  _field.responsiveMode = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(_field.type)
-    ? false
-    : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
+  if (_field.type !== 'slot') {
+    // default values for the field
+    _field.responsiveMode = EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(_field.type)
+      ? false
+      : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
+  }
   const field = deepCopy(_field) as CustomFieldsWithDefinition<Props>['_field'];
+  const repositoryId = 'repositoryId' in _field ? (_field.repositoryId as string) : undefined;
   return {
     type: 'custom',
     _field: field, // TODO - Assess if we still need this, my guess is no
     render({ name, onChange: puckOnChange, value, id }) {
-      console.log('Rendering custom field', field.type, name);
-      return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} />;
+      return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} repositoryId={repositoryId} />;
     },
   };
 }

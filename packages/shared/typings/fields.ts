@@ -9,6 +9,7 @@ import type {
   BaseField as PuckBaseField,
   ObjectField,
   ArrayField,
+  SlotField,
   CustomField as PuckCustomField,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
@@ -37,7 +38,7 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
   };
   label: string;
   /** used to determine if we want to show the current field either based on the current data or just a hard coded boolean value */
-  visible?: (data: DataShape) => boolean;
+  visible?: (data: Omit<DataShape, 'id'>) => boolean;
 };
 
 export type EntityField<DataShape = unknown> = BaseField &
@@ -166,6 +167,7 @@ export type CustomFields<
   | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
   | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape>, 'default'> & E)
   | CustomField<Props, E>
+  | SlotField
   | (HiddenField & E)
   | (EntityField<DataShape> & E);
 

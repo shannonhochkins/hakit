@@ -4,6 +4,9 @@ import { useMemo } from 'react';
 
 const usePuck = createUsePuck();
 
+// TODO - I don't think this is correct, when i don't have any components selected it returns
+// undefined but it should return the default root component
+
 export function usePuckSelectedItem<T extends DefaultComponentProps>(): ComponentData<T> | undefined {
   const selectedItem = usePuck(c => c.appState.ui.itemSelector);
   const data = usePuck(c => c.appState.data);

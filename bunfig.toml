@@ -1,2 +1,5 @@
 [test]
 preload = "./happydom.ts"
+
+# Enable console output during tests
+verbose = true

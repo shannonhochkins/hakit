@@ -37,6 +37,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
             // update the default value so the function is transformed internally
             nestedFieldDef.default = nestedDefaults[nestedFieldName];
           } else {
+            if (nestedFieldDef.type === 'slot') continue; // skip slot types
             nestedDefaults[nestedFieldName] =
               nestedFieldDef.type === 'object'
                 ? await getDefaultPropsFromFields(nestedFieldDef.objectFields as FieldConfiguration, data)
@@ -57,6 +58,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
             nestedArrayDefaults[key] = await nestedArrayField.default(nestedArrayField.options, data);
             nestedArrayField.default = nestedArrayDefaults[key];
           } else {
+            if (nestedArrayField.type === 'slot') continue; // skip slot types
             nestedArrayDefaults[key] =
               nestedArrayField.type === 'object'
                 ? await getDefaultPropsFromFields(nestedArrayField.objectFields as FieldConfiguration, data)
@@ -68,6 +70,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
         throw new Error('Array fields must have arrayFields defined');
       }
     } else {
+      if (fieldDef.type === 'slot') continue; // skip slot types
       // Otherwise just use the "default" value directly
       result[fieldName] = fieldDef.default;
     }
