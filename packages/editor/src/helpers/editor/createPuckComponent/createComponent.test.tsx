@@ -159,15 +159,22 @@ describe('createComponent', () => {
     await componentFactory(data);
 
     expect(mockTransformFields).toHaveBeenCalledTimes(1);
-    expect(mockTransformFields).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text: expect.any(Object),
-        _activeBreakpoint: expect.objectContaining({
-          type: 'custom',
-          render: expect.any(Function),
-        }),
-      })
-    );
+    
+    // Check the actual call arguments
+    const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
+    expect(actualCallArg).toHaveProperty('text');
+    expect(actualCallArg).toHaveProperty('_styleOverrides');
+    expect(actualCallArg).toHaveProperty('_activeBreakpoint');
+    
+    // Verify the _activeBreakpoint field has the correct structure
+    const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
+    expect(activeBreakpointField.type).toBe('custom');
+    expect(typeof activeBreakpointField.render).toBe('function');
+    
+    // Verify the _styleOverrides field has the correct structure
+    const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
+    expect(styleOverridesField.type).toBe('object');
+    expect(styleOverridesField.label).toBe('Style Overrides');
   });
 
   test('should handle empty fields correctly', async () => {
@@ -181,15 +188,20 @@ describe('createComponent', () => {
     const componentFactory = createComponent(config);
     await componentFactory(data);
 
-    // Even with empty fields, the _activeBreakpoint field should be added
-    expect(mockTransformFields).toHaveBeenCalledWith(
-      expect.objectContaining({
-        _activeBreakpoint: expect.objectContaining({
-          type: 'custom',
-          render: expect.any(Function),
-        }),
-      })
-    );
+    // Even with empty fields, the _activeBreakpoint and _styleOverrides fields should be added
+    const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
+    expect(actualCallArg).toHaveProperty('_styleOverrides');
+    expect(actualCallArg).toHaveProperty('_activeBreakpoint');
+    
+    // Verify the _activeBreakpoint field has the correct structure
+    const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
+    expect(activeBreakpointField.type).toBe('custom');
+    expect(typeof activeBreakpointField.render).toBe('function');
+    
+    // Verify the _styleOverrides field has the correct structure
+    const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
+    expect(styleOverridesField.type).toBe('object');
+    expect(styleOverridesField.label).toBe('Style Overrides');
   });
 
   test('should preserve original config properties', async () => {
@@ -249,7 +261,10 @@ describe('createComponent', () => {
     const transformedFieldsCall = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
     expect(transformedFieldsCall._activeBreakpoint).toBeDefined();
     expect((transformedFieldsCall._activeBreakpoint as { type: string }).type).toBe('custom');
-    expect(typeof (transformedFieldsCall._activeBreakpoint as { render: () => unknown }).render).toBe('function');
+    
+    // Also verify _styleOverrides was added
+    expect(transformedFieldsCall._styleOverrides).toBeDefined();
+    expect((transformedFieldsCall._styleOverrides as { type: string }).type).toBe('object');
   });
 
   test('should maintain consistent behavior across multiple calls', async () => {
