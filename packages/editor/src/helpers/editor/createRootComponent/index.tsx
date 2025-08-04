@@ -10,13 +10,13 @@ import { CustomRootConfigWithRemote, RootData } from '../../../features/dashboar
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { defaultRootConfig } from '@helpers/editor/createRootComponent/defaultRoot';
 import { DefaultComponentProps, WithChildren } from '@measured/puck';
-import { Fragment } from 'react';
 import { css, Global } from '@emotion/react';
 import { FieldConfiguration } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { AvailableQueries } from '@hakit/components';
 import { attachRepositoryReference } from '../pageData/transformFields';
+import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
 
 export async function createRootComponent(rootConfigs: CustomRootConfigWithRemote[], data: ComponentFactoryData) {
   const mergedFields: FieldConfiguration<RootData> = {};
@@ -145,8 +145,11 @@ export async function createRootComponent(rootConfigs: CustomRootConfigWithRemot
                 _dashboard: dashboard,
               };
               const propsForThisRoot = getPropsForRoot(rootConfig, props, additionalProps);
-              // TODO TODO rootConfig.styles(propsForThisRoot);
-              return <Fragment key={rootConfig._remoteRepositoryId || index}>{rootConfig.render(propsForThisRoot)}</Fragment>;
+              return (
+                <ComponentRenderErrorBoundary componentConfig={rootConfig} key={rootConfig._remoteRepositoryId || index}>
+                  {rootConfig.render(propsForThisRoot)}
+                </ComponentRenderErrorBoundary>
+              );
             }
             return null;
           })}
