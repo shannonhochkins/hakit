@@ -1,7 +1,6 @@
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { CustomFields } from '@typings/fields';
-import { RootData } from '@features/dashboard/PuckDynamicConfiguration';
 
 /**
  * Trims PuckPageData to only include fields that are defined in the userConfig.
@@ -30,7 +29,7 @@ import { RootData } from '@features/dashboard/PuckDynamicConfiguration';
  */
 export function trimPuckDataToConfig(
   data: PuckPageData | null,
-  userConfig?: CustomConfig<DefaultComponentProps, RootData>
+  userConfig?: CustomConfig<DefaultComponentProps, DefaultComponentProps>
 ): PuckPageData | null {
   if (!data || !userConfig) return data;
 

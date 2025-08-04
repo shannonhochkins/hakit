@@ -83,32 +83,20 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
 
 /**
 
- * ```
+ * Used for only root configurations so we can track which repository a field came from, and extract the data out
+   This is primarily only used for the `visible` function so we can send over just the information relating to the current root data rather than all the data
  */
 export function attachRepositoryReference<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
   fields: FieldConfiguration<P, DataShape>,
-  isTopLevel: boolean = true,
   repositoryId: string = ''
-): FieldConfigurationWithDefinition<P, true> {
-  const result = {} as FieldConfigurationWithDefinition<P, true>;
+): FieldConfiguration<P, true> {
+  const result = {} as FieldConfiguration<P, true>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
-    // Skip processing 'id' fields only at the top level (they are system fields for components)
-    if (fieldName === 'id' && isTopLevel) {
-      continue;
-    }
-
-    if (fieldDef.type === 'slot') {
-      // If it's a slot field, we can just create it directly
-      // @ts-expect-error - slots behave differently, we know this is fine
-      result[fieldName] = fieldDef;
-      continue;
-    }
-
     // If it's an object field, recurse into objectFields
     if (fieldDef.type === 'object' && fieldDef.objectFields) {
       // @ts-expect-error - Fix later
-      fieldDef.objectFields = attachRepositoryReference(fieldDef.objectFields, false, repositoryId); // Not top level anymore
+      fieldDef.objectFields = attachRepositoryReference(fieldDef.objectFields, repositoryId); // Not top level anymore
       // @ts-expect-error - Fix later
       result[fieldName] = {
         ...fieldDef,
@@ -118,7 +106,7 @@ export function attachRepositoryReference<P extends DefaultComponentProps, DataS
       // If it's an array field, recurse into arrayFields
     } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
       // @ts-expect-error - Fix later
-      fieldDef.arrayFields = attachRepositoryReference<P>(fieldDef.arrayFields, false, repositoryId); // Not top level anymore
+      fieldDef.arrayFields = attachRepositoryReference<P>(fieldDef.arrayFields, repositoryId); // Not top level anymore
       // @ts-expect-error - Fix later
       result[fieldName] = {
         ...fieldDef,

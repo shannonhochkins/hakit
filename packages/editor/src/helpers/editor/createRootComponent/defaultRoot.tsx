@@ -1,7 +1,6 @@
 import { CSSProperties } from 'react';
 import styled from '@emotion/styled';
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import { Slot } from '@measured/puck';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -60,16 +59,12 @@ const BackgroundWrapper = styled.div`
   pointer-events: none;
   /* height: 100%; */
 `;
-type RootProps = {
+export type DefaultRootProps = {
   background: BackgroundProps;
-  test: Slot;
 };
-export const defaultRootConfig: CustomComponentConfig<RootProps> = {
+export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   label: 'Root',
   fields: {
-    test: {
-      type: 'slot',
-    },
     background: {
       type: 'object',
       label: 'Background options',
@@ -142,7 +137,7 @@ export const defaultRootConfig: CustomComponentConfig<RootProps> = {
   render: Render,
 };
 
-function Render(props: RenderProps<RootProps>) {
+function Render(props: RenderProps<DefaultRootProps>) {
   const { background } = props;
   return (
     <>

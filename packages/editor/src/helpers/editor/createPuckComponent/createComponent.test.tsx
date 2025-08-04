@@ -159,18 +159,18 @@ describe('createComponent', () => {
     await componentFactory(data);
 
     expect(mockTransformFields).toHaveBeenCalledTimes(1);
-    
+
     // Check the actual call arguments
     const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
     expect(actualCallArg).toHaveProperty('text');
     expect(actualCallArg).toHaveProperty('_styleOverrides');
     expect(actualCallArg).toHaveProperty('_activeBreakpoint');
-    
+
     // Verify the _activeBreakpoint field has the correct structure
     const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
     expect(activeBreakpointField.type).toBe('custom');
     expect(typeof activeBreakpointField.render).toBe('function');
-    
+
     // Verify the _styleOverrides field has the correct structure
     const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
     expect(styleOverridesField.type).toBe('object');
@@ -192,12 +192,12 @@ describe('createComponent', () => {
     const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
     expect(actualCallArg).toHaveProperty('_styleOverrides');
     expect(actualCallArg).toHaveProperty('_activeBreakpoint');
-    
+
     // Verify the _activeBreakpoint field has the correct structure
     const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
     expect(activeBreakpointField.type).toBe('custom');
     expect(typeof activeBreakpointField.render).toBe('function');
-    
+
     // Verify the _styleOverrides field has the correct structure
     const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
     expect(styleOverridesField.type).toBe('object');
@@ -261,7 +261,7 @@ describe('createComponent', () => {
     const transformedFieldsCall = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
     expect(transformedFieldsCall._activeBreakpoint).toBeDefined();
     expect((transformedFieldsCall._activeBreakpoint as { type: string }).type).toBe('custom');
-    
+
     // Also verify _styleOverrides was added
     expect(transformedFieldsCall._styleOverrides).toBeDefined();
     expect((transformedFieldsCall._styleOverrides as { type: string }).type).toBe('object');

@@ -6,7 +6,6 @@ import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
 import { BreakPoint } from '@hakit/components';
-import { RootData } from '@features/dashboard/PuckDynamicConfiguration';
 import { DefaultComponentProps } from '@measured/puck';
 
 type ComponentId = string;
@@ -31,8 +30,8 @@ type PuckConfigurationStore = {
   setEditorIframeDocument: (document: Document | null) => void;
   emotionCache: EmotionCache | null;
   setEmotionCache: (emotionCache: EmotionCache | null) => void;
-  userConfig: CustomConfig<DefaultComponentProps, RootData> | null;
-  setUserConfig: (userConfig: CustomConfig<DefaultComponentProps, RootData> | null) => void;
+  userConfig: CustomConfig<DefaultComponentProps> | null;
+  setUserConfig: (userConfig: CustomConfig<DefaultComponentProps> | null) => void;
   services: HassServices | null;
   setServices: (services: HassServices | null) => void;
   dashboard: DashboardWithPageData | null;
@@ -85,7 +84,7 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     emotionCache: null,
     setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
     userConfig: null,
-    setUserConfig: (userConfig: CustomConfig<DefaultComponentProps, RootData> | null) => set(state => ({ ...state, userConfig })),
+    setUserConfig: (userConfig: CustomConfig<DefaultComponentProps> | null) => set(state => ({ ...state, userConfig })),
     services: null,
     setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
     dashboardWithoutData: null,

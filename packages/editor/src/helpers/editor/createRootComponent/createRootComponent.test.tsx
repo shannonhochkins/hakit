@@ -151,14 +151,21 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([mockRootConfig1, mockRootConfig2, mockRootConfig3], mockComponentFactoryData);
     expect(result).toBeDefined();
     expect(result.fields).toBeDefined();
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-1']).toBeDefined();
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-2']).toBeDefined();
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-3']).toBeDefined();
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-1'].type).toBe('custom');
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-2'].type).toBe('custom');
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-3'].type).toBe('custom');
 
     // now just check the 3rd repo has the slot field
+    // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo3Field = result.fields!['test-repo-3'] as Record<string, unknown>;
     expect((testRepo3Field._field as Record<string, unknown>).type).toBe('object');
     expect((testRepo3Field._field as Record<string, unknown>).objectFields).toHaveProperty('anotherSlot');
@@ -192,11 +199,13 @@ describe('createRootComponent', () => {
     expect(fieldKeys).toContain('content');
 
     // Check first config fields structure
+    // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
     expect((testRepo1Field._field as Record<string, unknown>).label).toBe('Test Repository 1');
     expect((testRepo1Field._field as Record<string, unknown>).type).toBe('object');
 
     // Check second config fields structure
+    // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo2Field = result.fields!['test-repo-2'] as Record<string, unknown>;
     expect((testRepo2Field._field as Record<string, unknown>).label).toBe('Test Repository 2');
     expect((testRepo2Field._field as Record<string, unknown>).type).toBe('object');
@@ -217,6 +226,8 @@ describe('createRootComponent', () => {
     expect(console.warn).toHaveBeenCalledWith('Duplicate root config repository ID detected: test-repo-1. Ignoring duplicate.');
 
     // Should have the first config, not the duplicate
+
+    // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
     expect((testRepo1Field._field as Record<string, unknown>).label).toBe('Test Repository 1');
     // Should keep the original config's properties, not the duplicate's
@@ -228,6 +239,7 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([mockRootConfig1], mockComponentFactoryData);
 
     expect(result.fields).toBeDefined();
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!.content).toEqual({
       type: 'slot',
     });
@@ -335,6 +347,7 @@ describe('createRootComponent', () => {
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('content');
     expect(fieldKeys).toContain('@hakit/default-root');
+    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!.content).toEqual({ type: 'slot' });
     expect(result.fields!['@hakit/default-root']).toBeDefined();
   });
@@ -407,8 +420,71 @@ describe('createRootComponent', () => {
     expect(mockStyleConfig2.styles).toBeDefined();
   });
 
+  test('should attach repository reference to default root config', async () => {
+    const result = await createRootComponent([], mockComponentFactoryData);
+
+    expect(result.fields).toBeDefined();
+
+    // Check that the default root config has the repository ID
+    const defaultRootField = result.fields!['@hakit/default-root']._field as Record<string, unknown>;
+    expect(defaultRootField.repositoryId).toBe('@hakit/default-root');
+  });
+
+  test('should attach repository reference to array fields', async () => {
+    // Create a root config with array fields to test array field processing
+    interface ArrayProps {
+      items: Array<{
+        name: string;
+        config: {
+          enabled: boolean;
+        };
+      }>;
+    }
+
+    const arrayRootConfig: CustomRootConfigWithRemote<ArrayProps> = {
+      label: 'Array Root Config',
+      fields: {
+        items: {
+          type: 'array',
+          label: 'Items',
+          default: [],
+          arrayFields: {
+            name: {
+              type: 'text',
+              label: 'Item Name',
+              default: '',
+            },
+            config: {
+              type: 'object',
+              label: 'Item Config',
+              objectFields: {
+                enabled: {
+                  type: 'switch',
+                  label: 'Enabled',
+                  default: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      _remoteRepositoryId: 'array-repo',
+      _remoteRepositoryName: 'Array Repository',
+      render: mock(() => <div>Array Config</div>),
+    };
+
+    const result = await createRootComponent<ArrayProps>([arrayRootConfig], mockComponentFactoryData);
+
+    expect(result.fields).toBeDefined();
+    // @ts-expect-error = this does exist, it's intentionally not typed internally
+    const field = result.fields['array-repo']._field;
+    expect(field.repositoryId).toBe('array-repo');
+    // @ts-expect-error = this does exist, it's intentionally not typed internally
+    const subField = result.fields['array-repo']._field.objectFields.items._field;
+    expect(subField.repositoryId).toBe('array-repo');
+  });
+
   test('should handle root config with slot fields', async () => {
-    // Define a root config with slot fields
     interface SlotRootProps {
       something: string;
       somethingElse: string;

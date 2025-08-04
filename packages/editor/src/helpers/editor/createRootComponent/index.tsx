@@ -1,38 +1,39 @@
-import {
-  AdditionalRenderProps,
-  ComponentFactoryData,
-  CustomComponentConfig,
-  CustomRootConfig,
-  IgnorePuckConfigurableOptions,
-  RenderProps,
-} from '@typings/puck';
-import { CustomRootConfigWithRemote, RootData } from '../../../features/dashboard/PuckDynamicConfiguration';
+import { AdditionalRenderProps, ComponentFactoryData, CustomRootConfig, IgnorePuckConfigurableOptions, RenderProps } from '@typings/puck';
+import { CustomRootConfigWithRemote, InternalRootData } from '../../../features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@helpers/editor/createPuckComponent';
-import { defaultRootConfig } from '@helpers/editor/createRootComponent/defaultRoot';
-import { DefaultComponentProps, WithChildren } from '@measured/puck';
+import { defaultRootConfig, DefaultRootProps } from '@helpers/editor/createRootComponent/defaultRoot';
+import { DefaultComponentProps, Slot, WithChildren } from '@measured/puck';
 import { css, Global } from '@emotion/react';
-import { FieldConfiguration } from '@typings/fields';
+import { CustomFields, FieldConfiguration, FieldConfigurationWithDefinition } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { AvailableQueries } from '@hakit/components';
 import { attachRepositoryReference } from '../pageData/transformFields';
 import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
 
-export async function createRootComponent(rootConfigs: CustomRootConfigWithRemote[], data: ComponentFactoryData) {
-  const mergedFields: FieldConfiguration<RootData> = {};
+type InternalRootConfigFields = {
+  content: Slot;
+};
+
+export async function createRootComponent<P extends DefaultComponentProps>(
+  rootConfigs: CustomRootConfigWithRemote<P>[],
+  data: ComponentFactoryData
+) {
+  const mergedFields: Record<string, CustomFields<P>> = {};
   const remoteKeys = new Set<string>();
-  const processedConfigs: CustomRootConfigWithRemote[] = [];
+  const processedConfigs: CustomRootConfigWithRemote<P>[] = [];
 
   // casting here as types are correct on the defaultRootConfig value
   // we have our own root config which is available to all dashboards
-  const defaultConfig: CustomRootConfigWithRemote<DefaultComponentProps> = {
-    ...(defaultRootConfig as unknown as CustomComponentConfig<DefaultComponentProps>),
+  const defaultConfig: CustomRootConfigWithRemote<DefaultRootProps> = {
+    ...defaultRootConfig,
     _remoteRepositoryId: '@hakit/default-root', // this is the default root config
     _remoteRepositoryName: '@hakit/editor', // this is the default root config
   };
 
   // Always include the default config first
-  processedConfigs.push(defaultConfig);
+  // the object above is typed, so okay to cast here as the rest of the values in this array are unknown values/types
+  processedConfigs.push(defaultConfig as unknown as CustomRootConfigWithRemote<P>);
   remoteKeys.add(defaultConfig._remoteRepositoryId);
 
   // Process provided root configs, ignoring duplicates
@@ -52,10 +53,10 @@ export async function createRootComponent(rootConfigs: CustomRootConfigWithRemot
       collapseOptions: {
         startExpanded: true,
       },
+      // @ts-expect-error - impossible to type this correctly as it is a dynamic object
       objectFields: {
-        ...attachRepositoryReference(rootConfig.fields, false, rootConfig._remoteRepositoryId),
+        ...attachRepositoryReference(rootConfig.fields, rootConfig._remoteRepositoryId),
       },
-      // @ts-expect-error - this is intentionally not typed as we don't want to expose it
       repositoryId: rootConfig._remoteRepositoryId,
     };
   });
@@ -67,24 +68,26 @@ export async function createRootComponent(rootConfigs: CustomRootConfigWithRemot
 
   /// now we have the merged structure, we can now create the dynamic configurations
 
-  const mergedRoot: CustomComponentConfig = {
+  // create the puck definitions
+  const componentFactory = await createComponent<P>({
     // Merge other properties from base config (excluding render and fields)
     ...baseConfig,
     // Set the merged fields
+    // @ts-expect-error - this will never match the root data as it's dynamically created above
     fields: mergedFields,
-    // @ts-expect-error - intentionally empty, we're going to be updating this later with the component factory
     defaultProps: {},
     render() {
       return <></>;
     },
-  };
-
-  // create the puck definitions
-  const componentFactory = await createComponent(mergedRoot);
+  });
   // use our component factory to convert out component structure to a puck component
   const updatedRootConfig = await componentFactory(data);
 
-  function getPropsForRoot(rootConfig: CustomRootConfigWithRemote, props: Record<string, unknown>, additionalProps: AdditionalRenderProps) {
+  function getPropsForRoot<P extends DefaultComponentProps>(
+    rootConfig: CustomRootConfigWithRemote<P>,
+    props: Record<string, unknown>,
+    additionalProps: AdditionalRenderProps
+  ) {
     // Create a new props object without any remote keys
     // trim off any remote objects that do not match the current rootConfig
     const baseProps = Object.fromEntries(Object.entries(props).filter(([key]) => !remoteKeys.has(key)));
@@ -97,24 +100,35 @@ export async function createRootComponent(rootConfigs: CustomRootConfigWithRemot
       ...(typeof currentRemoteProps === 'object' && currentRemoteProps !== null ? currentRemoteProps : {}),
       ...additionalProps,
     };
-    return propsForThisRoot as RenderProps<WithChildren<RootData>>;
+    return propsForThisRoot as RenderProps<WithChildren<InternalRootData>>;
   }
-  const finalRootConfig: Omit<CustomRootConfig<RootData>, IgnorePuckConfigurableOptions> = {
+  // We know that content is always a slot field, so we can safely construct this
+  const fields: Omit<FieldConfigurationWithDefinition<InternalRootData, true>, 'content'> = {
+    ...updatedRootConfig.fields,
+  };
+
+  const internalFields: FieldConfiguration<InternalRootConfigFields> = {
+    content: {
+      type: 'slot',
+    },
+  };
+
+  const finalRootConfig: Omit<CustomRootConfig<InternalRootData>, IgnorePuckConfigurableOptions | 'fields'> & {
+    fields: Omit<FieldConfigurationWithDefinition<P, true>, 'content'>;
+  } = {
     ...updatedRootConfig,
+    // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: {
-      ...updatedRootConfig.fields,
-      content: {
-        type: 'slot',
-      },
+      ...fields,
+      ...internalFields,
     },
     // Create a render function that calls all root render functions
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    render({ _styleOverrides, content: Content, puck, editMode = false, id, children, ...props }) {
+    render({ _styleOverrides, content: Content, puck, editMode = false, id, ...props }) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const editorElements = usePuckIframeElements();
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const dashboard = useGlobalStore(state => state.dashboardWithoutData);
-      // TODO - Test this with a remote config to ensure it's receiveing everything
+      // gather all root config styles to apply globally
       const allCustomStyles = processedConfigs
         .map(rootConfig => {
           const additionalProps: AdditionalRenderProps = {
@@ -147,6 +161,7 @@ export async function createRootComponent(rootConfigs: CustomRootConfigWithRemot
               const propsForThisRoot = getPropsForRoot(rootConfig, props, additionalProps);
               return (
                 <ComponentRenderErrorBoundary componentConfig={rootConfig} key={rootConfig._remoteRepositoryId || index}>
+                  {/* @ts-expect-error - don't want to type this out, we'd have to cast anyway */}
                   {rootConfig.render(propsForThisRoot)}
                 </ComponentRenderErrorBoundary>
               );

@@ -12,14 +12,12 @@ interface ComponentModule {
   config: CustomComponentConfig<DefaultComponentProps>;
 }
 
-export type RootData = {
+export type InternalRootData = {
   _styleOverrides?: {
     style: string;
   };
   content: Slot;
   _remoteRepositoryId?: string; // Optional remote name for tracking
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any; // Allow additional properties for remotes
 };
 
 export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<P> & {
@@ -144,6 +142,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
         components[componentLabel] = {
           ...componentConfig,
           // @ts-expect-error - we know this doesn't exist, it's fine.
+          _remoteRepositoryName: remote.name, // track which remote this came from
           _remoteRepositoryId: remote.name, // track which remote this came from
         };
         const categoryLabel = remote.name;
@@ -161,9 +160,10 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // generate the merged root configuration
   const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions
-  const config: CustomConfig<DefaultComponentProps, RootData> = {
+  const config: CustomConfig<DefaultComponentProps> = {
     components,
     categories,
+    // @ts-expect-error - this is fine, it just has additional properties that puck doesn't care about
     root: rootConfig,
   };
 

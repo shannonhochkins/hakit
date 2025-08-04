@@ -4,12 +4,12 @@ import { transformFields } from '@helpers/editor/pageData/transformFields';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { ComponentConfig, CustomField, DefaultComponentProps, Fields } from '@measured/puck';
+import { ComponentConfig, CustomField, DefaultComponentProps } from '@measured/puck';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, InternalFields } from '@typings/puck';
 import { useEffect, useMemo } from 'react';
 import { attachDragRefToElement } from './attachDragRefToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
-import { FieldConfiguration } from '@typings/fields';
+import { FieldConfigurationWithDefinition, FieldConfiguration } from '@typings/fields';
 import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
 
 /**
@@ -22,7 +22,13 @@ export function createComponent<
       style: string;
     };
   },
->(config: CustomComponentConfig<P>): (data: ComponentFactoryData) => Promise<ComponentConfig<P>> {
+>(
+  config: CustomComponentConfig<P>
+): (data: ComponentFactoryData) => Promise<
+  ComponentConfig<P> & {
+    fields: FieldConfigurationWithDefinition<P, true>;
+  }
+> {
   return async function (data: ComponentFactoryData) {
     const fields = config.fields;
     const entities = data.getAllEntities();
@@ -146,7 +152,7 @@ export function createComponent<
         );
       },
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
-      fields: Object.keys(fields).length === 0 ? ({} as Fields<P>) : (transformedFields as Fields<P>),
-    } as ComponentConfig<P>;
+      fields: transformedFields,
+    };
   };
 }

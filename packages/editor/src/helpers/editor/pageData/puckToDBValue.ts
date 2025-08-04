@@ -5,7 +5,6 @@ import { merge } from 'ts-deepmerge';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import type { FieldConfiguration } from '@typings/fields';
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from './constants';
-import { RootData } from '@features/dashboard/PuckDynamicConfiguration';
 
 /**
  * Converts Puck's flattened data structure back to database format with breakpoint objects merged with the original data
@@ -55,7 +54,7 @@ export function puckToDBValue(
   originalData: PuckPageData | null, // this contains breakpoint values stored in the db
   changedData: PuckPageData | null, // this does not contain breakpoint values, just the current data from puck
   currentBreakpoint: BreakPoint, // the current breakpoint that the puck data is for
-  userConfig?: CustomConfig<DefaultComponentProps, RootData>, // this is the user config that contains field definitions and component definitions for puck
+  userConfig?: CustomConfig<DefaultComponentProps>, // this is the user config that contains field definitions and component definitions for puck
   breakpointModeMap: ComponentBreakpointModeMap = {} // this is the map of component instances to their field breakpoint states
 ): PuckPageData | null {
   if (!changedData || !userConfig) return originalData;
