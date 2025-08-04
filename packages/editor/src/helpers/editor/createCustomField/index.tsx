@@ -100,6 +100,7 @@ type CustomFieldComponentProps<Props extends DefaultComponentProps> = {
   onChange: (value: Props) => void;
   value: Props;
   id: string;
+  repositoryId?: string;
 };
 
 function CustomFieldComponentInner<Props extends DefaultComponentProps>({
@@ -108,15 +109,15 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   onChange: puckOnChange,
   value,
   id,
+  repositoryId,
 }: CustomFieldComponentProps<Props>) {
-  console.log('value', value);
   const [breakpointMode, setBreakpointMode] = useState(false);
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
 
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const activeBreakpoint = useActiveBreakpoint();
   const getPuck = useGetPuck();
-  const selectedItemProps = usePuck(s => s.selectedItem?.props);
+  const selectedItemProps = usePuck(s => s.selectedItem?.props ?? s.appState.data.root?.props);
 
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
@@ -138,10 +139,12 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemProps ? selectedItemProps : appState.data.root?.props;
       if (!visibleData) return;
-      return field.visible(visibleData);
+      // when a repositoryId is available, we're a root component field and we need to only send a subset of data
+      const data = repositoryId ? visibleData[repositoryId] : visibleData;
+      return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemProps, getPuck, field]);
+  }, [selectedItemProps, getPuck, field, repositoryId]);
 
   const onToggleBreakpointMode = useCallback(() => {
     // TODO - Can't be achieved until https://github.com/puckeditor/puck/pull/1131 is merged and released
@@ -257,11 +260,12 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
       : (_field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT);
   }
   const field = deepCopy(_field) as CustomFieldsWithDefinition<Props>['_field'];
+  const repositoryId = 'repositoryId' in _field ? (_field.repositoryId as string) : undefined;
   return {
     type: 'custom',
     _field: field, // TODO - Assess if we still need this, my guess is no
     render({ name, onChange: puckOnChange, value, id }) {
-      return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} />;
+      return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} repositoryId={repositoryId} />;
     },
   };
 }

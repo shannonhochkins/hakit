@@ -80,3 +80,59 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
   }
   return result;
 }
+
+/**
+
+ * ```
+ */
+export function attachRepositoryReference<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
+  fields: FieldConfiguration<P, DataShape>,
+  isTopLevel: boolean = true,
+  repositoryId: string = ''
+): FieldConfigurationWithDefinition<P, true> {
+  const result = {} as FieldConfigurationWithDefinition<P, true>;
+
+  for (const [fieldName, fieldDef] of typedEntries(fields)) {
+    // Skip processing 'id' fields only at the top level (they are system fields for components)
+    if (fieldName === 'id' && isTopLevel) {
+      continue;
+    }
+
+    if (fieldDef.type === 'slot') {
+      // If it's a slot field, we can just create it directly
+      // @ts-expect-error - slots behave differently, we know this is fine
+      result[fieldName] = fieldDef;
+      continue;
+    }
+
+    // If it's an object field, recurse into objectFields
+    if (fieldDef.type === 'object' && fieldDef.objectFields) {
+      // @ts-expect-error - Fix later
+      fieldDef.objectFields = attachRepositoryReference(fieldDef.objectFields, false, repositoryId); // Not top level anymore
+      // @ts-expect-error - Fix later
+      result[fieldName] = {
+        ...fieldDef,
+        repositoryId: repositoryId,
+      };
+
+      // If it's an array field, recurse into arrayFields
+    } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
+      // @ts-expect-error - Fix later
+      fieldDef.arrayFields = attachRepositoryReference<P>(fieldDef.arrayFields, false, repositoryId); // Not top level anymore
+      // @ts-expect-error - Fix later
+      result[fieldName] = {
+        ...fieldDef,
+        repositoryId: repositoryId,
+      };
+
+      // Otherwise it’s just a normal field, no further recursion
+    } else {
+      // @ts-expect-error - Fix later
+      result[fieldName] = {
+        ...fieldDef,
+        repositoryId: repositoryId,
+      };
+    }
+  }
+  return result;
+}

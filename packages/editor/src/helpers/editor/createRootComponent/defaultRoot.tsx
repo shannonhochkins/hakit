@@ -1,6 +1,7 @@
 import { CSSProperties } from 'react';
 import styled from '@emotion/styled';
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
+import { Slot } from '@measured/puck';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -61,10 +62,14 @@ const BackgroundWrapper = styled.div`
 `;
 type RootProps = {
   background: BackgroundProps;
+  test: Slot;
 };
 export const defaultRootConfig: CustomComponentConfig<RootProps> = {
   label: 'Root',
   fields: {
+    test: {
+      type: 'slot',
+    },
     background: {
       type: 'object',
       label: 'Background options',
@@ -78,11 +83,11 @@ export const defaultRootConfig: CustomComponentConfig<RootProps> = {
         },
         backgroundImage: {
           type: 'imageUpload',
-          label: 'Background Image t',
+          label: 'Background Image',
           description: 'The entity to display in the button card',
           default: undefined,
           visible(data) {
-            return data.background?.useBackgroundImage;
+            return data.background?.useBackgroundImage ?? true;
           },
         },
         backgroundColor: {
@@ -139,11 +144,8 @@ export const defaultRootConfig: CustomComponentConfig<RootProps> = {
 
 function Render(props: RenderProps<RootProps>) {
   const { background } = props;
-  console.log('xxx', props);
-
   return (
     <>
-      {/* {props.children} */}
       <BackgroundWrapper>
         <BackgroundElement
           useBackgroundImage={background?.useBackgroundImage ?? true}

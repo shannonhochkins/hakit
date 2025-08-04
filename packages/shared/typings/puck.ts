@@ -29,6 +29,8 @@ export type DefaultPropsCallbackData = {
 // type WithField = true;
 
 export type AdditionalRenderProps = {
+  _id: string; // Unique ID for the component instance
+  _editMode: boolean; // Whether the component is being rendered in edit mode
   /** the hakit context, this houses additional information to send to each render of each component */
   _activeBreakpoint: keyof AvailableQueries;
   _dashboard: Dashboard | null;

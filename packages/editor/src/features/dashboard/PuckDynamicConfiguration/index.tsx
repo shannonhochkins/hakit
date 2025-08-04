@@ -6,7 +6,7 @@ import { createComponent } from '@helpers/editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
 // import { defaultRootConfig } from './defaultRoot';
-import { processRootConfigurations } from './processRootConfigurations';
+import { createRootComponent } from '../../../helpers/editor/createRootComponent';
 
 interface ComponentModule {
   config: CustomComponentConfig<DefaultComponentProps>;
@@ -22,7 +22,7 @@ export type RootData = {
   [key: string]: any; // Allow additional properties for remotes
 };
 
-export type CustomRootConfigWithRemote = CustomComponentConfig & {
+export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<P> & {
   _remoteRepositoryId: string; // remote id for tracking
   _remoteRepositoryName: string; // remote name for tracking
 };
@@ -105,7 +105,6 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
       // Skip loading components that are disabled in user preferences
       const excludedForRepo = excludedComponents.get(remote.name);
       if (excludedForRepo && excludedForRepo.has(module.name)) {
-        console.log(`Skipping disabled component "${module.name}" from remote "${remote.name}"`);
         continue;
       }
 
@@ -160,7 +159,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
     }
   }
   // generate the merged root configuration
-  const rootConfig = await processRootConfigurations(rootConfigs, data);
+  const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions
   const config: CustomConfig<DefaultComponentProps, RootData> = {
     components,

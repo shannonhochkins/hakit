@@ -156,7 +156,6 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     );
   }
   if (field.type === 'object') {
-    console.log('object field', name);
     return (
       <AutoField
         field={{

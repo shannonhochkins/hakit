@@ -38,7 +38,7 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
   };
   label: string;
   /** used to determine if we want to show the current field either based on the current data or just a hard coded boolean value */
-  visible?: (data: DataShape) => boolean;
+  visible?: (data: Omit<DataShape, 'id'>) => boolean;
 };
 
 export type EntityField<DataShape = unknown> = BaseField &

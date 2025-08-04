@@ -65,7 +65,7 @@ export function createComponent<
     // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
     fields._styleOverrides = actualField;
     // convert the input field structure to custom field definitions
-    const transformedFields = transformFields(fields);
+    const transformedFields = transformFields(fields, false);
     // include a local breakpoint field that we can use automatically to determine the current breakpoint
     const breakpointField: CustomField<InternalFields['breakpoint']> = {
       type: 'custom',
@@ -82,23 +82,24 @@ export function createComponent<
     // attach internal breakpoint field
     // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
     transformedFields._activeBreakpoint = breakpointField;
-
     return {
       ...config,
       // replace the default props
       defaultProps,
       // All components are inline by default for automatic dragRef attachment
       inline: true,
-      render({ _styleOverrides, ...props }) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      render({ _styleOverrides, editMode = false, puck, id, children, ...props }) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const editorElements = usePuckIframeElements();
-
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const dashboard = useGlobalStore(state => state.dashboardWithoutData);
         // Extract the correct type for renderProps from the config's render function
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const fullProps = useMemo(() => {
           const renderProps: AdditionalRenderProps = {
+            _id: id,
+            _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
             _activeBreakpoint: props._activeBreakpoint as keyof AvailableQueries,
             _editor: editorElements,
             _dashboard: dashboard,
@@ -108,7 +109,7 @@ export function createComponent<
             ...props,
             ...renderProps,
           } as Parameters<typeof config.render>[0];
-        }, [props, editorElements, dashboard]);
+        }, [props, id, puck, editMode, editorElements, dashboard]);
 
         // Generate style strings for emotion CSS processing in iframe context
         // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -135,11 +136,11 @@ export function createComponent<
 
         // Wrap the config.render call in an error boundary to catch rendering errors
         return (
-          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={props?.puck?.dragRef}>
+          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={puck?.dragRef}>
             {(() => {
               const renderedElement = config.render(fullProps);
               // Automatically attach dragRef to the top-level element with emotion CSS
-              return attachDragRefToElement(renderedElement, props.puck.dragRef, config.label, emotionCss);
+              return attachDragRefToElement(renderedElement, puck?.dragRef, config.label, emotionCss);
             })()}
           </ComponentRenderErrorBoundary>
         );
