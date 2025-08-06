@@ -1,9 +1,9 @@
 import { describe, test, expect, it } from 'bun:test';
 import { puckToDBValue } from '../puckToDBValue';
-import { userConfig } from '../__mocks__/userConfig';
-import { databaseData } from '../__mocks__/databaseData';
-import { puckChangeData } from '../__mocks__/puckChangeData';
-import { fieldsWithBreakpointsEnabled } from '../__mocks__/fieldsWithBreakpointsEnabled';
+import { userConfig } from './__mocks__/userConfig';
+import { databaseData } from './__mocks__/databaseData';
+import { puckChangeData } from './__mocks__/puckChangeData';
+import { fieldsWithBreakpointsEnabled } from './__mocks__/fieldsWithBreakpointsEnabled';
 import { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
 import { BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';

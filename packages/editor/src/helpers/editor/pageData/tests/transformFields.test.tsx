@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'bun:test';
 import { DefaultComponentProps } from '@measured/puck';
+import { CustomComponentConfig } from '@typings/puck';
 import { transformFields } from '../transformFields';
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from '../constants';
-import { CustomComponentConfig } from '@typings/puck';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -49,9 +49,6 @@ describe('transformFields', () => {
       },
     };
     const transformedFields = transformFields(config.fields);
-    console.log('Raw config fields:', JSON.stringify(config.fields, null, 2));
-    console.log('Transformed fields:', JSON.stringify(transformedFields, null, 2));
-    expect(transformedFields).toMatchSnapshot();
     expect(transformedFields).toEqual({
       direction: {
         type: 'custom',
