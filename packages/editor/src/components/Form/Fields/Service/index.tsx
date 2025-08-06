@@ -201,7 +201,7 @@ export function Service({ value, onChange }: ServiceProps) {
     }
 
     return Object.entries(domainServices).map(([service, value]) => ({
-      value: service,
+      value: `${service}`,
       description: value.description,
       label: value.name,
     }));
@@ -245,7 +245,7 @@ export function Service({ value, onChange }: ServiceProps) {
         },
       }}
       onChange={(_event, value) => {
-        if (value?.value) {
+        if (typeof value?.value === 'string') {
           onChange(value.value);
         }
       }}

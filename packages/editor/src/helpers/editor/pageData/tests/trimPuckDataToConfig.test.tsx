@@ -9,7 +9,7 @@ describe('trimPuckDataToConfig', () => {
         components: {},
       };
 
-      const result = trimPuckDataToConfig(null, userConfig);
+      const result = trimPuckDataToConfig(null, userConfig as CustomConfig);
       expect(result).toBeNull();
     });
 
@@ -40,7 +40,7 @@ describe('trimPuckDataToConfig', () => {
         components: {},
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result).toEqual({
         root: { props: {} },
@@ -133,7 +133,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
       expect(result?.content[0].props).toEqual({
         id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
         validField: {
@@ -186,7 +186,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         validField: 'keep this',
@@ -233,7 +233,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content).toHaveLength(1);
       expect(result?.content[0].type).toBe('ValidComponent');
@@ -265,7 +265,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content).toHaveLength(1);
       expect(result?.content[0].type).toBe('NoFieldsComponent');
@@ -313,7 +313,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         id: 'test-component-123', // Should be preserved even though not in config
@@ -409,7 +409,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         id: 'test-component-123', // Top-level id should be preserved
@@ -465,7 +465,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.root?.props).toEqual({
         title: 'Keep this title',
@@ -488,7 +488,7 @@ describe('trimPuckDataToConfig', () => {
         components: {},
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.root?.props).toEqual({});
     });
@@ -550,7 +550,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         settings: {
@@ -635,7 +635,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         config: {
@@ -695,7 +695,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         definedField: 'value',
@@ -747,7 +747,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({});
     });
@@ -797,7 +797,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({});
     });
@@ -861,7 +861,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result?.content[0].props).toEqual({
         textField: 'text value',
@@ -895,7 +895,7 @@ describe('trimPuckDataToConfig', () => {
         components: {},
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result).toBeTruthy();
       if (result && data.zones) {
@@ -968,7 +968,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       // Array fields should be recursively trimmed when arrayFields are defined
       // Invalid fields inside array items should be stripped
@@ -1053,7 +1053,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       // Array fields without arrayFields should be preserved as-is
       expect(result?.content[0].props).toEqual({
@@ -1212,7 +1212,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       expect(result).toEqual({
         root: {
@@ -1355,7 +1355,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig);
+      const result = trimPuckDataToConfig(data, userConfig as CustomConfig);
 
       // Nested objects within arrays should be recursively trimmed
       expect(result?.content[0].props).toEqual({

@@ -76,7 +76,6 @@ export function Editor() {
       const trimmed = trimPuckDataToConfig(updated, userConfig);
 
       if (trimmed && !deepEqual(currentPage.data, trimmed)) {
-        // debugger;
         console.log('Updating data for db', {
           updated: trimmed,
           originalData: currentPage.data,
