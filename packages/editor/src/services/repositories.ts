@@ -170,11 +170,9 @@ export async function installRepositoryFromGithub(
   onProgress?: (data: { message: string; status: 'success' | 'warning' | 'error' }) => void,
   toastMessage?: ToastMessages
 ): Promise<void> {
-  const basePath = window.location.origin;
   const installFromGithubUrl = api.repositories.install['from-github'].$url();
-  const url = `${basePath}${installFromGithubUrl}`;
   // For streaming endpoints, we need to use direct fetch as callApi doesn't handle streaming
-  const response = await fetch(url, {
+  const response = await fetch(installFromGithubUrl.pathname, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

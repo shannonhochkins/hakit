@@ -139,6 +139,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
 
 function Render(props: RenderProps<DefaultRootProps>) {
   const { background } = props;
+  console.log('backgroundImage', props.background);
   return (
     <>
       <BackgroundWrapper>

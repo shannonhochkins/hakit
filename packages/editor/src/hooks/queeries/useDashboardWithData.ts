@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useGlobalStore } from '../useGlobalStore';
-import { deepCopy } from 'deep-copy-ts';
 
 export function useDashboardWithData(dashboardPath?: string) {
   // Define the query options separately to avoid spreading type conflicts
@@ -48,10 +47,9 @@ export function useDashboardWithData(dashboardPath?: string) {
 
     // Set the dashboard in global store when data is available
     if (query.data) {
-      console.log('TODO, why is this setting more than once? multiple calls? Setting dashboard with data:', query.data);
       setDashboard(query.data);
       // delete the data property from the dashboard, and each page
-      const clonedDashboard = deepCopy(query.data);
+      const clonedDashboard = structuredClone(query.data);
       // @ts-expect-error data is not a valid property on DashboardWithPageData
       delete clonedDashboard.data;
       clonedDashboard.pages.forEach(page => {

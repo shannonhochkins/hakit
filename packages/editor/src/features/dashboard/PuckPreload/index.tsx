@@ -38,7 +38,10 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
 
     if (connection && dashboard && dashboard.pages.length && !userConfig) {
       // if there's breakpoints set, use them, else use the default breakpoints
-      const breakpoints = dashboard.breakpoints && Array.isArray(dashboard.breakpoints) ? dashboard.breakpoints : DEFAULT_BREAKPOINTS;
+      const breakpoints =
+        dashboard.breakpoints && Array.isArray(dashboard.breakpoints) && dashboard.breakpoints.length > 0
+          ? dashboard.breakpoints
+          : DEFAULT_BREAKPOINTS;
       useThemeStore.getState().setBreakpoints(breakpointItemToBreakPoints(breakpoints));
       setBreakPointItems(breakpoints);
       const getAllEntities = () => entities;

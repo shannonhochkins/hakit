@@ -59,8 +59,8 @@ export function puckToDBValue(
 ): PuckPageData | null {
   if (!changedData || !userConfig) return originalData;
 
-  // Deep clone the changed data to avoid mutations
-  const newDataWithBp = JSON.parse(JSON.stringify(changedData)) as PuckPageData;
+  // Deep clone the changed data to avoid mutations - structuredClone preserves undefined values
+  const newDataWithBp = structuredClone<PuckPageData>(changedData);
 
   // Helper function to check if field type should disable breakpoints
   const shouldDisableBreakpoints = (fieldConfig: FieldConfigurationWithDefinition[string]): boolean => {
@@ -72,7 +72,7 @@ export function puckToDBValue(
     return false;
   };
 
-  const isFieldAllowedBreakpoints = (fieldConfig: FieldConfigurationWithDefinition[string]): boolean => {
+  const isFieldExcludedFromBreakpoints = (fieldConfig: FieldConfigurationWithDefinition[string]): boolean => {
     const type = fieldConfig?.type;
     return EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(type);
   };
@@ -96,7 +96,7 @@ export function puckToDBValue(
       };
     }
 
-    if (isFieldAllowedBreakpoints(fieldConfig)) {
+    if (isFieldExcludedFromBreakpoints(fieldConfig)) {
       return currentValue;
     }
 

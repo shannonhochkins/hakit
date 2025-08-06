@@ -80,7 +80,6 @@ export function Editor() {
           updated: trimmed,
           originalData: currentPage.data,
         });
-        debugger;
         setUnsavedPuckPageData(trimmed);
       }
     }, 250);

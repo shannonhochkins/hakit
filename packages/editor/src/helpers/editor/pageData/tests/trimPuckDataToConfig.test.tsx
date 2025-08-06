@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'bun:test';
 import { trimPuckDataToConfig } from '../trimPuckDataToConfig';
-import { CustomConfig, PuckPageData } from '@typings/puck';
+import { CustomConfig, CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
+import { DefaultComponentProps } from '@measured/puck';
 
 describe('trimPuckDataToConfig', () => {
   describe('basic functionality', () => {
@@ -1384,5 +1385,70 @@ describe('trimPuckDataToConfig', () => {
         ],
       });
     });
+  });
+
+  test('should not remove properties when everything exists in userConfig', () => {
+    const originalData: PuckPageData = {
+      root: {
+        props: {
+          test: {
+            background: {
+              backgroundImage: {
+                $xlg: undefined,
+              },
+            },
+          },
+        },
+      },
+      content: [],
+      zones: {},
+    };
+
+    const rootUserConfig: CustomConfigWithDefinition<
+      DefaultComponentProps,
+      {
+        test: {
+          background: {
+            backgroundImage: string;
+          };
+        };
+      }
+    > = {
+      components: {},
+      categories: {},
+      root: {
+        label: 'Root',
+        fields: {
+          test: {
+            type: 'custom',
+            render: () => <></>,
+            _field: {
+              type: 'object',
+              label: 'Test Object',
+              objectFields: {
+                background: {
+                  type: 'custom',
+                  render: () => <></>,
+                  _field: {
+                    type: 'object',
+                    label: 'Background',
+                    objectFields: {
+                      backgroundImage: {
+                        type: 'custom',
+                        render: () => <></>,
+                        _field: { type: 'text', label: 'Background Image', default: '' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const puckValue = trimPuckDataToConfig(originalData as PuckPageData, rootUserConfig as CustomConfigWithDefinition);
+    expect(puckValue).toEqual(originalData);
   });
 });

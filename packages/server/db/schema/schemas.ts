@@ -4,26 +4,12 @@ import { dashboardTable, pagesTable } from './db';
 
 export const puckObjectZodSchema = z.object({
   type: z.string(),
-  props: z
-    .object({})
-    .passthrough()
-    .transform(
-      ({
-        // we are intentionally omitting the `breakpoint` property from the props
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        breakpoint,
-        ...rest
-      }) => rest
-    ), // omit `breakpoint`,
+  props: z.object({}).passthrough(),
+  readOnly: z.record(z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
 });
 
-export const puckDataZodSchema = z.object({
-  zones: z.record(z.array(puckObjectZodSchema)),
-  content: z.array(puckObjectZodSchema),
-  root: puckObjectZodSchema.omit({
-    type: true,
-  }),
-});
+// More permissive schema that preserves all data structures including undefined values
+export const puckDataZodSchema = z.any(); // Temporarily use z.any() to bypass all validation and preserve undefined values
 
 // Zod schemas for inserts & selects, no payload for creation, we use defaults in this case, maybe this needs a "theme" input one day?
 const dashboardSchema = createInsertSchema(dashboardTable);
@@ -62,7 +48,7 @@ export const insertDashboardPageSchema = dashboardPageSchema
     thumbnail: true,
   })
   .extend({
-    data: dashboardPageSchema.shape.data.optional(),
+    data: puckDataZodSchema.optional(),
     thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
   });
 
@@ -74,6 +60,6 @@ export const updateDashboardPageSchema = createUpdateSchema(pagesTable)
     thumbnail: true,
   })
   .extend({
-    data: dashboardPageSchema.shape.data.optional(),
+    data: puckDataZodSchema.optional(), // Accept either string (serialized) or object
     thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
   });

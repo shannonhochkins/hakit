@@ -2,19 +2,13 @@ import { Hono } from 'hono';
 import { db } from '../db';
 import { eq, and } from 'drizzle-orm';
 import { pagesTable, dashboardTable } from '../db/schema/db';
-import {
-  insertDashboardSchema,
-  insertDashboardPageSchema,
-  updateDashboardPageSchema,
-  puckDataZodSchema,
-  updateDashboardSchema,
-} from '../db/schema/schemas';
+import { insertDashboardSchema, insertDashboardPageSchema, updateDashboardPageSchema, updateDashboardSchema } from '../db/schema/schemas';
 import { zValidator } from '@hono/zod-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../kinde';
 import { z } from 'zod';
 import type { PuckPageData } from '@typings/puck';
-import type { Json } from '@kinde-oss/kinde-typescript-sdk';
+import { serializeWithUndefined, deserializePageData } from '../../shared/helpers/customSerialize';
 import { formatErrorResponse } from '../helpers/formatErrorResponse';
 
 // Predefined default pages
@@ -76,10 +70,6 @@ function createDefaultPageConfiguration(): PuckPageData {
       props: {},
     },
   };
-}
-
-function sanitizePuckData(data: Json) {
-  return puckDataZodSchema.parse(data);
 }
 
 const dashboardRoute = new Hono()
@@ -176,10 +166,15 @@ const dashboardRoute = new Hono()
           })
           .from(pagesTable)
           .where(eq(pagesTable.dashboardId, dashboard.id));
+        // Deserialize page data from JSON strings
+        const pagesWithDeserializedData = pages.map(page => ({
+          ...page,
+          data: deserializePageData(page.data),
+        }));
 
         const dashboardWithPages = {
           ...dashboard,
-          pages,
+          pages: pagesWithDeserializedData,
         };
 
         return c.json(
@@ -225,9 +220,18 @@ const dashboardRoute = new Hono()
           .select()
           .from(pagesTable)
           .where(and(eq(pagesTable.id, pageId), eq(pagesTable.dashboardId, id)));
+
+        if (!page) {
+          throw new Error(`Page not found with id ${pageId}`);
+        }
+        console.log('pages', page.data);
+
         return c.json(
           {
-            page: page,
+            page: {
+              ...page,
+              data: deserializePageData(page.data),
+            },
           },
           200
         );
@@ -381,13 +385,17 @@ const dashboardRoute = new Hono()
             name: data.name,
             path: data.path,
             thumbnail: data.thumbnail,
-            data: data.data ? sanitizePuckData(data.data) : undefined,
+            data: data.data ? serializeWithUndefined(data.data) : undefined,
           })
           .where(and(eq(pagesTable.dashboardId, dashboard.id), eq(pagesTable.id, pageId)))
           .returning();
+
         return c.json(
           {
-            page: pageRecord,
+            page: {
+              ...pageRecord,
+              data: pageRecord.data ? deserializePageData(pageRecord.data) : undefined,
+            },
           },
           200
         );
@@ -465,7 +473,7 @@ const dashboardRoute = new Hono()
           dashboardId: dashboardRecord.id,
           name: defaultPage.name,
           path: defaultPage.path,
-          data: createDefaultPageConfiguration(),
+          data: serializeWithUndefined(createDefaultPageConfiguration()),
         })
         .returning();
 
@@ -473,7 +481,12 @@ const dashboardRoute = new Hono()
         {
           dashboard: {
             ...dashboardRecord,
-            pages: [page],
+            pages: [
+              {
+                ...page,
+                data: deserializePageData(page.data),
+              },
+            ],
           },
         },
         201
@@ -511,6 +524,9 @@ const dashboardRoute = new Hono()
         }
         const [dashboard] = dashboards;
         const defaultPage = await getAvailableDefaultPage(dashboard.id);
+        const pageData = data ?? createDefaultPageConfiguration();
+        const serializedData = serializeWithUndefined(pageData);
+
         const [pageRecord] = await db
           .insert(pagesTable)
           .values({
@@ -518,13 +534,16 @@ const dashboardRoute = new Hono()
             dashboardId: dashboard.id,
             name: name ?? defaultPage.name,
             path: path ?? defaultPage.path,
-            data: data ?? createDefaultPageConfiguration(),
+            data: serializedData,
             thumbnail: thumbnail || null,
           })
           .returning();
         return c.json(
           {
-            page: pageRecord,
+            page: {
+              ...pageRecord,
+              data: deserializePageData(pageRecord.data),
+            },
           },
           200
         );
@@ -597,7 +616,10 @@ const dashboardRoute = new Hono()
               thumbnail: page.thumbnail,
             })
             .returning();
-          newPages.push(newPage);
+          newPages.push({
+            ...newPage,
+            data: deserializePageData(newPage.data),
+          });
         }
 
         return c.json(
@@ -674,7 +696,10 @@ const dashboardRoute = new Hono()
 
         return c.json(
           {
-            page: newPage,
+            page: {
+              ...newPage,
+              data: deserializePageData(newPage.data),
+            },
           },
           200
         );

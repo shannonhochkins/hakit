@@ -118,7 +118,6 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       type: 'slot',
     },
   };
-
   const finalRootConfig: Omit<CustomRootConfigWithDefinition<InternalRootData>, IgnorePuckConfigurableOptions | 'fields'> & {
     fields: Omit<FieldConfigurationWithDefinition<P, true>, 'content'>;
   } = {
@@ -134,6 +133,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       const editorElements = usePuckIframeElements();
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const dashboard = useGlobalStore(state => state.dashboardWithoutData);
+
       // gather all root config styles to apply globally
       const allCustomStyles = processedConfigs
         .map(rootConfig => {
