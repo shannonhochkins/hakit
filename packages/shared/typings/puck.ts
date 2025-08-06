@@ -100,18 +100,6 @@ export type CustomRootConfigWithDefinition<RootProps extends DefaultComponentPro
   CustomComponentConfigWithDefinition<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
 >;
 
-export type CustomConfig<
-  Props extends DefaultComponentProps = DefaultComponentProps,
-  RootProps extends DefaultComponentProps = DefaultComponentProps,
-  CategoryName extends string = string,
-> = Omit<Config<Props, RootProps, CategoryName>, 'components' | 'root' | 'fields'> & {
-  components: {
-    [ComponentName in keyof Props]: Omit<CustomComponentConfig<Props[ComponentName], Props[ComponentName]>, 'type'>;
-  };
-  fields?: FieldConfiguration<Props, true>;
-  root?: CustomRootConfig<RootProps>;
-};
-
 export type CustomConfigWithDefinition<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,

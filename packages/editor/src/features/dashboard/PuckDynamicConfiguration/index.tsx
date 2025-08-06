@@ -3,7 +3,6 @@ import { registerRemotes, loadRemote } from '@module-federation/enhanced/runtime
 import { type UserOptions } from '@module-federation/runtime-core';
 import {
   CustomComponentConfigWithDefinition,
-  CustomConfig,
   CustomConfigWithDefinition,
   type ComponentFactoryData,
   type CustomComponentConfig,
@@ -39,7 +38,7 @@ type RemoteWithRepositoryId = Remote & {
 export async function getPuckConfiguration(data: ComponentFactoryData) {
   const components: Record<string, CustomComponentConfigWithDefinition<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
-  const categories: NonNullable<CustomConfig['categories']> = {} as NonNullable<Config['categories']>;
+  const categories: NonNullable<CustomConfigWithDefinition['categories']> = {} as NonNullable<Config['categories']>;
   const userRepositories = await getUserRepositories();
   const remoteManifest = new Map<string, MfManifest>();
   // Create a map of excluded components by repository name

@@ -1467,9 +1467,6 @@ describe('puckToDBValue', () => {
 
       const puckValue = dbValueToPuck(dbDataWithEmptyObject, 'xlg');
 
-      // This test will show what dbValueToPuck does with empty objects
-      console.log('dbValueToPuck result with empty object:', puckValue?.root?.props?.test?.background?.backgroundImage);
-
       // Check what we actually get
       expect(puckValue?.root?.props?.test?.background?.backgroundImage).toBeDefined();
     });
@@ -1612,7 +1609,7 @@ describe('puckToDBValue', () => {
         },
       };
 
-      testCases.forEach(({ value, name }) => {
+      testCases.forEach(({ value }) => {
         const originalData: PuckPageData = {
           root: { props: {} },
           content: [],
@@ -1644,8 +1641,6 @@ describe('puckToDBValue', () => {
         expect(dbValue?.root?.props?.test?.background?.backgroundImage).not.toEqual({
           $xlg: {},
         });
-
-        console.log(`${name} test passed:`, dbValue?.root?.props?.test?.background?.backgroundImage);
       });
     });
 
@@ -1771,240 +1766,6 @@ describe('puckToDBValue', () => {
         $xs: 'Mobile Title',
         $sm: 'New Small Title', // new value added
       });
-    });
-
-    test('INVESTIGATION: trace where empty objects come from in puckToDBValue', () => {
-      const originalData: PuckPageData = {
-        root: { props: {} },
-        content: [],
-        zones: {},
-      };
-
-      // Test various scenarios that might create empty objects
-      const testScenarios = [
-        {
-          name: 'completely missing backgroundImage',
-          changedData: {
-            root: {
-              props: {
-                test: {
-                  background: {
-                    // backgroundImage missing entirely
-                  },
-                },
-              },
-            },
-            content: [],
-            zones: {},
-          },
-        },
-        {
-          name: 'backgroundImage is empty object',
-          changedData: {
-            root: {
-              props: {
-                test: {
-                  background: {
-                    backgroundImage: {},
-                  },
-                },
-              },
-            },
-            content: [],
-            zones: {},
-          },
-        },
-        {
-          name: 'backgroundImage is already a breakpoint object with empty value',
-          changedData: {
-            root: {
-              props: {
-                test: {
-                  background: {
-                    backgroundImage: { $xlg: {} },
-                  },
-                },
-              },
-            },
-            content: [],
-            zones: {},
-          },
-        },
-        {
-          name: 'default value from field config',
-          changedData: {
-            root: {
-              props: {
-                test: {
-                  background: {
-                    // backgroundImage will use default from field config
-                  },
-                },
-              },
-            },
-            content: [],
-            zones: {},
-          },
-        },
-      ];
-
-      const rootUserConfig: CustomConfigWithDefinition<
-        DefaultComponentProps,
-        {
-          test: {
-            background: {
-              backgroundImage: string;
-            };
-          };
-        }
-      > = {
-        components: {},
-        categories: {},
-        root: {
-          label: 'Root',
-          fields: {
-            test: {
-              type: 'custom',
-              render: () => <></>,
-              _field: {
-                type: 'object',
-                label: 'Test Object',
-                objectFields: {
-                  background: {
-                    type: 'custom',
-                    render: () => <></>,
-                    _field: {
-                      type: 'object',
-                      label: 'Background',
-                      objectFields: {
-                        backgroundImage: {
-                          type: 'custom',
-                          render: () => <></>,
-                          _field: { type: 'text', label: 'Background Image', default: '' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
-
-      testScenarios.forEach(({ name, changedData }) => {
-        console.log(`\n=== Testing scenario: ${name} ===`);
-        const dbValue = puckToDBValue(originalData, changedData as PuckPageData, 'xlg', rootUserConfig as CustomConfigWithDefinition, {});
-
-        const backgroundImageValue = dbValue?.root?.props?.test?.background?.backgroundImage;
-        console.log('backgroundImage result:', backgroundImageValue);
-
-        if (backgroundImageValue && typeof backgroundImageValue === 'object') {
-          console.log('$xlg value:', backgroundImageValue.$xlg);
-          console.log('$xlg type:', typeof backgroundImageValue.$xlg);
-          console.log('$xlg is empty object:', JSON.stringify(backgroundImageValue.$xlg) === '{}');
-        }
-
-        // Check if it created an empty object
-        if (
-          backgroundImageValue &&
-          backgroundImageValue.$xlg &&
-          typeof backgroundImageValue.$xlg === 'object' &&
-          JSON.stringify(backgroundImageValue.$xlg) === '{}'
-        ) {
-          console.log('❌ FOUND EMPTY OBJECT CREATION in scenario:', name);
-        } else {
-          console.log('✅ No empty object in scenario:', name);
-        }
-      });
-    });
-
-    test('POTENTIAL FIX: puckToDBValue should sanitize invalid object values for string fields', () => {
-      const originalData: PuckPageData = {
-        root: { props: {} },
-        content: [],
-        zones: {},
-      };
-
-      const changedDataWithInvalidObject: PuckPageData = {
-        root: {
-          props: {
-            test: {
-              background: {
-                backgroundImage: {}, // This should be rejected for a string field
-              },
-            },
-          },
-        },
-        content: [],
-        zones: {},
-      };
-
-      const rootUserConfig: CustomConfigWithDefinition<
-        DefaultComponentProps,
-        {
-          test: {
-            background: {
-              backgroundImage: string;
-            };
-          };
-        }
-      > = {
-        components: {},
-        categories: {},
-        root: {
-          label: 'Root',
-          fields: {
-            test: {
-              type: 'custom',
-              render: () => <></>,
-              _field: {
-                type: 'object',
-                label: 'Test Object',
-                objectFields: {
-                  background: {
-                    type: 'custom',
-                    render: () => <></>,
-                    _field: {
-                      type: 'object',
-                      label: 'Background',
-                      objectFields: {
-                        backgroundImage: {
-                          type: 'custom',
-                          render: () => <></>,
-                          _field: { type: 'text', label: 'Background Image', default: '' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
-
-      const dbValue = puckToDBValue(
-        originalData,
-        changedDataWithInvalidObject as PuckPageData,
-        'xlg',
-        rootUserConfig as CustomConfigWithDefinition,
-        {}
-      );
-
-      console.log('Raw result before fix:', dbValue?.root?.props?.test?.background?.backgroundImage);
-
-      // POTENTIAL FIX: If we added field type validation in puckToDBValue, it should convert
-      // object values to appropriate defaults for string fields
-      // For now, this will fail to demonstrate the issue
-      expect(dbValue?.root?.props?.test?.background?.backgroundImage).not.toEqual({
-        $xlg: {},
-      });
-
-      // In a fix, we'd expect something like:
-      // expect(dbValue?.root?.props?.test?.background?.backgroundImage).toEqual({
-      //   $xlg: '' // or some default string value
-      // });
     });
   });
 });

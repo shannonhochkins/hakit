@@ -8,8 +8,14 @@ export const puckObjectZodSchema = z.object({
   readOnly: z.record(z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
 });
 
-// More permissive schema that preserves all data structures including undefined values
-export const puckDataZodSchema = z.any(); // Temporarily use z.any() to bypass all validation and preserve undefined values
+export const puckDataZodSchema = z.object({
+  zones: z.record(z.array(puckObjectZodSchema)).optional(), // Make zones optional
+  content: z.array(puckObjectZodSchema),
+  root: z.object({
+    props: z.object({}).passthrough().optional(), // Make props optional
+    readOnly: z.record(z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
+  }),
+});
 
 // Zod schemas for inserts & selects, no payload for creation, we use defaults in this case, maybe this needs a "theme" input one day?
 const dashboardSchema = createInsertSchema(dashboardTable);

@@ -134,7 +134,6 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
       if (src.includes('__COMPONENT_NAME__')) return false;
       // Skip the GIT_IGNORE file since we'll copy and rename it separately
       if (src.includes('GIT_IGNORE')) return false;
-      console.log('copying', src);
       return true;
     },
   });

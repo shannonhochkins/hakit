@@ -96,11 +96,6 @@ describe('getDefaultPropsFromFields', () => {
 
       const result = await getDefaultPropsFromFields(fields, mockData);
 
-      console.log('Background object result:', JSON.stringify(result, null, 2));
-      console.log('backgroundImage value:', result.background?.backgroundImage);
-      console.log('backgroundImage type:', typeof result.background?.backgroundImage);
-      console.log('Is backgroundImage an empty object?:', JSON.stringify(result.background?.backgroundImage) === '{}');
-
       // Check the overall structure
       expect(result).toHaveProperty('background');
       expect(result.background).toHaveProperty('useBackgroundImage', true);
@@ -143,8 +138,6 @@ describe('getDefaultPropsFromFields', () => {
       };
 
       const result = await getDefaultPropsFromFields(fields, mockData);
-
-      console.log('Mixed defaults result:', JSON.stringify(result, null, 2));
 
       expect(result.config.definedField).toBe('has value');
       expect(result.config.undefinedField).toBe(undefined);
@@ -428,13 +421,6 @@ describe('getDefaultPropsFromFields', () => {
       };
 
       const result = await getDefaultPropsFromFields(fields, mockData);
-
-      console.log('\n=== EXACT DEFAULTROOT REPRODUCTION ===');
-      console.log('Full result:', JSON.stringify(result, null, 2));
-      console.log('backgroundImage value:', result.background?.backgroundImage);
-      console.log('backgroundImage type:', typeof result.background?.backgroundImage);
-      console.log('Is backgroundImage empty object?:', JSON.stringify(result.background?.backgroundImage) === '{}');
-      console.log('=== END REPRODUCTION ===\n');
 
       // Verify the structure matches expectations
       expect(result.background.useBackgroundImage).toBe(true);

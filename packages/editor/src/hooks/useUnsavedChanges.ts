@@ -87,7 +87,6 @@ export function useUnsavedChanges(): UnsavedChangesState {
           timestamp: new Date().toISOString(),
         };
         localStorage.setItem(storageKey, serializeWithUndefined(saveData));
-        console.log('💾 [UnsavedChanges] Data saved to localStorage');
       } catch (error) {
         console.error('💾 [UnsavedChanges] Failed to save:', error);
       }
@@ -98,7 +97,6 @@ export function useUnsavedChanges(): UnsavedChangesState {
   const removeStoredData = useCallback(() => {
     if (!storageKey) return;
     localStorage.removeItem(storageKey);
-    console.log('🗑️ [UnsavedChanges] Local storage cleared');
   }, [storageKey]);
 
   // Check if we have unsaved changes (diff between puckPageData and unsavedPuckPageData)
@@ -141,16 +139,9 @@ export function useUnsavedChanges(): UnsavedChangesState {
           // Only show recovery prompt if data is older than 30 seconds
           // This helps distinguish between navigation (fresh data) and refresh/return (old data)
           if (timeDiffInSeconds > TIME_THRESHOLD_SECONDS) {
-            console.log(
-              `🚨 [UnsavedChanges] Recovery prompt triggered - stored data is ${Math.round(timeDiffInSeconds)}s old (> 30s threshold)`
-            );
             setLocalSaveTime(storedTime);
             setShowRecoveryPrompt(true);
             setHasPrompted(true);
-          } else {
-            console.log(
-              `🔄 [UnsavedChanges] Stored data found but is only ${Math.round(timeDiffInSeconds)}s old (< 30s threshold) - likely from navigation, no recovery prompt`
-            );
           }
         }
       } catch (error) {

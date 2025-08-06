@@ -224,7 +224,6 @@ const dashboardRoute = new Hono()
         if (!page) {
           throw new Error(`Page not found with id ${pageId}`);
         }
-        console.log('pages', page.data);
 
         return c.json(
           {
