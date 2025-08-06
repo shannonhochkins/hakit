@@ -16,7 +16,7 @@ export function Render(props: RenderProps<DefaultComponentNameProps>) {
 
 // Example component configuration
 export const config: ComponentConfig<DefaultComponentNameProps> = {
-  label: 'Default Component Name',
+  label: 'DefaultComponentName',
   fields: {
     description: {
       type: 'text',

@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { isBreakpointObject } from './isBreakpointObject';
+import { isBreakpointObject } from '../isBreakpointObject';
 
 describe('isBreakpointObject', () => {
   describe('valid breakpoint objects', () => {

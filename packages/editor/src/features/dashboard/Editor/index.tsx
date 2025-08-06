@@ -72,15 +72,16 @@ export function Editor() {
         });
         return;
       }
-
       const updated = puckToDBValue(currentPage.data, newData, activeBreakpoint, userConfig, componentBreakpointMap);
       const trimmed = trimPuckDataToConfig(updated, userConfig);
 
       if (trimmed && !deepEqual(currentPage.data, trimmed)) {
+        // debugger;
         console.log('Updating data for db', {
           updated: trimmed,
           originalData: currentPage.data,
         });
+        debugger;
         setUnsavedPuckPageData(trimmed);
       }
     }, 250);

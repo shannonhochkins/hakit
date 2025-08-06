@@ -263,7 +263,7 @@ export function createCustomField<Props extends DefaultComponentProps>(_field: C
   const repositoryId = 'repositoryId' in _field ? (_field.repositoryId as string) : undefined;
   return {
     type: 'custom',
-    _field: field, // TODO - Assess if we still need this, my guess is no
+    _field: field,
     render({ name, onChange: puckOnChange, value, id }) {
       return <CustomFieldComponent field={field} name={name} onChange={puckOnChange} value={value} id={id} repositoryId={repositoryId} />;
     },

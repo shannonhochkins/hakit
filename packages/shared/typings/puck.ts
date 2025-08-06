@@ -12,7 +12,7 @@ import {
 import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { Dashboard } from './hono';
-import type { FieldConfiguration } from './fields';
+import type { FieldConfiguration, FieldConfigurationWithDefinition } from './fields';
 
 export type InternalFields = {
   // breakpoint is not saved in the db, this is calculated on the fly
@@ -70,6 +70,21 @@ export type CustomComponentConfig<
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
+export type CustomComponentConfigWithDefinition<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  FieldProps extends DefaultComponentProps = Props,
+  DataShape = Omit<ComponentData<FieldProps>, 'type'>,
+> = Omit<ComponentConfig<Props, FieldProps, DataShape>, IgnorePuckConfigurableOptions | 'fields' | 'render' | 'label'> & {
+  // Label is required
+  label: string;
+  // Custom fields configuration instead of Puck's Fields
+  fields: FieldConfigurationWithDefinition<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
+  render: PuckComponent<Props & AdditionalRenderProps>;
+  // Optional styles function that returns CSS string for component-scoped styling
+  styles?: (props: Props & AdditionalRenderProps) => string;
+  // defaultProps is intentionally omitted, we handle this on individual field definitions
+};
+
 export type ComponentFactoryData = {
   getAllEntities: () => HassEntities;
   getAllServices: () => Promise<HassServices | null>;
@@ -81,15 +96,32 @@ export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultCo
   CustomComponentConfig<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
 >;
 
+export type CustomRootConfigWithDefinition<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
+  CustomComponentConfigWithDefinition<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
+>;
+
 export type CustomConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
   CategoryName extends string = string,
-> = Omit<Config<Props, RootProps, CategoryName>, 'components' | 'root'> & {
+> = Omit<Config<Props, RootProps, CategoryName>, 'components' | 'root' | 'fields'> & {
   components: {
     [ComponentName in keyof Props]: Omit<CustomComponentConfig<Props[ComponentName], Props[ComponentName]>, 'type'>;
   };
+  fields?: FieldConfiguration<Props, true>;
   root?: CustomRootConfig<RootProps>;
+};
+
+export type CustomConfigWithDefinition<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+  CategoryName extends string = string,
+> = Omit<Config<Props, RootProps, CategoryName>, 'components' | 'root' | 'fields'> & {
+  components: {
+    [ComponentName in keyof Props]: Omit<CustomComponentConfigWithDefinition<Props[ComponentName], Props[ComponentName]>, 'type'>;
+  };
+  fields?: FieldConfigurationWithDefinition<Props, true>;
+  root?: CustomRootConfigWithDefinition<RootProps>;
 };
 
 export type Slot = InternalSlot;

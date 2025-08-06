@@ -15,6 +15,7 @@
         "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
         "@octokit/rest": "^22.0.0",
         "@supabase/supabase-js": "^2.49.3",
+        "@total-typescript/ts-reset": "^0.6.1",
         "deep-copy-ts": "^0.5.4",
         "deep-equal": "^2.2.3",
         "dotenv": "^16.4.7",
@@ -29,6 +30,7 @@
         "react-toastify": "^11.0.5",
         "react-use": "^17.6.0",
         "ts-deepmerge": "^7.0.2",
+        "type-fest": "^4.41.0",
         "uuid": "^11.1.0",
         "zod": "^3.24.2",
         "zod-validation-error": "^3.4.0",
@@ -60,7 +62,7 @@
     },
     "packages/addon": {
       "name": "@hakit/addon",
-      "version": "0.0.11",
+      "version": "0.0.13",
       "bin": {
         "create-hakit-component": "./dist/bin/index.js",
         "@hakit/addon": "./dist/bin/index.js",
@@ -768,6 +770,8 @@
     "@tanstack/virtual-file-routes": ["@tanstack/virtual-file-routes@1.121.21", "", {}, "sha512-3nuYsTyaq6ZN7jRZ9z6Gj3GXZqBOqOT0yzd/WZ33ZFfv4yVNIvsa5Lw+M1j3sgyEAxKMqGu/FaNi7FCjr3yOdw=="],
 
     "@tootallnate/once": ["@tootallnate/once@2.0.0", "", {}, "sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A=="],
+
+    "@total-typescript/ts-reset": ["@total-typescript/ts-reset@0.6.1", "", {}, "sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ=="],
 

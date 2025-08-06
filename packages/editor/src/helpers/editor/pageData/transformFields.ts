@@ -1,5 +1,31 @@
-import { createCustomField } from '@helpers/editor/createCustomField';
-import type { FieldConfiguration, FieldConfigurationWithDefinition } from '@typings/fields';
+import { createCustomField } from '@helpers/editor/createCus    // If it's an object field, recurse into objectFields
+    if (fieldDef.type === 'object' && fieldDef.objectFields) {
+      // @ts-expect-error - Fix later
+      fieldDef.objectFields = transformFields(fieldDef.objectFields, false); // Not top level anymore
+      // @ts-expect-error - Fix later
+      console.log('About to call createCustomField for object field:', fieldName);
+      const customField = createCustomField(fieldDef);
+      console.log('createCustomField returned:', customField);
+      result[fieldName] = customField;
+
+      // If it's an array field, recurse into arrayFields
+    } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
+      // @ts-expect-error - Fix later
+      fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields, false); // Not top level anymore
+      // @ts-expect-error - Fix later
+      console.log('About to call createCustomField for array field:', fieldName);
+      const customField = createCustomField(fieldDef);
+      console.log('createCustomField returned:', customField);
+      result[fieldName] = customField;
+
+      // Otherwise it's just a normal field, no further recursion
+    } else {
+      // @ts-expect-error - Fix later
+      console.log('About to call createCustomField for simple field:', fieldName);
+      const customField = createCustomField<P>(fieldDef);
+      console.log('createCustomField returned:', customField);
+      result[fieldName] = customField;
+    }ype { FieldConfiguration, FieldConfigurationWithDefinition } from '@typings/fields';
 import type { ComponentData, DefaultComponentProps } from '@measured/puck';
 
 function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
@@ -42,10 +68,10 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
 export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
   fields: FieldConfiguration<P, DataShape>,
   isTopLevel: boolean = true
-): FieldConfigurationWithDefinition<P, true> {
-  const result = {} as FieldConfigurationWithDefinition<P, true>;
+): FieldConfigurationWithDefinition<P> {
+  const result = {} as FieldConfigurationWithDefinition<P>;
 
-  for (const [fieldName, fieldDef] of typedEntries(fields)) {
+  for (const [fieldName, fieldDef] of typedEntries(structuredClone(fields))) {
     // Skip processing 'id' fields only at the top level (they are system fields for components)
     if (fieldName === 'id' && isTopLevel) {
       continue;

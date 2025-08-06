@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { dbValueToPuck } from './dbValueToPuck';
+import { dbValueToPuck } from '../dbValueToPuck';
 
 describe('dbValueToPuck', () => {
   describe('simple breakpoint objects', () => {

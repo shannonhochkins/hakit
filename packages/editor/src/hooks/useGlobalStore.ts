@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CustomConfig, PuckPageData } from '@typings/puck';
+import type { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
 import type { DashboardWithPageData, Dashboard } from '@typings/hono';
 import { EmotionCache } from '@emotion/react';
@@ -30,8 +30,8 @@ type PuckConfigurationStore = {
   setEditorIframeDocument: (document: Document | null) => void;
   emotionCache: EmotionCache | null;
   setEmotionCache: (emotionCache: EmotionCache | null) => void;
-  userConfig: CustomConfig<DefaultComponentProps> | null;
-  setUserConfig: (userConfig: CustomConfig<DefaultComponentProps> | null) => void;
+  userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null;
+  setUserConfig: (userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null) => void;
   services: HassServices | null;
   setServices: (services: HassServices | null) => void;
   dashboard: DashboardWithPageData | null;
@@ -84,7 +84,7 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     emotionCache: null,
     setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
     userConfig: null,
-    setUserConfig: (userConfig: CustomConfig<DefaultComponentProps> | null) => set(state => ({ ...state, userConfig })),
+    setUserConfig: (userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null) => set(state => ({ ...state, userConfig })),
     services: null,
     setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
     dashboardWithoutData: null,

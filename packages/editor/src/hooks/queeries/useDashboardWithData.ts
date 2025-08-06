@@ -48,6 +48,7 @@ export function useDashboardWithData(dashboardPath?: string) {
 
     // Set the dashboard in global store when data is available
     if (query.data) {
+      console.log('TODO, why is this setting more than once? multiple calls? Setting dashboard with data:', query.data);
       setDashboard(query.data);
       // delete the data property from the dashboard, and each page
       const clonedDashboard = deepCopy(query.data);

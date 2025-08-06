@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalStore } from './useGlobalStore';
 import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
-import { updateDashboardPageForUser } from '@services/dashboard';
+import { getDashboardByPathWithData, updateDashboardPageForUser } from '@services/dashboard';
 import { type PuckAction } from '@measured/puck';
 import { deepCopy } from 'deep-copy-ts';
 import { trimPuckDataToConfig } from '@helpers/editor/pageData/trimPuckDataToConfig';
@@ -29,6 +29,10 @@ interface UnsavedChangesState {
   getStoredData: () => { data: PuckPageData; timestamp: string } | null;
 }
 
+export function getStorageKey(dashboardPath: string, pagePath: string): string | null {
+  return `hakit-autosave-${dashboardPath}-${pagePath}`;
+}
+
 export function useUnsavedChanges(): UnsavedChangesState {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
@@ -38,7 +42,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
   // Generate unique key for this dashboard/page combination
   const storageKey = useMemo(() => {
     if (!params?.dashboardPath || !params?.pagePath) return null;
-    return `hakit-autosave-${params.dashboardPath}-${params.pagePath}`;
+    return getStorageKey(params.dashboardPath, params.pagePath);
   }, [params?.dashboardPath, params?.pagePath]);
 
   // Global store state
@@ -164,6 +168,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
     const puckValue = dbValueToPuck(updated, activeBreakpoint);
     // Update internal puck data
     setPuckPageData(puckValue);
+    debugger;
     // the user has accepted the recovery, so we update the dashboard page data
     // in the db
     updateDashboardPageForUser(
@@ -177,7 +182,17 @@ export function useUnsavedChanges(): UnsavedChangesState {
         error: 'Failed to update dashboard page data after recovery',
       }
     ).finally(() => {
-      setShowRecoveryPrompt(false);
+      // now, we need to update the store with the new dashboard
+
+      getDashboardByPathWithData(dashboard.path)
+        .then(updatedDashboard => {
+          console.log('Recovery accepted, dashboard updated:', updatedDashboard);
+          debugger;
+          useGlobalStore.getState().setDashboard(updatedDashboard);
+        })
+        .finally(() => {
+          setShowRecoveryPrompt(false);
+        });
     });
   }, [params, getStoredData, removeStoredData]);
 

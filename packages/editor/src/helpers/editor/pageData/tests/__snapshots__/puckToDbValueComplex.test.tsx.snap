@@ -1,0 +1,58 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`puckToDBValue should not include xlg for object field root objects 1`] = `
+{
+  "content": [],
+  "root": {
+    "props": {
+      "@hakit/default-root": {
+        "background": {
+          "backgroundColor": {
+            "$lg": "#4254c5",
+            "$xlg": "#4254c5",
+          },
+          "backgroundImage": {
+            "$lg": undefined,
+            "$xlg": undefined,
+          },
+          "blendMode": {
+            "$lg": "multiply",
+            "$xlg": "multiply",
+          },
+          "blur": {
+            "$lg": 25,
+            "$xlg": 25,
+          },
+          "opacity": {
+            "$lg": 0.9,
+            "$xlg": 0.9,
+          },
+          "useBackgroundImage": {
+            "$lg": false,
+            "$xlg": false,
+          },
+        },
+      },
+      "_styleOverrides": {
+        "style": {
+          "$lg": "background-color: red;",
+          "$xlg": "background-color: green;",
+        },
+      },
+      "a35029ce-0d24-46cd-b8f1-68a9c5e851e0": {
+        "anotherSlot": undefined,
+        "something": {
+          "$lg": "This is a text field",
+          "$xlg": "This is a text field",
+        },
+        "somethinigElse": {
+          "$lg": "This is another text field",
+          "$xlg": "This is another text field",
+        },
+      },
+      "content": [],
+    },
+  },
+  "zones": {},
+}
+`;

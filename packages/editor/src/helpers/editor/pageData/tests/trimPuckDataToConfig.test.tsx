@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { trimPuckDataToConfig } from './trimPuckDataToConfig';
+import { trimPuckDataToConfig } from '../trimPuckDataToConfig';
 import { CustomConfig, PuckPageData } from '@typings/puck';
 
 describe('trimPuckDataToConfig', () => {

@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { getResolvedBreakpointValue } from './getResolvedBreakpointValue';
+import { getResolvedBreakpointValue } from '../getResolvedBreakpointValue';
 import type { BreakPoint } from '@hakit/components';
 
 describe('getResolvedBreakpointValue', () => {
