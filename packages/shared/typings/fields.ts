@@ -9,7 +9,7 @@ import type {
   BaseField as PuckBaseField,
   ObjectField,
   ArrayField,
-  SlotField,
+  SlotField as PuckSlotField,
   CustomField as PuckCustomField,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
@@ -47,6 +47,8 @@ export type EntityField<DataShape = unknown> = BaseField &
     options: HassEntity[] | ((data: DefaultPropsCallbackData) => Promise<HassEntity[]> | HassEntity[]);
     default: (options: HassEntity[], data: DefaultPropsCallbackData) => Promise<string | undefined> | string | undefined;
   };
+
+export type SlotField = Omit<PuckSlotField, keyof PuckBaseField>;
 
 export type ServiceField = BaseField & {
   type: 'service';
@@ -174,9 +176,8 @@ export type CustomFields<
 export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomField<
   Props,
   {
-    _field: Props extends DefaultComponentProps[]
-      ? {
-          type: 'array';
+    _field: (Props extends DefaultComponentProps[]
+      ? Omit<ArrayField<Props extends { [key: string]: any } ? Props : any>, 'arrayFields' | 'visible'> & {
           arrayFields: {
             [SubPropName in keyof Props[0]]: CustomFields<
               Props[0][SubPropName],
@@ -186,8 +187,7 @@ export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, Data
           };
         } & ExtendedFieldTypes<DataShape>
       : Props extends { [key: string]: any }
-        ? {
-            type: 'object';
+        ? Omit<ObjectField<Props>, 'objectFields' | 'visible'> & {
             objectFields: {
               [SubPropName in keyof Props]: CustomFields<
                 Props[SubPropName],
@@ -195,8 +195,10 @@ export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, Data
                 DataShape
               >;
             };
-          } & ExtendedFieldTypes<DataShape>
-        : CustomFields<Props, object, DataShape>;
+          } & Omit<ExtendedFieldTypes<DataShape>, 'default'>
+        : CustomFields<Props, object, DataShape>) & {
+      repositoryId?: string;
+    };
   }
 >;
 
@@ -205,7 +207,9 @@ export type FieldConfiguration<ComponentProps extends DefaultComponentProps = De
 };
 
 export type FieldConfigurationWithDefinition<ComponentProps extends DefaultComponentProps = DefaultComponentProps, DataShape = unknown> = {
-  [PropName in keyof Omit<ComponentProps, 'editMode'>]: CustomFieldsWithDefinition<ComponentProps[PropName], DataShape>;
+  [PropName in keyof Omit<ComponentProps, 'editMode'>]: ComponentProps[PropName] extends { type: 'slot' }
+    ? SlotField
+    : CustomFieldsWithDefinition<ComponentProps[PropName], DataShape>;
 };
 
 export type FieldTypes = CustomFields extends { type: infer T } ? T : never;

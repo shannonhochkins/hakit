@@ -1,4 +1,10 @@
-import { AdditionalRenderProps, ComponentFactoryData, CustomRootConfig, IgnorePuckConfigurableOptions, RenderProps } from '@typings/puck';
+import {
+  AdditionalRenderProps,
+  ComponentFactoryData,
+  CustomRootConfigWithDefinition,
+  IgnorePuckConfigurableOptions,
+  RenderProps,
+} from '@typings/puck';
 import { CustomRootConfigWithRemote, InternalRootData } from '../../../features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { defaultRootConfig, DefaultRootProps } from '@helpers/editor/createRootComponent/defaultRoot';
@@ -112,8 +118,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       type: 'slot',
     },
   };
-
-  const finalRootConfig: Omit<CustomRootConfig<InternalRootData>, IgnorePuckConfigurableOptions | 'fields'> & {
+  const finalRootConfig: Omit<CustomRootConfigWithDefinition<InternalRootData>, IgnorePuckConfigurableOptions | 'fields'> & {
     fields: Omit<FieldConfigurationWithDefinition<P, true>, 'content'>;
   } = {
     ...updatedRootConfig,
@@ -128,6 +133,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       const editorElements = usePuckIframeElements();
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const dashboard = useGlobalStore(state => state.dashboardWithoutData);
+
       // gather all root config styles to apply globally
       const allCustomStyles = processedConfigs
         .map(rootConfig => {

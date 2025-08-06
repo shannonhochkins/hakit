@@ -1,5 +1,5 @@
-import type { AllDomains, EntityName, FilterByDomain } from '@hakit/core';
-import { HassEntities } from 'home-assistant-js-websocket';
+import type { EntityName, FilterByDomain } from '@hakit/core';
+import { HassEntities, HassEntity } from 'home-assistant-js-websocket';
 import { PuckContext } from '@measured/puck';
 import { CustomComponentConfig } from '@typings/puck';
 export interface NavigationProps {
@@ -33,7 +33,7 @@ function NavigationBar({ clockOptions, options }: NavigationProps & { ref: PuckC
   );
 }
 
-function filterEntitiesByDomains(entities: HassEntities, ...domains: AllDomains[]) {
+function filterEntitiesByDomains(entities: HassEntity[] | HassEntities, ...domains: string[]) {
   const values = Array.isArray(entities) ? entities : Object.values(entities);
   return values.filter(entity => domains.includes(entity.entity_id.split('.')[0]));
 }

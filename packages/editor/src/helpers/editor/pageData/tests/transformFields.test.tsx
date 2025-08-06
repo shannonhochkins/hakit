@@ -1,8 +1,8 @@
 import { describe, test, expect } from 'bun:test';
 import { DefaultComponentProps } from '@measured/puck';
-import { transformFields } from './transformFields';
-import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from './constants';
 import { CustomComponentConfig } from '@typings/puck';
+import { transformFields } from '../transformFields';
+import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from '../constants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

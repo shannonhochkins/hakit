@@ -11,6 +11,7 @@ import * as https from 'https';
 import { validateRepositoryZipFromBuffer } from './validate-zip';
 import { uploadRepositoryZipContents } from '../../helpers/upload';
 import { Octokit } from '@octokit/rest';
+import type { PackageJson } from 'type-fest';
 
 // Create Octokit instance (no auth needed for public repos)
 const octokit = new Octokit();
@@ -109,7 +110,7 @@ const installFromGithubRoute = new Hono().post('/from-github', getUser, zValidat
 
       let packageJson;
       try {
-        packageJson = JSON.parse(packageJsonContent);
+        packageJson = JSON.parse(packageJsonContent) as PackageJson;
       } catch {
         throw new Error('Invalid package.json format');
       }

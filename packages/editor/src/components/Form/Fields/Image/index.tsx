@@ -208,7 +208,7 @@ export function ImageUpload({ value, id, onChange }: ImageUploadProps) {
     setLoading(true);
     uploadImage(e.target.files)
       .then(response => {
-        if (response) {
+        if (response && typeof response.filePath === 'string') {
           onChange(response.filePath);
         }
       })

@@ -42,8 +42,8 @@ function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
 export function transformFields<P extends DefaultComponentProps, DataShape = Omit<ComponentData<P>, 'type'>>(
   fields: FieldConfiguration<P, DataShape>,
   isTopLevel: boolean = true
-): FieldConfigurationWithDefinition<P, true> {
-  const result = {} as FieldConfigurationWithDefinition<P, true>;
+): FieldConfigurationWithDefinition<P> {
+  const result = {} as FieldConfigurationWithDefinition<P>;
 
   for (const [fieldName, fieldDef] of typedEntries(fields)) {
     // Skip processing 'id' fields only at the top level (they are system fields for components)

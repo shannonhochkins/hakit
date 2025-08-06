@@ -1,7 +1,12 @@
 import { Config, DefaultComponentProps, Slot } from '@measured/puck';
 import { registerRemotes, loadRemote } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import { CustomConfig, type ComponentFactoryData, type CustomComponentConfig } from '@typings/puck';
+import {
+  CustomComponentConfigWithDefinition,
+  CustomConfigWithDefinition,
+  type ComponentFactoryData,
+  type CustomComponentConfig,
+} from '@typings/puck';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
@@ -31,9 +36,9 @@ type RemoteWithRepositoryId = Remote & {
 };
 
 export async function getPuckConfiguration(data: ComponentFactoryData) {
-  const components: Record<string, CustomComponentConfig<DefaultComponentProps>> = {};
+  const components: Record<string, CustomComponentConfigWithDefinition<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
-  const categories: NonNullable<CustomConfig['categories']> = {} as NonNullable<Config['categories']>;
+  const categories: NonNullable<CustomConfigWithDefinition['categories']> = {} as NonNullable<Config['categories']>;
   const userRepositories = await getUserRepositories();
   const remoteManifest = new Map<string, MfManifest>();
   // Create a map of excluded components by repository name
@@ -129,7 +134,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
         const componentConfig = await componentFactory(data);
         // it's the same reference to the same element, but just to make puck happy we'll create a new object
         // and cast it here to the correct type
-        const customComponent = componentConfig as unknown as CustomComponentConfig<DefaultComponentProps>;
+        const customComponent = componentConfig;
         const componentLabel = customComponent.label;
         if (!componentLabel) {
           throw new Error(`Component from remote "${remote.name}" has no label`);
@@ -159,7 +164,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // generate the merged root configuration
   const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions
-  const config: CustomConfig<DefaultComponentProps> = {
+  const config: CustomConfigWithDefinition<DefaultComponentProps> = {
     components,
     categories,
     // @ts-expect-error - this is fine, it just has additional properties that puck doesn't care about

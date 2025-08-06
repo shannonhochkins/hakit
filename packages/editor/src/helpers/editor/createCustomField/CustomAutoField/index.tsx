@@ -45,16 +45,31 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   }
 
   if (field.type === 'imageUpload') {
-    return <ImageUpload id={field.id ?? name} value={_value} onChange={_onChange} />;
+    return <ImageUpload id={field.id ?? name} value={typeof _value === 'string' ? _value : ''} onChange={_onChange} />;
   }
   if (field.type === 'grid') {
-    return <GridField value={_value} step={field.step} min={field.min} max={field.max} onChange={_onChange} />;
+    return (
+      <GridField
+        value={typeof _value === 'number' ? _value : undefined}
+        step={field.step}
+        min={field.min}
+        max={field.max}
+        onChange={_onChange}
+      />
+    );
   }
   if (field.type === 'color') {
     return <Color value={_value} onChange={_onChange} />;
   }
   if (field.type === 'code') {
-    return <CodeField value={_value} language={field.language} onValidate={field.onValidate} onChange={_onChange} />;
+    return (
+      <CodeField
+        value={typeof _value === 'string' ? _value : ''}
+        language={field.language}
+        onValidate={field.onValidate}
+        onChange={_onChange}
+      />
+    );
   }
   if (field.type === 'page') {
     return <Page value={_value} label={field.label} muiltiSelect={false} onChange={_onChange} />;
@@ -63,23 +78,37 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     return <Page value={_value} label={field.label} muiltiSelect={true} onChange={_onChange} />;
   }
   if (field.type === 'entity') {
-    return <Entity options={field.options as HassEntity[]} value={_value} onChange={_onChange} />;
+    return <Entity options={(field.options || []) as HassEntity[]} value={_value} onChange={_onChange} />;
   }
   if (field.type === 'service') {
-    return <Service value={_value} onChange={_onChange} />;
+    return <Service value={typeof _value === 'string' ? _value : undefined} onChange={_onChange} />;
   }
   if (field.type === 'slider') {
-    return <Slider value={_value} min={field.min} max={field.max} step={field.step} onChange={_onChange} />;
+    return (
+      <Slider
+        value={typeof _value === 'number' ? _value : undefined}
+        min={field.min}
+        max={field.max}
+        step={field.step}
+        onChange={_onChange}
+      />
+    );
   }
   if (field.type === 'text') {
     return (
-      <InputField value={_value || ''} onChange={e => _onChange(e.target.value)} readOnly={field.readOnly} name={name} id={field.id} />
+      <InputField
+        value={typeof _value === 'string' ? _value : undefined}
+        onChange={e => _onChange(e.target.value)}
+        readOnly={field.readOnly}
+        name={name}
+        id={field.id}
+      />
     );
   }
   if (field.type === 'number') {
     return (
       <CustomNumberField
-        value={_value}
+        value={typeof _value === 'number' ? _value : undefined}
         onChange={_onChange}
         min={field.min}
         max={field.max}
@@ -115,7 +144,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   if (field.type === 'radio') {
     return (
       <CustomRadioField
-        value={_value}
+        value={typeof _value === 'string' || typeof _value === 'number' || typeof _value === 'boolean' ? _value : undefined}
         options={[...field.options]}
         onChange={_onChange}
         orientation='horizontal'
@@ -128,7 +157,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
   if (field.type === 'switch') {
     return (
       <SwitchField
-        checked={_value}
+        checked={typeof _value === 'boolean' ? _value : false}
         name={field.name}
         readOnly={field.readOnly}
         id={field.id}
@@ -151,7 +180,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
           default: field.default,
         }}
         onChange={_onChange}
-        value={_value}
+        value={typeof _value === 'string' ? _value : false}
       />
     );
   }

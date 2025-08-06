@@ -3,6 +3,7 @@ import { Json } from '@kinde-oss/kinde-typescript-sdk';
 import { callApi, ToastMessages } from './callApi';
 import { Dashboard, DashboardPage, DashboardWithPageData } from '@typings/hono';
 import { api } from './client';
+import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
 
 type CreateDashboardPayload = {
   name: string;
@@ -13,7 +14,7 @@ type CreateDashboardPayload = {
 export async function createDashboard(
   { name, path, data, thumbnail }: CreateDashboardPayload,
   toastMessage?: ToastMessages
-): Promise<DashboardWithPageData> {
+): Promise<never> {
   // Adjust path if you named it differently in your Hono routes
   return await callApi(
     api.dashboard.$post({
@@ -46,6 +47,10 @@ export async function createDashboardPage(
     }),
     toastMessage
   );
+  // now update the page data to deserialize it
+  if (result.page.data) {
+    result.page.data = deserializePageData(JSON.stringify(result.page.data), true); // Deserialize to restore undefined values
+  }
   return result.page;
 }
 
@@ -66,6 +71,13 @@ export async function duplicateDashboard(
     }),
     toastMessage
   );
+  // now update each page data to deserialize it
+  result.dashboard.pages.forEach(page => {
+    if (page.data) {
+      page.data = deserializePageData(JSON.stringify(page.data), true); // Deserialize to restore undefined values
+    }
+  });
+  // return the dashboard with pages and data
   return result.dashboard;
 }
 
@@ -93,7 +105,10 @@ export async function duplicateDashboardPage(
     }),
     toastMessage
   );
-
+  // now update the page data to deserialize it
+  if (result.page.data) {
+    result.page.data = deserializePageData(JSON.stringify(result.page.data), true); // Deserialize to restore undefined values
+  }
   return result.page;
 }
 
@@ -149,6 +164,12 @@ export async function getDashboardByPathWithData(
     }),
     toastMessage
   );
+  // now update each page data to deserialize it
+  response.dashboard.pages.forEach(page => {
+    if (page.data) {
+      page.data = deserializePageData(JSON.stringify(page.data), true); // Deserialize to restore undefined values
+    }
+  });
   return response.dashboard;
 }
 
@@ -162,6 +183,9 @@ export async function getDashboardPageForUser(id: DashboardWithPageData['id'], p
     }),
     toastMessage
   );
+  if (response.page.data) {
+    response.page.data = deserializePageData(JSON.stringify(response.page.data), true); // Deserialize to restore undefined values
+  }
   return response.page;
 }
 export async function updateDashboardPageForUser(
@@ -171,11 +195,12 @@ export async function updateDashboardPageForUser(
   },
   toastMessage?: ToastMessages
 ) {
+  const data = serializeWithUndefined(page.data);
   const req = api.dashboard[':id'].page[':pageId'].$put({
     json: {
       path: page.path,
       name: page.name,
-      data: page.data,
+      data: deserializePageData(data, false), // Serialize to string to preserve undefined as a string and convert back
       thumbnail: page.thumbnail,
     },
     param: {
@@ -184,6 +209,10 @@ export async function updateDashboardPageForUser(
     },
   });
   const res = await callApi(req, toastMessage);
+  // now update the page data to deserialize it
+  if (res.page.data) {
+    res.page.data = deserializePageData(JSON.stringify(res.page.data), true); // Deserialize to restore undefined values
+  }
   return res.page;
 }
 

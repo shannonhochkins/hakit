@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'bun:test';
-import { multipleBreakpointsEnabled } from './multipleBreakpointsEnabled';
+import { multipleBreakpointsEnabled } from '../multipleBreakpointsEnabled';
 
 describe('multipleBreakpointsEnabled', () => {
   describe('valid breakpoint objects with multiple keys', () => {

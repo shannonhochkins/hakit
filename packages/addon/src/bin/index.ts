@@ -131,7 +131,10 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   await fs.copy(templatePath, projectPath, {
     filter: src => {
       // Skip copying placeholder component folder structure for now
-      return !src.includes('__COMPONENT_NAME__');
+      if (src.includes('__COMPONENT_NAME__')) return false;
+      // Skip the GIT_IGNORE file since we'll copy and rename it separately
+      if (src.includes('GIT_IGNORE')) return false;
+      return true;
     },
   });
 

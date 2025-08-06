@@ -4,31 +4,27 @@ import { transformFields } from '@helpers/editor/pageData/transformFields';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { ComponentConfig, CustomField, DefaultComponentProps } from '@measured/puck';
-import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, InternalFields } from '@typings/puck';
+import { DefaultComponentProps } from '@measured/puck';
+import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, CustomComponentConfigWithDefinition } from '@typings/puck';
 import { useEffect, useMemo } from 'react';
 import { attachDragRefToElement } from './attachDragRefToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
-import { FieldConfigurationWithDefinition, FieldConfiguration } from '@typings/fields';
+import { FieldConfiguration, CustomFieldsWithDefinition } from '@typings/fields';
 import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
-export function createComponent<
-  P extends DefaultComponentProps & {
-    _styleOverrides?: {
-      style: string;
-    };
-  },
->(
+
+type CustomComponentConfigurationWithDefinitionAndPuck<P extends DefaultComponentProps> = CustomComponentConfigWithDefinition<P> & {
+  defaultProps: P;
+  inline: boolean;
+};
+
+export function createComponent<P extends DefaultComponentProps>(
   config: CustomComponentConfig<P>
-): (data: ComponentFactoryData) => Promise<
-  ComponentConfig<P> & {
-    fields: FieldConfigurationWithDefinition<P, true>;
-  }
-> {
+): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P>> {
   return async function (data: ComponentFactoryData) {
     const fields = config.fields;
     const entities = data.getAllEntities();
@@ -73,8 +69,16 @@ export function createComponent<
     // convert the input field structure to custom field definitions
     const transformedFields = transformFields(fields, false);
     // include a local breakpoint field that we can use automatically to determine the current breakpoint
-    const breakpointField: CustomField<InternalFields['breakpoint']> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const breakpointField: CustomFieldsWithDefinition<any, keyof AvailableQueries> = {
       type: 'custom',
+      _field: {
+        type: 'text',
+        default: 'xlg',
+        responsiveMode: false,
+        label: 'Active Breakpoint',
+        description: 'The current active breakpoint for this component',
+      },
       render({ onChange }) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const breakpoint = useActiveBreakpoint();
@@ -88,7 +92,9 @@ export function createComponent<
     // attach internal breakpoint field
     // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
     transformedFields._activeBreakpoint = breakpointField;
-    return {
+
+    // this is the config that will be used for puck
+    const updatedConfig: CustomComponentConfigurationWithDefinitionAndPuck<P> = {
       ...config,
       // replace the default props
       defaultProps,
@@ -154,5 +160,7 @@ export function createComponent<
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
       fields: transformedFields,
     };
+
+    return updatedConfig;
   };
 }

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.13] - 2025-08-05
+- Removing GIT_IGNORE from template output
+- Removing versions directory from GIT_IGNORE as these are intended to be tracked
+- Fixed "label" of default component config
+
+## [0.0.12] - 2025-08-05
+- Changing .gitignore process again
+- Updating types and including "slot" types exported
+
 ## [0.0.11] - 2025-07-31
 - Ensuring .gitignore is copied correctly from template
 - Updated component template to render description prop

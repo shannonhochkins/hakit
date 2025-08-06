@@ -1,5 +1,40 @@
-import { expect, test, describe, beforeEach, mock } from 'bun:test';
+import { expect, test, describe, beforeEach, afterAll, mock } from 'bun:test';
 import { createElement } from 'react';
+
+/**
+ * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules
+ * after we're done. We do this by setting the mocked value to the original module.
+ */
+interface MockResult {
+  clear: () => void;
+}
+
+export class ModuleMocker {
+  private mocks: MockResult[] = [];
+
+  async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
+    const original = {
+      ...(await import(modulePath)),
+    };
+    const mocks = renderMocks();
+    const result = {
+      ...original,
+      ...mocks,
+    };
+    mock.module(modulePath, () => result);
+
+    this.mocks.push({
+      clear: () => {
+        mock.module(modulePath, () => original);
+      },
+    });
+  }
+
+  clear() {
+    this.mocks.forEach(mockResult => mockResult.clear());
+    this.mocks = [];
+  }
+}
 
 // Mock window and leaflet to prevent import issues
 (global as { window?: unknown }).window = {
@@ -7,49 +42,54 @@ import { createElement } from 'react';
   requestAnimationFrame: (fn: () => void) => setTimeout(fn, 16),
 };
 
-// Mock leaflet module to prevent window issues
-mock.module('leaflet', () => ({
+// Set up module mocker at top level
+const moduleMocker = new ModuleMocker();
+
+await moduleMocker.mock('@hakit/components', () => ({
+  AvailableQueries: {},
+}));
+
+await moduleMocker.mock('leaflet', () => ({
   Map: class MockMap {},
   DomUtil: { create: () => ({}) },
   DivIcon: class MockDivIcon {},
 }));
 
-// Mock @hakit/components to prevent leaflet imports
-mock.module('@hakit/components', () => ({
-  AvailableQueries: {},
-}));
-
-// Mock all the external dependencies before importing anything else
+// Mock functions for testing
 const mockGetDefaultPropsFromFields = mock(() => Promise.resolve({}));
 const mockTransformFields = mock((fields: unknown) => fields);
 const mockUseActiveBreakpoint = mock(() => 'desktop');
 const mockUseGlobalStore = mock(() => ({ dashboardWithoutData: { id: 'test-dashboard' } }));
 const mockUsePuckIframeElements = mock(() => ({ iframe: null, document: null }));
 
-// Mock the modules before importing the main module
-mock.module('@helpers/editor/pageData/getDefaultPropsFromFields', () => ({
+await moduleMocker.mock('@helpers/editor/pageData/getDefaultPropsFromFields', () => ({
   getDefaultPropsFromFields: mockGetDefaultPropsFromFields,
 }));
 
-mock.module('@helpers/editor/pageData/transformFields', () => ({
+await moduleMocker.mock('@helpers/editor/pageData/transformFields', () => ({
   transformFields: mockTransformFields,
 }));
 
-mock.module('@hooks/useActiveBreakpoint', () => ({
+await moduleMocker.mock('@hooks/useActiveBreakpoint', () => ({
   useActiveBreakpoint: mockUseActiveBreakpoint,
 }));
 
-mock.module('@hooks/useGlobalStore', () => ({
+await moduleMocker.mock('@hooks/useGlobalStore', () => ({
   useGlobalStore: mockUseGlobalStore,
 }));
 
-mock.module('@hooks/usePuckIframeElements', () => ({
+await moduleMocker.mock('@hooks/usePuckIframeElements', () => ({
   usePuckIframeElements: mockUsePuckIframeElements,
 }));
 
-mock.module('@components/Alert', () => ({
+await moduleMocker.mock('@components/Alert', () => ({
   Alert: ({ title, children }: { title: string; children: React.ReactNode }) =>
     createElement('div', { 'data-testid': 'alert', 'data-title': title }, children),
+}));
+
+await moduleMocker.mock('@features/dashboard/Editor/ErrorBoundary', () => ({
+  ComponentRenderErrorBoundary: ({ children }: { children: React.ReactNode }) =>
+    createElement('div', { 'data-testid': 'error-boundary' }, children),
 }));
 
 // Now import the types and main module
@@ -76,6 +116,11 @@ describe('createComponent', () => {
     mockUseActiveBreakpoint.mockClear();
     mockUseGlobalStore.mockClear();
     mockUsePuckIframeElements.mockClear();
+  });
+
+  afterAll(() => {
+    // Clear all module mocks to prevent pollution of other tests
+    moduleMocker.clear();
   });
 
   const createMockComponentFactoryData = (): ComponentFactoryData => ({

@@ -44,6 +44,7 @@ import { toast } from 'react-toastify';
 import { IconButton } from '@components/Button/IconButton';
 import { timeAgo } from '@hakit/core';
 import { ActionMenu } from '@features/me/dashboards/ActionMenu';
+import { getStorageKey } from '@hooks/useUnsavedChanges';
 
 // Table column configuration
 const TABLE_COLUMNS = {
@@ -470,6 +471,23 @@ export function Dashboards() {
     if (deletingDashboardId) {
       // Delete dashboard
       try {
+        const matchedDashboard = dashboards?.find(d => d.id === deletingDashboardId);
+        if (!matchedDashboard) {
+          toast('Dashboard not found', {
+            type: 'error',
+          });
+          return;
+        }
+        const pagePaths = matchedDashboard.pages.map(page => page.path);
+
+        for (const pagePath of pagePaths) {
+          // clear any local storage data for this dashboard and all pages under it
+          const storageKey = getStorageKey(matchedDashboard.path, pagePath);
+          if (storageKey) {
+            localStorage.removeItem(storageKey);
+          }
+        }
+
         await deleteDashboard(
           { id: deletingDashboardId },
           {
@@ -488,6 +506,26 @@ export function Dashboards() {
     } else if (deletingPageId && deletingPageDashboardId) {
       // Delete page
       try {
+        const matchedDashboard = dashboards?.find(d => d.id === deletingPageDashboardId);
+
+        if (!matchedDashboard) {
+          toast('Dashboard not found', {
+            type: 'error',
+          });
+          return;
+        }
+        const pagePath = matchedDashboard.pages.find(page => page.id === deletingPageId)?.path;
+        if (!pagePath) {
+          toast('Page not found', {
+            type: 'error',
+          });
+          return;
+        }
+        // clear any local storage data for this dashboard page
+        const storageKey = getStorageKey(matchedDashboard.path, pagePath);
+        if (storageKey) {
+          localStorage.removeItem(storageKey);
+        }
         await deleteDashboardPage(
           { id: deletingPageDashboardId, pageId: deletingPageId },
           {

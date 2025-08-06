@@ -20,14 +20,17 @@ export async function callApi<T extends ClientResponse<unknown, number, 'json'>>
   // eslint-disable-next-line no-async-promise-executor
   const promise = new Promise<ExtractSuccessData<T>>(async (resolve, reject) => {
     try {
-      const res = await (request as Promise<Response>);
+      const res = await request;
       if (!res.ok) {
         try {
-          const response = await res.json();
+          const response = (await res.json()) as {
+            error?: string | { name: string; [key: string]: unknown };
+            message?: string;
+          };
           if (response.error && response.message) {
             return reject(`${response.error}: ${response.message}`);
           }
-          if (response.error && response.error.name === 'ZodError') {
+          if (response.error && typeof response.error === 'object' && response.error.name === 'ZodError') {
             const error = formatErrorResponse('Invalid input', response.error);
             return reject(`${error.error}: ${error.message}`);
           }
@@ -38,14 +41,15 @@ export async function callApi<T extends ClientResponse<unknown, number, 'json'>>
           return reject(`${error}: ${message}`);
         }
       }
-      const data = await res.json();
-      if ('error' in data) {
+      const data = (await res.json()) as ExtractSuccessData<T> & { error?: string };
+      if ('error' in data && data.error) {
         // Throw an error so that React Query's error handling kicks in.
         return reject(data.error);
       }
-      return resolve(data);
+      return resolve(data as ExtractSuccessData<T>);
     } catch (error) {
-      reject(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      reject(errorMessage);
     }
   });
   if (toastMessages === false) {
@@ -103,8 +107,9 @@ function safeToastPromise<T>(promise: Promise<T>, messages: ToastMessages, opts?
         }
       }
     })
-    .catch(err => {
-      const message = typeof messages.error === 'function' ? messages.error(err) : messages.error || 'Something went wrong';
+    .catch((err: unknown) => {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      const message = typeof messages.error === 'function' ? messages.error(errorMessage) : messages.error || 'Something went wrong';
 
       if (id) {
         toast.update(id, {

@@ -72,7 +72,6 @@ export function Editor() {
         });
         return;
       }
-
       const updated = puckToDBValue(currentPage.data, newData, activeBreakpoint, userConfig, componentBreakpointMap);
       const trimmed = trimPuckDataToConfig(updated, userConfig);
 

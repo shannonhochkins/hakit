@@ -22,7 +22,6 @@ export function Save() {
     if (!page) {
       return Promise.reject(`No page found with path ${params.pagePath}`);
     }
-
     // Perform the save
     await updateDashboardPageForUser(dashboard.id, {
       id: page.id,

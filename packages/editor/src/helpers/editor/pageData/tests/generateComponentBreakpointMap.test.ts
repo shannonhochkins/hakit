@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { generateComponentBreakpointMap } from './generateComponentBreakpointMap';
+import { generateComponentBreakpointMap } from '../generateComponentBreakpointMap';
 import { PuckPageData } from '@typings/puck';
 
 export const databaseData: PuckPageData = {

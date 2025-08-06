@@ -51,6 +51,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps>
       const nestedArrayDefaults: DefaultComponentProps = {};
       if (fieldDef.arrayFields) {
         for (const [key, nestedArrayField] of Object.entries(fieldDef.arrayFields)) {
+          if (typeof key !== 'string') continue; // skip non-string keys
           if (nestedArrayField.type === 'entity') {
             if (typeof nestedArrayField.options === 'function') {
               nestedArrayField.options = await nestedArrayField.options(data);

@@ -2,12 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalStore } from './useGlobalStore';
 import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
-import { updateDashboardPageForUser } from '@services/dashboard';
+import { updateDashboardPageForUser, dashboardByPathWithPageDataQueryOptions } from '@services/dashboard';
 import { type PuckAction } from '@measured/puck';
-import { deepCopy } from 'deep-copy-ts';
 import { trimPuckDataToConfig } from '@helpers/editor/pageData/trimPuckDataToConfig';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { toast } from 'react-toastify';
+import deepEqual from 'deep-equal';
+import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
+import { useQueryClient } from '@tanstack/react-query';
+
+const TIME_THRESHOLD_SECONDS = 1; // Threshold for showing recovery prompt
 
 interface UnsavedChangesState {
   // Status flags
@@ -29,7 +33,12 @@ interface UnsavedChangesState {
   getStoredData: () => { data: PuckPageData; timestamp: string } | null;
 }
 
+export function getStorageKey(dashboardPath: string, pagePath: string): string | null {
+  return `hakit-autosave-${dashboardPath}-${pagePath}`;
+}
+
 export function useUnsavedChanges(): UnsavedChangesState {
+  const queryClient = useQueryClient();
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
     shouldThrow: false,
@@ -38,7 +47,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
   // Generate unique key for this dashboard/page combination
   const storageKey = useMemo(() => {
     if (!params?.dashboardPath || !params?.pagePath) return null;
-    return `hakit-autosave-${params.dashboardPath}-${params.pagePath}`;
+    return getStorageKey(params.dashboardPath, params.pagePath);
   }, [params?.dashboardPath, params?.pagePath]);
 
   // Global store state
@@ -57,10 +66,13 @@ export function useUnsavedChanges(): UnsavedChangesState {
     try {
       const stored = localStorage.getItem(storageKey);
       if (!stored) return null;
-      return JSON.parse(stored) as {
+      const raw = JSON.parse(stored) as {
         data: PuckPageData;
         timestamp: string;
       };
+      // Ensure we deserialize the data to restore undefined values
+      raw.data = deserializePageData(JSON.stringify(raw.data), true); // Deserialize to restore undefined values
+      return raw;
     } catch {
       return null;
     }
@@ -71,11 +83,10 @@ export function useUnsavedChanges(): UnsavedChangesState {
       if (!storageKey) return;
       try {
         const saveData = {
-          data: deepCopy(data),
+          data,
           timestamp: new Date().toISOString(),
         };
-        localStorage.setItem(storageKey, JSON.stringify(saveData));
-        console.log('💾 [UnsavedChanges] Data saved to localStorage');
+        localStorage.setItem(storageKey, serializeWithUndefined(saveData));
       } catch (error) {
         console.error('💾 [UnsavedChanges] Failed to save:', error);
       }
@@ -86,7 +97,6 @@ export function useUnsavedChanges(): UnsavedChangesState {
   const removeStoredData = useCallback(() => {
     if (!storageKey) return;
     localStorage.removeItem(storageKey);
-    console.log('🗑️ [UnsavedChanges] Local storage cleared');
   }, [storageKey]);
 
   // Check if we have unsaved changes (diff between puckPageData and unsavedPuckPageData)
@@ -94,7 +104,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
     if (!puckPageData || !unsavedPuckPageData) {
       return false;
     }
-    return Object.keys(unsavedPuckPageData).length > 0;
+    return deepEqual(puckPageData, unsavedPuckPageData) === false;
   }, [puckPageData, unsavedPuckPageData]);
 
   // Update localStorage whenever unsavedPuckPageData changes
@@ -121,11 +131,18 @@ export function useUnsavedChanges(): UnsavedChangesState {
     if (stored?.data) {
       try {
         if (!hasPrompted) {
-          // Different data found, show recovery prompt
-          console.log('🚨 [UnsavedChanges] Recovery prompt triggered - local changes detected');
-          setLocalSaveTime(new Date(stored.timestamp));
-          setShowRecoveryPrompt(true);
-          setHasPrompted(true);
+          // Check if the stored data is older than 30 seconds
+          const storedTime = new Date(stored.timestamp);
+          const now = new Date();
+          const timeDiffInSeconds = (now.getTime() - storedTime.getTime()) / 1000;
+
+          // Only show recovery prompt if data is older than 30 seconds
+          // This helps distinguish between navigation (fresh data) and refresh/return (old data)
+          if (timeDiffInSeconds > TIME_THRESHOLD_SECONDS) {
+            setLocalSaveTime(storedTime);
+            setShowRecoveryPrompt(true);
+            setHasPrompted(true);
+          }
         }
       } catch (error) {
         console.error('🚨 [UnsavedChanges] Error checking stored data on load:', error);
@@ -177,9 +194,15 @@ export function useUnsavedChanges(): UnsavedChangesState {
         error: 'Failed to update dashboard page data after recovery',
       }
     ).finally(() => {
+      // Invalidate the dashboard query to trigger a refetch
+      // This will automatically update the store via useDashboardWithData
+      if (params?.dashboardPath) {
+        const queryKey = dashboardByPathWithPageDataQueryOptions(params.dashboardPath).queryKey;
+        queryClient.invalidateQueries({ queryKey });
+      }
       setShowRecoveryPrompt(false);
     });
-  }, [params, getStoredData, removeStoredData]);
+  }, [params, getStoredData, removeStoredData, queryClient]);
 
   const rejectRecovery = useCallback(() => {
     removeStoredData();

@@ -347,7 +347,6 @@ describe('createRootComponent', () => {
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('content');
     expect(fieldKeys).toContain('@hakit/default-root');
-    // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!.content).toEqual({ type: 'slot' });
     expect(result.fields!['@hakit/default-root']).toBeDefined();
   });
@@ -425,9 +424,11 @@ describe('createRootComponent', () => {
 
     expect(result.fields).toBeDefined();
 
-    // Check that the default root config has the repository ID
-    const defaultRootField = result.fields!['@hakit/default-root']._field as Record<string, unknown>;
-    expect(defaultRootField.repositoryId).toBe('@hakit/default-root');
+    if (result.fields!['@hakit/default-root'].type === 'custom') {
+      // Check that the default root config has the repository ID
+      const defaultRootField = result.fields!['@hakit/default-root']._field;
+      expect(defaultRootField.repositoryId).toBe('@hakit/default-root');
+    }
   });
 
   test('should attach repository reference to array fields', async () => {
