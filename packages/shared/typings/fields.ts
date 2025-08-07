@@ -11,6 +11,7 @@ import type {
   ArrayField,
   SlotField as PuckSlotField,
   CustomField as PuckCustomField,
+  ComponentData,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
 import type { DefaultPropsCallbackData } from './puck';
@@ -19,7 +20,7 @@ import type { OnValidate } from '@monaco-editor/react';
 
 type BaseField = Omit<PuckBaseField, 'visible'>;
 
-export type ExtendedFieldTypes<DataShape = unknown> = {
+export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   description?: string;
   icon?: ReactNode;
   readOnly?: boolean;
@@ -28,7 +29,7 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
   /** If the field is required or not TODO - Test this */
   required?: boolean;
   /** The default value of the field if no value is saved or present */
-  default: unknown;
+  default: Props;
   /** if enabled, this field will be able to configure different values at different breakpoints @default true */
   responsiveMode?: boolean;
   /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
@@ -96,7 +97,7 @@ export type GridField = BaseField & {
   step?: number;
 };
 
-export type HiddenField = Pick<ExtendedFieldTypes, 'default' | 'responsiveMode'> & {
+export type HiddenField<DataShape = unknown, Props = unknown> = Pick<ExtendedFieldTypes<DataShape, Props>, 'default' | 'responsiveMode'> & {
   type: 'hidden';
 };
 
@@ -151,26 +152,26 @@ export type CustomFields<
   E extends DefaultComponentProps = DefaultComponentProps,
   DataShape = unknown,
 > =
-  | (Omit<TextField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<NumberField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<TextareaField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SelectField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<RadioField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<PageField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<PagesField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ServiceField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ColorField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ImageUploadField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SliderField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape>, 'default'> & E)
+  | (Omit<TextField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<NumberField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<TextareaField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SelectField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<RadioField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<PageField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<PagesField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ServiceField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ColorField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ImageUploadField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SliderField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'> & E)
   | CustomField<Props, E>
   | SlotField
-  | (HiddenField & E)
+  | (HiddenField<DataShape, Props> & E)
   | (EntityField<DataShape> & E);
 
 export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomField<
@@ -185,7 +186,7 @@ export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, Data
               DataShape
             >;
           };
-        } & ExtendedFieldTypes<DataShape>
+        } & ExtendedFieldTypes<DataShape, Props>
       : Props extends { [key: string]: any }
         ? Omit<ObjectField<Props>, 'objectFields' | 'visible'> & {
             objectFields: {
@@ -195,14 +196,17 @@ export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, Data
                 DataShape
               >;
             };
-          } & Omit<ExtendedFieldTypes<DataShape>, 'default'>
+          } & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'>
         : CustomFields<Props, object, DataShape>) & {
       repositoryId?: string;
     };
   }
 >;
 
-export type FieldConfiguration<ComponentProps extends DefaultComponentProps = DefaultComponentProps, DataShape = unknown> = {
+export type FieldConfiguration<
+  ComponentProps extends DefaultComponentProps = DefaultComponentProps,
+  DataShape = Omit<ComponentData<ComponentProps>, 'type'>['props'],
+> = {
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: CustomFields<ComponentProps[PropName], object, DataShape>;
 };
 
