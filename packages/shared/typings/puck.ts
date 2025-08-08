@@ -9,19 +9,17 @@ import {
   AsFieldProps,
   RootData,
 } from '@measured/puck';
-import { type AvailableQueries } from '@hakit/components';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { Dashboard } from './hono';
-import type { FieldConfiguration, FieldConfigurationWithDefinition } from './fields';
-
-export type InternalFields = {
-  // breakpoint is not saved in the db, this is calculated on the fly
-  breakpoint: keyof AvailableQueries;
-};
+import type { FieldConfiguration, FieldConfigurationWithDefinition, InternalComponentFields, InternalRootComponentFields } from './fields';
 
 export type DefaultPropsCallbackData = {
   entities: HassEntities;
   services: HassServices | null;
+};
+
+export type InternalRootData = {
+  _remoteRepositoryId?: string; // Optional remote name for tracking
 };
 
 // Just for readability, this shouldn't ever change
@@ -32,7 +30,7 @@ export type AdditionalRenderProps = {
   _id: string; // Unique ID for the component instance
   _editMode: boolean; // Whether the component is being rendered in edit mode
   /** the hakit context, this houses additional information to send to each render of each component */
-  _activeBreakpoint: keyof AvailableQueries;
+  // _activeBreakpoint: keyof AvailableQueries;
   _dashboard: Dashboard | null;
   _editor?: {
     document: Document | null;
@@ -64,9 +62,9 @@ export type CustomComponentConfig<
   label: string;
   // Custom fields configuration instead of Puck's Fields
   fields: FieldConfiguration<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
-  render: PuckComponent<Props & AdditionalRenderProps>;
+  render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling
-  styles?: (props: Props & AdditionalRenderProps) => string;
+  styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
@@ -79,9 +77,9 @@ export type CustomComponentConfigWithDefinition<
   label: string;
   // Custom fields configuration instead of Puck's Fields
   fields: FieldConfigurationWithDefinition<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
-  render: PuckComponent<Props & AdditionalRenderProps>;
+  render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling
-  styles?: (props: Props & AdditionalRenderProps) => string;
+  styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
@@ -109,7 +107,7 @@ export type CustomConfigWithDefinition<
     [ComponentName in keyof Props]: Omit<CustomComponentConfigWithDefinition<Props[ComponentName], Props[ComponentName]>, 'type'>;
   };
   fields?: FieldConfigurationWithDefinition<Props, true>;
-  root?: CustomRootConfigWithDefinition<RootProps>;
+  root?: CustomRootConfigWithDefinition<InternalRootData & InternalRootComponentFields>;
 };
 
 export type Slot = InternalSlot;

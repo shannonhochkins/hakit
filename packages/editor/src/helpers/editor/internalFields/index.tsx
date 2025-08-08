@@ -1,17 +1,23 @@
-import { AvailableQueries } from '@hakit/components';
-import { FieldConfiguration } from '@typings/fields';
+import { FieldConfiguration, InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
+import { useEffect } from 'react';
+import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 
-interface InternalRootComponentFields {
-  _activeBreakpoint: keyof AvailableQueries;
-  styles: {
-    css: string;
-  };
-}
-
-export const rootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
+export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
   _activeBreakpoint: {
-    type: 'hidden',
+    type: 'custom',
     default: 'xlg',
+    label: 'Active Breakpoint',
+    visible: () => false,
+    description: 'The active breakpoint for this component, used for responsive design',
+    render({ onChange, name }) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const breakpoint = useActiveBreakpoint();
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useEffect(() => {
+        onChange(breakpoint);
+      }, [onChange, breakpoint]);
+      return <input name={name} type='hidden' value={breakpoint} />;
+    },
   },
   styles: {
     type: 'object',
@@ -30,19 +36,27 @@ export const rootComponentFields: FieldConfiguration<InternalRootComponentFields
       },
     },
   },
+  content: {
+    type: 'slot',
+  },
 };
 
-interface InternalComponentFields {
-  _activeBreakpoint: keyof AvailableQueries;
-  styles: {
-    css: string;
-  };
-}
-
-export const componentFields: FieldConfiguration<InternalComponentFields> = {
+export const internalComponentFields: FieldConfiguration<InternalComponentFields> = {
   _activeBreakpoint: {
-    type: 'hidden',
+    type: 'custom',
     default: 'xlg',
+    label: 'Active Breakpoint',
+    description: 'The active breakpoint for this component, used for responsive design',
+    visible: () => false,
+    render({ onChange, name }) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const breakpoint = useActiveBreakpoint();
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useEffect(() => {
+        onChange(breakpoint);
+      }, [onChange, breakpoint]);
+      return <input name={name} type='hidden' value={breakpoint} />;
+    },
   },
   styles: {
     type: 'object',
@@ -59,7 +73,7 @@ export const componentFields: FieldConfiguration<InternalComponentFields> = {
         description: 'Provide css updates to override the default styles of this component',
         default: '',
         visible(data) {
-          return data.styles.css !== undefined;
+          return data.styles.css !== undefined && data._activeBreakpoint !== 'lg';
         },
       },
     },

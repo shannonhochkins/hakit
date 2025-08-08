@@ -179,12 +179,15 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     );
   }
 
-  if (!isVisible) {
-    return null;
-  }
+  // if (!isVisible) {
+  //   return null;
+  // }
 
   return (
     <Fieldset
+      style={{
+        display: isVisible ? 'block' : 'none',
+      }}
       id={id}
       className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${field.collapseOptions ? 'collapsible' : ''} ${
         breakpointMode && field.responsiveMode ? 'bp-mode-enabled' : ''

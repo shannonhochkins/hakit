@@ -44,6 +44,19 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
     return <input type='hidden' value={_value} />;
   }
 
+  if (field.type === 'custom') {
+    return field.render({
+      field: {
+        type: 'custom',
+        render: field.render,
+      },
+      name,
+      id: field.id ?? name,
+      value: _value,
+      onChange: _onChange,
+    });
+  }
+
   if (field.type === 'imageUpload') {
     return <ImageUpload id={field.id ?? name} value={typeof _value === 'string' ? _value : ''} onChange={_onChange} />;
   }
@@ -254,6 +267,6 @@ export function CustomAutoField<Props extends DefaultComponentProps>({ field, na
       </div>
     );
   }
-
-  return <StyledAlert severity='error'>Unsupported field type: &quot;{field.type}&quot;</StyledAlert>;
+  // Helper function for exhaustive type checking
+  return <StyledAlert severity='error'>Unsupported field type: &quot;{(field as { type?: string }).type ?? 'unknown'}&quot;</StyledAlert>;
 }

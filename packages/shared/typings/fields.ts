@@ -14,11 +14,15 @@ import type {
   ComponentData,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
-import type { DefaultPropsCallbackData } from './puck';
+import type { DefaultPropsCallbackData, Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
+import { AvailableQueries } from '@hakit/components';
 
 type BaseField = Omit<PuckBaseField, 'visible'>;
+
+// New: minimal base for output (definition) fields which excludes ExtendedFieldTypes props from the outer field
+type OutputBaseField = Omit<BaseField, keyof ExtendedFieldTypes<any, any>>;
 
 export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   description?: string;
@@ -144,6 +148,23 @@ export type CustomField<
     }) => React.ReactElement;
   };
 
+// New: A minimal custom field for output (definition) that does NOT require ExtendedFieldTypes on the outer field
+export type CustomFieldWithDefinition<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  E extends DefaultComponentProps = DefaultComponentProps,
+> = OutputBaseField &
+  E & {
+    type: 'custom';
+    render: (props: {
+      field: PuckCustomField<Props>;
+      name: string;
+      id: string;
+      value: Props;
+      onChange: (value: Props) => void;
+      readOnly?: boolean;
+    }) => React.ReactElement;
+  };
+
 // field keys that we are replacing with our own
 type ExcludePuckKeys = keyof ExtendedFieldTypes;
 
@@ -169,32 +190,24 @@ export type CustomFields<
   | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
   | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
   | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'> & E)
-  | CustomField<Props, E>
+  | (CustomField<Props, E> & ExtendedFieldTypes<DataShape, Props>)
   | SlotField
   | (HiddenField<DataShape, Props> & E)
   | (EntityField<DataShape> & E);
 
-export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomField<
+export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomFieldWithDefinition<
   Props,
   {
     _field: (Props extends DefaultComponentProps[]
       ? Omit<ArrayField<Props extends { [key: string]: any } ? Props : any>, 'arrayFields' | 'visible'> & {
           arrayFields: {
-            [SubPropName in keyof Props[0]]: CustomFields<
-              Props[0][SubPropName],
-              CustomFieldsWithDefinition<Props[0][SubPropName], DataShape>,
-              DataShape
-            >;
+            [SubPropName in keyof Props[0]]: CustomFieldsWithDefinition<Props[0][SubPropName], DataShape> | SlotField;
           };
         } & ExtendedFieldTypes<DataShape, Props>
       : Props extends { [key: string]: any }
         ? Omit<ObjectField<Props>, 'objectFields' | 'visible'> & {
             objectFields: {
-              [SubPropName in keyof Props]: CustomFields<
-                Props[SubPropName],
-                CustomFieldsWithDefinition<Props[SubPropName], DataShape>,
-                DataShape
-              >;
+              [SubPropName in keyof Props]: CustomFieldsWithDefinition<Props[SubPropName], DataShape> | SlotField;
             };
           } & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'>
         : CustomFields<Props, object, DataShape>) & {
@@ -217,3 +230,18 @@ export type FieldConfigurationWithDefinition<ComponentProps extends DefaultCompo
 };
 
 export type FieldTypes = CustomFields extends { type: infer T } ? T : never;
+
+export interface InternalComponentFields {
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}
+
+export interface InternalRootComponentFields {
+  content: Slot;
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}

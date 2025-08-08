@@ -446,7 +446,12 @@ describe('puckToDBValue', () => {
 
   test('should handle fields with responsiveMode: true with the mode map as true', () => {
     // Create a modified config where number field has responsiveMode: true
-    const modifiedUserConfig = {
+    const prevNumberField = userConfig.components['Field Test'].fields.options._field.objectFields.number as any;
+    const updatedNumberField =
+      prevNumberField && prevNumberField.type === 'slot'
+        ? prevNumberField
+        : { ...prevNumberField, _field: { ...prevNumberField._field, responsiveMode: true } };
+    const modifiedUserConfig: typeof userConfig = {
       ...userConfig,
       components: {
         ...userConfig.components,
@@ -460,14 +465,7 @@ describe('puckToDBValue', () => {
                 ...userConfig.components['Field Test'].fields.options._field,
                 objectFields: {
                   ...userConfig.components['Field Test'].fields.options._field.objectFields,
-                  number: {
-                    ...userConfig.components['Field Test'].fields.options._field.objectFields.number,
-                    _field: {
-                      // @ts-expect-error - this is fine, _field doesn't exist on type slot
-                      ...userConfig.components['Field Test'].fields.options._field.objectFields.number._field,
-                      responsiveMode: true, // this field should have breakpoints
-                    },
-                  },
+                  number: updatedNumberField,
                 },
               },
             },
