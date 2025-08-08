@@ -1,32 +1,48 @@
-import { AvailableQueries } from '@hakit/components';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { transformFields } from '@helpers/editor/pageData/transformFields';
-import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { DefaultComponentProps } from '@measured/puck';
-import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, CustomComponentConfigWithDefinition } from '@typings/puck';
-import { useEffect, useMemo } from 'react';
+import {
+  AdditionalRenderProps,
+  ComponentFactoryData,
+  CustomComponentConfig,
+  CustomComponentConfigWithDefinition,
+  RenderProps,
+} from '@typings/puck';
+import { useMemo } from 'react';
 import { attachDragRefToElement } from './attachDragRefToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
-import { FieldConfiguration, CustomFieldsWithDefinition } from '@typings/fields';
+import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
+import { internalComponentFields, internalRootComponentFields } from '../internalFields';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
 
-type CustomComponentConfigurationWithDefinitionAndPuck<P extends DefaultComponentProps> = CustomComponentConfigWithDefinition<P> & {
+type CustomComponentConfigurationWithDefinitionAndPuck<P extends object> = CustomComponentConfigWithDefinition<P> & {
   defaultProps: P;
   inline: boolean;
 };
 
-export function createComponent<P extends DefaultComponentProps>(
-  config: CustomComponentConfig<P>
-): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P>> {
+export function createComponent<P extends object>(
+  config: CustomComponentConfig<P>,
+  isRootComponent = false
+  // intentionally only resolving component fields instead of root fields here as this createComponent is used as a starting factory, and then updated
+  // later for root components with createRootComponent
+): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & InternalComponentFields>> {
   return async function (data: ComponentFactoryData) {
-    const fields = config.fields;
+    // Merge the field configurations - type assertion is necessary due to mapped type limitations
+    const fields = isRootComponent
+      ? ({
+          ...config.fields,
+          ...internalRootComponentFields,
+        } as FieldConfiguration<P & InternalComponentFields>)
+      : ({
+          ...config.fields,
+          ...internalComponentFields,
+        } as FieldConfiguration<P & InternalComponentFields>);
     const entities = data.getAllEntities();
     const services = await data.getAllServices();
 
@@ -35,132 +51,88 @@ export function createComponent<P extends DefaultComponentProps>(
       entities,
       services,
     });
-    const isRootComponent = config.label === 'Root';
-    const styleField: FieldConfiguration<{
-      _styleOverrides: {
-        style: string;
-      };
-    }> = {
-      _styleOverrides: {
-        type: 'object',
-        label: isRootComponent ? 'Global styles' : 'Style Overrides',
-        collapseOptions: {
-          startExpanded: false,
-        },
-        description: isRootComponent
-          ? 'Provide global CSS styles for the entire dashboard'
-          : 'Provide css updates to override the default styles of this component',
-        objectFields: {
-          style: {
-            type: 'code',
-            language: 'css',
-            label: 'CSS Styles',
-            description: isRootComponent
-              ? 'Provide global CSS styles for the entire dashboard'
-              : 'Provide css updates to override the default styles of this component',
-            default: '',
-          },
-        },
-      },
-    };
-    const actualField = styleField._styleOverrides;
-    // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
-    fields._styleOverrides = actualField;
     // convert the input field structure to custom field definitions
     const transformedFields = transformFields(fields, false);
-    // include a local breakpoint field that we can use automatically to determine the current breakpoint
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const breakpointField: CustomFieldsWithDefinition<any, keyof AvailableQueries> = {
-      type: 'custom',
-      _field: {
-        type: 'text',
-        default: 'xlg',
-        responsiveMode: false,
-        label: 'Active Breakpoint',
-        description: 'The current active breakpoint for this component',
-      },
-      render({ onChange }) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const breakpoint = useActiveBreakpoint();
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-          onChange(breakpoint);
-        }, [onChange, breakpoint]);
-        return <input name='_activeBreakpoint' type='hidden' value={breakpoint} />;
-      },
-    };
-    // attach internal breakpoint field
-    // @ts-expect-error - we know it doesn't exist, we're adding it intentionally
-    transformedFields._activeBreakpoint = breakpointField;
 
     // this is the config that will be used for puck
-    const updatedConfig: CustomComponentConfigurationWithDefinitionAndPuck<P> = {
+    return {
       ...config,
       // replace the default props
       defaultProps,
       // All components are inline by default for automatic dragRef attachment
       inline: true,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      render({ _styleOverrides, editMode = false, puck, id, children, ...props }) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const editorElements = usePuckIframeElements();
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const dashboard = useGlobalStore(state => state.dashboardWithoutData);
-        // Extract the correct type for renderProps from the config's render function
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const fullProps = useMemo(() => {
-          const renderProps: AdditionalRenderProps = {
-            _id: id,
-            _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
-            _activeBreakpoint: props._activeBreakpoint as keyof AvailableQueries,
-            _editor: editorElements,
-            _dashboard: dashboard,
-          };
-
-          return {
-            ...props,
-            ...renderProps,
-          } as Parameters<typeof config.render>[0];
-        }, [props, id, puck, editMode, editorElements, dashboard]);
-
-        // Generate style strings for emotion CSS processing in iframe context
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const styleStrings = useMemo(() => {
-          try {
-            const componentStyles = config.styles ? config.styles(fullProps) : '';
-            const overrideStyles = _styleOverrides?.style ?? '';
-            return {
-              componentStyles,
-              overrideStyles,
-            } satisfies StyleStrings;
-          } catch (error) {
-            console.error('HAKIT: Error generating styles for component:', config.label, error);
-            return {
-              componentStyles: '',
-              overrideStyles: '',
-            } satisfies StyleStrings;
-          }
-        }, [fullProps, _styleOverrides]);
-
-        // Generate emotion CSS in iframe context where correct cache is active
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const emotionCss = useEmotionCss(styleStrings);
-
-        // Wrap the config.render call in an error boundary to catch rendering errors
+      // this render function is ONLY used for components, rootComponents redefine the render function
+      // which is why here we only provide InternalComponentFields
+      render(renderProps: RenderProps<P & InternalComponentFields>) {
         return (
-          <ComponentRenderErrorBoundary<P> componentConfig={config} dragRef={puck?.dragRef}>
-            {(() => {
-              const renderedElement = config.render(fullProps);
-              // Automatically attach dragRef to the top-level element with emotion CSS
-              return attachDragRefToElement(renderedElement, puck?.dragRef, config.label, emotionCss);
-            })()}
+          <ComponentRenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
+            <Render {...renderProps} internalComponentConfig={config} />
           </ComponentRenderErrorBoundary>
         );
       },
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
       fields: transformedFields,
     };
-
-    return updatedConfig;
   };
+}
+
+function Render<P extends object>(
+  renderProps: RenderProps<P & InternalComponentFields> & {
+    internalComponentConfig: CustomComponentConfig<P>;
+  }
+) {
+  const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = renderProps;
+  const editorElements = usePuckIframeElements();
+  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
+  // Extract the correct type for renderProps from the config's render function
+  // eslint-disable-next-ine react-hooks/rules-of-hooks
+  const fullProps = useMemo(() => {
+    const renderProps: AdditionalRenderProps = {
+      _id: id,
+      _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
+      _editor: editorElements,
+      _dashboard: dashboard,
+    };
+
+    const obj = {
+      ...props,
+      ...renderProps,
+    } as P & InternalComponentFields & AdditionalRenderProps;
+    return obj;
+  }, [props, id, puck, editMode, editorElements, dashboard]);
+
+  // Generate style strings for emotion CSS processing in iframe context
+  const styleStrings = useMemo(() => {
+    try {
+      const componentStyles = config.styles ? config.styles(fullProps) : '';
+      const overrideStyles = styles?.css ?? '';
+      return {
+        componentStyles,
+        overrideStyles,
+      } satisfies StyleStrings;
+    } catch (error) {
+      console.error('HAKIT: Error generating styles for component:', config.label, error);
+      return {
+        componentStyles: '',
+        overrideStyles: '',
+      } satisfies StyleStrings;
+    }
+  }, [fullProps, styles, config]);
+
+  // Generate emotion CSS in iframe context where correct cache is active
+  const emotionCss = useEmotionCss(styleStrings);
+
+  // Generate the rendered element outside the error boundary to ensure proper error catching
+  const renderedElement = useMemo(() => {
+    try {
+      // @ts-expect-error - this is okay, we can't type at this level
+      return config.render(fullProps);
+    } catch (error) {
+      console.error('HAKIT: Error in config.render for component:', config.label, error);
+      throw error; // Re-throw to be caught by error boundary
+    }
+  }, [fullProps, config]);
+
+  // Wrap the rendered element with error boundary to catch rendering errors
+  return attachDragRefToElement(renderedElement, puck?.dragRef, config.label, emotionCss);
 }

@@ -1,57 +1,47 @@
-import type { DefaultComponentProps } from '@measured/puck';
-import type { CustomComponentConfig } from '@typings/puck';
-import { Component, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Alert } from '@components/Alert';
+import { ErrorBoundary, ErrorBoundaryProps } from 'react-error-boundary';
 
-export class ComponentRenderErrorBoundary<P extends DefaultComponentProps> extends Component<
-  {
-    children: ReactNode;
-    componentConfig?: CustomComponentConfig<P>;
-    dragRef?: ((element: Element | null) => void) | null;
+interface Fallback {
+  prefix: string;
+  ref?: ((element: Element | null) => void) | null;
+}
+
+export const fallback = ({ prefix, ref }: Fallback): ErrorBoundaryProps => ({
+  fallbackRender({ error, resetErrorBoundary }) {
+    return (
+      <Alert ref={ref} className={`error-boundary-alert`} title={prefix} severity='error' onClick={() => resetErrorBoundary()}>
+        {error.message ? error.message : 'An error occurred while rendering this component'}
+      </Alert>
+    );
   },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: {
-    children: ReactNode;
-    componentConfig?: CustomComponentConfig<P>;
-    dragRef?: ((element: Element | null) => void) | null;
-  }) {
-    super(props);
-    this.state = { hasError: false };
-  }
+});
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
+type ComponentRenderErrorBoundaryProps = {
+  children: ReactNode;
+  ref?: ((element: Element | null) => void) | null;
+} & Fallback;
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('HAKIT: Component render error:', error, errorInfo);
-    console.error('HAKIT: Component type:', this.props.componentConfig?.label);
-  }
-
-  componentDidUpdate(prevProps: { children: ReactNode; componentConfig?: CustomComponentConfig<P> }) {
-    // Reset error state if the component type changes (new component being rendered)
-    if (prevProps.componentConfig?.label !== this.props.componentConfig?.label && this.state.hasError) {
-      this.setState({ hasError: false, error: undefined });
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div ref={this.props.dragRef} style={{ position: 'relative', width: '100%' }}>
-          <Alert
-            title={`Component Render Error${this.props.componentConfig?.label ? ` (${this.props.componentConfig?.label})` : ''}`}
-            severity='error'
-          >
-            <p style={{ margin: '0 0 var(--space-2) 0' }}>
-              {this.state.error?.message || 'An error occurred while rendering this component'}
-            </p>
-          </Alert>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
+export function ComponentRenderErrorBoundary({ children, prefix, ref }: ComponentRenderErrorBoundaryProps) {
+  return (
+    <ErrorBoundary
+      {...fallback({ prefix, ref })}
+      onError={(error, errorInfo) => {
+        console.error('HAKIT: Error rendering component:', prefix, error, errorInfo);
+        // Log detailed error information for developers (only in development)
+        if (process.env.NODE_ENV === 'development') {
+          console.group(`🚨 HAKIT Component Error: ${prefix}`);
+          console.error('Error:', error);
+          console.error('Component Stack:', errorInfo.componentStack);
+          console.error('Error Stack:', error.stack);
+          console.groupEnd();
+        } else {
+          // Simplified logging for production
+          console.error(`HAKIT: ${prefix} component failed to render:`, error.message);
+        }
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  );
 }

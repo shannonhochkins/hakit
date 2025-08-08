@@ -1,4 +1,4 @@
-import { Config, DefaultComponentProps, Slot } from '@measured/puck';
+import { Config, DefaultComponentProps } from '@measured/puck';
 import { registerRemotes, loadRemote } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
 import {
@@ -15,14 +15,6 @@ import { createRootComponent } from '@helpers/editor/createRootComponent';
 interface ComponentModule {
   config: CustomComponentConfig<DefaultComponentProps>;
 }
-
-export type InternalRootData = {
-  _styleOverrides?: {
-    style: string;
-  };
-  content: Slot;
-  _remoteRepositoryId?: string; // Optional remote name for tracking
-};
 
 export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<P> & {
   _remoteRepositoryId: string; // remote id for tracking
@@ -167,7 +159,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const config: CustomConfigWithDefinition<DefaultComponentProps> = {
     components,
     categories,
-    // @ts-expect-error - this is fine, it just has additional properties that puck doesn't care about
+    // @ts-expect-error - doesn't contain internal fields in the typings at this level
     root: rootConfig,
   };
 

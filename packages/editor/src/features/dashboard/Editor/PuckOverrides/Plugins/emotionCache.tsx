@@ -4,7 +4,6 @@ import { CacheProvider, PropsOf } from '@emotion/react';
 import { Overrides, Plugin } from '@measured/puck';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useStore } from '@hakit/core';
-import { ThemeProvider } from '@hakit/components';
 
 function IframeOverrideComponent({ children, document }: PropsOf<Overrides['iframe']>) {
   const emotionCache = useGlobalStore(state => state.emotionCache);
@@ -21,32 +20,47 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
     const applyCache = () => {
       const head = document?.head;
       if (head && !emotionCache) {
-        setEmotionCache(
-          createCache({
-            key: 'hakit-addons',
-            container: head,
-          })
-        );
+        const cache = createCache({
+          key: 'hakit-addons',
+          container: head,
+        });
+        setEmotionCache(cache);
       }
     };
-    // If already loaded
-    if (document.readyState === 'complete') {
-      // get the window from the document
-      const win = document.defaultView || window;
-      setWindowContext(win);
+
+    // get the window from the document
+    const win = document.defaultView || window;
+    setWindowContext(win);
+
+    // Race condition, because of the calls to the zustand store, we need to wait
+    // until the next tick to apply the cache
+    setTimeout(() => {
       applyCache();
-    }
+    }, 0);
+
+    // Also listen for readystatechange in case we're too early
+    const handleReadyStateChange = () => {
+      if (document.readyState === 'complete') {
+        applyCache();
+      }
+    };
+
+    document.addEventListener('readystatechange', handleReadyStateChange);
+
+    return () => {
+      document.removeEventListener('readystatechange', handleReadyStateChange);
+    };
   }, [document]);
 
   if (emotionCache) {
     return (
       <CacheProvider value={emotionCache} key={emotionCache.key}>
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
       </CacheProvider>
     );
   }
 
-  return <>{children}</>;
+  return <></>;
 }
 
 export const createEmotionCachePlugin = (): Plugin => {

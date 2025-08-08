@@ -1,4 +1,4 @@
-import { ComponentData, DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@measured/puck';
 import { DefaultPropsCallbackData } from '@typings/puck';
 import type { CustomFields, FieldConfiguration } from '@typings/fields';
 
@@ -6,7 +6,7 @@ import type { CustomFields, FieldConfiguration } from '@typings/fields';
  * Recursively gathers default values from fields definitions.
  */
 export async function getDefaultPropsFromFields<P extends DefaultComponentProps>(
-  fields: FieldConfiguration<P, Omit<ComponentData<P>, 'type'>['props']>,
+  fields: FieldConfiguration<P>,
   data: DefaultPropsCallbackData
 ): Promise<P> {
   const result: DefaultComponentProps = {};

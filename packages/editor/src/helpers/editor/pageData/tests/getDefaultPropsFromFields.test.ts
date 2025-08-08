@@ -315,7 +315,15 @@ describe('getDefaultPropsFromFields', () => {
     });
 
     test('should handle complex nested structure with mixed types', async () => {
-      const fields: FieldConfiguration = {
+      const fields: FieldConfiguration<{
+        complexConfig: {
+          simpleField: string;
+          nestedObject: {
+            deepField: number;
+            undefinedDeepField?: undefined; // This should not become an empty object
+          };
+        };
+      }> = {
         complexConfig: {
           type: 'object',
           label: 'Complex Config',

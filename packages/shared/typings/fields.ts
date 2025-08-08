@@ -11,15 +11,20 @@ import type {
   ArrayField,
   SlotField as PuckSlotField,
   CustomField as PuckCustomField,
+  ComponentData,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
-import type { DefaultPropsCallbackData } from './puck';
+import type { DefaultPropsCallbackData, Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
+import { AvailableQueries } from '@hakit/components';
 
 type BaseField = Omit<PuckBaseField, 'visible'>;
 
-export type ExtendedFieldTypes<DataShape = unknown> = {
+// New: minimal base for output (definition) fields which excludes ExtendedFieldTypes props from the outer field
+type OutputBaseField = Omit<BaseField, keyof ExtendedFieldTypes<any, any>>;
+
+export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   description?: string;
   icon?: ReactNode;
   readOnly?: boolean;
@@ -28,7 +33,7 @@ export type ExtendedFieldTypes<DataShape = unknown> = {
   /** If the field is required or not TODO - Test this */
   required?: boolean;
   /** The default value of the field if no value is saved or present */
-  default: unknown;
+  default: Props;
   /** if enabled, this field will be able to configure different values at different breakpoints @default true */
   responsiveMode?: boolean;
   /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
@@ -96,7 +101,7 @@ export type GridField = BaseField & {
   step?: number;
 };
 
-export type HiddenField = Pick<ExtendedFieldTypes, 'default' | 'responsiveMode'> & {
+export type HiddenField<DataShape = unknown, Props = unknown> = Pick<ExtendedFieldTypes<DataShape, Props>, 'default' | 'responsiveMode'> & {
   type: 'hidden';
 };
 
@@ -143,6 +148,23 @@ export type CustomField<
     }) => React.ReactElement;
   };
 
+// New: A minimal custom field for output (definition) that does NOT require ExtendedFieldTypes on the outer field
+export type CustomFieldWithDefinition<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  E extends DefaultComponentProps = DefaultComponentProps,
+> = OutputBaseField &
+  E & {
+    type: 'custom';
+    render: (props: {
+      field: PuckCustomField<Props>;
+      name: string;
+      id: string;
+      value: Props;
+      onChange: (value: Props) => void;
+      readOnly?: boolean;
+    }) => React.ReactElement;
+  };
+
 // field keys that we are replacing with our own
 type ExcludePuckKeys = keyof ExtendedFieldTypes;
 
@@ -151,58 +173,53 @@ export type CustomFields<
   E extends DefaultComponentProps = DefaultComponentProps,
   DataShape = unknown,
 > =
-  | (Omit<TextField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<NumberField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<TextareaField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SelectField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<RadioField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<PageField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<PagesField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ServiceField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ColorField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<ImageUploadField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SliderField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape> & E)
-  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape>, 'default'> & E)
-  | CustomField<Props, E>
+  | (Omit<TextField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<NumberField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<TextareaField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SelectField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<RadioField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<PageField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<PagesField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ServiceField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ColorField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<ImageUploadField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SliderField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
+  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'> & E)
+  | (CustomField<Props, E> & ExtendedFieldTypes<DataShape, Props>)
   | SlotField
-  | (HiddenField & E)
+  | (HiddenField<DataShape, Props> & E)
   | (EntityField<DataShape> & E);
 
-export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomField<
+export type CustomFieldsWithDefinition<Props extends DefaultComponentProps, DataShape = unknown> = CustomFieldWithDefinition<
   Props,
   {
     _field: (Props extends DefaultComponentProps[]
       ? Omit<ArrayField<Props extends { [key: string]: any } ? Props : any>, 'arrayFields' | 'visible'> & {
           arrayFields: {
-            [SubPropName in keyof Props[0]]: CustomFields<
-              Props[0][SubPropName],
-              CustomFieldsWithDefinition<Props[0][SubPropName], DataShape>,
-              DataShape
-            >;
+            [SubPropName in keyof Props[0]]: CustomFieldsWithDefinition<Props[0][SubPropName], DataShape> | SlotField;
           };
-        } & ExtendedFieldTypes<DataShape>
+        } & ExtendedFieldTypes<DataShape, Props>
       : Props extends { [key: string]: any }
         ? Omit<ObjectField<Props>, 'objectFields' | 'visible'> & {
             objectFields: {
-              [SubPropName in keyof Props]: CustomFields<
-                Props[SubPropName],
-                CustomFieldsWithDefinition<Props[SubPropName], DataShape>,
-                DataShape
-              >;
+              [SubPropName in keyof Props]: CustomFieldsWithDefinition<Props[SubPropName], DataShape> | SlotField;
             };
-          } & Omit<ExtendedFieldTypes<DataShape>, 'default'>
+          } & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'>
         : CustomFields<Props, object, DataShape>) & {
       repositoryId?: string;
     };
   }
 >;
 
-export type FieldConfiguration<ComponentProps extends DefaultComponentProps = DefaultComponentProps, DataShape = unknown> = {
+export type FieldConfiguration<
+  ComponentProps extends DefaultComponentProps = DefaultComponentProps,
+  DataShape = Omit<ComponentData<ComponentProps>, 'type'>['props'],
+> = {
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: CustomFields<ComponentProps[PropName], object, DataShape>;
 };
 
@@ -213,3 +230,18 @@ export type FieldConfigurationWithDefinition<ComponentProps extends DefaultCompo
 };
 
 export type FieldTypes = CustomFields extends { type: infer T } ? T : never;
+
+export interface InternalComponentFields {
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}
+
+export interface InternalRootComponentFields {
+  content: Slot;
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}

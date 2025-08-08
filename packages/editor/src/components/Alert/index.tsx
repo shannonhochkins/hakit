@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { Info, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
-import { Column } from '@hakit/components';
 
 type AlertSeverity = 'info' | 'warning' | 'success' | 'error';
 
@@ -11,6 +10,8 @@ interface AlertProps {
   severity?: AlertSeverity;
   title?: string;
   className?: string;
+  onClick?: () => void;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 const ICON_SIZE = 20;
@@ -118,7 +119,13 @@ const AlertIcon = styled.div<{ severity: AlertSeverity }>`
   ${props => getSeverityColorStyles(props.severity)}
 `;
 
-const AlertBody = styled(Column)`
+const AlertBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-grow: 1;
+  gap: var(--space-1);
   min-width: 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
@@ -215,12 +222,12 @@ const AlertMessage = styled.div<{ severity: AlertSeverity }>`
   }
 `;
 
-export function Alert({ children, severity = 'info', title, className }: AlertProps) {
+export function Alert({ children, severity = 'info', title, className, onClick, ref }: AlertProps) {
   return (
-    <AlertContainer severity={severity} className={className}>
+    <AlertContainer severity={severity} className={className} onClick={onClick} ref={ref}>
       <AlertContent>
         <AlertIcon severity={severity}>{getSeverityIcon(severity)}</AlertIcon>
-        <AlertBody alignItems='flex-start' justifyContent='flex-start' gap='var(--space-1)'>
+        <AlertBody>
           {title && <AlertTitle severity={severity}>{title}</AlertTitle>}
           {children && <AlertMessage severity={severity}>{children}</AlertMessage>}
         </AlertBody>

@@ -56,19 +56,9 @@ await moduleMocker.mock('leaflet', () => ({
 }));
 
 // Mock functions for testing
-const mockGetDefaultPropsFromFields = mock(() => Promise.resolve({}));
-const mockTransformFields = mock((fields: unknown) => fields);
 const mockUseActiveBreakpoint = mock(() => 'desktop');
 const mockUseGlobalStore = mock(() => ({ dashboardWithoutData: { id: 'test-dashboard' } }));
 const mockUsePuckIframeElements = mock(() => ({ iframe: null, document: null }));
-
-await moduleMocker.mock('@helpers/editor/pageData/getDefaultPropsFromFields', () => ({
-  getDefaultPropsFromFields: mockGetDefaultPropsFromFields,
-}));
-
-await moduleMocker.mock('@helpers/editor/pageData/transformFields', () => ({
-  transformFields: mockTransformFields,
-}));
 
 await moduleMocker.mock('@hooks/useActiveBreakpoint', () => ({
   useActiveBreakpoint: mockUseActiveBreakpoint,
@@ -111,8 +101,6 @@ function SimpleComponent({ text, count }: SimpleProps) {
 describe('createComponent', () => {
   beforeEach(() => {
     // Reset all mocks
-    mockGetDefaultPropsFromFields.mockClear();
-    mockTransformFields.mockClear();
     mockUseActiveBreakpoint.mockClear();
     mockUseGlobalStore.mockClear();
     mockUsePuckIframeElements.mockClear();
@@ -161,14 +149,14 @@ describe('createComponent', () => {
 
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
-    await componentFactory(data);
-
-    expect(mockGetDefaultPropsFromFields).toHaveBeenCalledTimes(1);
-    expect(mockGetDefaultPropsFromFields).toHaveBeenCalledWith(
-      config.fields,
+    const result = await componentFactory(data);
+    expect(result.defaultProps).toEqual(
       expect.objectContaining({
-        entities: expect.any(Object),
-        services: expect.any(Object),
+        text: 'hello',
+        count: 0,
+        _activeBreakpoint: 'xlg',
+        // css may be undefined initially
+        styles: expect.objectContaining({ css: undefined }),
       })
     );
   });
@@ -201,25 +189,25 @@ describe('createComponent', () => {
 
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
-    await componentFactory(data);
+    const result = await componentFactory(data);
 
-    expect(mockTransformFields).toHaveBeenCalledTimes(1);
+    const transformedFields = result.fields;
+    expect(transformedFields).toHaveProperty('text');
+    expect(transformedFields).toHaveProperty('_activeBreakpoint');
+    expect(transformedFields).toHaveProperty('styles');
 
-    // Check the actual call arguments
-    const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
-    expect(actualCallArg).toHaveProperty('text');
-    expect(actualCallArg).toHaveProperty('_styleOverrides');
-    expect(actualCallArg).toHaveProperty('_activeBreakpoint');
+    // Verify transformed structure
+    expect(transformedFields.text.type).toBe('custom');
+    expect(transformedFields.text.type === 'slot' ? null : transformedFields.text._field.type).toBe('text');
 
-    // Verify the _activeBreakpoint field has the correct structure
-    const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
+    const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
 
-    // Verify the _styleOverrides field has the correct structure
-    const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
-    expect(styleOverridesField.type).toBe('object');
-    expect(styleOverridesField.label).toBe('Style Overrides');
+    const stylesField = transformedFields.styles;
+    expect(stylesField.type).toBe('custom');
+    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
   });
 
   test('should handle empty fields correctly', async () => {
@@ -231,22 +219,20 @@ describe('createComponent', () => {
 
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
-    await componentFactory(data);
+    const result = await componentFactory(data);
 
-    // Even with empty fields, the _activeBreakpoint and _styleOverrides fields should be added
-    const actualCallArg = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
-    expect(actualCallArg).toHaveProperty('_styleOverrides');
-    expect(actualCallArg).toHaveProperty('_activeBreakpoint');
+    const transformedFields = result.fields;
+    expect(transformedFields).toHaveProperty('_activeBreakpoint');
+    expect(transformedFields).toHaveProperty('styles');
 
-    // Verify the _activeBreakpoint field has the correct structure
-    const activeBreakpointField = actualCallArg._activeBreakpoint as Record<string, unknown>;
+    const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
 
-    // Verify the _styleOverrides field has the correct structure
-    const styleOverridesField = actualCallArg._styleOverrides as Record<string, unknown>;
-    expect(styleOverridesField.type).toBe('object');
-    expect(styleOverridesField.label).toBe('Style Overrides');
+    const stylesField = transformedFields.styles;
+    expect(stylesField.type).toBe('custom');
+    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
   });
 
   test('should preserve original config properties', async () => {
@@ -271,7 +257,6 @@ describe('createComponent', () => {
 
   test('should set default props from field defaults', async () => {
     const expectedDefaults = { text: 'default text', count: 42 };
-    mockGetDefaultPropsFromFields.mockResolvedValueOnce(expectedDefaults);
 
     const config: CustomComponentConfig<SimpleProps> = {
       label: 'Test Component',
@@ -285,8 +270,13 @@ describe('createComponent', () => {
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
     const result = await componentFactory(data);
-
-    expect(result.defaultProps).toEqual(expectedDefaults);
+    expect(result.defaultProps).toEqual(
+      expect.objectContaining({
+        ...expectedDefaults,
+        _activeBreakpoint: 'xlg',
+        styles: expect.objectContaining({ css: undefined }),
+      })
+    );
   });
 
   test('should create breakpoint field with correct behavior', async () => {
@@ -300,16 +290,12 @@ describe('createComponent', () => {
 
     const data = createMockComponentFactoryData();
     const componentFactory = createComponent(config);
-    await componentFactory(data);
+    const result = await componentFactory(data);
 
-    // Verify the breakpoint field was added to transformed fields
-    const transformedFieldsCall = mockTransformFields.mock.calls[0][0] as Record<string, unknown>;
-    expect(transformedFieldsCall._activeBreakpoint).toBeDefined();
-    expect((transformedFieldsCall._activeBreakpoint as { type: string }).type).toBe('custom');
-
-    // Also verify _styleOverrides was added
-    expect(transformedFieldsCall._styleOverrides).toBeDefined();
-    expect((transformedFieldsCall._styleOverrides as { type: string }).type).toBe('object');
+    const transformedFields = result.fields;
+    expect(transformedFields._activeBreakpoint).toBeDefined();
+    expect(transformedFields._activeBreakpoint.type).toBe('custom');
+    expect(transformedFields.styles).toBeDefined();
   });
 
   test('should maintain consistent behavior across multiple calls', async () => {
@@ -373,8 +359,6 @@ describe('createComponent', () => {
     // Verify all required functions were called
     expect(data.getAllEntities).toHaveBeenCalled();
     expect(data.getAllServices).toHaveBeenCalled();
-    expect(mockGetDefaultPropsFromFields).toHaveBeenCalled();
-    expect(mockTransformFields).toHaveBeenCalled();
   });
 
   test('should handle styles function correctly', async () => {

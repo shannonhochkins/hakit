@@ -57,7 +57,7 @@ describe('puckToDBValue', () => {
     };
     // userConfig here needs to be with the field definitions, we don't have a function to convert this
     // currently to match createRootComponent and createComponent output
-    const result = puckToDBValue(databaseData as PuckPageData, changeData, 'xs', userConfig, {
+    const result = puckToDBValue(databaseData, changeData, 'xs', userConfig, {
       // simulate no breakpoint modes for all fields
     });
 
@@ -122,7 +122,7 @@ describe('puckToDBValue', () => {
       zones: {},
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, changeData, 'xs', userConfig, {
+    const result = puckToDBValue(databaseData, changeData, 'xs', userConfig, {
       ['Field Test-d60b055e-d02a-4ff0-b6b5-74c4d6c26a00']: {
         'options.number': true,
         'options.text': false, // text field is not enabled for breakpoints
@@ -315,7 +315,7 @@ describe('puckToDBValue', () => {
       zones: {},
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, changeData, 'xs', userConfig, {});
+    const result = puckToDBValue(databaseData, changeData, 'xs', userConfig, {});
 
     expect(result).toBeDefined();
     expect(result?.root).toBeDefined();
@@ -336,15 +336,15 @@ describe('puckToDBValue', () => {
   });
 
   test('should return originalData when changedData or userConfig is null', () => {
-    const result = puckToDBValue(databaseData as PuckPageData, null, 'md', userConfig);
+    const result = puckToDBValue(databaseData, null, 'md', userConfig);
     expect(result).toBe(databaseData);
 
-    const result2 = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', undefined);
+    const result2 = puckToDBValue(databaseData, puckChangeData, 'md', undefined);
     expect(result2).toBe(databaseData);
   });
 
   test('should convert flattened data to breakpoint format for enabled fields', () => {
-    const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     expect(result).toBeDefined();
     expect(result?.content).toBeDefined();
@@ -435,7 +435,7 @@ describe('puckToDBValue', () => {
       },
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
     // Number field should still be wrapped in $xlg even with responsiveMode: true
@@ -446,7 +446,12 @@ describe('puckToDBValue', () => {
 
   test('should handle fields with responsiveMode: true with the mode map as true', () => {
     // Create a modified config where number field has responsiveMode: true
-    const modifiedUserConfig = {
+    const prevNumberField = userConfig.components['Field Test'].fields.options._field.objectFields.number;
+    const updatedNumberField =
+      prevNumberField && prevNumberField.type === 'slot'
+        ? prevNumberField
+        : { ...prevNumberField, _field: { ...prevNumberField._field, responsiveMode: true } };
+    const modifiedUserConfig: typeof userConfig = {
       ...userConfig,
       components: {
         ...userConfig.components,
@@ -460,14 +465,7 @@ describe('puckToDBValue', () => {
                 ...userConfig.components['Field Test'].fields.options._field,
                 objectFields: {
                   ...userConfig.components['Field Test'].fields.options._field.objectFields,
-                  number: {
-                    ...userConfig.components['Field Test'].fields.options._field.objectFields.number,
-                    _field: {
-                      // @ts-expect-error - this is fine, _field doesn't exist on type slot
-                      ...userConfig.components['Field Test'].fields.options._field.objectFields.number._field,
-                      responsiveMode: true, // this field should have breakpoints
-                    },
-                  },
+                  number: updatedNumberField,
                 },
               },
             },
@@ -527,7 +525,7 @@ describe('puckToDBValue', () => {
       },
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, puckChangeData, 'md', modifiedUserConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
     // Number field should still be wrapped in $xlg even with responsiveMode: true
@@ -561,7 +559,7 @@ describe('puckToDBValue', () => {
       ],
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, testPuckData, 'md', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, testPuckData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
 
@@ -599,13 +597,7 @@ describe('puckToDBValue', () => {
       ],
     };
 
-    const result = puckToDBValue(
-      originalWithExistingBreakpoints as PuckPageData,
-      puckChangeData,
-      'md',
-      userConfig,
-      fieldsWithBreakpointsEnabled
-    );
+    const result = puckToDBValue(originalWithExistingBreakpoints, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
 
@@ -637,7 +629,7 @@ describe('puckToDBValue', () => {
       zones: {},
     };
 
-    const result = puckToDBValue(minimalOriginalData as PuckPageData, puckChangeData, 'sm', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(minimalOriginalData, puckChangeData, 'sm', userConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
 
@@ -652,7 +644,7 @@ describe('puckToDBValue', () => {
     const breakpoints: BreakPoint[] = ['xxs', 'xs', 'sm', 'md', 'lg', 'xlg'];
 
     breakpoints.forEach(breakpoint => {
-      const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, breakpoint, userConfig, fieldsWithBreakpointsEnabled);
+      const result = puckToDBValue(databaseData, puckChangeData, breakpoint, userConfig, fieldsWithBreakpointsEnabled);
 
       const component = result?.content?.[0];
 
@@ -684,7 +676,7 @@ describe('puckToDBValue', () => {
       ],
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, testPuckData, 'lg', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, testPuckData, 'lg', userConfig, fieldsWithBreakpointsEnabled);
 
     const component = result?.content?.[0];
 
@@ -714,7 +706,7 @@ describe('puckToDBValue', () => {
       ],
     };
 
-    const result = puckToDBValue(databaseData as PuckPageData, unknownComponentData, 'md', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, unknownComponentData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     // Should return the item unchanged if no component config found
     expect(result?.content?.[0]).toEqual(unknownComponentData.content[0]);
@@ -722,7 +714,7 @@ describe('puckToDBValue', () => {
 
   test('should handle empty breakpointModeMap', () => {
     const result = puckToDBValue(
-      databaseData as PuckPageData,
+      databaseData,
       puckChangeData,
       'md',
       userConfig,
@@ -744,7 +736,7 @@ describe('puckToDBValue', () => {
   test('should handle root fields if they exist in userConfig', () => {
     // This test would need a userConfig with root fields defined
     // For now, just verify it doesn't crash with empty root fields
-    const result = puckToDBValue(databaseData as PuckPageData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(databaseData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     expect(result?.root).toBeDefined();
     expect(result?.root?.props).toBeDefined();
@@ -762,7 +754,7 @@ describe('puckToDBValue', () => {
       ],
     };
 
-    const result = puckToDBValue(originalWithCustomData as PuckPageData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
+    const result = puckToDBValue(originalWithCustomData, puckChangeData, 'md', userConfig, fieldsWithBreakpointsEnabled);
 
     // Should preserve custom fields from original data
     expect(result).toHaveProperty('customField', 'should be preserved');
@@ -1727,7 +1719,7 @@ describe('puckToDBValue', () => {
       };
       expect(dbValue).toEqual(expected);
       // now when we "trim" it should still have the $xlg key
-      const puckValue = trimPuckDataToConfig(dbValue as PuckPageData, rootUserConfig as CustomConfigWithDefinition);
+      const puckValue = trimPuckDataToConfig(dbValue, rootUserConfig as CustomConfigWithDefinition);
       expect(puckValue).toEqual(expected);
     });
 

@@ -40,6 +40,8 @@ import { rootConfigs } from './__mocks__/rootConfigs.mock';
 import type { Slot } from '@measured/puck';
 import { createRootComponent } from './index';
 import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
+import React from 'react';
+import { renderToString } from 'react-dom/server';
 
 // Mock data for component factory
 const mockComponentFactoryData: ComponentFactoryData = {
@@ -177,7 +179,7 @@ describe('createRootComponent', () => {
     expect(result.fields).toBeDefined();
     expect(result.fields!).toHaveProperty('@hakit/default-root');
 
-    // Check that the default root config has the expected structure
+    // @ts-expect-error - dynamic key not present in the static type
     const defaultRootField = result.fields!['@hakit/default-root'] as Record<string, unknown>;
     expect((defaultRootField._field as Record<string, unknown>).label).toBe('@hakit/editor');
     expect((defaultRootField._field as Record<string, unknown>).type).toBe('object');
@@ -239,10 +241,9 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([mockRootConfig1], mockComponentFactoryData);
 
     expect(result.fields).toBeDefined();
-    // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!.content).toEqual({
-      type: 'slot',
-    });
+    // content is injected internally; assert its type property without forcing exact shape
+    // @ts-expect-error - content exists at runtime but is not represented in type
+    expect(result.fields!.content?.type).toBe('slot');
   });
 
   test('should isolate props for each root config in render function', async () => {
@@ -272,7 +273,8 @@ describe('createRootComponent', () => {
     // Create a test render to call the render function
     const TestComponent = result.render;
     if (TestComponent) {
-      TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
+      const element = TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
+      renderToString(React.createElement(React.Fragment, null, element));
     }
 
     // Verify render functions were called
@@ -347,7 +349,10 @@ describe('createRootComponent', () => {
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('content');
     expect(fieldKeys).toContain('@hakit/default-root');
-    expect(result.fields!.content).toEqual({ type: 'slot' });
+    // content is a slot field injected internally, structure not statically typed
+    // @ts-expect-error - content exists but not represented in the field map type
+    expect(result.fields!.content?.type).toBe('slot');
+    // @ts-expect-error - dynamic key not present in the static type
     expect(result.fields!['@hakit/default-root']).toBeDefined();
   });
 
@@ -424,8 +429,10 @@ describe('createRootComponent', () => {
 
     expect(result.fields).toBeDefined();
 
+    // @ts-expect-error - dynamic key not present in the static type
     if (result.fields!['@hakit/default-root'].type === 'custom') {
       // Check that the default root config has the repository ID
+      // @ts-expect-error - dynamic key not present in the static type
       const defaultRootField = result.fields!['@hakit/default-root']._field;
       expect(defaultRootField.repositoryId).toBe('@hakit/default-root');
     }
@@ -527,8 +534,7 @@ describe('createRootComponent', () => {
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('slot-repo');
     expect(fieldKeys).toContain('content');
-
-    // Check the slot config structure
+    // @ts-expect-error - dynamic key not present in the static type
     const slotRepoField = result.fields!['slot-repo'] as Record<string, unknown>;
     expect((slotRepoField._field as Record<string, unknown>).label).toBe('Slot Repository');
     expect((slotRepoField._field as Record<string, unknown>).type).toBe('object');
@@ -550,10 +556,11 @@ describe('createRootComponent', () => {
       puck: {} as Record<string, unknown>,
     };
 
-    // Render the component to test slot handling
+    // Render the returned element so the inner Render component runs
     const TestComponent = result.render;
     if (TestComponent) {
-      TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
+      const element = TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
+      renderToString(React.createElement(React.Fragment, null, element));
     }
 
     // Verify the render function was called with the correct props including slots
