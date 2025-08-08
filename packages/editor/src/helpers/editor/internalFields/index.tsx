@@ -72,9 +72,6 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
         label: 'CSS Styles',
         description: 'Provide css updates to override the default styles of this component',
         default: '',
-        visible(data) {
-          return data.styles.css !== undefined && data._activeBreakpoint !== 'lg';
-        },
       },
     },
   },

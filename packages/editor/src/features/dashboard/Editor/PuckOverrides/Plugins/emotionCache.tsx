@@ -32,7 +32,8 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
     const win = document.defaultView || window;
     setWindowContext(win);
 
-    // Always try to apply cache, regardless of ready state
+    // Race condition, because of the calls to the zustand store, we need to wait
+    // until the next tick to apply the cache
     setTimeout(() => {
       applyCache();
     }, 0);

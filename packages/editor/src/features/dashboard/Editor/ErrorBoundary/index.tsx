@@ -1,7 +1,6 @@
 import { type ReactNode } from 'react';
 import { Alert } from '@components/Alert';
 import { ErrorBoundary, ErrorBoundaryProps } from 'react-error-boundary';
-import { useGlobalStore } from '@hooks/useGlobalStore';
 
 interface Fallback {
   prefix: string;
@@ -29,10 +28,17 @@ export function ComponentRenderErrorBoundary({ children, prefix, ref }: Componen
       {...fallback({ prefix, ref })}
       onError={(error, errorInfo) => {
         console.error('HAKIT: Error rendering component:', prefix, error, errorInfo);
-        useGlobalStore.getState().setComponentError({
-          title: prefix,
-          message: error.message ? error.message : 'An error occurred while rendering this component',
-        });
+        // Log detailed error information for developers (only in development)
+        if (process.env.NODE_ENV === 'development') {
+          console.group(`🚨 HAKIT Component Error: ${prefix}`);
+          console.error('Error:', error);
+          console.error('Component Stack:', errorInfo.componentStack);
+          console.error('Error Stack:', error.stack);
+          console.groupEnd();
+        } else {
+          // Simplified logging for production
+          console.error(`HAKIT: ${prefix} component failed to render:`, error.message);
+        }
       }}
     >
       {children}

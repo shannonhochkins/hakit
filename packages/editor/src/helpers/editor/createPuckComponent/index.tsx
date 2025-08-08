@@ -26,22 +26,12 @@ type CustomComponentConfigurationWithDefinitionAndPuck<P extends object> = Custo
   inline: boolean;
 };
 
-// Function overloads for better type safety
-// export function createComponent<P extends object>(
-//   config: CustomComponentConfig<P>,
-//   isRootComponent: true
-// ): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & InternalRootComponentFields>>;
-// export function createComponent<P extends object>(
-//   config: CustomComponentConfig<P>,
-//   isRootComponent?: false
-// ): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & InternalComponentFields>>;
 export function createComponent<P extends object>(
   config: CustomComponentConfig<P>,
   isRootComponent = false
-): (data: ComponentFactoryData) => Promise<
-  CustomComponentConfigurationWithDefinitionAndPuck<P & InternalComponentFields>
-  // | CustomComponentConfigurationWithDefinitionAndPuck<P & InternalRootComponentFields>
-> {
+  // intentionally only resolving component fields instead of root fields here as this createComponent is used as a starting factory, and then updated
+  // later for root components with createRootComponent
+): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & InternalComponentFields>> {
   return async function (data: ComponentFactoryData) {
     // Merge the field configurations - type assertion is necessary due to mapped type limitations
     const fields = isRootComponent
@@ -100,7 +90,6 @@ function Render<P extends object>(
     const renderProps: AdditionalRenderProps = {
       _id: id,
       _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
-      // _activeBreakpoint: props._activeBreakpoint as keyof AvailableQueries,
       _editor: editorElements,
       _dashboard: dashboard,
     };

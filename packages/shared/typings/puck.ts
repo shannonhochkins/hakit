@@ -11,7 +11,7 @@ import {
 } from '@measured/puck';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { Dashboard } from './hono';
-import type { FieldConfiguration, FieldConfigurationWithDefinition, InternalComponentFields, InternalRootComponentFields } from './fields';
+import type { FieldConfiguration, FieldConfigurationWithDefinition, InternalComponentFields } from './fields';
 
 export type DefaultPropsCallbackData = {
   entities: HassEntities;
@@ -30,7 +30,6 @@ export type AdditionalRenderProps = {
   _id: string; // Unique ID for the component instance
   _editMode: boolean; // Whether the component is being rendered in edit mode
   /** the hakit context, this houses additional information to send to each render of each component */
-  // _activeBreakpoint: keyof AvailableQueries;
   _dashboard: Dashboard | null;
   _editor?: {
     document: Document | null;
@@ -107,7 +106,7 @@ export type CustomConfigWithDefinition<
     [ComponentName in keyof Props]: Omit<CustomComponentConfigWithDefinition<Props[ComponentName], Props[ComponentName]>, 'type'>;
   };
   fields?: FieldConfigurationWithDefinition<Props, true>;
-  root?: CustomRootConfigWithDefinition<InternalRootData & InternalRootComponentFields>;
+  root?: CustomRootConfigWithDefinition<RootProps>;
 };
 
 export type Slot = InternalSlot;

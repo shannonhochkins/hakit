@@ -52,9 +52,6 @@ type PuckConfigurationStore = {
   setEditorMode: (editorMode: boolean) => void;
   componentBreakpointMap: ComponentBreakpointModeMap;
   setComponentBreakpointMap: (componentBreakpointMap: ComponentBreakpointModeMap) => void;
-
-  componentError?: { message: string; title: string };
-  setComponentError: (error: { message: string; title: string }) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>(set => {
@@ -120,7 +117,5 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     },
     setEditorMode: (editorMode: boolean) => set(state => ({ ...state, editorMode })),
     editorMode: false,
-    componentError: undefined,
-    setComponentError: (error: { message: string; title: string }) => set(state => ({ ...state, componentError: error })),
   };
 });

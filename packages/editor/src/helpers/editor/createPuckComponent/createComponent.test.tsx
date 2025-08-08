@@ -191,23 +191,23 @@ describe('createComponent', () => {
     const componentFactory = createComponent(config);
     const result = await componentFactory(data);
 
-    const transformedFields = result.fields as Record<string, any>;
+    const transformedFields = result.fields;
     expect(transformedFields).toHaveProperty('text');
     expect(transformedFields).toHaveProperty('_activeBreakpoint');
     expect(transformedFields).toHaveProperty('styles');
 
     // Verify transformed structure
     expect(transformedFields.text.type).toBe('custom');
-    expect(transformedFields.text._field.type).toBe('text');
+    expect(transformedFields.text.type === 'slot' ? null : transformedFields.text._field.type).toBe('text');
 
-    const activeBreakpointField = transformedFields._activeBreakpoint as Record<string, unknown>;
+    const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
 
-    const stylesField = transformedFields.styles as Record<string, any>;
+    const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('custom');
-    expect(stylesField._field.type).toBe('object');
-    expect(stylesField._field.label).toBe('Style Overrides');
+    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
   });
 
   test('should handle empty fields correctly', async () => {
@@ -221,18 +221,18 @@ describe('createComponent', () => {
     const componentFactory = createComponent(config);
     const result = await componentFactory(data);
 
-    const transformedFields = result.fields as Record<string, any>;
+    const transformedFields = result.fields;
     expect(transformedFields).toHaveProperty('_activeBreakpoint');
     expect(transformedFields).toHaveProperty('styles');
 
-    const activeBreakpointField = transformedFields._activeBreakpoint as Record<string, unknown>;
+    const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
 
-    const stylesField = transformedFields.styles as Record<string, any>;
+    const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('custom');
-    expect(stylesField._field.type).toBe('object');
-    expect(stylesField._field.label).toBe('Style Overrides');
+    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
   });
 
   test('should preserve original config properties', async () => {
@@ -292,9 +292,9 @@ describe('createComponent', () => {
     const componentFactory = createComponent(config);
     const result = await componentFactory(data);
 
-    const transformedFields = result.fields as Record<string, any>;
+    const transformedFields = result.fields;
     expect(transformedFields._activeBreakpoint).toBeDefined();
-    expect((transformedFields._activeBreakpoint as { type: string }).type).toBe('custom');
+    expect(transformedFields._activeBreakpoint.type).toBe('custom');
     expect(transformedFields.styles).toBeDefined();
   });
 

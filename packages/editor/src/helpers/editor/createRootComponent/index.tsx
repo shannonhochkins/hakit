@@ -123,7 +123,6 @@ function getPropsForRoot<P extends DefaultComponentProps>(
   const currentRemoteProps = props[rootConfig._remoteRepositoryId] || {};
   // Combine base props with current remote's props and style overrides
   const propsForThisRoot = {
-    // ...props, // Start with all original props to ensure required props are present
     ...baseProps, // Override with filtered base props (without other remotes)
     ...(typeof currentRemoteProps === 'object' && currentRemoteProps !== null ? currentRemoteProps : {}),
     ...additionalProps,

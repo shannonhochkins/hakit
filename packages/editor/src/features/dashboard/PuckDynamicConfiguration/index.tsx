@@ -159,6 +159,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   const config: CustomConfigWithDefinition<DefaultComponentProps> = {
     components,
     categories,
+    // @ts-expect-error - doesn't contain internal fields in the typings at this level
     root: rootConfig,
   };
 
