@@ -1,19 +1,19 @@
 import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { dashboardTable, pagesTable } from './db';
 
 export const puckObjectZodSchema = z.object({
   type: z.string(),
-  props: z.object({}).passthrough(),
-  readOnly: z.record(z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
+  props: z.looseObject({}),
+  readOnly: z.record(z.string(), z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
 });
 
 export const puckDataZodSchema = z.object({
-  zones: z.record(z.array(puckObjectZodSchema)).optional(), // Make zones optional
+  zones: z.record(z.string(), z.array(puckObjectZodSchema)).optional(), // Make zones optional
   content: z.array(puckObjectZodSchema),
   root: z.object({
-    props: z.object({}).passthrough().optional(), // Make props optional
-    readOnly: z.record(z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
+    props: z.looseObject({}).optional(), // Make props optional
+    readOnly: z.record(z.string(), z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
   }),
 });
 

@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import z from 'zod';
+import z from 'zod/v4';
 
 // Module Federation manifest schema
 const mfAssetSchema = z.object({
@@ -110,7 +110,7 @@ export async function validateRepositoryZipFromBuffer(zipBuffer: Buffer): Promis
       // Use Zod to validate and parse the manifest
       const result = mfManifestSchema.safeParse(parsedManifest);
       if (!result.success) {
-        const errorMessages = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+        const errorMessages = result.error.message;
         return {
           isValid: false,
           error: `Invalid mf-manifest.json structure: ${errorMessages}`,

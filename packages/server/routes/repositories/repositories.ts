@@ -3,7 +3,7 @@ import { db } from '../../db';
 import { eq, and, desc } from 'drizzle-orm';
 import { repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
 import { describeRoute } from 'hono-openapi';
 
@@ -11,48 +11,25 @@ const repositoriesRoute = new Hono()
   // Get all public repositories (for browsing/discovery)
   .get(
     '/',
-    describeRoute({
-      summary: 'Get all public repositories',
-      description: 'Retrieve all public repositories for browsing and discovery, ordered by total downloads',
-      responses: {
-        200: {
-          description: 'Repositories retrieved successfully',
-        },
-        400: {
-          description: 'Error fetching repositories',
-        },
-      },
-      tags: ['Repositories'],
-    }),
+    describeRoute({ description: 'List public repositories', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
     async c => {
-    try {
-      const repositories = await db
-        .select()
-        .from(repositoriesTable)
-        .where(eq(repositoriesTable.isPublic, true))
-        .orderBy(desc(repositoriesTable.totalDownloads));
-      return c.json({ repositories }, 200);
-    } catch (error) {
-      return c.json(formatErrorResponse('Error fetching repositories', error), 400);
+      try {
+        const repositories = await db
+          .select()
+          .from(repositoriesTable)
+          .where(eq(repositoriesTable.isPublic, true))
+          .orderBy(desc(repositoriesTable.totalDownloads));
+        return c.json({ repositories }, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching repositories', error), 400);
+      }
     }
-  })
+  )
 
   // Get a specific repository by ID
   .get(
     '/:id',
-    describeRoute({
-      summary: 'Get repository by ID',
-      description: 'Retrieve a specific public repository by its ID',
-      responses: {
-        200: {
-          description: 'Repository retrieved successfully',
-        },
-        400: {
-          description: 'Repository not found or error fetching repository',
-        },
-      },
-      tags: ['Repositories'],
-    }),
+    describeRoute({ description: 'Get repository by ID', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
     zValidator(
       'param',
       z.object({
@@ -82,19 +59,7 @@ const repositoriesRoute = new Hono()
   // Get all versions for a specific repository
   .get(
     '/:id/versions',
-    describeRoute({
-      summary: 'Get repository versions',
-      description: 'Retrieve all versions for a specific repository, ordered by creation date',
-      responses: {
-        200: {
-          description: 'Repository versions retrieved successfully',
-        },
-        400: {
-          description: 'Repository not found or error fetching versions',
-        },
-      },
-      tags: ['Repositories'],
-    }),
+    describeRoute({ description: 'List repository versions', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
     zValidator(
       'param',
       z.object({
@@ -131,19 +96,7 @@ const repositoriesRoute = new Hono()
   // Get a specific version for a specific repository
   .get(
     '/:id/versions/:version',
-    describeRoute({
-      summary: 'Get specific repository version',
-      description: 'Retrieve a specific version of a repository by version identifier',
-      responses: {
-        200: {
-          description: 'Repository version retrieved successfully',
-        },
-        400: {
-          description: 'Repository or version not found',
-        },
-      },
-      tags: ['Repositories'],
-    }),
+    describeRoute({ description: 'Get a repository version', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
     zValidator(
       'param',
       z.object({

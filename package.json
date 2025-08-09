@@ -72,6 +72,7 @@
     "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@octokit/rest": "^22.0.0",
+    "@scalar/hono-api-reference": "^0.9.13",
     "@supabase/supabase-js": "^2.49.3",
     "@total-typescript/ts-reset": "^0.6.1",
     "deep-copy-ts": "^0.5.4",
@@ -93,6 +94,6 @@
     "uuid": "^11.1.0",
     "zod": "^4.0.16",
     "zod-openapi": "^5.3.1",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^4.0.1"
   }
 }

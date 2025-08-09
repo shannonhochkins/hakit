@@ -3,7 +3,7 @@ import { db } from '../../db';
 import { eq, and } from 'drizzle-orm';
 import { userRepositoriesTable, repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../kinde';
 import { streamSSE, type SSEStreamingApi } from 'hono/streaming';
@@ -39,27 +39,12 @@ async function writeSSEMessage(stream: SSEStreamingApi, { message, status, data 
 }
 
 const githubInstallSchema = z.object({
-  repositoryUrl: z
-    .string()
-    .url('Must be a valid URL')
-    .refine(url => url.includes('github.com'), 'Must be a GitHub repository URL'),
+  repositoryUrl: z.url().refine(url => url.includes('github.com'), 'Must be a GitHub repository URL'),
 });
 
 const installFromGithubRoute = new Hono().post(
   '/from-github',
-  describeRoute({
-    summary: 'Install repository from GitHub',
-    description: 'Install a repository directly from a GitHub URL with real-time progress updates via Server-Sent Events',
-    responses: {
-      200: {
-        description: 'Repository installation progress (Server-Sent Events)',
-      },
-      400: {
-        description: 'Installation error or validation failed',
-      },
-    },
-    tags: ['Repository Install'],
-  }),
+  describeRoute({ description: 'Install repository from GitHub (SSE)', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
   getUser,
   zValidator('json', githubInstallSchema),
   async c => {
@@ -491,6 +476,8 @@ const installFromGithubRoute = new Hono().post(
           message: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
           status: 'error',
         });
+      } finally {
+        await stream.close();
       }
     });
   }

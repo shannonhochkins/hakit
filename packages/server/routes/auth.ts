@@ -6,16 +6,7 @@ import { describeRoute } from 'hono-openapi';
 const authRoute = new Hono()
   .get(
     '/login',
-    describeRoute({
-      summary: 'Initiate login',
-      description: 'Redirect to Kinde login page',
-      responses: {
-        302: {
-          description: 'Redirect to Kinde login page',
-        },
-      },
-      tags: ['Authentication'],
-    }),
+    describeRoute({ description: 'Login redirect', tags: ['Auth'], responses: { 302: { description: 'Redirect' } } }),
     async c => {
       const loginUrl = await kindeClient.login(sessionManager(c));
       return c.redirect(loginUrl.toString());
@@ -23,16 +14,7 @@ const authRoute = new Hono()
   )
   .get(
     '/register',
-    describeRoute({
-      summary: 'Initiate registration',
-      description: 'Redirect to Kinde registration page',
-      responses: {
-        302: {
-          description: 'Redirect to Kinde registration page',
-        },
-      },
-      tags: ['Authentication'],
-    }),
+    describeRoute({ description: 'Register redirect', tags: ['Auth'], responses: { 302: { description: 'Redirect' } } }),
     async c => {
       const registerUrl = await kindeClient.register(sessionManager(c));
       return c.redirect(registerUrl.toString());
@@ -40,16 +22,7 @@ const authRoute = new Hono()
   )
   .get(
     '/callback',
-    describeRoute({
-      summary: 'Authentication callback',
-      description: 'Handle authentication callback from Kinde',
-      responses: {
-        302: {
-          description: 'Redirect to application after successful authentication',
-        },
-      },
-      tags: ['Authentication'],
-    }),
+    describeRoute({ description: 'Auth callback', tags: ['Auth'], responses: { 302: { description: 'Redirect' } } }),
     async c => {
       // get called every time we login or register
       const url = new URL(c.req.url);
@@ -59,16 +32,7 @@ const authRoute = new Hono()
   )
   .get(
     '/logout',
-    describeRoute({
-      summary: 'Initiate logout',
-      description: 'Redirect to Kinde logout page',
-      responses: {
-        302: {
-          description: 'Redirect to Kinde logout page',
-        },
-      },
-      tags: ['Authentication'],
-    }),
+    describeRoute({ description: 'Logout redirect', tags: ['Auth'], responses: { 302: { description: 'Redirect' } } }),
     async c => {
       const logoutUrl = await kindeClient.logout(sessionManager(c));
       return c.redirect(logoutUrl.toString());
@@ -76,19 +40,7 @@ const authRoute = new Hono()
   )
   .get(
     '/me',
-    describeRoute({
-      summary: 'Get current user',
-      description: 'Get the currently authenticated user information',
-      responses: {
-        200: {
-          description: 'User information retrieved successfully',
-        },
-        401: {
-          description: 'User not authenticated',
-        },
-      },
-      tags: ['Authentication'],
-    }),
+    describeRoute({ description: 'Current user', tags: ['Auth'], responses: { 200: { description: 'OK' } } }),
     getUser,
     async c => {
       const user = c.var.user;
