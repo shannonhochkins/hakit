@@ -159,6 +159,11 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           breakpoints: breakpointItems,
         });
 
+        toast('Saved successfully', {
+          type: 'success',
+          theme: 'dark',
+        });
+
         // Reset so we can determine and track unsaved changes
         setUnsavedPuckPageData(null);
 
