@@ -162,12 +162,14 @@ export function useUnsavedChanges(): UnsavedChangesState {
     if (!dashboard || !page) {
       toast('Dashboard or page unavailable, unable to restore', {
         type: 'error',
+        theme: 'dark',
       });
       return;
     }
     if (!userConfig) {
       toast('User configuration is missing, unable to restore', {
         type: 'error',
+        theme: 'dark',
       });
       return;
     }
@@ -175,6 +177,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
     if (!updated) {
       toast('Failed to trim stored data to user config, unable to restore', {
         type: 'error',
+        theme: 'dark',
       });
       return;
     }

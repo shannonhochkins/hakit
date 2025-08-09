@@ -33,9 +33,11 @@ export default defineConfig([
     rules: {
       'react/react-in-jsx-scope': 'off', // 👈 turn off the outdated rule
     },
+  },
+  {
     settings: {
       react: {
-        version: 'detect',
+        version: 'detect', // React version. "detect" automatically picks the version you have installed.
       },
     },
   },

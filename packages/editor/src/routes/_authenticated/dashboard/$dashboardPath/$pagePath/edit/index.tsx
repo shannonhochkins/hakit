@@ -11,6 +11,7 @@ export const Route = createFileRoute('/_authenticated/dashboard/$dashboardPath/$
 function RouteComponent() {
   // get the path param from /editor:/id with tanstack router
   const params = Route.useParams();
+
   return (
     <PuckPreload dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
       <RecoveryPrompt>

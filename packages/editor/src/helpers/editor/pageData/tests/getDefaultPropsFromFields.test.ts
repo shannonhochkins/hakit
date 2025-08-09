@@ -62,8 +62,8 @@ describe('getDefaultPropsFromFields', () => {
     });
   });
 
-  describe('object fields - THE POTENTIAL CULPRIT', () => {
-    test('CRITICAL: should handle object field like defaultRoot background config', async () => {
+  describe('object fields', () => {
+    test('should handle object field like defaultRoot background config', async () => {
       // This mimics the exact structure from defaultRoot.tsx
       const fields: FieldConfiguration = {
         background: {

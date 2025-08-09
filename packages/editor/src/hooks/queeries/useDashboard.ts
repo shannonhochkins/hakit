@@ -32,6 +32,7 @@ export function useDashboard(dashboardPath?: string) {
 
       toast.error(`Dashboard Error: ${errorMessage}`, {
         position: 'top-right',
+        theme: 'dark',
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,

@@ -11,6 +11,7 @@ import { useRef, useEffect } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
+import { EditorShortcuts } from './EditorShortcuts';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
@@ -61,6 +62,7 @@ export function Editor() {
       if (!dashboard) {
         toast('No dashboard data available', {
           type: 'error',
+          theme: 'dark',
         });
         return;
       }
@@ -69,6 +71,7 @@ export function Editor() {
       if (!currentPage) {
         toast(`No page found with path: ${pagePath}`, {
           type: 'error',
+          theme: 'dark',
         });
         return;
       }
@@ -121,6 +124,7 @@ export function Editor() {
       >
         <PuckLayout />
       </Puck>
+      <EditorShortcuts />
     </div>
   );
 }
