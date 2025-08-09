@@ -4,9 +4,26 @@ import { formatErrorResponse } from '../helpers/formatErrorResponse';
 import { deleteFile, uploadImage } from '../helpers/upload';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
+import { describeRoute } from 'hono-openapi';
 
 const uploadRoute = new Hono()
-  .post('/image', getUser, async c => {
+  .post(
+    '/image',
+    describeRoute({
+      summary: 'Upload an image',
+      description: 'Upload an image file for the authenticated user',
+      responses: {
+        200: {
+          description: 'Image uploaded successfully',
+        },
+        400: {
+          description: 'Upload error or validation failed',
+        },
+      },
+      tags: ['Upload'],
+    }),
+    getUser,
+    async c => {
     try {
       const body = await c.req.parseBody();
       if (!body.file) {
@@ -32,6 +49,19 @@ const uploadRoute = new Hono()
   })
   .delete(
     '/image',
+    describeRoute({
+      summary: 'Delete an image',
+      description: 'Delete an uploaded image file for the authenticated user',
+      responses: {
+        200: {
+          description: 'Image deleted successfully',
+        },
+        400: {
+          description: 'Delete error or validation failed',
+        },
+      },
+      tags: ['Upload'],
+    }),
     getUser,
     zValidator(
       'json',

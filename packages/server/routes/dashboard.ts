@@ -89,6 +89,7 @@ const dashboardRoute = new Hono()
         },
       },
       tags: ['Dashboard'],
+      hide: process.env.NODE_ENV === 'production',
     }),
     getUser,
     zValidator(
@@ -144,6 +145,19 @@ const dashboardRoute = new Hono()
   )
   .get(
     '/:dashboardPath/data',
+    describeRoute({
+      summary: 'Get dashboard with page data',
+      description: 'Retrieve a dashboard with all page data included by dashboard path',
+      responses: {
+        200: {
+          description: 'Dashboard with page data retrieved successfully',
+        },
+        400: {
+          description: 'Dashboard not found or validation error',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -205,6 +219,19 @@ const dashboardRoute = new Hono()
   // get a full page object with the data
   .get(
     '/:id/page/:pageId',
+    describeRoute({
+      summary: 'Get dashboard page',
+      description: 'Retrieve a specific page with its data from a dashboard',
+      responses: {
+        200: {
+          description: 'Page retrieved successfully',
+        },
+        400: {
+          description: 'Dashboard or page not found',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -314,6 +341,19 @@ const dashboardRoute = new Hono()
   // delete a dashboard
   .delete(
     '/:id',
+    describeRoute({
+      summary: 'Delete dashboard',
+      description: 'Delete a dashboard and all its pages for the authenticated user',
+      responses: {
+        200: {
+          description: 'Dashboard deleted successfully',
+        },
+        400: {
+          description: 'Dashboard not found or deletion failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -340,6 +380,19 @@ const dashboardRoute = new Hono()
   // delete a dashboard page
   .delete(
     '/:id/page/:pageId',
+    describeRoute({
+      summary: 'Delete dashboard page',
+      description: 'Delete a specific page from a dashboard',
+      responses: {
+        200: {
+          description: 'Dashboard page deleted successfully',
+        },
+        400: {
+          description: 'Dashboard or page not found, or deletion failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -378,6 +431,19 @@ const dashboardRoute = new Hono()
   // update a dashboard page
   .put(
     '/:id/page/:pageId',
+    describeRoute({
+      summary: 'Update dashboard page',
+      description: 'Update a specific page within a dashboard (name, path, thumbnail, or data)',
+      responses: {
+        200: {
+          description: 'Dashboard page updated successfully',
+        },
+        400: {
+          description: 'Dashboard or page not found, or update failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -437,6 +503,19 @@ const dashboardRoute = new Hono()
   // update a dashboard
   .put(
     '/:id',
+    describeRoute({
+      summary: 'Update dashboard',
+      description: 'Update dashboard details (name, path, data, breakpoints, or thumbnail)',
+      responses: {
+        200: {
+          description: 'Dashboard updated successfully',
+        },
+        400: {
+          description: 'Dashboard not found or update failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -546,6 +625,19 @@ const dashboardRoute = new Hono()
   // create a new page for a dashboard
   .post(
     '/:id/page',
+    describeRoute({
+      summary: 'Create dashboard page',
+      description: 'Create a new page within an existing dashboard',
+      responses: {
+        200: {
+          description: 'Dashboard page created successfully',
+        },
+        400: {
+          description: 'Dashboard not found or page creation failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator('json', insertDashboardPageSchema),
     zValidator(
@@ -603,6 +695,19 @@ const dashboardRoute = new Hono()
   // duplicate a dashboard with all its pages
   .post(
     '/:id/duplicate',
+    describeRoute({
+      summary: 'Duplicate dashboard',
+      description: 'Create a copy of an existing dashboard with all its pages',
+      responses: {
+        200: {
+          description: 'Dashboard duplicated successfully',
+        },
+        400: {
+          description: 'Dashboard not found or duplication failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -687,6 +792,19 @@ const dashboardRoute = new Hono()
   // duplicate a page within the same dashboard
   .post(
     '/:id/page/:pageId/duplicate',
+    describeRoute({
+      summary: 'Duplicate dashboard page',
+      description: 'Create a copy of an existing page within the same dashboard',
+      responses: {
+        200: {
+          description: 'Dashboard page duplicated successfully',
+        },
+        400: {
+          description: 'Dashboard or page not found, or duplication failed',
+        },
+      },
+      tags: ['Dashboard'],
+    }),
     getUser,
     zValidator(
       'param',

@@ -5,11 +5,25 @@ import { repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
+import { describeRoute } from 'hono-openapi';
 
 const searchRoute = new Hono()
   // Unified search endpoint - handles both search and popular/recent repositories
   .get(
     '/',
+    describeRoute({
+      summary: 'Search repositories',
+      description: 'Search public repositories or get popular repositories. Supports filtering by search terms, pagination, and sorting.',
+      responses: {
+        200: {
+          description: 'Search results retrieved successfully',
+        },
+        400: {
+          description: 'Error searching repositories',
+        },
+      },
+      tags: ['Repository Search'],
+    }),
     zValidator(
       'query',
       z.object({

@@ -7,10 +7,27 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../kinde';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
+import { describeRoute } from 'hono-openapi';
 
 const userRepositoriesRoute = new Hono()
   // Get user's connected repositories
-  .get('/', getUser, async c => {
+  .get(
+    '/',
+    describeRoute({
+      summary: 'Get user repositories',
+      description: 'Retrieve all repositories connected by the authenticated user with component preferences',
+      responses: {
+        200: {
+          description: 'User repositories retrieved successfully',
+        },
+        400: {
+          description: 'Error fetching user repositories',
+        },
+      },
+      tags: ['User Repositories'],
+    }),
+    getUser,
+    async c => {
     try {
       const user = c.var.user;
 
@@ -71,6 +88,19 @@ const userRepositoriesRoute = new Hono()
   // Connect user to a repository (install)
   .post(
     '/',
+    describeRoute({
+      summary: 'Connect user to repository',
+      description: 'Install a repository for the authenticated user by connecting to a specific version',
+      responses: {
+        201: {
+          description: 'Repository connected successfully',
+        },
+        400: {
+          description: 'Repository not found, already connected, or connection failed',
+        },
+      },
+      tags: ['User Repositories'],
+    }),
     getUser,
     zValidator(
       'json',
@@ -151,6 +181,19 @@ const userRepositoriesRoute = new Hono()
   // Update user's repository version (upgrade/downgrade)
   .put(
     '/:userRepoId',
+    describeRoute({
+      summary: 'Update repository version',
+      description: 'Update the version of a connected repository (upgrade or downgrade)',
+      responses: {
+        200: {
+          description: 'Repository version updated successfully',
+        },
+        400: {
+          description: 'User repository not found, version not found, or update failed',
+        },
+      },
+      tags: ['User Repositories'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -258,6 +301,19 @@ const userRepositoriesRoute = new Hono()
   // Disconnect user from repository (uninstall)
   .delete(
     '/:userRepoId',
+    describeRoute({
+      summary: 'Disconnect from repository',
+      description: 'Disconnect the authenticated user from a repository (uninstall)',
+      responses: {
+        200: {
+          description: 'Repository disconnected successfully',
+        },
+        400: {
+          description: 'User repository not found or disconnection failed',
+        },
+      },
+      tags: ['User Repositories'],
+    }),
     getUser,
     zValidator(
       'param',
@@ -293,6 +349,19 @@ const userRepositoriesRoute = new Hono()
   // Toggle component enabled/disabled status for a user repository
   .put(
     '/:userRepoId/components/:componentName/toggle',
+    describeRoute({
+      summary: 'Toggle component status',
+      description: 'Enable or disable a specific component within a connected repository',
+      responses: {
+        200: {
+          description: 'Component preference updated successfully',
+        },
+        400: {
+          description: 'User repository not found, component not found, or update failed',
+        },
+      },
+      tags: ['User Repositories'],
+    }),
     getUser,
     zValidator(
       'param',
