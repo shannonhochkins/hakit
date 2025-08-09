@@ -3,13 +3,15 @@ import { db } from '../../db';
 import { eq, and, desc, ilike, or, sql, count, type SQL } from 'drizzle-orm';
 import { repositoriesTable, repositoryVersionsTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
+import { describeRoute } from 'hono-openapi';
 
 const searchRoute = new Hono()
   // Unified search endpoint - handles both search and popular/recent repositories
   .get(
     '/',
+    describeRoute({ description: 'Search repositories', tags: ['Repositories'], responses: { 200: { description: 'OK' } } }),
     zValidator(
       'query',
       z.object({
@@ -22,7 +24,7 @@ const searchRoute = new Hono()
           .string()
           .optional()
           .transform(val => (val ? parseInt(val) : 0)),
-        sortBy: z.enum(['popularity', 'updated']).optional().default('popularity'),
+        sortBy: z.enum(['popularity', 'updated']).optional().prefault('popularity'),
       })
     ),
     async c => {

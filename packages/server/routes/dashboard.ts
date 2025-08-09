@@ -6,10 +6,11 @@ import { insertDashboardSchema, insertDashboardPageSchema, updateDashboardPageSc
 import { zValidator } from '@hono/zod-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../kinde';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import type { PuckPageData } from '@typings/puck';
 import { serializeWithUndefined, deserializePageData } from '../../shared/helpers/customSerialize';
 import { formatErrorResponse } from '../helpers/formatErrorResponse';
+import { describeRoute } from 'hono-openapi';
 
 // Predefined default pages
 const defaultPages = [
@@ -76,6 +77,7 @@ const dashboardRoute = new Hono()
   // get a full dashboard object without the page data
   .get(
     '/:dashboardPath',
+    describeRoute({ description: 'Get dashboard without page data', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -130,6 +132,7 @@ const dashboardRoute = new Hono()
   )
   .get(
     '/:dashboardPath/data',
+    describeRoute({ description: 'Get dashboard with page data', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -191,6 +194,7 @@ const dashboardRoute = new Hono()
   // get a full page object with the data
   .get(
     '/:id/page/:pageId',
+    describeRoute({ description: 'Get a page with data', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -240,49 +244,55 @@ const dashboardRoute = new Hono()
     }
   )
   // get all dashboards and pages without the page data
-  .get('/', getUser, async c => {
-    try {
-      const user = c.var.user;
+  .get(
+    '/',
+    describeRoute({ description: 'List dashboards', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
+    getUser,
+    async c => {
+      try {
+        const user = c.var.user;
 
-      // Get all dashboards
-      const dashboards = await db.select().from(dashboardTable).where(eq(dashboardTable.userId, user.id));
+        // Get all dashboards
+        const dashboards = await db.select().from(dashboardTable).where(eq(dashboardTable.userId, user.id));
 
-      // Get pages for each dashboard and combine them
-      const dashboardsWithPages = await Promise.all(
-        dashboards.map(async dashboard => {
-          const pages = await db
-            .select({
-              id: pagesTable.id,
-              name: pagesTable.name,
-              thumbnail: pagesTable.thumbnail,
-              updatedAt: pagesTable.updatedAt,
-              createdAt: pagesTable.createdAt,
-              path: pagesTable.path,
-              dashboardId: pagesTable.dashboardId,
-            })
-            .from(pagesTable)
-            .where(eq(pagesTable.dashboardId, dashboard.id));
+        // Get pages for each dashboard and combine them
+        const dashboardsWithPages = await Promise.all(
+          dashboards.map(async dashboard => {
+            const pages = await db
+              .select({
+                id: pagesTable.id,
+                name: pagesTable.name,
+                thumbnail: pagesTable.thumbnail,
+                updatedAt: pagesTable.updatedAt,
+                createdAt: pagesTable.createdAt,
+                path: pagesTable.path,
+                dashboardId: pagesTable.dashboardId,
+              })
+              .from(pagesTable)
+              .where(eq(pagesTable.dashboardId, dashboard.id));
 
-          return {
-            ...dashboard,
-            pages,
-          };
-        })
-      );
+            return {
+              ...dashboard,
+              pages,
+            };
+          })
+        );
 
-      return c.json(
-        {
-          dashboards: dashboardsWithPages,
-        },
-        200
-      );
-    } catch (error) {
-      return c.json(formatErrorResponse('Error', error), 400);
+        return c.json(
+          {
+            dashboards: dashboardsWithPages,
+          },
+          200
+        );
+      } catch (error) {
+        return c.json(formatErrorResponse('Error', error), 400);
+      }
     }
-  })
+  )
   // delete a dashboard
   .delete(
     '/:id',
+    describeRoute({ description: 'Delete dashboard', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -309,6 +319,7 @@ const dashboardRoute = new Hono()
   // delete a dashboard page
   .delete(
     '/:id/page/:pageId',
+    describeRoute({ description: 'Delete a page', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -347,6 +358,7 @@ const dashboardRoute = new Hono()
   // update a dashboard page
   .put(
     '/:id/page/:pageId',
+    describeRoute({ description: 'Update a page', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -406,6 +418,7 @@ const dashboardRoute = new Hono()
   // update a dashboard
   .put(
     '/:id',
+    describeRoute({ description: 'Update dashboard', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -446,57 +459,68 @@ const dashboardRoute = new Hono()
     }
   )
   // create a new dashboard with a default page
-  .post('/', getUser, zValidator('json', insertDashboardSchema), async c => {
-    try {
-      const user = c.var.user;
-      const { data = {}, name, path, thumbnail } = await c.req.valid('json');
-      const [dashboardRecord] = await db
-        .insert(dashboardTable)
-        .values({
-          id: generateId(),
-          userId: user.id,
-          name,
-          path,
-          // TODO - Sanitize input data
-          data,
-          thumbnail: thumbnail,
-        })
-        .returning();
+  .post(
+    '/',
+    describeRoute({
+      description: 'Create dashboard (with default page)',
+      tags: ['Dashboard'],
+      responses: { 201: { description: 'Created' } },
+    }),
+    getUser,
+    zValidator('json', insertDashboardSchema),
+    async c => {
+      try {
+        const user = c.var.user;
+        const { data = {}, name, path, thumbnail } = await c.req.valid('json');
+        const [dashboardRecord] = await db
+          .insert(dashboardTable)
+          .values({
+            id: generateId(),
+            userId: user.id,
+            name,
+            path,
+            // TODO - Sanitize input data
+            data,
+            thumbnail: thumbnail,
+          })
+          .returning();
 
-      const defaultPage = await getAvailableDefaultPage(dashboardRecord.id);
+        const defaultPage = await getAvailableDefaultPage(dashboardRecord.id);
 
-      const [page] = await db
-        .insert(pagesTable)
-        .values({
-          id: generateId(),
-          dashboardId: dashboardRecord.id,
-          name: defaultPage.name,
-          path: defaultPage.path,
-          data: serializeWithUndefined(createDefaultPageConfiguration()),
-        })
-        .returning();
+        const [page] = await db
+          .insert(pagesTable)
+          .values({
+            id: generateId(),
+            dashboardId: dashboardRecord.id,
+            name: defaultPage.name,
+            path: defaultPage.path,
+            data: serializeWithUndefined(createDefaultPageConfiguration()),
+          })
+          .returning();
 
-      return c.json(
-        {
-          dashboard: {
-            ...dashboardRecord,
-            pages: [
-              {
-                ...page,
-                data: deserializePageData(page.data),
-              },
-            ],
+        return c.json(
+          {
+            dashboard: {
+              ...dashboardRecord,
+              pages: [
+                {
+                  ...page,
+                  data: deserializePageData(page.data),
+                },
+              ],
+            },
           },
-        },
-        201
-      );
-    } catch (error) {
-      return c.json(formatErrorResponse('Error', error), 400);
+          201
+        );
+      } catch (error) {
+        return c.json(formatErrorResponse('Error', error), 400);
+      }
     }
-  })
+  )
   // create a new page for a dashboard
   .post(
     '/:id/page',
+    describeRoute({ description: 'Create a page', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator('json', insertDashboardPageSchema),
     zValidator(
@@ -554,6 +578,7 @@ const dashboardRoute = new Hono()
   // duplicate a dashboard with all its pages
   .post(
     '/:id/duplicate',
+    describeRoute({ description: 'Duplicate dashboard', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',
@@ -638,6 +663,7 @@ const dashboardRoute = new Hono()
   // duplicate a page within the same dashboard
   .post(
     '/:id/page/:pageId/duplicate',
+    describeRoute({ description: 'Duplicate a page', tags: ['Dashboard'], responses: { 200: { description: 'OK' } } }),
     getUser,
     zValidator(
       'param',

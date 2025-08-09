@@ -3,74 +3,89 @@ import { db } from '../../db';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { userRepositoriesTable, repositoriesTable, repositoryVersionsTable, userComponentPreferencesTable } from '../../db/schema/db';
 import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../../kinde';
 import { formatErrorResponse } from '../../helpers/formatErrorResponse';
+import { describeRoute } from 'hono-openapi';
 
 const userRepositoriesRoute = new Hono()
   // Get user's connected repositories
-  .get('/', getUser, async c => {
-    try {
-      const user = c.var.user;
+  .get(
+    '/',
+    describeRoute({
+      description: "List user's connected repositories",
+      tags: ['User Repositories'],
+      responses: { 200: { description: 'OK' } },
+    }),
+    getUser,
+    async c => {
+      try {
+        const user = c.var.user;
 
-      const userRepos = await db
-        .select()
-        .from(userRepositoriesTable)
-        .innerJoin(repositoriesTable, eq(userRepositoriesTable.repositoryId, repositoriesTable.id))
-        .innerJoin(repositoryVersionsTable, eq(userRepositoriesTable.versionId, repositoryVersionsTable.id))
-        .where(eq(userRepositoriesTable.userId, user.id))
-        .orderBy(desc(userRepositoriesTable.connectedAt));
+        const userRepos = await db
+          .select()
+          .from(userRepositoriesTable)
+          .innerJoin(repositoriesTable, eq(userRepositoriesTable.repositoryId, repositoriesTable.id))
+          .innerJoin(repositoryVersionsTable, eq(userRepositoriesTable.versionId, repositoryVersionsTable.id))
+          .where(eq(userRepositoriesTable.userId, user.id))
+          .orderBy(desc(userRepositoriesTable.connectedAt));
 
-      // Get all component preferences for this user in one query
-      const componentPreferences = await db
-        .select()
-        .from(userComponentPreferencesTable)
-        .where(eq(userComponentPreferencesTable.userId, user.id));
+        // Get all component preferences for this user in one query
+        const componentPreferences = await db
+          .select()
+          .from(userComponentPreferencesTable)
+          .where(eq(userComponentPreferencesTable.userId, user.id));
 
-      // Create a map of component preferences by userRepositoryId -> componentName -> enabled
-      const prefsMap = new Map<string, Map<string, boolean>>();
-      for (const pref of componentPreferences) {
-        if (!prefsMap.has(pref.userRepositoryId)) {
-          prefsMap.set(pref.userRepositoryId, new Map());
+        // Create a map of component preferences by userRepositoryId -> componentName -> enabled
+        const prefsMap = new Map<string, Map<string, boolean>>();
+        for (const pref of componentPreferences) {
+          if (!prefsMap.has(pref.userRepositoryId)) {
+            prefsMap.set(pref.userRepositoryId, new Map());
+          }
+          prefsMap.get(pref.userRepositoryId)!.set(pref.componentName, Boolean(pref.enabled));
         }
-        prefsMap.get(pref.userRepositoryId)!.set(pref.componentName, Boolean(pref.enabled));
+
+        // Transform to spread user repository fields at top level with nested repository
+        const transformedRepos = userRepos.map(row => {
+          const userRepoPrefs = prefsMap.get(row.user_repositories.id) || new Map();
+
+          // Filter out components that no longer exist in the current version
+          const validComponents = row.repository_versions.components.filter(
+            component => component.name && typeof component.name === 'string'
+          );
+
+          // Merge components with user preferences
+          const componentsWithPrefs = validComponents.map(component => ({
+            name: component.name,
+            enabled: userRepoPrefs.has(component.name) ? userRepoPrefs.get(component.name)! : true, // Default to enabled
+          }));
+
+          return {
+            ...row.user_repositories,
+            repository: row.repositories,
+            version: {
+              ...row.repository_versions,
+              components: componentsWithPrefs,
+            },
+          };
+        });
+
+        return c.json({ userRepositories: transformedRepos }, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching user repositories', error), 400);
       }
-
-      // Transform to spread user repository fields at top level with nested repository
-      const transformedRepos = userRepos.map(row => {
-        const userRepoPrefs = prefsMap.get(row.user_repositories.id) || new Map();
-
-        // Filter out components that no longer exist in the current version
-        const validComponents = row.repository_versions.components.filter(
-          component => component.name && typeof component.name === 'string'
-        );
-
-        // Merge components with user preferences
-        const componentsWithPrefs = validComponents.map(component => ({
-          name: component.name,
-          enabled: userRepoPrefs.has(component.name) ? userRepoPrefs.get(component.name)! : true, // Default to enabled
-        }));
-
-        return {
-          ...row.user_repositories,
-          repository: row.repositories,
-          version: {
-            ...row.repository_versions,
-            components: componentsWithPrefs,
-          },
-        };
-      });
-
-      return c.json({ userRepositories: transformedRepos }, 200);
-    } catch (error) {
-      return c.json(formatErrorResponse('Error fetching user repositories', error), 400);
     }
-  })
+  )
 
   // Connect user to a repository (install)
   .post(
     '/',
+    describeRoute({
+      description: 'Connect user to a repository',
+      tags: ['User Repositories'],
+      responses: { 201: { description: 'Created' } },
+    }),
     getUser,
     zValidator(
       'json',
@@ -151,6 +166,11 @@ const userRepositoriesRoute = new Hono()
   // Update user's repository version (upgrade/downgrade)
   .put(
     '/:userRepoId',
+    describeRoute({
+      description: "Update user's repository version",
+      tags: ['User Repositories'],
+      responses: { 200: { description: 'OK' } },
+    }),
     getUser,
     zValidator(
       'param',
@@ -258,6 +278,11 @@ const userRepositoriesRoute = new Hono()
   // Disconnect user from repository (uninstall)
   .delete(
     '/:userRepoId',
+    describeRoute({
+      description: 'Disconnect user from repository',
+      tags: ['User Repositories'],
+      responses: { 200: { description: 'OK' } },
+    }),
     getUser,
     zValidator(
       'param',
@@ -293,6 +318,11 @@ const userRepositoriesRoute = new Hono()
   // Toggle component enabled/disabled status for a user repository
   .put(
     '/:userRepoId/components/:componentName/toggle',
+    describeRoute({
+      description: 'Toggle component enabled/disabled',
+      tags: ['User Repositories'],
+      responses: { 200: { description: 'OK' } },
+    }),
     getUser,
     zValidator(
       'param',
