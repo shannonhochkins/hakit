@@ -65,11 +65,6 @@ const getKeyCode = (key: string) => {
 };
 
 /**
- * 
- * @param shortcuts 
- * @param active 
- * @param dependencies 
- * @param eventType 
  * @example
  *   useKeyboardShortcuts([
       { keys: ["ctrl", "a"], onEvent: event => alert("ctrl + a was pressed") },
@@ -100,7 +95,6 @@ const getKeyCode = (key: string) => {
 
     return <div>...</div>
   }
- * @returns 
  */
 export const useKeyboardShortcuts = (shortcuts: Shortcut[], active = true, eventType: 'keydown' | 'wheel' = 'keydown'): void => {
   if (!ALLOWED_EVENTS.includes(eventType))
@@ -126,7 +120,7 @@ export const useKeyboardShortcuts = (shortcuts: Shortcut[], active = true, event
         if (!valid || !(singleKey || getKeyCode(keys[0]) === event.code)) return;
       }
 
-      // If the targetted element is a input for example, and the user doesn't
+      // If the targeted element is a input for example, and the user doesn't
       // press ctrl or meta or escape it probably means that they are trying to type in the
       // input field
       const writing =
