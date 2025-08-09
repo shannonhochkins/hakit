@@ -475,6 +475,7 @@ export function Dashboards() {
         if (!matchedDashboard) {
           toast('Dashboard not found', {
             type: 'error',
+            theme: 'dark',
           });
           return;
         }
@@ -511,6 +512,7 @@ export function Dashboards() {
         if (!matchedDashboard) {
           toast('Dashboard not found', {
             type: 'error',
+            theme: 'dark',
           });
           return;
         }
@@ -518,6 +520,7 @@ export function Dashboards() {
         if (!pagePath) {
           toast('Page not found', {
             type: 'error',
+            theme: 'dark',
           });
           return;
         }

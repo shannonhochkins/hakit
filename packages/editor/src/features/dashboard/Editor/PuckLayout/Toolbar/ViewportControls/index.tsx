@@ -247,6 +247,7 @@ export const ViewportControls = () => {
       if (!dashboard) {
         toast('Dashboard not found', {
           type: 'error',
+          theme: 'dark',
         });
       } else {
         updateDashboardForUser(

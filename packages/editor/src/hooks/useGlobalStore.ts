@@ -7,6 +7,7 @@ import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
 import { BreakPoint } from '@hakit/components';
 import { DefaultComponentProps } from '@measured/puck';
+import { toast } from 'react-toastify';
 
 type ComponentId = string;
 type FieldDotNotatedKey = string;
@@ -52,9 +53,13 @@ type PuckConfigurationStore = {
   setEditorMode: (editorMode: boolean) => void;
   componentBreakpointMap: ComponentBreakpointModeMap;
   setComponentBreakpointMap: (componentBreakpointMap: ComponentBreakpointModeMap) => void;
+  // Actions object for centralized operations
+  actions: {
+    save: (pagePath?: string, callback?: () => void) => Promise<void>;
+  };
 };
 
-export const useGlobalStore = create<PuckConfigurationStore>(set => {
+export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
   let nextId = 0;
   return {
     previewCanvasWidth: 0,
@@ -117,5 +122,51 @@ export const useGlobalStore = create<PuckConfigurationStore>(set => {
     },
     setEditorMode: (editorMode: boolean) => set(state => ({ ...state, editorMode })),
     editorMode: false,
+
+    // Actions object for centralized operations
+    actions: {
+      save: async (pagePath?: string, callback?: () => void) => {
+        const { updateDashboardPageForUser, updateDashboardForUser } = await import('@services/dashboard');
+        const state = get();
+        const { unsavedPuckPageData, setUnsavedPuckPageData, dashboard, breakpointItems } = state;
+
+        if (!unsavedPuckPageData) return;
+        if (!dashboard) {
+          toast('Dashboard not found', {
+            type: 'error',
+            theme: 'dark',
+          });
+          return;
+        }
+
+        const page = dashboard.pages.find(page => page.path === pagePath);
+        if (!page) {
+          toast(`No page found with path ${pagePath}`, {
+            type: 'error',
+            theme: 'dark',
+          });
+          return;
+        }
+
+        // Perform the save
+        await updateDashboardPageForUser(dashboard.id, {
+          id: page.id,
+          data: unsavedPuckPageData,
+        });
+
+        await updateDashboardForUser({
+          id: dashboard.id,
+          breakpoints: breakpointItems,
+        });
+
+        // Reset so we can determine and track unsaved changes
+        setUnsavedPuckPageData(null);
+
+        // callback after successful save
+        if (callback) {
+          callback();
+        }
+      },
+    },
   };
 });

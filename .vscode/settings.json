@@ -1,9 +1,17 @@
 {
   "eslint.useFlatConfig": true,
-  "eslint.trace.server": "messages",
+  "eslint.trace.server": "verbose",
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
-  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.options": {
+    "overrideConfigFile": "./eslint.config.js"
+  },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {

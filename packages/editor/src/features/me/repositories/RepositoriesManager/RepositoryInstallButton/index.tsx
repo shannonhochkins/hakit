@@ -29,7 +29,9 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
       const latestVersion = versions.find(v => v.version === repository.repository.latestVersion) || versions[0];
 
       if (!latestVersion) {
-        toast.error('No versions available for this repository');
+        toast.error('No versions available for this repository', {
+          theme: 'dark',
+        });
         return;
       }
       return connectRepository(repository.repository.id, latestVersion.id, {
@@ -115,7 +117,9 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
     if (userRepoId) {
       disconnectRepoMutation.mutate(userRepoId);
     } else {
-      toast.error('Repository not found for uninstallation');
+      toast.error('Repository not found for uninstallation', {
+        theme: 'dark',
+      });
     }
   };
 
