@@ -11,7 +11,6 @@
         "@google-cloud/storage": "^7.15.2",
         "@hakit/components": "^5.1.1",
         "@hakit/core": "^5.1.1",
-        "@hono/swagger-ui": "^0.5.2",
         "@hono/zod-validator": "^0.7.2",
         "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
         "@octokit/rest": "^22.0.0",
@@ -502,8 +501,6 @@
     "@hakit/core": ["@hakit/core@5.1.1", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-2luIi28w37iqu7zLpoXS7GvSFC4fscURQ6+3H+8JoYDZh/Wbi+WparEOboD+mQeu0CF/9m6fPYnibYTOfu2DfQ=="],
 
     "@happy-dom/global-registrator": ["@happy-dom/global-registrator@17.6.3", "", { "dependencies": { "happy-dom": "^17.6.3" } }, "sha512-SE8Mu6bdkgKENemVg20yMrKdYeAvVesQrLPVfNBKnhicCM3ylHV9oIDzDMxSFj3qYCrHrIWOZsItOXSafrM4Tw=="],
-
-    "@hono/swagger-ui": ["@hono/swagger-ui@0.5.2", "", { "peerDependencies": { "hono": "*" } }, "sha512-7wxLKdb8h7JTdZ+K8DJNE3KXQMIpJejkBTQjrYlUWF28Z1PGOKw6kUykARe5NTfueIN37jbyG/sBYsbzXzG53A=="],
 
     "@hono/zod-validator": ["@hono/zod-validator@0.7.2", "", { "peerDependencies": { "hono": ">=3.9.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ=="],
 
