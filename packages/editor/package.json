@@ -23,9 +23,7 @@
     "monaco-editor": "^0.52.2",
     "monaco-yaml": "^5.3.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "react-error-boundary": "^6.0.0",
-    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.3",
     "react-window": "^1.8.11"
   },
@@ -38,7 +36,6 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.0.01",
-    "@types/react-dom": "~19.0.0",
     "typescript": "^5.7.2"
   }
 }

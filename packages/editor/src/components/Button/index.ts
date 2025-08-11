@@ -2,6 +2,7 @@
 export { PrimaryButton } from './Primary';
 export { SecondaryButton } from './Secondary';
 export { Fab } from './Fab';
+export { BaseButton } from './BaseButton';
 
 // Type exports
 export type { PrimaryButtonProps } from './Primary';

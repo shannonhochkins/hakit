@@ -100,8 +100,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             --color-gray-950: rgb(3, 7, 18);
 
             /* Semantic Colors */
-            --color-surface: var(--color-gray-900);
+            --color-surface: var(--color-gray-850);
             --color-surface-elevated: var(--color-gray-800);
+            --color-surface-inset: var(--color-gray-900);
             --color-surface-muted: var(--color-gray-850);
             --color-surface-overlay: rgba(3, 7, 18, 0.8);
             --color-border: var(--color-gray-700);

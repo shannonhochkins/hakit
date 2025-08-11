@@ -37,14 +37,7 @@ export function PageSelector() {
         value={value}
         options={pages}
         size='small'
-        startAdornment={
-          <Layers
-            size={36}
-            style={{
-              marginRight: '0.5rem',
-            }}
-          />
-        }
+        startAdornment={<Layers size={36} />}
         getOptionLabel={option => option.title}
         onChange={event => {
           const value = event?.target.value;

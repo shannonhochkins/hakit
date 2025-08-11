@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
-import ReactMarkdown from 'react-markdown';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Spinner } from '@components/Spinner';
 import { Row, Column } from '@hakit/components';
@@ -30,6 +29,7 @@ import {
 import { formatNumber } from '@helpers/number';
 import { timeAgo } from '@hakit/core';
 import { Octokit } from '@octokit/rest';
+import { MarkdownRenderer } from '@components/Markdown/MarkdownRenderer';
 
 // Create Octokit instance (no auth needed for public repos)
 const octokit = new Octokit();
@@ -203,87 +203,6 @@ const ErrorTitle = styled.h2`
 const ErrorDescription = styled.p`
   color: var(--color-text-muted);
   margin: 0 0 var(--space-4) 0;
-`;
-
-const MarkdownContent = styled.div`
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: var(--color-text-primary);
-    margin-top: var(--space-6);
-    margin-bottom: var(--space-3);
-    font-weight: var(--font-weight-semibold);
-  }
-
-  h1 {
-    font-size: var(--font-size-2xl);
-  }
-  h2 {
-    font-size: var(--font-size-xl);
-  }
-  h3 {
-    font-size: var(--font-size-lg);
-  }
-
-  p {
-    margin-bottom: var(--space-4);
-  }
-
-  ul,
-  ol {
-    margin-bottom: var(--space-4);
-    padding-left: var(--space-6);
-  }
-
-  li {
-    margin-bottom: var(--space-1);
-  }
-
-  code {
-    background: var(--color-surface-elevated);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-primary);
-  }
-
-  pre {
-    background: var(--color-surface-elevated);
-    padding: var(--space-4);
-    border-radius: var(--radius-md);
-    overflow-x: auto;
-    margin-bottom: var(--space-4);
-
-    code {
-      background: none;
-      padding: 0;
-      font-size: var(--font-size-sm);
-    }
-  }
-
-  blockquote {
-    border-left: 4px solid var(--color-border);
-    padding-left: var(--space-4);
-    margin-left: 0;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-muted);
-  }
-
-  a {
-    color: var(--color-primary-400);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 `;
 
 // GitHub API functions
@@ -617,9 +536,7 @@ export function RepositoryDetail({ repositoryId }: { repositoryId: string }) {
               <span style={{ marginLeft: 'var(--space-2)' }}>Loading README...</span>
             </LoadingContainer>
           ) : (
-            <MarkdownContent>
-              <ReactMarkdown>{readme || '# README\n\nNo README available for this repository.'}</ReactMarkdown>
-            </MarkdownContent>
+            <MarkdownRenderer>{readme || '# README\n\nNo README available for this repository.'}</MarkdownRenderer>
           )}
         </ReadmeContent>
       </ReadmeSection>

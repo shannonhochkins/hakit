@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import styled from '@emotion/styled';
 import { FeatureText } from '@components/FeatureText';
-import { useNavigate } from '@tanstack/react-router';
 
 import {
   LayoutDashboardIcon,
@@ -15,6 +14,7 @@ import {
   SearchIcon,
   Component,
   PlusIcon,
+  AlertTriangle,
 } from 'lucide-react';
 import { Row } from '@hakit/components';
 import { FileRoutesByTo } from '../../../../routeTree.gen';
@@ -61,6 +61,15 @@ const navigationStructure: NavGroupItem[] = [
         icon: <PlusIcon size={16} />,
         label: 'Install',
       },
+    ],
+  },
+  {
+    to: '/me/issues',
+    icon: <AlertTriangle size={18} />,
+    label: 'Issues',
+    subItems: [
+      { to: '/me/issues', icon: <SearchIcon size={16} />, label: 'Issues List' },
+      { to: '/me/issues', icon: <PlusIcon size={16} />, label: 'New Issue' },
     ],
   },
   {
@@ -272,6 +281,28 @@ const SubNavItemLink = styled(Link)`
   }
 `;
 
+const SubNavActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  margin: var(--space-2) 0;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-sm);
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-border);
+  }
+`;
+
 // React Components
 interface SidebarProps {
   open: boolean;
@@ -334,12 +365,10 @@ interface NavGroupProps {
 }
 
 function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
+  const navigate = useNavigate();
   if (!item.subItems || item.subItems.length === 0) {
-    // Simple nav item without sub-items
     return <NavItem to={item.to} icon={item.icon} label={item.label} />;
   }
-
-  // Nav group with expandable sub-items - separate navigation and toggle
   return (
     <>
       <NavItemLink to={item.to} activeOptions={{ exact: false }}>
@@ -363,12 +392,22 @@ function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
       </NavItemLink>
       <SubNavContainer isExpanded={isExpanded}>
         {item.subItems.map(subItem => (
-          <SubNavItem key={subItem.to}>
+          <SubNavItem key={subItem.to + subItem.label}>
             <TreeSpace />
-            <SubNavItemLink to={subItem.to} activeOptions={{ exact: true }}>
-              {subItem.icon}
-              <span>{subItem.label}</span>
-            </SubNavItemLink>
+            {subItem.label === 'New Issue' ? (
+              <SubNavActionButton
+                onClick={() => navigate({ to: '/me/issues', search: { modal: 'new' } })}
+                aria-label='Open new issue dialog'
+              >
+                {subItem.icon}
+                <span>{subItem.label}</span>
+              </SubNavActionButton>
+            ) : (
+              <SubNavItemLink to={subItem.to} activeOptions={{ exact: true }}>
+                {subItem.icon}
+                <span>{subItem.label}</span>
+              </SubNavItemLink>
+            )}
           </SubNavItem>
         ))}
       </SubNavContainer>

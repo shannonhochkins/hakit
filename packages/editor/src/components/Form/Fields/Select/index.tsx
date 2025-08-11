@@ -27,20 +27,34 @@ const StyledSelect = styled(MuiSelect)`
   color: var(--color-text-primary);
   background: var(--color-surface);
   border-radius: var(--radius-md);
+  flex-shrink: 0;
 
-  svg {
-    color: currentColor;
+  /* Ensure the arrow icon sits to the right and does not overlap text */
+  .MuiSelect-icon {
+    right: 10px;
+    color: var(--color-text-secondary);
+  }
+
+  /* Add extra padding on the right to make room for the icon */
+  .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input {
+    padding-right: 36px; /* default */
+  }
+
+  &.MuiInputBase-sizeSmall {
+    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeSmall {
+      padding: 7px 32px 7px 14px; /* top/right/bottom/left; add room for icon */
+    }
+  }
+
+  &.MuiInputBase-sizeMedium {
+    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeMedium {
+      padding: 10px 36px 10px 16px; /* add room for icon */
+    }
   }
 
   .MuiOutlinedInput-notchedOutline {
     border-color: var(--color-border);
     transition: all var(--transition-normal);
-  }
-
-  &.MuiInputBase-sizeSmall {
-    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeSmall {
-      padding: 7px 14px;
-    }
   }
 
   &:hover:not(.Mui-disabled) .MuiOutlinedInput-notchedOutline {
@@ -73,7 +87,7 @@ const StyledSelect = styled(MuiSelect)`
       -webkit-text-fill-color: var(--color-text-muted);
     }
 
-    svg {
+    .MuiSelect-icon {
       color: var(--color-text-muted);
     }
   }
@@ -116,6 +130,12 @@ export const SelectField = <Option,>({
       style={{
         ...style,
         maxWidth: style?.maxWidth ?? '100%',
+      }}
+      displayEmpty
+      renderValue={selected => {
+        const isEmpty = selected === '' || selected === undefined || selected === null;
+        const label = getOptionLabel(selected as Option);
+        return <span style={{ color: isEmpty ? 'var(--color-text-muted)' : undefined }}>{label}</span>;
       }}
       {...props}
     >

@@ -286,6 +286,7 @@ export const ViewportControls = () => {
               width: -1,
             },
           ]}
+          name='breakpoint'
           size='small'
           getOptionLabel={option =>
             option.id === 'new' ? (
@@ -294,13 +295,7 @@ export const ViewportControls = () => {
                 Customize
               </Row>
             ) : (
-              <Row
-                gap='0.5rem'
-                alignItems='center'
-                style={{
-                  paddingRight: 'var(--space-4)',
-                }}
-              >
+              <Row gap='0.5rem' alignItems='center'>
                 {React.createElement(getIconComponent((option as BreakpointItem).icon, (option as BreakpointItem).id), { size: 16 })}
                 {option.title}
               </Row>
