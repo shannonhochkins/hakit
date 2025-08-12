@@ -5,7 +5,6 @@ import {
   ImageIcon,
   List,
   Code,
-  Fullscreen,
   Italic,
   Strikethrough,
   Quote,
@@ -14,10 +13,17 @@ import {
   ListCheck,
   SquareChartGantt,
   SquareChevronRight,
+  FullscreenIcon,
 } from 'lucide-react';
 import { useContext, useState } from 'react';
 import { toast } from 'react-toastify';
 import rehypeSanitize from 'rehype-sanitize';
+
+type MarkdownEditorExtraProps = {
+  onFullscreenToggle?: (isFullscreen: boolean) => void;
+};
+
+type Props = MDEditorProps & MarkdownEditorExtraProps;
 
 const buttonProps = {
   style: {
@@ -73,8 +79,19 @@ const CodePreviewToggle = () => {
   return <SquareChartGantt size={20} onClick={click} />;
 };
 
-export function MarkdownEditor({ value, onChange, ...props }: MDEditorProps) {
+const FullscreenToggle = () => {
+  const { fullscreen, dispatch } = useContext(EditorContext);
+  const click = () => {
+    dispatch?.({
+      fullscreen: !fullscreen,
+    });
+  };
+  return <FullscreenIcon size={20} onClick={click} />;
+};
+
+export function MarkdownEditor({ value, onChange, onFullscreenToggle, ...props }: Props) {
   const [preview, setPreview] = useState<'edit' | 'preview'>('edit');
+  const [fullscreen, setFullscreen] = useState(false);
 
   return (
     <MDEditor
@@ -106,21 +123,25 @@ export function MarkdownEditor({ value, onChange, ...props }: MDEditorProps) {
             setPreview(preview === 'edit' ? 'preview' : 'edit');
           },
         },
-        { ...commands.fullscreen, buttonProps, icon: <Fullscreen size={20} /> },
+        {
+          ...commands.fullscreen,
+          buttonProps,
+          icon: <FullscreenToggle />,
+          execute: () => {
+            onFullscreenToggle?.(!fullscreen);
+            setFullscreen(!fullscreen);
+          },
+        },
       ]}
       enableScroll
       minHeight={160}
+      fullscreen={fullscreen}
       preview={preview}
       style={{ width: '100%', background: 'var(--color-surface-inset)' }}
-      onChange={(value, event) => {
-        console.log('event', event);
-        return onChange && onChange(value);
-      }}
+      onChange={val => onChange && onChange(val)}
       value={value}
       previewOptions={{
-        style: {
-          background: 'transparent',
-        },
+        style: { background: 'transparent' },
         rehypePlugins: [[rehypeSanitize]],
       }}
       {...props}

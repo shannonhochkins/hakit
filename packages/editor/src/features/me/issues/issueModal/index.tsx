@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { Column, Row } from '@hakit/components';
 import { Modal } from '@components/Modal/Modal';
@@ -141,13 +141,19 @@ export function IssueModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [area, setArea] = useState<AreaType | ''>('');
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const reset = useCallback(() => {
+    setType('');
+    setTitle('');
+    setDescription('');
+    setArea('');
+    setFullscreen(false);
+  }, []);
 
   useEffect(() => {
     if (open) {
-      setType('');
-      setTitle('');
-      setDescription('');
-      setArea('');
+      setFullscreen(false);
     }
   }, [open]);
 
@@ -179,7 +185,7 @@ export function IssueModal({
   const canSubmit = Boolean(title && description && area && type);
 
   return (
-    <Modal open={open} onClose={onClose} title={modalTitle}>
+    <Modal open={open} onClose={onClose} title={modalTitle} fullscreen={fullscreen}>
       <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Type</div>
@@ -222,6 +228,9 @@ export function IssueModal({
             <MarkdownEditor
               value={description}
               onChange={e => e !== undefined && setDescription(e)}
+              onFullscreenToggle={fullscreen => {
+                setFullscreen(fullscreen);
+              }}
               textareaProps={!type ? { disabled: true, placeholder: 'Select a type to start…' } : undefined}
             />
           </div>
@@ -242,7 +251,10 @@ export function IssueModal({
                       ? 'Please select a type'
                       : 'Create Issue'
             }
-            onClick={() => onCreate({ title, description, labels: [type as IssueType], area: area || undefined })}
+            onClick={() => {
+              onCreate({ title, description, labels: [type], area: area || undefined });
+              reset();
+            }}
             disabled={loading || !canSubmit}
           >
             {loading ? <Loader2 className='spin' size={16} /> : 'Submit'}

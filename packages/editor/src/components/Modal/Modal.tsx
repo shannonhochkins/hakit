@@ -7,20 +7,21 @@ import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 
-const ModalContainer = styled.div`
+const ModalContainer = styled.div<{ $fullscreen?: boolean }>`
   --modal-width: 750px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: ${p => (p.$fullscreen ? 'fixed' : 'absolute')};
+  top: ${p => (p.$fullscreen ? '0' : '50%')};
+  left: ${p => (p.$fullscreen ? '0' : '50%')};
   display: flex;
-  width: var(--modal-width);
+  width: ${p => (p.$fullscreen ? '100vw' : 'var(--modal-width)')};
   font-weight: var(--font-weight-normal);
-  max-width: 95%;
-  transform: translate3d(-50%, -50%, 0);
+  max-width: ${p => (p.$fullscreen ? '100vw' : '95%')};
+  transform: ${p => (p.$fullscreen ? 'none' : 'translate3d(-50%, -50%, 0)')};
   color: var(--color-text-primary);
-  max-height: calc(100% - 4rem);
+  max-height: ${p => (p.$fullscreen ? '100vh' : 'calc(100% - 4rem)')};
+  height: ${p => (p.$fullscreen ? '100vh' : 'auto')};
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: ${p => (p.$fullscreen ? '0' : 'var(--radius-lg)')};
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
@@ -139,6 +140,8 @@ export interface ModalProps extends Omit<Extendable, 'title'> {
   autocloseSeconds?: number;
   /** hide the close button @default false */
   hideCloseButton?: boolean;
+  /** when true, the modal fills the viewport and ignores width/height constraints */
+  fullscreen?: boolean;
 }
 
 const BASE_Z_INDEX = 1050; // Using design system z-modal value
@@ -156,6 +159,7 @@ export function Modal({
   headerActions,
   autocloseSeconds = undefined,
   hideCloseButton = false,
+  fullscreen = false,
   ...rest
 }: ModalProps) {
   const _id = useId();
@@ -239,6 +243,7 @@ export function Modal({
             ...style,
             zIndex: containerZ,
           }}
+          $fullscreen={fullscreen}
           key={`${prefix}-container`}
           className={`modal-container ${className ?? ''}`}
         >

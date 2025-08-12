@@ -253,7 +253,7 @@ export function Issues() {
         <Row fullWidth justifyContent='space-between' alignItems='center'>
           <HeaderContent>
             <PageTitle>Issues</PageTitle>
-            <PageSubtitle>Browse and create issues</PageSubtitle>
+            <PageSubtitle>Have an issue or feature request? Create an issue, or browse existing issues.</PageSubtitle>
           </HeaderContent>
           <PrimaryButton aria-label='Create new issue' onClick={() => setCreateOpen(true)} startIcon={<PlusIcon size={16} />}>
             New Issue
