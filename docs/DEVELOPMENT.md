@@ -75,8 +75,7 @@ May need to update the redirect URLs in the application settings within the Kind
 The API includes OpenAPI 3.0 documentation with interactive Swagger UI:
 
 ### How to Access:
-- **OpenAPI Specification:** `http://localhost:3000/api/openapi` - Raw JSON schema
-- **Interactive Documentation:** `http://localhost:3000/api/docs` - Swagger UI interface
+- **Interactive Documentation:** `http://localhost:3000/api/docs` - Scaler interface, will inherit authentication once logged in via the main application. Only works in development mode.
 
 All protected endpoints require authentication through the main application first.
 
