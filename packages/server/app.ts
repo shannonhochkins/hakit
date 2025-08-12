@@ -10,6 +10,7 @@ import authRoute from './routes/auth';
 import uploadRoute from './routes/upload';
 import { Scalar } from '@scalar/hono-api-reference';
 import { openAPISpecs, describeRoute } from 'hono-openapi';
+import issuesRoute from './routes/issues';
 
 const app = new Hono();
 
@@ -33,6 +34,7 @@ export const apiRoutes = app
   .route('/dashboard', dashboardRoute)
   .route('/repositories', repositoriesRoutes)
   .route('/upload', uploadRoute)
+  .route('/issues', issuesRoute)
   .route('/', authRoute)
   .route('/', healthRoute)
   // OpenAPI JSON (document)

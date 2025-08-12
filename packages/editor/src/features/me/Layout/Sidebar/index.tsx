@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import styled from '@emotion/styled';
 import { FeatureText } from '@components/FeatureText';
-import { useNavigate } from '@tanstack/react-router';
 
 import {
   LayoutDashboardIcon,
@@ -15,6 +14,7 @@ import {
   SearchIcon,
   Component,
   PlusIcon,
+  AlertTriangle,
 } from 'lucide-react';
 import { Row } from '@hakit/components';
 import { FileRoutesByTo } from '../../../../routeTree.gen';
@@ -24,12 +24,14 @@ type RouteNames = keyof FileRoutesByTo | '/api/logout';
 // Navigation structure definition
 interface NavSubItem {
   to: RouteNames;
+  search?: Record<string, unknown>;
   icon: React.ReactNode;
   label: string;
 }
 
 interface NavGroupItem {
   to: RouteNames;
+  search?: Record<string, string>;
   icon: React.ReactNode;
   label: string;
   subItems?: NavSubItem[];
@@ -61,6 +63,15 @@ const navigationStructure: NavGroupItem[] = [
         icon: <PlusIcon size={16} />,
         label: 'Install',
       },
+    ],
+  },
+  {
+    to: '/me/issues',
+    icon: <AlertTriangle size={18} />,
+    label: 'Issues',
+    subItems: [
+      { to: '/me/issues', icon: <SearchIcon size={16} />, label: 'Issues List' },
+      { to: '/me/issues', search: { modal: 'new' }, icon: <PlusIcon size={16} />, label: 'New Issue' },
     ],
   },
   {
@@ -272,7 +283,6 @@ const SubNavItemLink = styled(Link)`
   }
 `;
 
-// React Components
 interface SidebarProps {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -322,9 +332,10 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 }
 
 interface NavItemProps {
-  to: string;
+  to: RouteNames;
   icon: React.ReactNode;
   label: string;
+  search?: Record<string, unknown>;
 }
 
 interface NavGroupProps {
@@ -335,14 +346,11 @@ interface NavGroupProps {
 
 function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
   if (!item.subItems || item.subItems.length === 0) {
-    // Simple nav item without sub-items
     return <NavItem to={item.to} icon={item.icon} label={item.label} />;
   }
-
-  // Nav group with expandable sub-items - separate navigation and toggle
   return (
     <>
-      <NavItemLink to={item.to} activeOptions={{ exact: false }}>
+      <NavItemLink to={item.to} search={item.search as unknown as true} activeOptions={{ exact: false }}>
         <Row justifyContent='center'>
           {item.icon}
           <span>{item.label}</span>
@@ -363,9 +371,9 @@ function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
       </NavItemLink>
       <SubNavContainer isExpanded={isExpanded}>
         {item.subItems.map(subItem => (
-          <SubNavItem key={subItem.to}>
+          <SubNavItem key={subItem.to + subItem.label}>
             <TreeSpace />
-            <SubNavItemLink to={subItem.to} activeOptions={{ exact: true }}>
+            <SubNavItemLink to={subItem.to} search={subItem.search as unknown as true} activeOptions={{ exact: true }}>
               {subItem.icon}
               <span>{subItem.label}</span>
             </SubNavItemLink>
@@ -376,9 +384,9 @@ function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
   );
 }
 
-function NavItem({ to, icon, label }: NavItemProps) {
+function NavItem({ to, icon, label, search }: NavItemProps) {
   return (
-    <NavItemLink to={to} activeOptions={{ exact: true }}>
+    <NavItemLink to={to} search={search as unknown as true} activeOptions={{ exact: true }}>
       <Row>
         {icon}
         <span>{label}</span>

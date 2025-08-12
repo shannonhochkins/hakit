@@ -1,4 +1,5 @@
 import { expect, test, describe, beforeEach, mock } from 'bun:test';
+import { render } from '@testing-library/react';
 
 // Mock window and leaflet to prevent import issues
 (global as { window?: unknown }).window = {
@@ -41,7 +42,6 @@ import type { Slot } from '@measured/puck';
 import { createRootComponent } from './index';
 import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
 import React from 'react';
-import { renderToString } from 'react-dom/server';
 
 // Mock data for component factory
 const mockComponentFactoryData: ComponentFactoryData = {
@@ -274,7 +274,7 @@ describe('createRootComponent', () => {
     const TestComponent = result.render;
     if (TestComponent) {
       const element = TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
-      renderToString(React.createElement(React.Fragment, null, element));
+      render(React.createElement(React.Fragment, null, element));
     }
 
     // Verify render functions were called
@@ -560,7 +560,7 @@ describe('createRootComponent', () => {
     const TestComponent = result.render;
     if (TestComponent) {
       const element = TestComponent(mockProps as unknown as Parameters<typeof TestComponent>[0]);
-      renderToString(React.createElement(React.Fragment, null, element));
+      render(React.createElement(React.Fragment, null, element));
     }
 
     // Verify the render function was called with the correct props including slots

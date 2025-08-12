@@ -12,6 +12,7 @@ interface AlertProps {
   className?: string;
   onClick?: () => void;
   ref?: React.Ref<HTMLDivElement>;
+  style?: React.CSSProperties;
 }
 
 const ICON_SIZE = 20;
@@ -98,6 +99,7 @@ const AlertContainer = styled.div<{ severity: AlertSeverity }>`
   border: 1px solid;
   margin-bottom: var(--space-8);
   opacity: 1 !important;
+  width: 100%;
   ${props => getSeverityStyles(props.severity)}
 `;
 
@@ -222,9 +224,9 @@ const AlertMessage = styled.div<{ severity: AlertSeverity }>`
   }
 `;
 
-export function Alert({ children, severity = 'info', title, className, onClick, ref }: AlertProps) {
+export function Alert({ children, severity = 'info', title, className, onClick, style, ref }: AlertProps) {
   return (
-    <AlertContainer severity={severity} className={className} onClick={onClick} ref={ref}>
+    <AlertContainer severity={severity} className={className} onClick={onClick} ref={ref} style={style}>
       <AlertContent>
         <AlertIcon severity={severity}>{getSeverityIcon(severity)}</AlertIcon>
         <AlertBody>

@@ -11,7 +11,7 @@ export default defineConfig({
         importSource: '@emotion/react',
       },
     }),
-    pluginModuleFederation(moduleFederationConfig),
+    pluginModuleFederation(moduleFederationConfig, {}),
   ],
   html: {
     template: './static/index.html',
@@ -38,6 +38,14 @@ export default defineConfig({
           message: /Critical dependency: require function is used in a way in which dependencies cannot be statically extracted/,
         },
       ],
+      module: {
+        rules: [
+          {
+            test: /\.md$/i,
+            type: 'asset/source',
+          },
+        ],
+      },
     },
     swc: {
       jsc: {

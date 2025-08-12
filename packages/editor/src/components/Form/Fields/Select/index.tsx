@@ -1,4 +1,4 @@
-import { MenuItem, Select as MuiSelect, SelectProps } from '@mui/material';
+import { MenuItem, Select as MuiSelect, SelectChangeEvent, SelectProps } from '@mui/material';
 import styled from '@emotion/styled';
 import React from 'react';
 
@@ -27,20 +27,34 @@ const StyledSelect = styled(MuiSelect)`
   color: var(--color-text-primary);
   background: var(--color-surface);
   border-radius: var(--radius-md);
+  flex-shrink: 0;
 
-  svg {
-    color: currentColor;
+  /* Ensure the arrow icon sits to the right and does not overlap text */
+  .MuiSelect-icon {
+    right: 10px;
+    color: var(--color-text-secondary);
+  }
+
+  /* Add extra padding on the right to make room for the icon */
+  .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input {
+    padding-right: 36px; /* default */
+  }
+
+  &.MuiInputBase-sizeSmall {
+    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeSmall {
+      padding: 7px 32px 7px 14px; /* top/right/bottom/left; add room for icon */
+    }
+  }
+
+  &.MuiInputBase-sizeMedium {
+    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeMedium {
+      padding: 10px 36px 10px 16px; /* add room for icon */
+    }
   }
 
   .MuiOutlinedInput-notchedOutline {
     border-color: var(--color-border);
     transition: all var(--transition-normal);
-  }
-
-  &.MuiInputBase-sizeSmall {
-    .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiInputBase-inputSizeSmall {
-      padding: 7px 14px;
-    }
   }
 
   &:hover:not(.Mui-disabled) .MuiOutlinedInput-notchedOutline {
@@ -73,7 +87,7 @@ const StyledSelect = styled(MuiSelect)`
       -webkit-text-fill-color: var(--color-text-muted);
     }
 
-    svg {
+    .MuiSelect-icon {
       color: var(--color-text-muted);
     }
   }
@@ -93,7 +107,7 @@ const StyledSelect = styled(MuiSelect)`
   }
 ` as unknown as typeof MuiSelect;
 
-export const SelectField = <Option,>({
+export const SelectField = <Value, Option = Value>({
   getOptionLabel,
   onChange,
   value,
@@ -101,26 +115,59 @@ export const SelectField = <Option,>({
   style = {},
   className,
   readOnly,
+  getOptionKey,
   ...props
-}: Omit<SelectProps<Option>, 'value'> & {
-  value: Option;
-  options: Option[];
+}: Omit<SelectProps, 'value' | 'onChange' | 'renderValue'> & {
+  value: Value;
+  options: ReadonlyArray<Option>;
+  onChange: (event: { target: { value: Value } }) => void;
   getOptionLabel: (option: Option) => React.ReactNode;
+  getOptionKey?: (option: Option) => string | number;
   readOnly?: boolean;
 }) => {
+  const findSelectedIndex = React.useCallback(() => {
+    // First try reference equality
+    const byRef = options.findIndex(o => o === (value as unknown as Option));
+    if (byRef !== -1) return byRef;
+    // Fallback to key comparison if provided
+    if (getOptionKey) {
+      // @ts-expect-error Value may not be Option; getOptionKey should handle compatible shape when provided
+      const targetKey = getOptionKey(value);
+      const byKey = options.findIndex(o => getOptionKey(o) === targetKey);
+      if (byKey !== -1) return byKey;
+    }
+    return -1;
+  }, [options, value, getOptionKey]);
+
+  const selectedIndex = findSelectedIndex();
+
+  const handleChange = (e: SelectChangeEvent) => {
+    const idx = Number((e.target as unknown as { value: string }).value);
+    const next = options[idx] as unknown as Value;
+    onChange({ target: { value: next } });
+  };
+
   return (
     <StyledSelect
-      onChange={onChange}
-      value={value}
+      onChange={handleChange as unknown as (event: unknown) => void}
+      value={selectedIndex >= 0 ? String(selectedIndex) : ''}
       className={`${className ?? ''} ${readOnly ? 'read-only' : ''}`}
       style={{
-        ...style,
-        maxWidth: style?.maxWidth ?? '100%',
+        ...(style as React.CSSProperties),
+        maxWidth: (style as React.CSSProperties)?.maxWidth ?? '100%',
+      }}
+      displayEmpty
+      renderValue={selected => {
+        const isEmpty = selected === '' || selected === undefined || selected === null;
+        const index = typeof selected === 'string' && selected !== '' ? parseInt(selected, 10) : selectedIndex;
+        const option = index >= 0 ? (options[index] as Option) : undefined;
+        const label = option !== undefined ? getOptionLabel(option) : '';
+        return <span style={{ color: isEmpty ? 'var(--color-text-muted)' : undefined }}>{label}</span>;
       }}
       {...props}
     >
       {options.map((option, index) => (
-        <StyledMenuItem key={index} value={option as string}>
+        <StyledMenuItem key={getOptionKey ? getOptionKey(option) : index} value={String(index)}>
           {getOptionLabel(option)}
         </StyledMenuItem>
       ))}

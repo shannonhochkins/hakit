@@ -14,6 +14,9 @@ import {
   Camera,
   Speaker,
 } from 'lucide-react';
+import pkg from '../../package.json';
+
+export const EDITOR_VERSION = pkg.version;
 
 export const DEFAULT_DROPZONE_NAME = 'default-zone';
 

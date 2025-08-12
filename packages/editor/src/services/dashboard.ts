@@ -11,10 +11,7 @@ type CreateDashboardPayload = {
   data?: Json;
   thumbnail?: string | null;
 };
-export async function createDashboard(
-  { name, path, data, thumbnail }: CreateDashboardPayload,
-  toastMessage?: ToastMessages
-): Promise<never> {
+export async function createDashboard({ name, path, data, thumbnail }: CreateDashboardPayload, toastMessage?: ToastMessages) {
   // Adjust path if you named it differently in your Hono routes
   return await callApi(
     api.dashboard.$post({

@@ -3,7 +3,7 @@ import { Id, toast, ToastOptions } from 'react-toastify';
 import { formatErrorResponse } from '@server/helpers/formatErrorResponse';
 
 // dodgey helper to extract the 200 response out as this is the only response that can be returned
-type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200, 'json'> ? Data : never;
+type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200 | 201 | 204 | 202, 'json'> ? Data : never;
 
 export type ToastMessages = {
   pending?: string;

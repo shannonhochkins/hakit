@@ -6,8 +6,8 @@ import type { SSEStreamingApi } from 'hono/streaming';
 // Create Supabase client
 const supabase = createClient(process.env.SUPABASE_PROJECT_URL!, process.env.SUPABASE_ANON_KEY!);
 
-function dashboardContentPrefix(userId: string, filename: string) {
-  return join('dashboard-content', userId, filename);
+function userContentPrefix(userId: string, filename: string) {
+  return join('user-content', userId, filename);
 }
 
 function getPublicUrl(suffix: string): string {
@@ -64,7 +64,7 @@ export async function uploadImage(userId: string, file: File) {
   const fileExtension = fileName[fileName.length - 1];
   const filename = Date.now() + '.' + fileExtension;
   const filePath = `images/${filename}`;
-  const response = await uploadFile(file, dashboardContentPrefix(userId, filePath));
+  const response = await uploadFile(file, userContentPrefix(userId, filePath));
   return getPublicUrl(response.fullPath);
 }
 
