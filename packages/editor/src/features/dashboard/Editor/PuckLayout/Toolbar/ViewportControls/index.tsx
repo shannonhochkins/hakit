@@ -303,7 +303,7 @@ export const ViewportControls = () => {
           }
           onChange={event => {
             const value = event?.target.value;
-            if (typeof value === 'string' || value.id === 'new') {
+            if (typeof value === 'string' || (value as { id?: unknown })?.id === 'new') {
               // empty value, consider we've hit the "edit" option
               setEditingBreakpoints(true);
             } else {

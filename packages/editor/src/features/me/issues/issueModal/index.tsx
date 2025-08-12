@@ -6,10 +6,10 @@ import { InputField } from '@components/Form/Fields/Input';
 import { SelectField } from '@components/Form/Fields/Select';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Loader2, Search } from 'lucide-react';
-import { listIssues, type IssueSummary } from '@services/issues';
-import type { IssueType } from '@shared/typings/issues';
+import { listIssues } from '@services/issues';
+import type { IssueType, IssueSummary } from '@typings/issues';
 import { Alert } from '@components/Alert';
-import { ISSUE_TYPES, getIssueTypeLabel } from '@shared/typings/issues';
+import { ISSUE_TYPES, getIssueTypeLabel } from '@typings/issues';
 import bugTemplate from './templates/bug.md?raw';
 import enhancementTemplate from './templates/enhancement.md?raw';
 import documentationTemplate from './templates/documentation.md?raw';
@@ -168,8 +168,10 @@ export function IssueModal({
         break;
       case 'enhancement':
         setDescription(enhancementTemplate);
+        break;
       case 'feature':
         setDescription(featureTemplate);
+        break;
       case 'documentation':
         setDescription(documentationTemplate);
         break;
@@ -189,21 +191,21 @@ export function IssueModal({
       <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Type</div>
-          <SelectField
+          <SelectField<IssueType | ''>
             value={type}
-            onChange={e => setType((e.target.value as IssueType) || '')}
-            options={['', ...ISSUE_TYPES] as unknown as string[]}
-            getOptionLabel={opt => (opt ? getIssueTypeLabel(opt as IssueType) : 'Please select')}
+            onChange={e => setType(e.target.value || '')}
+            options={['', ...ISSUE_TYPES]}
+            getOptionLabel={opt => (opt === '' ? 'Please select' : getIssueTypeLabel(opt))}
             size='small'
             style={{ minWidth: 220 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Package / Area</div>
-          <SelectField
+          <SelectField<AreaType | ''>
             value={area}
-            onChange={e => setArea((e.target.value as AreaType) || '')}
-            options={['', ...AREAS] as unknown as string[]}
+            onChange={e => setArea(e.target.value || '')}
+            options={['', ...AREAS]}
             getOptionLabel={opt => (opt ? String(opt) : 'Please select')}
             size='small'
             style={{ minWidth: 260 }}

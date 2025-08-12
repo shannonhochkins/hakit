@@ -2,33 +2,10 @@ import { queryOptions } from '@tanstack/react-query';
 import { callApi, ToastMessages } from '@services/callApi';
 import { api } from './client';
 
-export type IssueSummary = {
-  number: number;
-  title: string;
-  state: string;
-  labels: string[];
-  comments: number;
-  created_at: string;
-  updated_at: string;
-  user: { login: string; avatar_url: string; html_url: string } | null;
-  html_url: string;
-  inProgress?: boolean;
-  body?: string | null;
-  createdBy?: string | null;
-  area?: string | null;
-};
-
-export type IssueListResponse = {
-  total_count: number;
-  items: Array<IssueSummary & { inProgress: boolean }>;
-};
-
-export type IssueDetailResponse = IssueSummary & { body?: string; inProgress: boolean };
-
 export async function listIssues(
   params: { q?: string; state?: 'open' | 'closed' | 'all'; labels?: string; page?: number; per_page?: number } = {},
   toast?: ToastMessages
-): Promise<IssueListResponse> {
+) {
   const response = await callApi(
     api.issues.$get({
       query: {
@@ -41,27 +18,17 @@ export async function listIssues(
     }),
     toast
   );
-  return response as IssueListResponse;
+  return response;
 }
 
-export async function getIssue(number: number, toast?: ToastMessages): Promise<IssueDetailResponse> {
+export async function getIssue(number: number, toast?: ToastMessages) {
   const response = await callApi(api.issues[':number'].$get({ param: { number: number.toString() } }), toast);
-  return response as IssueDetailResponse;
+  return response;
 }
 
-export type IssueComment = {
-  id: number;
-  body: string | null;
-  user: { login: string; avatar_url: string; html_url: string } | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-  createdBy?: string | null;
-};
-
-export async function listIssueComments(number: number, toast?: ToastMessages): Promise<{ items: IssueComment[] }> {
+export async function listIssueComments(number: number, toast?: ToastMessages) {
   const response = await callApi(api.issues[':number'].comments.$get({ param: { number: number.toString() } }), toast);
-  return response as { items: IssueComment[] };
+  return response;
 }
 
 export async function addIssueComment(
@@ -69,7 +36,7 @@ export async function addIssueComment(
   body: string,
   toast?: ToastMessages,
   metadata?: { clientUsername?: string; clientVersion?: string }
-): Promise<{ id: number; body: string | null; html_url: string }> {
+) {
   const response = await callApi(
     api.issues[':number'].comments.$post({
       param: { number: number.toString() },
@@ -77,15 +44,15 @@ export async function addIssueComment(
     }),
     toast
   );
-  return response as { id: number; body: string | null; html_url: string };
+  return response;
 }
 
 export async function createIssue(
   data: { title: string; body: string; labels?: string[]; clientUsername?: string; clientVersion?: string; area?: string },
   toast?: ToastMessages
-): Promise<{ number: number; html_url: string }> {
+) {
   const response = await callApi(api.issues.$post({ json: data }), toast);
-  return response as { number: number; html_url: string };
+  return response;
 }
 
 export const issuesQueryOptions = (params: {

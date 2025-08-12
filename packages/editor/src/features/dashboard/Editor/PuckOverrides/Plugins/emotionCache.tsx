@@ -9,7 +9,6 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
   const emotionCache = useGlobalStore(state => state.emotionCache);
   useEffect(() => {
     if (!document) return;
-    // @ts-expect-error - next version will have this
     const { setWindowContext } = useStore.getState();
     const { setEmotionCache, setEditorIframeDocument, editorIframeDocument, emotionCache } = useGlobalStore.getState();
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { issuesQueryOptions, createIssue, type IssueSummary } from '@services/issues';
+import { issuesQueryOptions, createIssue } from '@services/issues';
 import { Row } from '@hakit/components';
 import { BaseButton, PrimaryButton } from '@components/Button';
 import { IssueModal } from './issueModal';
@@ -30,8 +30,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { useUser } from '@hakit/core';
 import { EDITOR_VERSION } from '@constants';
 import { InputAdornment } from '@mui/material';
-import type { IssueType } from '@shared/typings/issues';
-import { ISSUE_TYPES } from '@shared/typings/issues';
+import type { IssueType, IssueSummary } from '@typings/issues';
+import { ISSUE_TYPES } from '@typings/issues';
 import IssueLabel from './issueLabel';
 import { Route as IssuesRoute } from '@routes/_authenticated/me/issues/index';
 import React from 'react';
@@ -284,7 +284,7 @@ export function Issues() {
           value={state}
           name='state'
           onChange={e => {
-            setState(e.target.value as typeof state);
+            setState(e.target.value);
             setPage(1);
           }}
           options={['open', 'closed', 'all']}
@@ -295,10 +295,10 @@ export function Issues() {
           value={typeFilter}
           name='type'
           onChange={e => {
-            setTypeFilter((e.target.value || 'all') as IssueType | 'all');
+            setTypeFilter(e.target.value || 'all');
             setPage(1);
           }}
-          options={['', ...ISSUE_TYPES] as unknown as string[]}
+          options={['', ...ISSUE_TYPES]}
           getOptionLabel={opt => (opt ? String(opt) : 'All')}
           size='small'
         />

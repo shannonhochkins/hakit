@@ -4,6 +4,9 @@ import { zValidator } from '@hono/zod-validator';
 import { describeRoute } from 'hono-openapi';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import { getUser } from '../kinde';
+import { formatErrorResponse } from '../helpers/formatErrorResponse';
+import { type CacheEntry, getCached, getListCacheKey, setCached, setCachedNumberKey, getListKeys } from '../helpers/cache';
+import { type IssueSummary } from '@typings/issues';
 
 const EnvSchema = z.object({
   GITHUB_PERSONAL_ACCESS_TOKEN: z.string().min(1, 'Missing GitHub token'),
@@ -66,95 +69,36 @@ type IssueFromSearch = RestEndpointMethodTypes['search']['issuesAndPullRequests'
 
 type IssueLike = IssueFromList | IssueFromSearch;
 
-type IssueSummary = {
-  number: number;
-  title: string;
-  state: string;
-  labels: string[];
-  comments: number;
-  created_at: string;
-  updated_at: string;
-  user: { login: string; avatar_url: string; html_url: string } | null;
-  html_url: string;
-  body?: string | null;
-  createdBy?: string | null;
-  area?: string | null;
-};
-
-function isSearchIssue(item: IssueFromSearch): item is IssueFromSearch & { pull_request?: undefined } {
-  return !('pull_request' in item);
-}
-
 function toIssueSummary(issue: IssueLike): IssueSummary {
-  const labelsArray = (issue as IssueFromList).labels as Array<string | { name?: string | null }> | undefined;
+  const labelsArray = issue.labels;
   const labels = (labelsArray || []).map(l => (typeof l === 'string' ? l : l?.name || '')).filter((val): val is string => Boolean(val));
-  const user = (issue as IssueFromList).user
+  const user = issue.user
     ? {
-        login: (issue as IssueFromList).user!.login,
-        avatar_url: (issue as IssueFromList).user!.avatar_url,
-        html_url: (issue as IssueFromList).user!.html_url,
+        login: issue.user.login,
+        avatar_url: issue.user.avatar_url,
+        html_url: issue.user.html_url,
       }
     : null;
-  const rawBody = (issue as IssueFromList).body as unknown as string | null;
+  const rawBody = issue.body;
   const { cleanBody, createdBy, area } = extractHiddenMeta(rawBody ?? '');
   return {
-    number: (issue as IssueFromList).number,
-    title: (issue as IssueFromList).title,
-    state: (issue as IssueFromList).state,
+    number: issue.number,
+    title: issue.title,
+    state: issue.state,
     labels,
-    comments: (issue as IssueFromList).comments,
-    created_at: (issue as IssueFromList).created_at as unknown as string,
-    updated_at: (issue as IssueFromList).updated_at as unknown as string,
+    comments: issue.comments,
+    created_at: issue.created_at,
+    updated_at: issue.updated_at,
     user,
-    html_url: (issue as IssueFromList).html_url,
+    html_url: issue.html_url,
     body: cleanBody,
     createdBy: createdBy ?? null,
     area: area ?? null,
   };
 }
 
-function toHttpError(e: unknown) {
-  const err = e as { status?: number; message?: string };
-  const status = err?.status ?? 500;
-  const message =
-    status === 401
-      ? 'GitHub unauthorized. Check token.'
-      : status === 403
-        ? 'GitHub forbidden. Token lacks access to the private repo or rate limit exceeded.'
-        : status === 404
-          ? 'Not found in GitHub.'
-          : 'Failed to communicate with GitHub.';
-  return { status, message };
-}
-
-// In-memory cache with TTL
-type CacheEntry<T> = { value: T; expiresAt: number };
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const listCache = new Map<string, CacheEntry<{ total_count: number; items: Array<IssueSummary & { inProgress: boolean }> }>>();
 const detailCache = new Map<number, CacheEntry<IssueSummary & { body?: string | null; inProgress: boolean }>>();
-const listKeys: string[] = [];
-function getListCacheKey(q?: string, state?: string, labels?: string, page?: number, per_page?: number) {
-  return JSON.stringify({ q: q || '', state: state || 'open', labels: labels || '', page: page || 1, per_page: per_page || 20 });
-}
-function getCached<T>(map: Map<string, CacheEntry<T>>, key: string): T | null;
-function getCached<T>(map: Map<number, CacheEntry<T>>, key: number): T | null;
-function getCached<T>(map: Map<string | number, CacheEntry<T>>, key: string | number): T | null {
-  const entry = map.get(key as never);
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) {
-    map.delete(key as never);
-    return null;
-  }
-  return entry.value;
-}
-function setCached<T>(map: Map<string, CacheEntry<T>>, key: string, value: T, ttlMs: number = ONE_DAY_MS) {
-  map.set(key, { value, expiresAt: Date.now() + ttlMs });
-  if (!listKeys.includes(key)) listKeys.unshift(key);
-  if (listKeys.length > 50) listKeys.pop();
-}
-function setCachedNumberKey<T>(map: Map<number, CacheEntry<T>>, key: number, value: T, ttlMs: number = ONE_DAY_MS) {
-  map.set(key, { value, expiresAt: Date.now() + ttlMs });
-}
 
 const issuesRoute = new Hono()
   .get(
@@ -166,21 +110,27 @@ const issuesRoute = new Hono()
       try {
         const key = getListCacheKey(q, state, labels, page, per_page);
         const cached = getCached(listCache, key);
-        if (cached) return c.json(cached);
+        if (cached) return c.json(cached, 200);
 
         if (q && q.trim().length > 0) {
           const searchQuery = [`repo:${OWNER}/${REPO}`, 'is:issue', state !== 'all' ? `state:${state}` : '', `in:title,body ${q}`]
             .filter(Boolean)
             .join(' ');
-          const result = await octokit.rest.search.issuesAndPullRequests({ q: searchQuery, page, per_page });
-          const items = (result.data.items || []).filter(isSearchIssue);
+          // Use GET /search/issues with advanced search enabled
+          const result = await octokit.request('GET /search/issues', {
+            q: searchQuery,
+            page,
+            per_page,
+            advanced_search: 'true',
+          });
+          const items = result.data.items || [];
           const enriched: Array<IssueSummary & { inProgress: boolean }> = items.map(item => ({
             ...toIssueSummary(item),
             inProgress: false,
           }));
           const payload = { total_count: result.data.total_count, items: enriched };
           setCached(listCache, key, payload);
-          return c.json(payload);
+          return c.json(payload, 200);
         }
 
         const list = await octokit.rest.issues.listForRepo({ owner: OWNER, repo: REPO, state, labels, page, per_page });
@@ -193,12 +143,9 @@ const issuesRoute = new Hono()
         }));
         const payload = { total_count: enriched.length, items: enriched };
         setCached(listCache, key, payload);
-        return c.json(payload);
-      } catch (e) {
-        console.error('Issues list error', e);
-        const err = toHttpError(e);
-        const statusCode = (err.status === 401 || err.status === 403 || err.status === 404 ? err.status : 500) as 401 | 403 | 404 | 500;
-        return c.json({ error: err.message }, statusCode);
+        return c.json(payload, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching issues', error), 400);
       }
     }
   )
@@ -220,16 +167,14 @@ const issuesRoute = new Hono()
         });
         const { data } = await octokit.rest.issues.create({ owner: OWNER, repo: REPO, title, body: augmented, labels });
         // Patch cached first pages instead of invalidating
+        const listKeys = getListKeys();
         for (const key of [...listKeys]) {
           const params = JSON.parse(key) as { state?: string; labels?: string; page?: number; per_page?: number };
           if ((params.page ?? 1) !== 1) continue;
           if (!((params.state ?? 'open') === 'open' || (params.state ?? 'open') === 'all')) continue;
-          const payload = getCached(
-            listCache as Map<string, CacheEntry<{ total_count: number; items: Array<IssueSummary & { inProgress: boolean }> }>>,
-            key
-          );
+          const payload = getCached(listCache, key);
           if (!payload) continue;
-          const summary = toIssueSummary(data as unknown as IssueFromList);
+          const summary = toIssueSummary(data);
           const updated = {
             total_count: payload.total_count + 1,
             items: [{ ...summary, inProgress: false }, ...payload.items].slice(0, params.per_page ?? 20),
@@ -237,11 +182,8 @@ const issuesRoute = new Hono()
           setCached(listCache, key, updated);
         }
         return c.json({ number: data.number, html_url: data.html_url }, 201);
-      } catch (e) {
-        console.error('Create issue error', e);
-        const err = toHttpError(e);
-        const statusCode = (err.status === 401 || err.status === 403 || err.status === 404 ? err.status : 500) as 401 | 403 | 404 | 500;
-        return c.json({ error: err.message }, statusCode);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error creating issue', error), 400);
       }
     }
   )
@@ -250,19 +192,16 @@ const issuesRoute = new Hono()
     describeRoute({ description: 'Get a single GitHub issue', tags: ['Issues'], responses: { 200: { description: 'OK' } } }),
     async c => {
       const number = Number(c.req.param('number'));
-      if (!Number.isFinite(number)) return c.json({ error: 'Invalid issue number' }, 400);
+      if (!Number.isFinite(number)) throw new Error('Invalid issue number');
       try {
         const cached = getCached(detailCache, number);
-        if (cached) return c.json(cached);
+        if (cached) return c.json(cached, 200);
         const { data: issue } = await octokit.rest.issues.get({ owner: OWNER, repo: REPO, issue_number: number });
-        const payload = { ...toIssueSummary(issue as IssueFromList), body: toIssueSummary(issue as IssueFromList).body, inProgress: false };
+        const payload = { ...toIssueSummary(issue), body: toIssueSummary(issue).body, inProgress: false };
         setCachedNumberKey(detailCache, number, payload);
-        return c.json(payload);
-      } catch (e) {
-        console.error('Issue detail error', e);
-        const err = toHttpError(e);
-        const statusCode = (err.status === 401 || err.status === 403 || err.status === 404 ? err.status : 500) as 401 | 403 | 404 | 500;
-        return c.json({ error: err.message }, statusCode);
+        return c.json(payload, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching issue', error), 400);
       }
     }
   )
@@ -271,7 +210,7 @@ const issuesRoute = new Hono()
     describeRoute({ description: 'List comments for an issue', tags: ['Issues'], responses: { 200: { description: 'OK' } } }),
     async c => {
       const number = Number(c.req.param('number'));
-      if (!Number.isFinite(number)) return c.json({ error: 'Invalid issue number' }, 400);
+      if (!Number.isFinite(number)) throw new Error('Invalid issue number');
       try {
         const { data } = await octokit.rest.issues.listComments({ owner: OWNER, repo: REPO, issue_number: number });
         const comments = data.map(cmt => {
@@ -286,12 +225,9 @@ const issuesRoute = new Hono()
             createdBy: parsed.createdBy ?? null,
           };
         });
-        return c.json({ items: comments });
-      } catch (e) {
-        console.error('Issue comments error', e);
-        const err = toHttpError(e);
-        const statusCode = (err.status === 401 || err.status === 403 || err.status === 404 ? err.status : 500) as 401 | 403 | 404 | 500;
-        return c.json({ error: err.message }, statusCode);
+        return c.json({ items: comments }, 200);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error fetching issue comments', error), 400);
       }
     }
   )
@@ -302,7 +238,7 @@ const issuesRoute = new Hono()
     zValidator('json', addCommentBodySchema),
     async c => {
       const number = Number(c.req.param('number'));
-      if (!Number.isFinite(number)) return c.json({ error: 'Invalid issue number' }, 400);
+      if (!Number.isFinite(number)) throw new Error('Invalid issue number');
       const { body, clientUsername, clientVersion } = await c.req.valid('json');
       const user = c.var.user;
       try {
@@ -315,12 +251,10 @@ const issuesRoute = new Hono()
         const { data } = await octokit.rest.issues.createComment({ owner: OWNER, repo: REPO, issue_number: number, body: augmented });
         // Invalidate detail cache for this issue
         detailCache.delete(number);
+        const listKeys = getListKeys();
         // Patch any cached list entries that include this issue by incrementing the comments count
         for (const key of [...listKeys]) {
-          const payload = getCached(
-            listCache as Map<string, CacheEntry<{ total_count: number; items: Array<IssueSummary & { inProgress: boolean }> }>>,
-            key
-          );
+          const payload = getCached(listCache, key);
           if (!payload) continue;
           let found = false;
           const updatedItems = payload.items.map(item => {
@@ -335,11 +269,8 @@ const issuesRoute = new Hono()
           }
         }
         return c.json({ id: data.id, body, html_url: data.html_url }, 201);
-      } catch (e) {
-        console.error('Create comment error', e);
-        const err = toHttpError(e);
-        const statusCode = (err.status === 401 || err.status === 403 || err.status === 404 ? err.status : 500) as 401 | 403 | 404 | 500;
-        return c.json({ error: err.message }, statusCode);
+      } catch (error) {
+        return c.json(formatErrorResponse('Error creating issue comment', error), 400);
       }
     }
   );

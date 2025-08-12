@@ -1,7 +1,10 @@
 import { scan } from 'react-scan';
-scan({
-  enabled: true,
-});
+
+if (import.meta.env.DEV) {
+  scan({
+    enabled: true,
+  });
+}
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

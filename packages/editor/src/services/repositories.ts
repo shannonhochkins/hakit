@@ -116,7 +116,7 @@ export async function getUserRepositories(toastMessage?: ToastMessages): Promise
   return response.userRepositories;
 }
 
-export async function connectRepository(repositoryId: string, versionId: string, toastMessage?: ToastMessages): Promise<UserRepository> {
+export async function connectRepository(repositoryId: string, versionId: string, toastMessage?: ToastMessages) {
   const response = await callApi(
     api.repositories['user-repositories'].$post({
       json: {

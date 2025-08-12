@@ -24,12 +24,14 @@ type RouteNames = keyof FileRoutesByTo | '/api/logout';
 // Navigation structure definition
 interface NavSubItem {
   to: RouteNames;
+  search?: Record<string, unknown>;
   icon: React.ReactNode;
   label: string;
 }
 
 interface NavGroupItem {
   to: RouteNames;
+  search?: Record<string, string>;
   icon: React.ReactNode;
   label: string;
   subItems?: NavSubItem[];
@@ -69,7 +71,7 @@ const navigationStructure: NavGroupItem[] = [
     label: 'Issues',
     subItems: [
       { to: '/me/issues', icon: <SearchIcon size={16} />, label: 'Issues List' },
-      { to: '/me/issues', icon: <PlusIcon size={16} />, label: 'New Issue' },
+      { to: '/me/issues', search: { modal: 'new' }, icon: <PlusIcon size={16} />, label: 'New Issue' },
     ],
   },
   {
@@ -281,29 +283,6 @@ const SubNavItemLink = styled(Link)`
   }
 `;
 
-const SubNavActionButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  margin: var(--space-2) 0;
-  margin-left: var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  background-color: transparent;
-  text-decoration: none;
-  transition: all var(--transition-normal);
-  font-size: var(--font-size-sm);
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
-`;
-
-// React Components
 interface SidebarProps {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -353,9 +332,10 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 }
 
 interface NavItemProps {
-  to: string;
+  to: RouteNames;
   icon: React.ReactNode;
   label: string;
+  search?: Record<string, unknown>;
 }
 
 interface NavGroupProps {
@@ -365,13 +345,12 @@ interface NavGroupProps {
 }
 
 function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
-  const navigate = useNavigate();
   if (!item.subItems || item.subItems.length === 0) {
     return <NavItem to={item.to} icon={item.icon} label={item.label} />;
   }
   return (
     <>
-      <NavItemLink to={item.to} activeOptions={{ exact: false }}>
+      <NavItemLink to={item.to} search={item.search as unknown as true} activeOptions={{ exact: false }}>
         <Row justifyContent='center'>
           {item.icon}
           <span>{item.label}</span>
@@ -394,20 +373,10 @@ function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
         {item.subItems.map(subItem => (
           <SubNavItem key={subItem.to + subItem.label}>
             <TreeSpace />
-            {subItem.label === 'New Issue' ? (
-              <SubNavActionButton
-                onClick={() => navigate({ to: '/me/issues', search: { modal: 'new' } })}
-                aria-label='Open new issue dialog'
-              >
-                {subItem.icon}
-                <span>{subItem.label}</span>
-              </SubNavActionButton>
-            ) : (
-              <SubNavItemLink to={subItem.to} activeOptions={{ exact: true }}>
-                {subItem.icon}
-                <span>{subItem.label}</span>
-              </SubNavItemLink>
-            )}
+            <SubNavItemLink to={subItem.to} search={subItem.search as unknown as true} activeOptions={{ exact: true }}>
+              {subItem.icon}
+              <span>{subItem.label}</span>
+            </SubNavItemLink>
           </SubNavItem>
         ))}
       </SubNavContainer>
@@ -415,9 +384,9 @@ function NavGroup({ item, isExpanded, onToggle }: NavGroupProps) {
   );
 }
 
-function NavItem({ to, icon, label }: NavItemProps) {
+function NavItem({ to, icon, label, search }: NavItemProps) {
   return (
-    <NavItemLink to={to} activeOptions={{ exact: true }}>
+    <NavItemLink to={to} search={search as unknown as true} activeOptions={{ exact: true }}>
       <Row>
         {icon}
         <span>{label}</span>

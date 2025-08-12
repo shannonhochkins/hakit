@@ -14,18 +14,27 @@
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@hakit/components": "^5.1.1",
+    "@hakit/core": "^5.1.1",
     "@measured/puck": "^0.19.3",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^7.0.2",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-router": "^1.124.0",
+    "@uiw/react-md-editor": "^4.0.8",
     "lucide-react": "^0.503.0",
     "monaco-editor": "^0.52.2",
     "monaco-yaml": "^5.3.1",
-    "react": "^19.0.0",
+    "react": "^19.1.1",
+    "react-best-gradient-color-picker": "^3.0.14",
+    "react-dom": "^19.1.1",
     "react-error-boundary": "^6.0.0",
     "react-resizable-panels": "^3.0.3",
-    "react-window": "^1.8.11"
+    "react-scan": "^0.3.3",
+    "react-toastify": "^11.0.5",
+    "react-use": "^17.6.0",
+    "react-window": "^1.8.11",
+    "rehype-sanitize": "^6.0.0"
   },
   "devDependencies": {
     "@module-federation/rsbuild-plugin": "^0.17.0",
@@ -35,7 +44,11 @@
     "@tanstack/router-plugin": "^1.124.0",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
-    "@types/react": "^19.0.01",
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@types/react-dom": "^19.1.7",
+    "deep-copy-ts": "^0.5.4",
+    "deep-equal": "^2.2.3",
+    "ts-deepmerge": "^7.0.2",
     "typescript": "^5.7.2"
   }
 }
