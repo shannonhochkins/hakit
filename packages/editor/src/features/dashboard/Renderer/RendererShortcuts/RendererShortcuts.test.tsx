@@ -2,44 +2,15 @@ import { expect, test, describe, beforeEach, afterAll, mock } from 'bun:test';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { createElement } from 'react';
+import { createModuleMocker } from '@test-utils/moduleMocker';
 
 /**
  * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules
  * after we're done. We do this by setting the mocked value to the original module.
  */
-interface MockResult {
-  clear: () => void;
-}
-
-export class ModuleMocker {
-  private mocks: MockResult[] = [];
-
-  async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
-    const original = {
-      ...(await import(modulePath)),
-    };
-    const mocks = renderMocks();
-    const result = {
-      ...original,
-      ...mocks,
-    };
-    mock.module(modulePath, () => result);
-
-    this.mocks.push({
-      clear: () => {
-        mock.module(modulePath, () => original);
-      },
-    });
-  }
-
-  clear() {
-    this.mocks.forEach(mockResult => mockResult.clear());
-    this.mocks = [];
-  }
-}
 
 // Set up module mocker at top level
-const moduleMocker = new ModuleMocker();
+const moduleMocker = createModuleMocker();
 
 // Mock functions for testing
 const mockNavigate = mock(() => {});
@@ -85,8 +56,7 @@ describe('RendererShortcuts', () => {
   });
 
   afterAll(() => {
-    // Clear all module mocks to prevent pollution of other tests
-    moduleMocker.clear();
+    // No-op: cleanup handled by createModuleMocker()
   });
 
   test('should create component without throwing', () => {

@@ -30,7 +30,8 @@
       "@constants": ["./src/constants/index.ts"],
       "@components/*": ["./src/components/*"],
       "@server/*": ["../server/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@test-utils/*": ["./src/test-utils/*"]
     }
   },
   "include": ["src/**/*", "./.d.ts"],
