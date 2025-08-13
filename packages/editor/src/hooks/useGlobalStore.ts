@@ -23,7 +23,9 @@ function collectTemplatePaths(node: unknown, basePath: string[] = []): string[] 
   const visited = new WeakSet<object>();
   const walk = (value: unknown, path: (string | number)[]) => {
     if (typeof value === 'string' && value.startsWith(TEMPLATE_PREFIX)) {
-      results.push(path.map(p => String(p)).join('/'));
+      // Use dot-notation for keys; do not split repository ids that may contain '/'
+      const key = path.map(p => String(p)).join('.');
+      results.push(key);
       return;
     }
     if (!value) return;
@@ -43,24 +45,6 @@ function collectTemplatePaths(node: unknown, basePath: string[] = []): string[] 
   walk(node, basePath);
   return results;
 }
-
-const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap => {
-  const map: TemplateFieldMap = {};
-  if (!data) return map;
-  // Root under a stable key
-  const rootPaths = collectTemplatePaths(data.root?.props ?? {}, []);
-  if (rootPaths.length > 0) map['root'] = rootPaths;
-
-  // Content components by id
-  const content = (data.content ?? []) as ComponentData[];
-  content.forEach(item => {
-    const id = item?.props?.id as string | undefined;
-    if (!id) return;
-    const paths = collectTemplatePaths(item?.props ?? {}, []);
-    if (paths.length > 0) map[id] = paths;
-  });
-  return map;
-};
 
 // options.deep.deepText
 
@@ -111,6 +95,24 @@ type PuckConfigurationStore = {
 
 export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
   let nextId = 0;
+
+  const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap => {
+    const map: TemplateFieldMap = {};
+    if (!data) return map;
+    // Root under a stable key
+    const rootPaths = collectTemplatePaths(data.root?.props ?? {}, []);
+    if (rootPaths.length > 0) map['root'] = rootPaths;
+
+    // Content components by id
+    const content = (data.content ?? []) as ComponentData[];
+    content.forEach(item => {
+      const id = item?.props?.id as string | undefined;
+      if (!id) return;
+      const paths = collectTemplatePaths(item?.props ?? {}, []);
+      if (paths.length > 0) map[id] = paths;
+    });
+    return map;
+  };
 
   return {
     previewCanvasWidth: 0,

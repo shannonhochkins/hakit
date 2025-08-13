@@ -35,7 +35,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "clean": "rm -rf node_modules && rm -rf packages/editor/node_modules && rm -rf packages/addon/node_modules"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -62,8 +63,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@hakit/components": "^5.1.2",
-    "@hakit/core": "^5.1.2",
+    "@hakit/components": "^5.1.5",
+    "@hakit/core": "^5.1.5",
     "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@octokit/rest": "^22.0.0",

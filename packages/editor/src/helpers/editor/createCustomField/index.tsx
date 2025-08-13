@@ -179,7 +179,6 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     // we need the nested name value to work properly with custom fields and currently it doesn't
     // once we have the name field populated, we can extract or update from the breakpoint map below
     // const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
-    console.log('Toggling breakpoint mode for field', name);
     setBreakpointMode(prev => {
       const isBreakpointModeEnabled = !prev;
       if (!isBreakpointModeEnabled) {
@@ -229,6 +228,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
           }
         }
         // If still undefined, emit undefined as requested
+        // TODO - is this needed? if disabled, then aren't we just a normal field?
         onChange(nextValue as Props);
       }
     },

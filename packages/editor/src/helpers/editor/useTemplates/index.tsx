@@ -20,6 +20,27 @@ function normalizeExpression(prefixed: string): string {
   return raw;
 }
 
+function splitPathToSegs(flatPath: string): (string | number)[] {
+  const trimmed = flatPath.replace(/\/+$/, '');
+  // Prefer dot-notation paths
+  if (trimmed.includes('.')) {
+    return trimmed
+      .split('.')
+      .filter(Boolean)
+      .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+  }
+  // Fallback: slash paths with possible repo scope '@scope/pkg/...'
+  const parts = trimmed.split('/').filter(Boolean);
+  let segments: string[] = [];
+  if (trimmed.startsWith('@') && parts.length >= 2) {
+    const repo = `${parts[0]}/${parts[1]}`;
+    segments = [repo, ...parts.slice(2)];
+  } else {
+    segments = parts;
+  }
+  return segments.map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+}
+
 function getAtPath(root: unknown, path: Path): unknown {
   let cursor = root;
   for (let i = 0; i < path.length; i++) {
@@ -75,7 +96,9 @@ function coerceToType(value: unknown, fieldType?: string): unknown {
     case 'slider': {
       if (typeof value === 'number') return value;
       if (typeof value === 'string') {
-        const n = parseFloat(value.trim());
+        // Remove all whitespace/newlines to tolerate values like "\n0\n" or " 0.2 "
+        const cleaned = value.replace(/\s+/g, '');
+        const n = parseFloat(cleaned);
         return Number.isNaN(n) ? value : n;
       }
       return value;
@@ -84,7 +107,7 @@ function coerceToType(value: unknown, fieldType?: string): unknown {
       if (typeof value === 'boolean') return value;
       if (typeof value === 'number') return value !== 0;
       if (typeof value === 'string') {
-        const v = value.trim().toLowerCase();
+        const v = value.replace(/\s+/g, '').toLowerCase();
         if (v === 'true' || v === 'on' || v === 'yes' || v === '1') return true;
         if (v === 'false' || v === 'off' || v === 'no' || v === '0') return false;
       }
@@ -151,7 +174,7 @@ function getExpectedFieldType(
   flatKey: string
 ): string | undefined {
   if (!userConfig) return undefined;
-  const segs = flatKey.split('/').filter(Boolean);
+  const segs = splitPathToSegs(flatKey);
   // Resolve component type from page data in store
   const pageData = useGlobalStore.getState().puckPageData;
   if (componentId === 'root') {
@@ -172,23 +195,24 @@ function isNonPrimitive(value: unknown): value is object {
 }
 
 export function useTemplates<T>(props: T, componentId: string = 'root'): T {
-  const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId] ?? []);
-  console.log('templatePaths', templatePaths);
+  const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId]);
   const userConfig = useGlobalStore(s => s.userConfig) as CustomConfigWithDefinition<DefaultComponentProps> | null;
 
   // 1) Build expressions from known template paths
   const { expressions, keys, emptyKeys } = useMemo(() => {
+    if (!templatePaths) {
+      return { expressions: [], keys: [], emptyKeys: [] };
+    }
+
     const exprs: string[] = [];
     const keys: string[] = [];
     const emptyKeys: string[] = [];
 
     for (const rawPath of templatePaths) {
       const flatPath = rawPath.replace(/\/+$/, '');
-      const segs = flatPath
-        .split('/')
-        .filter(Boolean)
-        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const segs = splitPathToSegs(flatPath);
       const value = getAtPath(props as unknown, segs);
+
       if (!isTemplateString(value)) continue; // stale entry or changed type
       const normalized = normalizeExpression(value);
       if (normalized.length === 0) {
@@ -201,8 +225,6 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
 
     return { expressions: exprs, keys, emptyKeys };
   }, [props, templatePaths]);
-
-  console.log('expressions', expressions);
 
   // 2) Build a single combined template that returns a JSON object keyed by deep path
   const combinedTemplate = useMemo(() => {
@@ -236,14 +258,20 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
   }, [expressions, keys]);
 
   const enabled = expressions.length > 0 || emptyKeys.length > 0;
+
   const templateParams = useMemo(
-    () => ({ template: combinedTemplate, enabled, report_errors: true, strict: true }),
+    () => ({ template: combinedTemplate, enabled, report_errors: true, strict: false }),
     [combinedTemplate, enabled]
   );
-
   // 3) Resolve with a single template call
   const resolvedJson = useTemplate(templateParams);
-
+  console.log('resolvedJson', {
+    expressions,
+    resolvedJson,
+    combinedTemplate,
+    templateParams,
+    templatePaths,
+  });
   // 4) Write resolved values back using per-entry updates, including empty templates
   const resolvedProps = useMemo(() => {
     // If nothing to do, return original
@@ -252,9 +280,8 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     // Parse mapping if present
     let parsed: Record<string, unknown> = {};
     if (typeof resolvedJson === 'string') {
-      // consider this an error state returned from HA
-      const templateError = `${resolvedJson} - Template processed: ${combinedTemplate}`;
-      throw new Error(templateError);
+      // consider this an error state returned from HA; skip applying
+      return props;
     } else if (resolvedJson && typeof resolvedJson === 'object') {
       parsed = resolvedJson as unknown as Record<string, unknown>;
     } else {
@@ -267,14 +294,13 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     // Apply resolved values with type coercion
     for (const [flatKey, value] of Object.entries(parsed)) {
       if (typeof value === 'undefined' || value === null) continue;
-      const segs = flatKey
-        .split('/')
-        .filter(Boolean)
-        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const segs = splitPathToSegs(flatKey);
       const current = getAtPath(next as unknown, segs);
       const shouldForceSet = typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX);
       const expectedType = getExpectedFieldType(userConfig, componentId, flatKey);
       const coerced = coerceToType(value, expectedType);
+
+      console.log('flatKey', flatKey, value, expectedType, coerced);
 
       // Deep-equality guard for non-primitives (template returns JSON objects/arrays)
       if (!shouldForceSet) {
@@ -297,10 +323,7 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
 
     // Clear empty template strings (remove prefix so it doesn't render)
     for (const flatKey of emptyKeys) {
-      const segs = flatKey
-        .split('/')
-        .filter(Boolean)
-        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const segs = splitPathToSegs(flatKey);
       const current = getAtPath(next as unknown, segs);
       if (typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX)) {
         next = setAtPathImmutable(next, segs, '');
@@ -309,7 +332,7 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     }
 
     return changed ? next : props;
-  }, [resolvedJson, emptyKeys, props, userConfig, componentId, enabled, combinedTemplate]);
-
+  }, [resolvedJson, emptyKeys, props, userConfig, componentId, enabled]);
+  console.log('resolvedProps', resolvedProps);
   return resolvedProps;
 }

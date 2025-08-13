@@ -4,8 +4,8 @@
     "": {
       "name": "hakit",
       "dependencies": {
-        "@hakit/components": "^5.1.2",
-        "@hakit/core": "^5.1.2",
+        "@hakit/components": "^5.1.5",
+        "@hakit/core": "^5.1.5",
         "@hono/zod-validator": "^0.7.2",
         "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
         "@octokit/rest": "^22.0.0",
@@ -58,8 +58,8 @@
       },
       "dependencies": {
         "@emotion/react": "^11.0.0",
-        "@hakit/components": "^5.1.1",
-        "@hakit/core": "^5.1.1",
+        "@hakit/components": "^5.1.5",
+        "@hakit/core": "^5.1.5",
         "@measured/puck": "^0.19.3",
         "@module-federation/rsbuild-plugin": "^0.7.0",
         "@rsbuild/core": "^1.3.4",
@@ -92,8 +92,6 @@
         "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
-        "@hakit/components": "^5.1.1",
-        "@hakit/core": "^5.1.1",
         "@measured/puck": "^0.19.3",
         "@monaco-editor/react": "^4.7.0",
         "@mui/material": "^7.0.2",
@@ -354,9 +352,9 @@
 
     "@hakit/addon": ["@hakit/addon@workspace:packages/addon"],
 
-    "@hakit/components": ["@hakit/components@5.1.2", "", { "peerDependencies": { "@emotion/is-prop-valid": ">=1.3.x", "@emotion/react": ">=11.x.x", "@emotion/styled": ">=11.x", "@fullcalendar/react": ">=6.x.x", "@hakit/core": "^5.1.2", "@mui/material": "^6.3.0", "@use-gesture/react": ">=10.x", "autolinker": ">=4.x", "fullcalendar": ">=6.x.x", "hls.js": ">=1.x.x", "leaflet": ">=1.x.x", "lodash": ">=4.x", "react": ">=19.x", "react-dom": ">=19.x", "react-error-boundary": "^5.x", "react-leaflet": ">=5.x", "react-resize-detector": ">=12.x.x", "react-switch": "^7.1.0", "react-use": ">=17.x", "use-debounce": ">=9.x", "use-long-press": ">=3.x.x", "zustand": ">=5.x.x" } }, "sha512-QWuuWcH1tFWHs4zhi9z2s3e8iDeNnO4G/DcF40nagQjqF1vzPBx52DsKb4JF+tlgSmQg5nmOkSfaCvROFGKwzQ=="],
+    "@hakit/components": ["@hakit/components@5.1.5", "", { "peerDependencies": { "@emotion/is-prop-valid": ">=1.3.x", "@emotion/react": ">=11.x.x", "@emotion/styled": ">=11.x", "@fullcalendar/react": ">=6.x.x", "@hakit/core": "^5.1.5", "@mui/material": "^6.3.0", "@use-gesture/react": ">=10.x", "autolinker": ">=4.x", "fullcalendar": ">=6.x.x", "hls.js": ">=1.x.x", "leaflet": ">=1.x.x", "lodash": ">=4.x", "react": ">=19.x", "react-dom": ">=19.x", "react-error-boundary": "^5.x", "react-leaflet": ">=5.x", "react-resize-detector": ">=12.x.x", "react-switch": "^7.1.0", "react-use": ">=17.x", "use-debounce": ">=9.x", "use-long-press": ">=3.x.x", "zustand": ">=5.x.x" } }, "sha512-W9YHxRq0hKjX9C3FMCJ1Jv3ffiXCY5WiIO15eE4xH+fuFzc4oFlAvhnS97Rnlf5B+C/XEPTk3LXkBii+RecaqQ=="],
 
-    "@hakit/core": ["@hakit/core@5.1.2", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-QmpI43lqtO72x5c2vnOT6CfrMI0k87ckiHdPqvsBq601wRU0ug1AWOyXwm3v/SCxZYD0kQyQk7vvm9r6ioyTSA=="],
+    "@hakit/core": ["@hakit/core@5.1.5", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-D9hxIj/tiU7TyM1V1rbiyhtnO2RWm8EZ65ehlLxQQb2X/Gg+arqmtemD2bft7/Sy7Dg5481hzcxF5924pCWzqQ=="],
 
     "@happy-dom/global-registrator": ["@happy-dom/global-registrator@17.6.3", "", { "dependencies": { "happy-dom": "^17.6.3" } }, "sha512-SE8Mu6bdkgKENemVg20yMrKdYeAvVesQrLPVfNBKnhicCM3ylHV9oIDzDMxSFj3qYCrHrIWOZsItOXSafrM4Tw=="],
 
@@ -2310,10 +2308,6 @@
 
     "@fullcalendar/core/preact": ["preact@10.12.1", "", {}, "sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg=="],
 
-    "@hakit/addon/@hakit/components": ["@hakit/components@5.1.1", "", { "peerDependencies": { "@emotion/is-prop-valid": ">=1.3.x", "@emotion/react": ">=11.x.x", "@emotion/styled": ">=11.x", "@fullcalendar/react": ">=6.x.x", "@hakit/core": "^5.1.1", "@mui/material": "^6.3.0", "@use-gesture/react": ">=10.x", "autolinker": ">=4.x", "fullcalendar": ">=6.x.x", "hls.js": ">=1.x.x", "leaflet": ">=1.x.x", "lodash": ">=4.x", "react": ">=19.x", "react-dom": ">=19.x", "react-error-boundary": "^5.x", "react-leaflet": ">=5.x", "react-resize-detector": ">=12.x.x", "react-switch": "^7.1.0", "react-use": ">=17.x", "use-debounce": ">=9.x", "use-long-press": ">=3.x.x", "zustand": ">=5.x.x" } }, "sha512-GVg4dyH1yU6Tlki/WDgjyTTawL+n5HT14R7g2SIoiXTCZpGsUmsLRNCuwPI++TBpNBbiROc6wtQkKBgbj9fIbw=="],
-
-    "@hakit/addon/@hakit/core": ["@hakit/core@5.1.1", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-2luIi28w37iqu7zLpoXS7GvSFC4fscURQ6+3H+8JoYDZh/Wbi+WparEOboD+mQeu0CF/9m6fPYnibYTOfu2DfQ=="],
-
     "@humanfs/node/@humanwhocodes/retry": ["@humanwhocodes/retry@0.3.1", "", {}, "sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA=="],
 
     "@isaacs/cliui/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
@@ -2485,10 +2479,6 @@
     "glob/minimatch": ["minimatch@9.0.5", "", { "dependencies": { "brace-expansion": "^2.0.1" } }, "sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow=="],
 
     "global-prefix/which": ["which@1.3.1", "", { "dependencies": { "isexe": "^2.0.0" }, "bin": { "which": "./bin/which" } }, "sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ=="],
-
-    "hakit-editor/@hakit/components": ["@hakit/components@5.1.1", "", { "peerDependencies": { "@emotion/is-prop-valid": ">=1.3.x", "@emotion/react": ">=11.x.x", "@emotion/styled": ">=11.x", "@fullcalendar/react": ">=6.x.x", "@hakit/core": "^5.1.1", "@mui/material": "^6.3.0", "@use-gesture/react": ">=10.x", "autolinker": ">=4.x", "fullcalendar": ">=6.x.x", "hls.js": ">=1.x.x", "leaflet": ">=1.x.x", "lodash": ">=4.x", "react": ">=19.x", "react-dom": ">=19.x", "react-error-boundary": "^5.x", "react-leaflet": ">=5.x", "react-resize-detector": ">=12.x.x", "react-switch": "^7.1.0", "react-use": ">=17.x", "use-debounce": ">=9.x", "use-long-press": ">=3.x.x", "zustand": ">=5.x.x" } }, "sha512-GVg4dyH1yU6Tlki/WDgjyTTawL+n5HT14R7g2SIoiXTCZpGsUmsLRNCuwPI++TBpNBbiROc6wtQkKBgbj9fIbw=="],
-
-    "hakit-editor/@hakit/core": ["@hakit/core@5.1.1", "", { "peerDependencies": { "@emotion/react": ">=11.x", "@emotion/styled": ">=11.x", "@iconify/react": ">=5.x", "home-assistant-js-websocket": ">=9.x.x", "lodash": ">=4.x", "prettier": ">=3.4.2", "react": ">=19.x", "react-dom": ">=19.x", "use-debounce": ">=9.x", "ws": ">=8.x.x", "yargs": ">=17.x.x", "zustand": "^5.0.5" }, "bin": { "hakit-sync-types": "dist/sync/cli/cli.js" } }, "sha512-2luIi28w37iqu7zLpoXS7GvSFC4fscURQ6+3H+8JoYDZh/Wbi+WparEOboD+mQeu0CF/9m6fPYnibYTOfu2DfQ=="],
 
     "hakit-editor/@module-federation/rsbuild-plugin": ["@module-federation/rsbuild-plugin@0.17.0", "", { "dependencies": { "@module-federation/enhanced": "0.17.0", "@module-federation/node": "2.7.9", "@module-federation/sdk": "0.17.0", "fs-extra": "11.3.0" }, "peerDependencies": { "@rsbuild/core": "^1.3.21" }, "optionalPeers": ["@rsbuild/core"] }, "sha512-4sj9f+9Jo2Am+tBZGxUiDOXok48cjx/cGg+n+QHuvBuoQYqovrC8hSiSn2FOKpaqCP4Vh3Q1Xwi8n/hhk5FSUg=="],
 
