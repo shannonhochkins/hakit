@@ -8,11 +8,59 @@ import { BreakpointItem } from '@typings/breakpoints';
 import { BreakPoint } from '@hakit/components';
 import { DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
+import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
+import type { ComponentData } from '@measured/puck';
 
 type ComponentId = string;
 type FieldDotNotatedKey = string;
 type IsBreakpointModeEnabled = boolean;
 export type ComponentBreakpointModeMap = Record<ComponentId, Record<FieldDotNotatedKey, IsBreakpointModeEnabled>>;
+
+type TemplateFieldMap = Record<ComponentId, string[]>;
+
+function collectTemplatePaths(node: unknown, basePath: string[] = []): string[] {
+  const results: string[] = [];
+  const visited = new WeakSet<object>();
+  const walk = (value: unknown, path: (string | number)[]) => {
+    if (typeof value === 'string' && value.startsWith(TEMPLATE_PREFIX)) {
+      results.push(path.map(p => String(p)).join('/'));
+      return;
+    }
+    if (!value) return;
+    if (Array.isArray(value)) {
+      if (visited.has(value)) return;
+      visited.add(value);
+      value.forEach((item, idx) => walk(item, path.concat(idx)));
+      return;
+    }
+    if (typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      if (visited.has(obj)) return;
+      visited.add(obj);
+      Object.keys(obj).forEach(k => walk(obj[k], path.concat(k)));
+    }
+  };
+  walk(node, basePath);
+  return results;
+}
+
+const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap => {
+  const map: TemplateFieldMap = {};
+  if (!data) return map;
+  // Root under a stable key
+  const rootPaths = collectTemplatePaths(data.root?.props ?? {}, []);
+  if (rootPaths.length > 0) map['root'] = rootPaths;
+
+  // Content components by id
+  const content = (data.content ?? []) as ComponentData[];
+  content.forEach(item => {
+    const id = item?.props?.id as string | undefined;
+    if (!id) return;
+    const paths = collectTemplatePaths(item?.props ?? {}, []);
+    if (paths.length > 0) map[id] = paths;
+  });
+  return map;
+};
 
 // options.deep.deepText
 
@@ -46,13 +94,15 @@ type PuckConfigurationStore = {
   setPuckPageData: (newPageData: PuckPageData) => void;
   unsavedPuckPageData: PuckPageData | null;
   setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData | null) => void;
+  templateFieldMap: TemplateFieldMap;
+  setTemplateFieldMap: (map: TemplateFieldMap) => void;
   modalStack: number[]; // track modal "depths" by ID or index
   pushModal: () => number;
   popModal: (id: number) => void;
   editorMode: boolean;
   setEditorMode: (editorMode: boolean) => void;
   componentBreakpointMap: ComponentBreakpointModeMap;
-  setComponentBreakpointMap: (componentBreakpointMap: ComponentBreakpointModeMap) => void;
+  setComponentBreakpointMap: (componentBreakpointModeMap: ComponentBreakpointModeMap) => void;
   // Actions object for centralized operations
   actions: {
     save: (pagePath?: string, callback?: () => void) => Promise<void>;
@@ -61,6 +111,7 @@ type PuckConfigurationStore = {
 
 export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
   let nextId = 0;
+
   return {
     previewCanvasWidth: 0,
     setPreviewCanvasWidth: (width: number) => {
@@ -99,7 +150,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     hasInitializedData: false,
     setHasInitializedData: (hasInitializedData: boolean) => set(state => ({ ...state, hasInitializedData })),
     puckPageData: null,
-    setPuckPageData: (puckPageData: PuckPageData) => set(state => ({ ...state, puckPageData })),
+    setPuckPageData: (puckPageData: PuckPageData) =>
+      set(state => ({ ...state, puckPageData, templateFieldMap: computeTemplateFieldMap(puckPageData) })),
     unsavedPuckPageData: null,
     setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData | null) => {
       return set(state => {
@@ -107,6 +159,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         return { ...state, unsavedPuckPageData };
       });
     },
+    templateFieldMap: {},
+    setTemplateFieldMap: (map: TemplateFieldMap) => set(state => ({ ...state, templateFieldMap: map })),
     modalStack: [],
     pushModal: () => {
       const id = nextId++;

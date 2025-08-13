@@ -17,6 +17,7 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { attachRepositoryReference } from '../pageData/transformFields';
 import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
+import { useTemplates } from '../useTemplates';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
@@ -141,6 +142,7 @@ function Render<P extends DefaultComponentProps>({
 }) {
   const editorElements = usePuckIframeElements();
   const { id, styles, editMode = false, content: Content } = props;
+  const processedProps = useTemplates(props);
 
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
@@ -153,7 +155,7 @@ function Render<P extends DefaultComponentProps>({
         _editor: editorElements,
         _dashboard: dashboard,
       };
-      const propsForThisRoot = getPropsForRoot(rootConfig, props, additionalProps, remoteKeys);
+      const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
       if (rootConfig.styles) {
         // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
         return rootConfig.styles(propsForThisRoot);
@@ -172,9 +174,11 @@ function Render<P extends DefaultComponentProps>({
             _editor: editorElements,
             _dashboard: dashboard,
           };
-          const propsForThisRoot = getPropsForRoot(rootConfig, props, additionalProps, remoteKeys);
-          // @ts-expect-error - don't want to type this out, we'd have to cast anyway */
-          return <Fragment key={index}>{rootConfig.render(propsForThisRoot)}</Fragment>;
+          const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
+
+          return (
+            <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>
+          );
         }
         return null;
       })}

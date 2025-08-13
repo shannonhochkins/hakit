@@ -1,0 +1,315 @@
+import { useMemo } from 'react';
+import { useTemplate } from '@hakit/core';
+import { TEMPLATE_PREFIX } from '../pageData/constants';
+import { useGlobalStore } from '@hooks/useGlobalStore';
+import type { CustomConfigWithDefinition } from '@typings/puck';
+import type { DefaultComponentProps } from '@measured/puck';
+import type { FieldConfigurationWithDefinition } from '@typings/fields';
+
+type Path = Array<string | number>;
+
+function isTemplateString(val: unknown): val is string {
+  return typeof val === 'string' && val.startsWith(TEMPLATE_PREFIX);
+}
+
+function normalizeExpression(prefixed: string): string {
+  const raw = prefixed.slice(TEMPLATE_PREFIX.length).trim();
+  if (raw.startsWith('{{') && raw.endsWith('}}')) {
+    return raw.slice(2, -2).trim();
+  }
+  return raw;
+}
+
+function getAtPath(root: unknown, path: Path): unknown {
+  let cursor = root;
+  for (let i = 0; i < path.length; i++) {
+    if (cursor && typeof cursor === 'object') {
+      cursor = (cursor as Record<string | number, unknown>)[path[i]];
+    } else {
+      return undefined;
+    }
+  }
+  return cursor;
+}
+
+function setAtPathImmutable<T>(root: T, path: Path, value: unknown): T {
+  if (!root || path.length === 0) return root;
+
+  const cloneLevel = (current: unknown, idx: number): unknown => {
+    if (current == null) return current;
+    const key = path[idx];
+    if (idx === path.length - 1) {
+      if (Array.isArray(current)) {
+        const arr = current.slice();
+        if (typeof key === 'number') arr[key] = value;
+        else (arr as unknown as Record<string, unknown>)[String(key)] = value;
+        return arr;
+      }
+      if (typeof current === 'object') {
+        return { ...(current as Record<string, unknown>), [key as string | number]: value } as Record<string, unknown>;
+      }
+      return current;
+    }
+    const next = (current as Record<string | number, unknown>)[key as string | number];
+    const updatedChild = cloneLevel(next, idx + 1);
+    if (updatedChild === next) return current;
+    if (Array.isArray(current)) {
+      const arr = current.slice();
+      if (typeof key === 'number') arr[key] = updatedChild;
+      else (arr as unknown as Record<string, unknown>)[String(key)] = updatedChild as unknown as never;
+      return arr;
+    }
+    if (typeof current === 'object') {
+      return { ...(current as Record<string, unknown>), [key as string | number]: updatedChild } as Record<string, unknown>;
+    }
+    return current;
+  };
+
+  return cloneLevel(root, 0) as T;
+}
+
+function coerceToType(value: unknown, fieldType?: string): unknown {
+  if (!fieldType) return value;
+  switch (fieldType) {
+    case 'number':
+    case 'slider': {
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const n = parseFloat(value.trim());
+        return Number.isNaN(n) ? value : n;
+      }
+      return value;
+    }
+    case 'switch': {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'number') return value !== 0;
+      if (typeof value === 'string') {
+        const v = value.trim().toLowerCase();
+        if (v === 'true' || v === 'on' || v === 'yes' || v === '1') return true;
+        if (v === 'false' || v === 'off' || v === 'no' || v === '0') return false;
+      }
+      return value;
+    }
+    // treat these as strings explicitly
+    case 'text':
+    case 'textarea':
+    case 'code':
+    case 'color':
+    case 'entity':
+    case 'service':
+    case 'page':
+    case 'radio':
+    case 'select': {
+      if (typeof value === 'string') return value;
+      if (value == null) return '';
+      try {
+        return String(value);
+      } catch {
+        return value;
+      }
+    }
+    default:
+      return value;
+  }
+}
+
+function resolveFieldTypeForPath(
+  fields: FieldConfigurationWithDefinition<DefaultComponentProps> | undefined,
+  pathSegs: (string | number)[]
+): string | undefined {
+  if (!fields) return undefined;
+  let currentFields = fields as unknown as Record<string, unknown> | undefined;
+  let currentFieldConfig: { _field?: { type?: string; objectFields?: unknown; arrayFields?: unknown } } | undefined = undefined;
+  for (let i = 0; i < pathSegs.length; i++) {
+    const seg = pathSegs[i];
+    if (typeof seg === 'number') {
+      // in arrays, just skip numeric indices
+      continue;
+    }
+    if (!currentFields) return currentFieldConfig?._field?.type;
+    const nextField = currentFields[seg] as { _field?: { type?: string; objectFields?: unknown; arrayFields?: unknown } } | undefined;
+    if (!nextField) return currentFieldConfig?._field?.type;
+    currentFieldConfig = nextField;
+    const fType = nextField?._field?.type;
+    if (fType === 'object') {
+      currentFields = (nextField?._field?.objectFields ?? undefined) as unknown as Record<string, unknown> | undefined;
+      continue;
+    }
+    if (fType === 'array') {
+      currentFields = (nextField?._field?.arrayFields ?? undefined) as unknown as Record<string, unknown> | undefined;
+      continue;
+    }
+    // primitive; if there are more segs, still return this as best-known type
+    currentFields = undefined;
+  }
+  return currentFieldConfig?._field?.type;
+}
+
+function getExpectedFieldType(
+  userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null,
+  componentId: string,
+  flatKey: string
+): string | undefined {
+  if (!userConfig) return undefined;
+  const segs = flatKey.split('/').filter(Boolean);
+  // Resolve component type from page data in store
+  const pageData = useGlobalStore.getState().puckPageData;
+  if (componentId === 'root') {
+    const rootCfg = userConfig.root as unknown as { fields?: FieldConfigurationWithDefinition<DefaultComponentProps> };
+    const rootFields = rootCfg?.fields;
+    return resolveFieldTypeForPath(rootFields, segs);
+  }
+  const item = pageData?.content?.find(c => (c as { props?: { id?: string } })?.props?.id === componentId) as { type?: string } | undefined;
+  const compType = item?.type;
+  if (!compType) return undefined;
+  const comps = userConfig.components as unknown as Record<string, { fields?: FieldConfigurationWithDefinition<DefaultComponentProps> }>;
+  const compFields = comps?.[compType]?.fields;
+  return resolveFieldTypeForPath(compFields, segs);
+}
+
+function isNonPrimitive(value: unknown): value is object {
+  return typeof value === 'object' && value !== null;
+}
+
+export function useTemplates<T>(props: T, componentId: string = 'root'): T {
+  const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId] ?? []);
+  console.log('templatePaths', templatePaths);
+  const userConfig = useGlobalStore(s => s.userConfig) as CustomConfigWithDefinition<DefaultComponentProps> | null;
+
+  // 1) Build expressions from known template paths
+  const { expressions, keys, emptyKeys } = useMemo(() => {
+    const exprs: string[] = [];
+    const keys: string[] = [];
+    const emptyKeys: string[] = [];
+
+    for (const rawPath of templatePaths) {
+      const flatPath = rawPath.replace(/\/+$/, '');
+      const segs = flatPath
+        .split('/')
+        .filter(Boolean)
+        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const value = getAtPath(props as unknown, segs);
+      if (!isTemplateString(value)) continue; // stale entry or changed type
+      const normalized = normalizeExpression(value);
+      if (normalized.length === 0) {
+        emptyKeys.push(flatPath);
+        continue;
+      }
+      exprs.push(normalized);
+      keys.push(flatPath);
+    }
+
+    return { expressions: exprs, keys, emptyKeys };
+  }, [props, templatePaths]);
+
+  console.log('expressions', expressions);
+
+  // 2) Build a single combined template that returns a JSON object keyed by deep path
+  const combinedTemplate = useMemo(() => {
+    if (expressions.length === 0) return '{}';
+
+    // Build temp variables for each expression using set blocks to allow control structures
+    const varDecls = expressions
+      .map((expr, idx) => {
+        const varName = `__t${idx}`;
+        const hasBlock = expr.includes('{%');
+        if (hasBlock) {
+          // Use the expression as-is inside a set-block
+          return `{% set ${varName} %}${expr}{% endset %}`;
+        }
+        // Simple expression: render via print inside set-block
+        return `{% set ${varName} %}{{ (${expr}) }}{% endset %}`;
+      })
+      .join('\n');
+
+    // Build the final object referencing the temp vars
+    const dictEntries = expressions
+      .map((_, idx) => {
+        const key = keys[idx].split('"').join('\\"');
+        return `"${key}": (__t${idx} | default(none))`;
+      })
+      .join(', ');
+
+    // Full template: declarations + final JSON output
+    const template = `${varDecls}\n{{ { ${dictEntries} } | tojson }}`;
+    return template;
+  }, [expressions, keys]);
+
+  const enabled = expressions.length > 0 || emptyKeys.length > 0;
+  const templateParams = useMemo(
+    () => ({ template: combinedTemplate, enabled, report_errors: true, strict: true }),
+    [combinedTemplate, enabled]
+  );
+
+  // 3) Resolve with a single template call
+  const resolvedJson = useTemplate(templateParams);
+
+  // 4) Write resolved values back using per-entry updates, including empty templates
+  const resolvedProps = useMemo(() => {
+    // If nothing to do, return original
+    if (!enabled) return props;
+
+    // Parse mapping if present
+    let parsed: Record<string, unknown> = {};
+    if (typeof resolvedJson === 'string') {
+      // consider this an error state returned from HA
+      const templateError = `${resolvedJson} - Template processed: ${combinedTemplate}`;
+      throw new Error(templateError);
+    } else if (resolvedJson && typeof resolvedJson === 'object') {
+      parsed = resolvedJson as unknown as Record<string, unknown>;
+    } else {
+      parsed = {} as Record<string, unknown>;
+    }
+
+    let next = props as unknown as T;
+    let changed = false;
+
+    // Apply resolved values with type coercion
+    for (const [flatKey, value] of Object.entries(parsed)) {
+      if (typeof value === 'undefined' || value === null) continue;
+      const segs = flatKey
+        .split('/')
+        .filter(Boolean)
+        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const current = getAtPath(next as unknown, segs);
+      const shouldForceSet = typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX);
+      const expectedType = getExpectedFieldType(userConfig, componentId, flatKey);
+      const coerced = coerceToType(value, expectedType);
+
+      // Deep-equality guard for non-primitives (template returns JSON objects/arrays)
+      if (!shouldForceSet) {
+        if (!isNonPrimitive(current) && !isNonPrimitive(coerced)) {
+          if (Object.is(current, coerced)) continue;
+        } else {
+          try {
+            const a = JSON.stringify(current);
+            const b = JSON.stringify(coerced);
+            if (a === b) continue;
+          } catch {
+            if (Object.is(current, coerced)) continue;
+          }
+        }
+      }
+
+      next = setAtPathImmutable(next, segs, coerced);
+      changed = true;
+    }
+
+    // Clear empty template strings (remove prefix so it doesn't render)
+    for (const flatKey of emptyKeys) {
+      const segs = flatKey
+        .split('/')
+        .filter(Boolean)
+        .map(seg => (seg.match(/^\d+$/) ? Number(seg) : seg));
+      const current = getAtPath(next as unknown, segs);
+      if (typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX)) {
+        next = setAtPathImmutable(next, segs, '');
+        changed = true;
+      }
+    }
+
+    return changed ? next : props;
+  }, [resolvedJson, emptyKeys, props, userConfig, componentId, enabled, combinedTemplate]);
+
+  return resolvedProps;
+}
