@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useTemplate } from '@hakit/core';
+import { useStore, useTemplate } from '@hakit/core';
 import { TEMPLATE_PREFIX } from '../pageData/constants';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import type { CustomConfigWithDefinition } from '@typings/puck';
@@ -7,6 +7,8 @@ import type { DefaultComponentProps } from '@measured/puck';
 import type { FieldConfigurationWithDefinition } from '@typings/fields';
 
 type Path = Array<string | number>;
+
+type CoerceResult = { ok: true; value: unknown } | { ok: false; error: string };
 
 function isTemplateString(val: unknown): val is string {
   return typeof val === 'string' && val.startsWith(TEMPLATE_PREFIX);
@@ -89,29 +91,30 @@ function setAtPathImmutable<T>(root: T, path: Path, value: unknown): T {
   return cloneLevel(root, 0) as T;
 }
 
-function coerceToType(value: unknown, fieldType?: string): unknown {
-  if (!fieldType) return value;
+function coerceToTypeStrict(value: unknown, fieldType: string | undefined): CoerceResult {
+  if (!fieldType) return { ok: true, value };
   switch (fieldType) {
     case 'number':
     case 'slider': {
-      if (typeof value === 'number') return value;
+      if (typeof value === 'number') return { ok: true, value };
       if (typeof value === 'string') {
-        // Remove all whitespace/newlines to tolerate values like "\n0\n" or " 0.2 "
         const cleaned = value.replace(/\s+/g, '');
         const n = parseFloat(cleaned);
-        return Number.isNaN(n) ? value : n;
+        if (!Number.isNaN(n)) return { ok: true, value: n };
+        return { ok: false, error: `Expected number but got "${value}"` };
       }
-      return value;
+      return { ok: false, error: `Expected number but got type ${typeof value}` };
     }
     case 'switch': {
-      if (typeof value === 'boolean') return value;
-      if (typeof value === 'number') return value !== 0;
+      if (typeof value === 'boolean') return { ok: true, value };
+      if (typeof value === 'number') return { ok: true, value: value !== 0 };
       if (typeof value === 'string') {
         const v = value.replace(/\s+/g, '').toLowerCase();
-        if (v === 'true' || v === 'on' || v === 'yes' || v === '1') return true;
-        if (v === 'false' || v === 'off' || v === 'no' || v === '0') return false;
+        if (v === 'true' || v === 'on' || v === 'yes' || v === '1') return { ok: true, value: true };
+        if (v === 'false' || v === 'off' || v === 'no' || v === '0') return { ok: true, value: false };
+        return { ok: false, error: `Expected boolean but got "${value}"` };
       }
-      return value;
+      return { ok: false, error: `Expected boolean but got type ${typeof value}` };
     }
     // treat these as strings explicitly
     case 'text':
@@ -123,16 +126,16 @@ function coerceToType(value: unknown, fieldType?: string): unknown {
     case 'page':
     case 'radio':
     case 'select': {
-      if (typeof value === 'string') return value;
-      if (value == null) return '';
+      if (typeof value === 'string') return { ok: true, value };
+      if (value == null) return { ok: true, value: '' };
       try {
-        return String(value);
+        return { ok: true, value: String(value) };
       } catch {
-        return value;
+        return { ok: false, error: `Expected string but got unstringifiable value` };
       }
     }
     default:
-      return value;
+      return { ok: true, value };
   }
 }
 
@@ -196,6 +199,7 @@ function isNonPrimitive(value: unknown): value is object {
 
 export function useTemplates<T>(props: T, componentId: string = 'root'): T {
   const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId]);
+  const connection = useStore(s => s.connection);
   const userConfig = useGlobalStore(s => s.userConfig) as CustomConfigWithDefinition<DefaultComponentProps> | null;
 
   // 1) Build expressions from known template paths
@@ -263,6 +267,7 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     () => ({ template: combinedTemplate, enabled, report_errors: true, strict: false }),
     [combinedTemplate, enabled]
   );
+
   // 3) Resolve with a single template call
   const resolvedJson = useTemplate(templateParams);
   console.log('resolvedJson', {
@@ -271,6 +276,7 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     combinedTemplate,
     templateParams,
     templatePaths,
+    enabled,
   });
   // 4) Write resolved values back using per-entry updates, including empty templates
   const resolvedProps = useMemo(() => {
@@ -280,8 +286,8 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     // Parse mapping if present
     let parsed: Record<string, unknown> = {};
     if (typeof resolvedJson === 'string') {
-      // consider this an error state returned from HA; skip applying
-      return props;
+      // error string from HA - include template for context
+      throw new Error(`Template engine error: ${resolvedJson}. Template: ${combinedTemplate}`);
     } else if (resolvedJson && typeof resolvedJson === 'object') {
       parsed = resolvedJson as unknown as Record<string, unknown>;
     } else {
@@ -298,9 +304,11 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
       const current = getAtPath(next as unknown, segs);
       const shouldForceSet = typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX);
       const expectedType = getExpectedFieldType(userConfig, componentId, flatKey);
-      const coerced = coerceToType(value, expectedType);
-
-      console.log('flatKey', flatKey, value, expectedType, coerced);
+      const coercedResult = coerceToTypeStrict(value, expectedType);
+      if (!coercedResult.ok) {
+        throw new Error(`Template value error for "${flatKey}": ${coercedResult.error}`);
+      }
+      const coerced = coercedResult.value;
 
       // Deep-equality guard for non-primitives (template returns JSON objects/arrays)
       if (!shouldForceSet) {
@@ -331,8 +339,19 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
       }
     }
 
+    // Final validation: any templated field still unresolved? throw
+    for (const flatKey of keys) {
+      const segs = splitPathToSegs(flatKey);
+      const current = getAtPath(next as unknown, segs);
+      if (typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX) && connection) {
+        console.error('Unresolved template for', flatKey, current);
+        // we can't throw here, as the template may simply not have resolved yet
+        // throw new Error(`Unresolved template for "${flatKey}". Check the template syntax or data availability.`);
+      }
+    }
+
     return changed ? next : props;
-  }, [resolvedJson, emptyKeys, props, userConfig, componentId, enabled]);
-  console.log('resolvedProps', resolvedProps);
+  }, [resolvedJson, emptyKeys, props, userConfig, componentId, connection, enabled, combinedTemplate, keys]);
+
   return resolvedProps;
 }
