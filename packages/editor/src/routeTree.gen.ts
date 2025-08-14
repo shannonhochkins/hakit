@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StyleguideIndexRouteImport } from './routes/styleguide/index'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
+import { Route as StyleguideFormsIndexRouteImport } from './routes/styleguide/forms/index'
 import { Route as AuthenticatedMeIndexRouteImport } from './routes/_authenticated/me/index'
 import { Route as AuthenticatedMeSettingsIndexRouteImport } from './routes/_authenticated/me/settings/index'
 import { Route as AuthenticatedMeRepositoriesIndexRouteImport } from './routes/_authenticated/me/repositories/index'
@@ -35,10 +37,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StyleguideIndexRoute = StyleguideIndexRouteImport.update({
+  id: '/styleguide/',
+  path: '/styleguide/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
   id: '/me',
   path: '/me',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const StyleguideFormsIndexRoute = StyleguideFormsIndexRouteImport.update({
+  id: '/styleguide/forms/',
+  path: '/styleguide/forms/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedMeIndexRoute = AuthenticatedMeIndexRouteImport.update({
   id: '/',
@@ -121,7 +133,9 @@ const AuthenticatedDashboardDashboardPathPagePathEditIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/me': typeof AuthenticatedMeRouteWithChildren
+  '/styleguide': typeof StyleguideIndexRoute
   '/me/': typeof AuthenticatedMeIndexRoute
+  '/styleguide/forms': typeof StyleguideFormsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/issues': typeof AuthenticatedMeIssuesIndexRoute
@@ -137,7 +151,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/styleguide': typeof StyleguideIndexRoute
   '/me': typeof AuthenticatedMeIndexRoute
+  '/styleguide/forms': typeof StyleguideFormsIndexRoute
   '/me/dashboards': typeof AuthenticatedMeDashboardsIndexRoute
   '/me/help': typeof AuthenticatedMeHelpIndexRoute
   '/me/issues': typeof AuthenticatedMeIssuesIndexRoute
@@ -156,7 +172,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/me': typeof AuthenticatedMeRouteWithChildren
+  '/styleguide/': typeof StyleguideIndexRoute
   '/_authenticated/me/': typeof AuthenticatedMeIndexRoute
+  '/styleguide/forms/': typeof StyleguideFormsIndexRoute
   '/_authenticated/me/dashboards/': typeof AuthenticatedMeDashboardsIndexRoute
   '/_authenticated/me/help/': typeof AuthenticatedMeHelpIndexRoute
   '/_authenticated/me/issues/': typeof AuthenticatedMeIssuesIndexRoute
@@ -175,7 +193,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/me'
+    | '/styleguide'
     | '/me/'
+    | '/styleguide/forms'
     | '/me/dashboards'
     | '/me/help'
     | '/me/issues'
@@ -191,7 +211,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/styleguide'
     | '/me'
+    | '/styleguide/forms'
     | '/me/dashboards'
     | '/me/help'
     | '/me/issues'
@@ -209,7 +231,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_authenticated/me'
+    | '/styleguide/'
     | '/_authenticated/me/'
+    | '/styleguide/forms/'
     | '/_authenticated/me/dashboards/'
     | '/_authenticated/me/help/'
     | '/_authenticated/me/issues/'
@@ -227,6 +251,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  StyleguideIndexRoute: typeof StyleguideIndexRoute
+  StyleguideFormsIndexRoute: typeof StyleguideFormsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -245,12 +271,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/styleguide/': {
+      id: '/styleguide/'
+      path: '/styleguide'
+      fullPath: '/styleguide'
+      preLoaderRoute: typeof StyleguideIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/me': {
       id: '/_authenticated/me'
       path: '/me'
       fullPath: '/me'
       preLoaderRoute: typeof AuthenticatedMeRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/styleguide/forms/': {
+      id: '/styleguide/forms/'
+      path: '/styleguide/forms'
+      fullPath: '/styleguide/forms'
+      preLoaderRoute: typeof StyleguideFormsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/me/': {
       id: '/_authenticated/me/'
@@ -402,6 +442,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  StyleguideIndexRoute: StyleguideIndexRoute,
+  StyleguideFormsIndexRoute: StyleguideFormsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

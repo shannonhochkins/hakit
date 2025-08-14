@@ -7,7 +7,7 @@ import {
   InternalRootData,
 } from '@typings/puck';
 import { Fragment } from 'react';
-import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
+import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { defaultRootConfig, DefaultRootProps } from '@helpers/editor/createRootComponent/defaultRoot';
 import { DefaultComponentProps } from '@measured/puck';
