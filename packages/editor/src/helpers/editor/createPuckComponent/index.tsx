@@ -13,7 +13,7 @@ import { useMemo } from 'react';
 import { attachDragRefToElement } from './attachDragRefToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
-import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
+import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '../internalFields';
 
 /**
@@ -65,9 +65,9 @@ export function createComponent<P extends object>(
       // which is why here we only provide InternalComponentFields
       render(renderProps: RenderProps<P & InternalComponentFields>) {
         return (
-          <ComponentRenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
+          <RenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
             <Render {...renderProps} internalComponentConfig={config} />
-          </ComponentRenderErrorBoundary>
+          </RenderErrorBoundary>
         );
       },
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here

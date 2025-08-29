@@ -44,6 +44,11 @@ export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   label: string;
   /** used to determine if we want to show the current field either based on the current data or just a hard coded boolean value */
   visible?: (data: Omit<DataShape, 'id'>) => boolean;
+  /** Optional template configuration per field */
+  templates?: {
+    /** Whether templates are enabled for this field. Defaults to true when omitted. */
+    enabled?: boolean;
+  };
 };
 
 export type EntityField<DataShape = unknown> = BaseField &
@@ -187,9 +192,11 @@ export type CustomFields<
   | (Omit<GridField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
   | (Omit<CodeField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
   | (Omit<SwitchField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
-  | (Omit<DividerField, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
-  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & ExtendedFieldTypes<DataShape, Props> & E)
-  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'default'> & E)
+  | (Omit<DividerField, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'templates'> & E)
+  | (Omit<CustomArrayField<Props, E, DataShape>, ExcludePuckKeys> & Omit<ExtendedFieldTypes<DataShape, Props>, 'templates'> & E)
+  | (Omit<CustomObjectField<Props, E, DataShape>, ExcludePuckKeys> &
+      Omit<ExtendedFieldTypes<DataShape, Props>, 'default' | 'templates'> &
+      E)
   | (CustomField<Props, E> & ExtendedFieldTypes<DataShape, Props>)
   | SlotField
   | (HiddenField<DataShape, Props> & E)

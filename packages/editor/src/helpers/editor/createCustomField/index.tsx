@@ -33,6 +33,9 @@ import { Row } from '@hakit/components';
 import { deepCopy } from 'deep-copy-ts';
 import { Alert } from '@components/Alert';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
+import { CodeField } from '@components/Form/Fields/Code';
+import { SwitchField } from '@components/Form/Fields/Switch';
+import { useTemplateMode } from './useTemplateMode';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
@@ -113,11 +116,11 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
 }: CustomFieldComponentProps<Props>) {
   const [breakpointMode, setBreakpointMode] = useState(false);
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
-
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const activeBreakpoint = useActiveBreakpoint();
   const getPuck = useGetPuck();
-  const selectedItemProps = usePuck(s => s.selectedItem?.props ?? s.appState.data.root?.props);
+  const selectedItem = usePuck(s => s.selectedItem ?? s.appState.data.root);
+  const selectedItemProps = useMemo(() => selectedItem?.props, [selectedItem]);
 
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
@@ -127,6 +130,16 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     },
     [puckOnChange]
   );
+
+  const componentIdForMap = typeof selectedItemProps?.id === 'string' ? selectedItemProps.id : 'root';
+  const { allowTemplates, templateMode, handleTemplateToggle, templateInputValue, onTemplateInputChange } = useTemplateMode({
+    field,
+    name,
+    value,
+    repositoryId,
+    onChange,
+    componentIdForMap,
+  });
 
   const valueRef = useRef(value);
   useEffect(() => {
@@ -151,7 +164,6 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     // we need the nested name value to work properly with custom fields and currently it doesn't
     // once we have the name field populated, we can extract or update from the breakpoint map below
     // const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
-    console.log('Toggling breakpoint mode for field', name);
     setBreakpointMode(prev => {
       const isBreakpointModeEnabled = !prev;
       if (!isBreakpointModeEnabled) {
@@ -159,7 +171,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       }
       return isBreakpointModeEnabled;
     });
-  }, [onChange, name]);
+  }, [onChange]);
 
   const onToggleExpand = useCallback(() => {
     toggleExpanded(prev => !prev);
@@ -178,10 +190,6 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       </StyledAlert>
     );
   }
-
-  // if (!isVisible) {
-  //   return null;
-  // }
 
   return (
     <Fieldset
@@ -202,6 +210,17 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
         className={`hakit-field-label ${!isExpanded && field.collapseOptions ? 'collapsed' : ''}`}
         endAdornment={
           <>
+            {allowTemplates && (
+              <SwitchField
+                name={`${id}-template-toggle`}
+                label='Template'
+                checked={templateMode}
+                onChange={e => {
+                  e.stopPropagation();
+                  handleTemplateToggle((e.target as HTMLInputElement).checked);
+                }}
+              />
+            )}
             {field.collapseOptions && (
               <IconButton
                 icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
@@ -219,7 +238,11 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       />
       <FieldWrapper className={`hakit-field-wrapper ${!isExpanded && field.collapseOptions ? 'collapsed' : ''} `}>
         <FieldInput className='hakit-field-input'>
-          <CustomAutoField<Props> field={field as CustomFields<Props>} value={value} name={name} onChange={onChange} />
+          {allowTemplates && templateMode ? (
+            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} />
+          ) : (
+            <CustomAutoField<Props> field={field as CustomFields<Props>} value={value} name={name} onChange={onChange} />
+          )}
         </FieldInput>
         {field.responsiveMode && (
           <IconButton

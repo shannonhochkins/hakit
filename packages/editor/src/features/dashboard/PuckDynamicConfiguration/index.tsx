@@ -103,12 +103,22 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
       }
 
       // load the module contents from the current instance
-      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`).then(loadedModule => {
-        if (!loadedModule) {
-          throw new Error(`No "${module.name}" component found`);
-        }
-        return loadedModule;
-      });
+      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`)
+        .then(loadedModule => {
+          if (!loadedModule) {
+            throw new Error(`No "${module.name}" component found`);
+          }
+          return loadedModule;
+        })
+        .catch(e => {
+          console.error(`Failed to load remote "${remote.name}"`, e);
+        });
+      // If the remote fails to load above, we just continue as we don't want to crash the entire dashboard
+      // because of this, it could be a local host remote that's not running or available
+      if (!component) {
+        continue;
+      }
+
       const isRootComponent = component.config.label === 'Root';
 
       if (isRootComponent) {

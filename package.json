@@ -35,7 +35,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "clean": "rm -rf node_modules && rm -rf packages/editor/node_modules && rm -rf packages/addon/node_modules"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

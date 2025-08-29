@@ -43,8 +43,7 @@ await moduleMocker.mock('@components/Alert', () => ({
 }));
 
 await moduleMocker.mock('@features/dashboard/Editor/ErrorBoundary', () => ({
-  ComponentRenderErrorBoundary: ({ children }: { children: React.ReactNode }) =>
-    createElement('div', { 'data-testid': 'error-boundary' }, children),
+  RenderErrorBoundary: ({ children }: { children: React.ReactNode }) => createElement('div', { 'data-testid': 'error-boundary' }, children),
 }));
 
 // Now import the types and main module
