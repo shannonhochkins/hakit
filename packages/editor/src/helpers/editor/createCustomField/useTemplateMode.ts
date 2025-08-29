@@ -70,9 +70,9 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
         onChange(TEMPLATE_PREFIX as unknown as Props);
       } else {
         // toggling OFF: revert to default
-        let nextValue: unknown = (field as unknown as { default?: unknown }).default;
+        let nextValue: unknown = 'default' in field ? field.default : undefined;
         if (typeof nextValue === 'undefined') {
-          const maybeOptions = (field as unknown as { options?: Array<{ value: unknown }> }).options;
+          const maybeOptions = (field as unknown as { options?: Array<{ value: unknown }> })?.options;
           if (Array.isArray(maybeOptions) && maybeOptions.length > 0) {
             nextValue = maybeOptions[0]?.value;
           }

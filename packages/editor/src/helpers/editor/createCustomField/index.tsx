@@ -120,7 +120,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
   const activeBreakpoint = useActiveBreakpoint();
   const getPuck = useGetPuck();
   const selectedItem = usePuck(s => s.selectedItem ?? s.appState.data.root);
-  const selectedItemProps = useMemo(() => selectedItem?.props as Record<string, unknown> | undefined, [selectedItem]);
+  const selectedItemProps = useMemo(() => selectedItem?.props, [selectedItem]);
 
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {

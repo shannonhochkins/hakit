@@ -113,7 +113,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
         .catch(e => {
           console.error(`Failed to load remote "${remote.name}"`, e);
         });
-
+      // If the remote fails to load above, we just continue as we don't want to crash the entire dashboard
+      // because of this, it could be a local host remote that's not running or available
       if (!component) {
         continue;
       }
