@@ -28,8 +28,8 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
     description: 'Provide global CSS styles for the entire dashboard',
     objectFields: {
       css: {
-        type: 'code',
-        language: 'css',
+        type: 'text',
+        // language: 'css',
         label: 'CSS Styles',
         description: 'Provide global CSS styles for the entire dashboard',
         default: '',
