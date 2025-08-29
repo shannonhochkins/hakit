@@ -46,7 +46,23 @@ function collectTemplatePaths(node: unknown, basePath: string[] = []): string[] 
   return results;
 }
 
-// options.deep.deepText
+const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap => {
+  const map: TemplateFieldMap = {};
+  if (!data) return map;
+  // Root under a stable key
+  const rootPaths = collectTemplatePaths(data.root?.props ?? {}, []);
+  if (rootPaths.length > 0) map['root'] = rootPaths;
+
+  // Content components by id
+  const content = (data.content ?? []) as ComponentData[];
+  content.forEach(item => {
+    const id = item?.props?.id as string | undefined;
+    if (!id) return;
+    const paths = collectTemplatePaths(item?.props ?? {}, []);
+    if (paths.length > 0) map[id] = paths;
+  });
+  return map;
+};
 
 type PuckConfigurationStore = {
   activeBreakpoint: BreakPoint;
@@ -95,24 +111,6 @@ type PuckConfigurationStore = {
 
 export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
   let nextId = 0;
-
-  const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap => {
-    const map: TemplateFieldMap = {};
-    if (!data) return map;
-    // Root under a stable key
-    const rootPaths = collectTemplatePaths(data.root?.props ?? {}, []);
-    if (rootPaths.length > 0) map['root'] = rootPaths;
-
-    // Content components by id
-    const content = (data.content ?? []) as ComponentData[];
-    content.forEach(item => {
-      const id = item?.props?.id as string | undefined;
-      if (!id) return;
-      const paths = collectTemplatePaths(item?.props ?? {}, []);
-      if (paths.length > 0) map[id] = paths;
-    });
-    return map;
-  };
 
   return {
     previewCanvasWidth: 0,

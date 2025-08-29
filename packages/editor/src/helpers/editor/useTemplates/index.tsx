@@ -344,9 +344,10 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
       const segs = splitPathToSegs(flatKey);
       const current = getAtPath(next as unknown, segs);
       if (typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX) && connection) {
-        console.error('Unresolved template for', flatKey, current);
         // we can't throw here, as the template may simply not have resolved yet
-        // throw new Error(`Unresolved template for "${flatKey}". Check the template syntax or data availability.`);
+        // for now, let's just return an empty string
+        next = setAtPathImmutable(next, segs, '');
+        changed = true;
       }
     }
 

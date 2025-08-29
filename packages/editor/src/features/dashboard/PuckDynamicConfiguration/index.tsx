@@ -103,12 +103,21 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
       }
 
       // load the module contents from the current instance
-      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`).then(loadedModule => {
-        if (!loadedModule) {
-          throw new Error(`No "${module.name}" component found`);
-        }
-        return loadedModule;
-      });
+      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`)
+        .then(loadedModule => {
+          if (!loadedModule) {
+            throw new Error(`No "${module.name}" component found`);
+          }
+          return loadedModule;
+        })
+        .catch(e => {
+          console.error(`Failed to load remote "${remote.name}"`, e);
+        });
+
+      if (!component) {
+        continue;
+      }
+
       const isRootComponent = component.config.label === 'Root';
 
       if (isRootComponent) {

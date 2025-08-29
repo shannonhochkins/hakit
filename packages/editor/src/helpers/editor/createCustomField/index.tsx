@@ -35,8 +35,7 @@ import { Alert } from '@components/Alert';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { CodeField } from '@components/Form/Fields/Code';
 import { SwitchField } from '@components/Form/Fields/Switch';
-import { EXCLUDE_FIELD_TYPES_FROM_TEMPLATES, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
-import { useGlobalStore } from '@hooks/useGlobalStore';
+import { useTemplateMode } from './useTemplateMode';
 
 // Create an object with keys based on the extracted type values
 const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
@@ -117,35 +116,11 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
 }: CustomFieldComponentProps<Props>) {
   const [breakpointMode, setBreakpointMode] = useState(false);
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
-  const templatesEnabledByType = !EXCLUDE_FIELD_TYPES_FROM_TEMPLATES.includes(field.type);
-  const templatesEnabledByField = field.templates?.enabled !== false;
-  const allowTemplates = templatesEnabledByType && templatesEnabledByField;
-
-  // detect if current value is a template
-  const isTemplateValue = useMemo(() => typeof value === 'string' && (value as unknown as string).startsWith(TEMPLATE_PREFIX), [value]);
-
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const activeBreakpoint = useActiveBreakpoint();
   const getPuck = useGetPuck();
   const selectedItem = usePuck(s => s.selectedItem ?? s.appState.data.root);
   const selectedItemProps = useMemo(() => selectedItem?.props as Record<string, unknown> | undefined, [selectedItem]);
-
-  // template map in store
-  const templateFieldMap = useGlobalStore(s => s.templateFieldMap);
-  const setTemplateFieldMap = useGlobalStore(s => s.setTemplateFieldMap);
-  const componentIdForMap = typeof selectedItemProps?.id === 'string' ? (selectedItemProps.id as string) : 'root';
-
-  // convert dot-notated name to slash path (prefix with repositoryId for root fields)
-  const flatPath = useMemo(() => {
-    const segs = name.split('.').filter(Boolean);
-    const withRepo = repositoryId ? [repositoryId, ...segs] : segs;
-    return withRepo.join('/');
-  }, [name, repositoryId]);
-
-  const templateMode = useMemo(() => {
-    const paths = templateFieldMap[componentIdForMap] ?? [];
-    return paths.includes(flatPath) || isTemplateValue;
-  }, [templateFieldMap, componentIdForMap, flatPath, isTemplateValue]);
 
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
@@ -155,6 +130,16 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     },
     [puckOnChange]
   );
+
+  const componentIdForMap = typeof selectedItemProps?.id === 'string' ? selectedItemProps.id : 'root';
+  const { allowTemplates, templateMode, handleTemplateToggle, templateInputValue, onTemplateInputChange } = useTemplateMode({
+    field,
+    name,
+    value,
+    repositoryId,
+    onChange,
+    componentIdForMap,
+  });
 
   const valueRef = useRef(value);
   useEffect(() => {
@@ -186,7 +171,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       }
       return isBreakpointModeEnabled;
     });
-  }, [onChange, name]);
+  }, [onChange]);
 
   const onToggleExpand = useCallback(() => {
     toggleExpanded(prev => !prev);
@@ -198,43 +183,6 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
     }
   }, [field.collapseOptions, onToggleExpand]);
 
-  const handleTemplateToggle = useCallback(
-    (enabled: boolean) => {
-      // update map
-      const { templateFieldMap: currentMap } = useGlobalStore.getState();
-      const nextMap = { ...currentMap } as Record<string, string[]>;
-      const arr = [...(nextMap[componentIdForMap] ?? [])];
-      const idx = arr.indexOf(flatPath);
-      if (enabled) {
-        if (idx === -1) arr.push(flatPath);
-      } else {
-        if (idx !== -1) arr.splice(idx, 1);
-      }
-      nextMap[componentIdForMap] = arr;
-      setTemplateFieldMap(nextMap);
-
-      if (enabled) {
-        // Reset to empty template marker so it is clearly a templated value
-        onChange(TEMPLATE_PREFIX as unknown as Props);
-      } else {
-        // toggling OFF: revert to default
-        // For fields with options when default is missing, choose first option
-        // Otherwise if default is undefined, emit undefined to reset
-        let nextValue: unknown = (field as unknown as { default?: unknown }).default;
-        if (typeof nextValue === 'undefined') {
-          const maybeOptions = (field as unknown as { options?: Array<{ value: unknown }> }).options;
-          if (Array.isArray(maybeOptions) && maybeOptions.length > 0) {
-            nextValue = maybeOptions[0]?.value;
-          }
-        }
-        // If still undefined, emit undefined as requested
-        // TODO - is this needed? if disabled, then aren't we just a normal field?
-        onChange(nextValue as Props);
-      }
-    },
-    [setTemplateFieldMap, componentIdForMap, flatPath, field, onChange]
-  );
-
   if (!_icon) {
     return (
       <StyledAlert title='Invalid Configuration' severity='error'>
@@ -242,10 +190,6 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       </StyledAlert>
     );
   }
-
-  // if (!isVisible) {
-  //   return null;
-  // }
 
   return (
     <Fieldset
@@ -295,11 +239,7 @@ function CustomFieldComponentInner<Props extends DefaultComponentProps>({
       <FieldWrapper className={`hakit-field-wrapper ${!isExpanded && field.collapseOptions ? 'collapsed' : ''} `}>
         <FieldInput className='hakit-field-input'>
           {allowTemplates && templateMode ? (
-            <CodeField
-              value={typeof value === 'string' ? (value as unknown as string).replace(TEMPLATE_PREFIX, '') : ''}
-              language='jinja2'
-              onChange={val => onChange(`${TEMPLATE_PREFIX}${val}` as unknown as Props)}
-            />
+            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} />
           ) : (
             <CustomAutoField<Props> field={field as CustomFields<Props>} value={value} name={name} onChange={onChange} />
           )}

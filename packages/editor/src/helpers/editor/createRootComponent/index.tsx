@@ -16,7 +16,7 @@ import { CustomFields, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { attachRepositoryReference } from '../pageData/transformFields';
-import { ComponentRenderErrorBoundary } from '@features/dashboard/Editor/ErrorBoundary';
+import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { useTemplates } from '../useTemplates';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
@@ -100,9 +100,9 @@ export async function createRootComponent<P extends DefaultComponentProps>(
     // Create a render function that calls all root render functions
     render(renderProps: RenderProps<InternalRootData & InternalRootComponentFields>) {
       return (
-        <ComponentRenderErrorBoundary prefix='Root'>
+        <RenderErrorBoundary prefix='Root'>
           <Render {...renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
-        </ComponentRenderErrorBoundary>
+        </RenderErrorBoundary>
       );
     },
   };
