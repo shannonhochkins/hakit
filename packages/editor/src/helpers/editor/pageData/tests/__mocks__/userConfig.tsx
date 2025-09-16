@@ -1,4 +1,4 @@
-import { CustomComponentConfigWithDefinition, CustomConfigWithDefinition } from '@typings/puck';
+import { CustomComponentConfig, CustomConfig } from '@typings/puck';
 
 export type LayoutProps = {
   options: {
@@ -21,118 +21,52 @@ export type LayoutProps = {
 
 const ComponentName = 'Field Test' as const;
 
-const FieldTest: CustomComponentConfigWithDefinition<LayoutProps> = {
+const FieldTest: CustomComponentConfig<LayoutProps> = {
   label: ComponentName,
   fields: {
     options: {
-      type: 'custom',
-      render: () => <></>,
-      _field: {
-        type: 'object',
-        label: 'Field Examples',
-        collapseOptions: {
-          startExpanded: true,
+      type: 'object',
+      label: 'Field Examples',
+      collapseOptions: {
+        startExpanded: true,
+      },
+      description: 'Variations of different field types',
+      objectFields: {
+        number: {
+          type: 'number',
+          label: 'Number',
+          default: 16,
+          min: 0,
+          description: 'Number Field',
         },
-        description: 'Variations of different field types',
-        objectFields: {
-          number: {
-            _field: {
-              type: 'number',
-              label: 'Number',
-              default: 16,
-              min: 0,
-              description: 'Number Field',
-            },
-            type: 'custom',
-            render: () => <></>,
+        text: {
+          type: 'text',
+          label: 'Text',
+          default: '',
+          description: 'Text field',
+        },
+        deep: {
+          type: 'object',
+          label: 'Deep Object',
+          collapseOptions: {
+            startExpanded: true,
           },
-          text: {
-            type: 'custom',
-            render: () => <></>,
-            _field: {
+          description: 'Object with nested fields',
+          objectFields: {
+            deepText: {
               type: 'text',
-              label: 'Text',
+              label: 'Deep Text',
               default: '',
-              description: 'Text field',
+              description: 'Text field inside a deep object',
             },
-          },
-          deep: {
-            type: 'custom',
-            render: () => <></>,
-            _field: {
-              type: 'object',
-              label: 'Deep Object',
-              collapseOptions: {
-                startExpanded: true,
-              },
-              description: 'Object with nested fields',
-              objectFields: {
-                deepText: {
-                  _field: {
-                    type: 'text',
-                    label: 'Deep Text',
-                    default: '',
-                    description: 'Text field inside a deep object',
-                  },
-                  type: 'custom',
-                  render: () => <></>,
-                },
-                deepNumber: {
-                  type: 'custom',
-                  render: () => <></>,
-                  _field: {
-                    type: 'number',
-                    label: 'Deep Number',
-                    default: 0,
-                    min: 0,
-                    description: 'Number field inside a deep object',
-                  },
-                },
-                deepArray: {
-                  type: 'custom',
-                  render: () => <></>,
-                  _field: {
-                    type: 'array',
-                    label: 'Array',
-                    default: [],
-                    min: 5,
-                    max: 5,
-                    collapseOptions: {
-                      startExpanded: true,
-                    },
-                    getItemSummary: (item, i) => item.label || `Item #${i}`,
-                    defaultItemProps: {
-                      id: '',
-                      label: 'Item Name',
-                    },
-                    arrayFields: {
-                      label: {
-                        type: 'custom',
-                        render: () => <></>,
-                        _field: {
-                          label: 'Label',
-                          type: 'text',
-                          default: 'Item Name',
-                        },
-                      },
-                      id: {
-                        type: 'custom',
-                        render: () => <></>,
-                        _field: {
-                          type: 'hidden', // Set to hidden from the start
-                          default: '',
-                        },
-                      },
-                    },
-                  },
-                },
-              },
+            deepNumber: {
+              type: 'number',
+              label: 'Deep Number',
+              default: 0,
+              min: 0,
+              description: 'Number field inside a deep object',
             },
-          },
-          array: {
-            type: 'custom',
-            render: () => <></>,
-            _field: {
+            deepArray: {
               type: 'array',
               label: 'Array',
               default: [],
@@ -148,23 +82,41 @@ const FieldTest: CustomComponentConfigWithDefinition<LayoutProps> = {
               },
               arrayFields: {
                 label: {
-                  type: 'custom',
-                  render: () => <></>,
-                  _field: {
-                    label: 'Label',
-                    type: 'text',
-                    default: 'Item Name',
-                  },
+                  label: 'Label',
+                  type: 'text',
+                  default: 'Item Name',
                 },
                 id: {
-                  type: 'custom',
-                  render: () => <></>,
-                  _field: {
-                    type: 'hidden', // Set to hidden from the start
-                    default: '',
-                  },
+                  type: 'hidden',
+                  default: '',
                 },
               },
+            },
+          },
+        },
+        array: {
+          type: 'array',
+          label: 'Array',
+          default: [],
+          min: 5,
+          max: 5,
+          collapseOptions: {
+            startExpanded: true,
+          },
+          getItemSummary: (item, i) => item.label || `Item #${i}`,
+          defaultItemProps: {
+            id: '',
+            label: 'Item Name',
+          },
+          arrayFields: {
+            label: {
+              label: 'Label',
+              type: 'text',
+              default: 'Item Name',
+            },
+            id: {
+              type: 'hidden', // Set to hidden from the start
+              default: '',
             },
           },
         },
@@ -180,7 +132,7 @@ type ComponentType = {
   [ComponentName]: LayoutProps;
 };
 
-export const userConfig: CustomConfigWithDefinition<ComponentType> = {
+export const userConfig: CustomConfig<ComponentType> = {
   components: {
     [ComponentName]: FieldTest,
   },

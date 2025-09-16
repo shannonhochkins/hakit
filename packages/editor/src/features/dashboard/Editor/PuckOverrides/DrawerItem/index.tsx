@@ -4,7 +4,7 @@ import { Column, Row } from '@hakit/components';
 import { Overrides } from '@measured/puck';
 import { GripIcon } from 'lucide-react';
 
-const ComponentItemWrapper = styled(Row)`
+const DrawerItemWrapper = styled(Row)`
   gap: var(--space-3);
   padding: var(--space-2);
   background-color: var(--color-surface-elevated);
@@ -48,12 +48,12 @@ const ComponentName = styled.span`
 //   }
 // `;
 
-export function ComponentItem({
+export function DrawerItem({
   name,
   // children
-}: PropsOf<Overrides['componentItem']>) {
+}: PropsOf<Overrides['drawerItem']>) {
   return (
-    <ComponentItemWrapper key={name} draggable wrap='nowrap' fullWidth alignItems='center' justifyContent='start'>
+    <DrawerItemWrapper key={name} draggable wrap='nowrap' fullWidth alignItems='center' justifyContent='start'>
       <GripIconWrapper className='grip-icon'>
         <GripIcon size={20} />
       </GripIconWrapper>
@@ -65,6 +65,6 @@ export function ComponentItem({
             <img src={component.thumbnail} alt={component.name} />
           </ComponentThumbnail>
         )} */}
-    </ComponentItemWrapper>
+    </DrawerItemWrapper>
   );
 }

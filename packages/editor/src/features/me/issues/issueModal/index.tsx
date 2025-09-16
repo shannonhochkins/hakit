@@ -220,7 +220,7 @@ export function IssueModal({
             fullWidth
           />
         </Column>
-        <SimilarIssues query={title} onSelect={() => onClose()} />
+        <SimilarIssues query={title} onSelect={onClose} />
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Description</div>
           <div style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-2)' }}>

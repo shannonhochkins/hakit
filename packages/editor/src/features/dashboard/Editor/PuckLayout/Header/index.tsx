@@ -11,7 +11,7 @@ import { PageSelector } from './PageSelector';
 import { FeatureText } from '@components/FeatureText';
 import { Divider } from '@mui/material';
 import { PageForm } from '../../../../../components/Modal/PageForm';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDashboard } from '@hooks/queeries/useDashboard';
 
 // Styled Components
@@ -68,6 +68,10 @@ export function Header() {
     });
   }
 
+  const onClose = useCallback(() => {
+    setOpenNewPage(false);
+  }, []);
+
   return (
     <StyledHeader $hidden={isFullscreen}>
       <HeaderLeft>
@@ -111,9 +115,7 @@ export function Header() {
         mode='new'
         dashboardId={data?.id}
         isOpen={newPageOpen}
-        onClose={() => {
-          setOpenNewPage(false);
-        }}
+        onClose={onClose}
         onSuccess={newPage => {
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',

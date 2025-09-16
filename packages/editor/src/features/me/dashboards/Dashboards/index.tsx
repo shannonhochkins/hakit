@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import styled from '@emotion/styled';
 import {
   PlusIcon,
@@ -467,6 +467,19 @@ export function Dashboards() {
     }
   };
 
+  const handleClosePageForm = useCallback(() => {
+    setPageFormMode(null);
+    setSelectedDashboardId(null);
+    setEditingPageId(null);
+  }, []);
+
+  const handlePageFormSuccess = useCallback(() => {
+    setPageFormMode(null);
+    setSelectedDashboardId(null);
+    setEditingPageId(null);
+    dashboardsQuery.refetch();
+  }, [dashboardsQuery]);
+
   const confirmDelete = async () => {
     if (deletingDashboardId) {
       // Delete dashboard
@@ -755,17 +768,8 @@ export function Dashboards() {
         dashboardId={selectedDashboardId || undefined}
         pageId={editingPageId || undefined}
         isOpen={pageFormMode !== null}
-        onClose={() => {
-          setPageFormMode(null);
-          setSelectedDashboardId(null);
-          setEditingPageId(null);
-        }}
-        onSuccess={() => {
-          setPageFormMode(null);
-          setSelectedDashboardId(null);
-          setEditingPageId(null);
-          dashboardsQuery.refetch();
-        }}
+        onClose={handleClosePageForm}
+        onSuccess={handlePageFormSuccess}
       />
 
       <Confirm

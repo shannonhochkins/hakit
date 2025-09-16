@@ -35,6 +35,7 @@ export function Editor() {
   }, []);
 
   const handlePuckChange = (newData: PuckPageData) => {
+    console.log('handlePuckChange', newData);
     // we've just received a new update for the entire puck page data
     // we should now take the current data, merge with the original data
     // sort out any new breakpoint values based on flags set in the store

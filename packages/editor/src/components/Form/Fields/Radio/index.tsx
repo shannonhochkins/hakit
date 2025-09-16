@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { RadioField as PuckRadioField } from '@measured/puck';
 import { Radio, RadioGroup, FormControl, FormControlLabel, FormHelperText } from '@mui/material';
 
 const StyledFormControl = styled(FormControl)`
@@ -73,9 +74,9 @@ export interface RadioOption {
 }
 
 export interface RadioFieldProps {
-  value?: string | number | boolean;
-  options: RadioOption[];
-  onChange?: (value: string | number | boolean) => void;
+  value?: string | number | boolean | undefined | null | object;
+  options: PuckRadioField['options'];
+  onChange?: (value: string | number | boolean | undefined | null | object) => void;
   helperText?: string;
   error?: boolean;
   disabled?: boolean;

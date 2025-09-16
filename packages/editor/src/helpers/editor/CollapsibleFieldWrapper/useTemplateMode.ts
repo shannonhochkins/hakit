@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react';
 import type { DefaultComponentProps } from '@measured/puck';
 import { EXCLUDE_FIELD_TYPES_FROM_TEMPLATES, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
-import type { CustomFieldsWithDefinition } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
+import { FieldConfiguration } from '@typings/fields';
 
 type UseTemplateModeParams<Props extends DefaultComponentProps> = {
-  field: CustomFieldsWithDefinition<Props>['_field'];
+  field: FieldConfiguration[string];
   name: string;
   value: Props;
   repositoryId?: string;
@@ -40,12 +40,16 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
 
   // Convert a dot-notated name into a path that protects repository ids by using '/'
   const flatPath = useMemo(() => {
+    if (!name) {
+      return undefined;
+    }
     const segs = name.split('.').filter(Boolean);
     const withRepo = repositoryId ? [repositoryId, ...segs] : segs;
     return withRepo.join('/');
   }, [name, repositoryId]);
 
   const templateMode = useMemo(() => {
+    if (!flatPath) return false;
     const paths = templateFieldMap[componentIdForMap] ?? [];
     return paths.includes(flatPath) || isTemplateValue;
   }, [templateFieldMap, componentIdForMap, flatPath, isTemplateValue]);
@@ -53,6 +57,7 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
   const handleTemplateToggle = useCallback(
     (enabled: boolean) => {
       // update map
+      if (!flatPath) return;
       const { templateFieldMap: currentMap } = useGlobalStore.getState();
       const nextMap = { ...currentMap } as Record<string, string[]>;
       const arr = [...(nextMap[componentIdForMap] ?? [])];

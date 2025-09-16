@@ -214,11 +214,11 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!isSubmitting) {
       onClose();
     }
-  };
+  }, [isSubmitting, onClose]);
 
   const formTitle = mode === 'new' ? 'Create New Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Edit Page';
 

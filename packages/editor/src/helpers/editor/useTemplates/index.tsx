@@ -101,9 +101,9 @@ function coerceToTypeStrict(value: unknown, fieldType: string | undefined): Coer
         const cleaned = value.replace(/\s+/g, '');
         const n = parseFloat(cleaned);
         if (!Number.isNaN(n)) return { ok: true, value: n };
-        return { ok: false, error: `Expected number but got "${value}"` };
+        return { ok: false, error: `Expected "number" but got "${value}"` };
       }
-      return { ok: false, error: `Expected number but got type ${typeof value}` };
+      return { ok: false, error: `Expected "number" but got type ${typeof value}` };
     }
     case 'switch': {
       if (typeof value === 'boolean') return { ok: true, value };
@@ -112,9 +112,9 @@ function coerceToTypeStrict(value: unknown, fieldType: string | undefined): Coer
         const v = value.replace(/\s+/g, '').toLowerCase();
         if (v === 'true' || v === 'on' || v === 'yes' || v === '1') return { ok: true, value: true };
         if (v === 'false' || v === 'off' || v === 'no' || v === '0') return { ok: true, value: false };
-        return { ok: false, error: `Expected boolean but got "${value}"` };
+        return { ok: false, error: `Expected "boolean" but got "${value}"` };
       }
-      return { ok: false, error: `Expected boolean but got type ${typeof value}` };
+      return { ok: false, error: `Expected "boolean" but got type ${typeof value}` };
     }
     // treat these as strings explicitly
     case 'text':
@@ -131,7 +131,7 @@ function coerceToTypeStrict(value: unknown, fieldType: string | undefined): Coer
       try {
         return { ok: true, value: String(value) };
       } catch {
-        return { ok: false, error: `Expected string but got unstringifiable value` };
+        return { ok: false, error: `Expected "string" but got unstringifiable value` };
       }
     }
     default:
@@ -261,7 +261,9 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
     return template;
   }, [expressions, keys]);
 
-  const enabled = expressions.length > 0 || emptyKeys.length > 0;
+  // Only enable remote template evaluation when we actually have expressions to evaluate.
+  // Empty template markers should be handled locally without calling the engine.
+  const enabled = expressions.length > 0;
 
   const templateParams = useMemo(
     () => ({ template: combinedTemplate, enabled, report_errors: true, strict: false }),
@@ -280,22 +282,29 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
   });
   // 4) Write resolved values back using per-entry updates, including empty templates
   const resolvedProps = useMemo(() => {
-    // If nothing to do, return original
-    if (!enabled) return props;
-
-    // Parse mapping if present
-    let parsed: Record<string, unknown> = {};
-    if (typeof resolvedJson === 'string') {
-      // error string from HA - include template for context
-      throw new Error(`Template engine error: ${resolvedJson}. Template: ${combinedTemplate}`);
-    } else if (resolvedJson && typeof resolvedJson === 'object') {
-      parsed = resolvedJson as unknown as Record<string, unknown>;
-    } else {
-      parsed = {} as Record<string, unknown>;
-    }
-
     let next = props as unknown as T;
     let changed = false;
+
+    // Parse mapping only if we actually evaluated a template
+    let parsed: Record<string, unknown> = {};
+    if (enabled) {
+      if (typeof resolvedJson === 'string') {
+        const trimmed = resolvedJson.trim();
+        // Try to parse as JSON if the engine returned a JSON string; otherwise, treat as non-fatal error
+        if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+          try {
+            parsed = JSON.parse(trimmed) as Record<string, unknown>;
+          } catch {
+            // Non-fatal: keep parsed as empty
+          }
+        } else {
+          // Non-fatal engine error: do not throw, leave parsed empty so we don't update props
+          // console.error(`Template engine error: ${resolvedJson}. Template: ${combinedTemplate}`);
+        }
+      } else if (resolvedJson && typeof resolvedJson === 'object') {
+        parsed = resolvedJson as unknown as Record<string, unknown>;
+      }
+    }
 
     // Apply resolved values with type coercion
     for (const [flatKey, value] of Object.entries(parsed)) {
@@ -306,7 +315,8 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
       const expectedType = getExpectedFieldType(userConfig, componentId, flatKey);
       const coercedResult = coerceToTypeStrict(value, expectedType);
       if (!coercedResult.ok) {
-        throw new Error(`Template value error for "${flatKey}": ${coercedResult.error}`);
+        // Skip invalid values rather than crashing the UI
+        continue;
       }
       const coerced = coercedResult.value;
 
@@ -339,20 +349,18 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
       }
     }
 
-    // Final validation: any templated field still unresolved? throw
+    // Final validation: any templated field still unresolved? replace with empty string
     for (const flatKey of keys) {
       const segs = splitPathToSegs(flatKey);
       const current = getAtPath(next as unknown, segs);
       if (typeof current === 'string' && current.startsWith(TEMPLATE_PREFIX) && connection) {
-        // we can't throw here, as the template may simply not have resolved yet
-        // for now, let's just return an empty string
         next = setAtPathImmutable(next, segs, '');
         changed = true;
       }
     }
 
     return changed ? next : props;
-  }, [resolvedJson, emptyKeys, props, userConfig, componentId, connection, enabled, combinedTemplate, keys]);
+  }, [resolvedJson, emptyKeys, props, userConfig, componentId, connection, enabled, keys]);
 
   return resolvedProps;
 }

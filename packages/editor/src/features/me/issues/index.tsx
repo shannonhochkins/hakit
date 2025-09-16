@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { issuesQueryOptions, createIssue } from '@services/issues';
@@ -226,8 +226,12 @@ export function Issues() {
   const search = IssuesRoute.useSearch();
   const navigate = useNavigate();
 
+  const onClose = useCallback(() => {
+    setCreateOpen(false);
+  }, []);
+
   // Open modal if requested via search param
-  React.useEffect(() => {
+  useEffect(() => {
     if (search.modal === 'new') {
       setCreateOpen(true);
       navigate({ to: '/me/issues', replace: true, search: { modal: undefined } });
@@ -246,6 +250,13 @@ export function Issues() {
       setCreateOpen(false);
     },
   });
+
+  const onCreate = useCallback(
+    (payload: { title: string; description: string; labels: string[]; area?: string }) => {
+      createMutation.mutate(payload);
+    },
+    [createMutation]
+  );
 
   return (
     <Container>
@@ -423,12 +434,7 @@ export function Issues() {
         </>
       )}
 
-      <IssueModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreate={payload => createMutation.mutate(payload)}
-        loading={createMutation.isPending}
-      />
+      <IssueModal open={createOpen} onClose={onClose} onCreate={onCreate} loading={createMutation.isPending} />
     </Container>
   );
 }

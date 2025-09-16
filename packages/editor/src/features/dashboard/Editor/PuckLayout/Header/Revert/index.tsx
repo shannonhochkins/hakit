@@ -17,6 +17,7 @@ const RevertContent = styled.div`
 export function Revert() {
   const { hasUnsavedChanges, revertChanges } = useUnsavedChanges();
   const [showConfirm, setShowConfirm] = useState(false);
+
   const dispatch = usePuck(state => state.dispatch);
   const setHistories = usePuck(state => state.history.setHistories);
 
@@ -25,6 +26,10 @@ export function Revert() {
     setHistories([]);
     setShowConfirm(false);
   }, [revertChanges, setHistories, dispatch]);
+
+  const onClose = useCallback(() => {
+    setShowConfirm(false);
+  }, []);
 
   if (!hasUnsavedChanges) {
     return null;
@@ -43,13 +48,13 @@ export function Revert() {
         aria-label='Revert changes'
       />
 
-      <Modal open={showConfirm} title='Revert All Changes?' onClose={() => setShowConfirm(false)}>
+      <Modal open={showConfirm} title='Revert All Changes?' onClose={onClose}>
         <RevertContent>
           This will discard all unsaved changes and restore the page to its last saved state. This action cannot be undone.
         </RevertContent>
 
         <ModalActions style={{ padding: 'var(--space-4)' }}>
-          <SecondaryButton aria-label='' onClick={() => setShowConfirm(false)}>
+          <SecondaryButton aria-label='' onClick={onClose}>
             Cancel
           </SecondaryButton>
           <PrimaryButton aria-label='' onClick={handleRevert} autoFocus>

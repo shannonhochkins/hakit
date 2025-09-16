@@ -157,16 +157,16 @@ describe('createComponent', () => {
 
     // Verify transformed structure
     expect(transformedFields.text.type).toBe('custom');
-    expect(transformedFields.text.type === 'slot' ? null : transformedFields.text._field.type).toBe('text');
+    expect(transformedFields.text.type === 'slot' ? null : transformedFields.text.type).toBe('text');
 
     const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('custom');
-    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
-    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
+    expect(stylesField.type === 'slot' ? null : stylesField.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField ? stylesField.label : null).toBe('Style Overrides');
   });
 
   test('should handle empty fields correctly', async () => {
@@ -186,12 +186,12 @@ describe('createComponent', () => {
 
     const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
-    expect(activeBreakpointField.type === 'slot' ? null : typeof activeBreakpointField.render).toBe('function');
+    expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('custom');
-    expect(stylesField.type === 'slot' ? null : stylesField._field.type).toBe('object');
-    expect(stylesField.type === 'slot' ? null : 'label' in stylesField._field ? stylesField._field.label : null).toBe('Style Overrides');
+    expect(stylesField.type === 'slot' ? null : stylesField.type).toBe('object');
+    expect(stylesField.type === 'slot' ? null : 'label' in stylesField ? stylesField.label : null).toBe('Style Overrides');
   });
 
   test('should preserve original config properties', async () => {

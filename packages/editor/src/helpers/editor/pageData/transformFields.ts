@@ -1,4 +1,4 @@
-import { createCustomField } from '@helpers/editor/createCustomField';
+import { createCustomField } from '@helpers/editor/FieldContainer/Standard';
 import type { FieldConfiguration, FieldConfigurationWithDefinition } from '@typings/fields';
 import type { ComponentData, DefaultComponentProps } from '@measured/puck';
 
@@ -43,42 +43,37 @@ export function transformFields<P extends DefaultComponentProps, DataShape = Omi
   fields: FieldConfiguration<P, DataShape>,
   isTopLevel: boolean = true
 ): FieldConfigurationWithDefinition<P> {
-  const result = {} as FieldConfigurationWithDefinition<P>;
-
-  for (const [fieldName, fieldDef] of typedEntries(fields)) {
-    // Skip processing 'id' fields only at the top level (they are system fields for components)
-    if (fieldName === 'id' && isTopLevel) {
-      continue;
-    }
-
-    if (fieldDef.type === 'slot') {
-      // If it's a slot field, we can just create it directly
-      // @ts-expect-error - slots behave differently, we know this is fine
-      result[fieldName] = fieldDef;
-      continue;
-    }
-
-    // If it's an object field, recurse into objectFields
-    if (fieldDef.type === 'object' && fieldDef.objectFields) {
-      // @ts-expect-error - Fix later
-      fieldDef.objectFields = transformFields(fieldDef.objectFields, false); // Not top level anymore
-      // @ts-expect-error - Fix later
-      result[fieldName] = createCustomField(fieldDef);
-
-      // If it's an array field, recurse into arrayFields
-    } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
-      // @ts-expect-error - Fix later
-      fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields, false); // Not top level anymore
-      // @ts-expect-error - Fix later
-      result[fieldName] = createCustomField(fieldDef);
-
-      // Otherwise it’s just a normal field, no further recursion
-    } else {
-      // @ts-expect-error - Fix later
-      result[fieldName] = createCustomField<P>(fieldDef);
-    }
-  }
-  return result;
+  // const result = {} as FieldConfigurationWithDefinition<P>;
+  // for (const [fieldName, fieldDef] of typedEntries(fields)) {
+  //   // Skip processing 'id' fields only at the top level (they are system fields for components)
+  //   if (fieldName === 'id' && isTopLevel) {
+  //     continue;
+  //   }
+  //   if (fieldDef.type === 'slot') {
+  //     // If it's a slot field, we can just create it directly
+  //     // @ts-expect-error - slots behave differently, we know this is fine
+  //     result[fieldName] = fieldDef;
+  //     continue;
+  //   }
+  //   // If it's an object field, recurse into objectFields
+  //   if (fieldDef.type === 'object' && fieldDef.objectFields) {
+  //     // @ts-expect-error - Fix later
+  //     fieldDef.objectFields = transformFields(fieldDef.objectFields, false); // Not top level anymore
+  //     // @ts-expect-error - Fix later
+  //     result[fieldName] = createCustomField(fieldDef);
+  //     // If it's an array field, recurse into arrayFields
+  //   } else if (fieldDef.type === 'array' && fieldDef.arrayFields) {
+  //     // @ts-expect-error - Fix later
+  //     fieldDef.arrayFields = transformFields<P>(fieldDef.arrayFields, false); // Not top level anymore
+  //     // @ts-expect-error - Fix later
+  //     result[fieldName] = createCustomField(fieldDef);
+  //     // Otherwise it’s just a normal field, no further recursion
+  //   } else {
+  //     // @ts-expect-error - Fix later
+  //     result[fieldName] = createCustomField<P>(fieldDef);
+  //   }
+  // }
+  // return result;
 }
 
 /**

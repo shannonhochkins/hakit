@@ -1,12 +1,7 @@
 import { Config, DefaultComponentProps } from '@measured/puck';
 import { registerRemotes, loadRemote, registerPlugins } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import {
-  CustomComponentConfigWithDefinition,
-  CustomConfigWithDefinition,
-  type ComponentFactoryData,
-  type CustomComponentConfig,
-} from '@typings/puck';
+import { CustomComponentConfig, CustomConfig, type ComponentFactoryData } from '@typings/puck';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
@@ -97,9 +92,9 @@ async function buildRemoteWithDbFallback(userRepo: UserRepo, manifestCache: Map<
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData) {
-  const components: Record<string, CustomComponentConfigWithDefinition<DefaultComponentProps>> = {};
+  const components: Record<string, CustomComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
-  const categories: NonNullable<CustomConfigWithDefinition['categories']> = {} as NonNullable<Config['categories']>;
+  const categories: NonNullable<Config['categories']> = {};
   const userRepositories = await getUserRepositories();
   const remoteManifest = new Map<string, MfManifest>();
   // Create a map of excluded components by repository name
@@ -210,10 +205,9 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // generate the merged root configuration
   const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions
-  const config: CustomConfigWithDefinition<DefaultComponentProps> = {
+  const config: CustomConfig<DefaultComponentProps> = {
     components,
     categories,
-    // @ts-expect-error - doesn't contain internal fields in the typings at this level
     root: rootConfig,
   };
 

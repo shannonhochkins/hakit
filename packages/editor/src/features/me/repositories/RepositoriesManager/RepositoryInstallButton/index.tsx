@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { PrimaryButton } from '@components/Button/Primary';
 import { DownloadIcon, TrashIcon, RefreshCwIcon } from 'lucide-react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -153,6 +153,10 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
   // Find the user repository for the update modal
   const userRepository = userRepositoriesQuery.data?.find(ur => ur.repositoryId === repository.repository.id);
 
+  const onClose = useCallback(() => {
+    setShowUpdateModal(false);
+  }, []);
+
   return (
     <>
       <PrimaryButton
@@ -168,7 +172,7 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
       {hasUpdate && <IconButton onClick={uninstallRepository} aria-label='Uninstall' icon={<TrashIcon size={16} />} variant='error' />}
 
       {showUpdateModal && userRepository && (
-        <UpdateRepositoryModal open={showUpdateModal} onClose={() => setShowUpdateModal(false)} userRepository={userRepository} />
+        <UpdateRepositoryModal open={showUpdateModal} onClose={onClose} userRepository={userRepository} />
       )}
     </>
   );

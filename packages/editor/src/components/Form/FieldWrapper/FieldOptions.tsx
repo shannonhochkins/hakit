@@ -1,4 +1,4 @@
-import { useState, type SyntheticEvent } from 'react';
+import { useCallback, useState, type SyntheticEvent } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
@@ -32,9 +32,9 @@ export function FieldOptions({ options }: FieldOptionsProps) {
   const handleClick = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget as HTMLElement);
   };
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+  }, []);
 
   return (
     <div>

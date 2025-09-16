@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.14.0",
     "@hakit/components": "^5.1.5",
     "@hakit/core": "^5.1.5",
-    "@measured/puck": "^0.19.3",
+    "@measured/puck": "^0.20.1",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^7.0.2",
     "@tanstack/react-query": "^5.81.5",

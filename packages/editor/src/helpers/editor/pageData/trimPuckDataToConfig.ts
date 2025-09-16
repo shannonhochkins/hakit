@@ -1,6 +1,6 @@
-import { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
+import { CustomConfig, PuckPageData } from '@typings/puck';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
-import { CustomField, CustomFields, CustomFieldsWithDefinition, SlotField } from '@typings/fields';
+import { FieldConfiguration } from '@typings/fields';
 
 /**
  * Trims PuckPageData to only include fields that are defined in the userConfig.
@@ -27,10 +27,7 @@ import { CustomField, CustomFields, CustomFieldsWithDefinition, SlotField } from
  * ```
  * // TODO - figure out how to trim zones that have information that no longer are valid
  */
-export function trimPuckDataToConfig(
-  data: PuckPageData | null,
-  userConfig?: CustomConfigWithDefinition<DefaultComponentProps, DefaultComponentProps>
-): PuckPageData | null {
+export function trimPuckDataToConfig(data: PuckPageData | null, userConfig?: CustomConfig<DefaultComponentProps>): PuckPageData | null {
   if (!data || !userConfig) return data;
 
   // Deep clone to avoid mutations
@@ -43,8 +40,7 @@ export function trimPuckDataToConfig(
   // Helper function to trim object fields recursively
   const trimObjectFields = (
     obj: Record<string, unknown>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    objectFields: Record<string, CustomFields<any, object, any> | SlotField | CustomField<any, CustomFieldsWithDefinition<any, any>>>
+    objectFields: Record<string, FieldConfiguration[string]>
   ): Record<string, unknown> => {
     const result: Record<string, unknown> = {};
 
@@ -54,14 +50,14 @@ export function trimPuckDataToConfig(
       if (value === undefined) return;
       if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
       // Check if this is an object field that has nested objectFields
-      if ('_field' in fieldConfig && fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
-        const nestedObjectFields = fieldConfig._field.objectFields;
+      if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+        const nestedObjectFields = fieldConfig.objectFields;
         // Recursively trim nested object fields
         if (typeof value === 'object' && value !== null) {
           result[fieldKey] = trimObjectFields(value as Record<string, unknown>, nestedObjectFields);
         }
-      } else if ('_field' in fieldConfig && fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-        const arrayFields = fieldConfig._field.arrayFields;
+      } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+        const arrayFields = fieldConfig.arrayFields;
         // Recursively trim array fields
         if (Array.isArray(value)) {
           result[fieldKey] = value.map(item => {
@@ -106,13 +102,13 @@ export function trimPuckDataToConfig(
           if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
           // Note: We don't skip 'id' here because it might be a valid nested field in objectFields/arrayFields
           // Check if this is an object field that has nested objectFields
-          if ('_field' in fieldConfig && fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
+          if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
             // Recursively trim object fields
             if (typeof value === 'object' && value !== null) {
-              trimmedProps[fieldKey] = trimObjectFields(value as Record<string, unknown>, fieldConfig._field.objectFields);
+              trimmedProps[fieldKey] = trimObjectFields(value, fieldConfig.objectFields);
             }
-          } else if ('_field' in fieldConfig && fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-            const arrayFields = fieldConfig._field.arrayFields;
+          } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+            const arrayFields = fieldConfig.arrayFields;
             // Recursively trim array fields
             if (Array.isArray(value)) {
               trimmedProps[fieldKey] = value.map(item => {
@@ -149,14 +145,14 @@ export function trimPuckDataToConfig(
         if (value === undefined) return;
         if (fieldConfig.type === 'slot') return; // Skip slot types
         // Check if this is an object field that has nested objectFields
-        if (fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
-          const objectFields = fieldConfig._field.objectFields;
+        if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+          const objectFields = fieldConfig.objectFields;
           // Recursively trim object fields
           if (typeof value === 'object' && value !== null) {
             trimmedRootProps[fieldKey] = trimObjectFields(value as Record<string, unknown>, objectFields);
           }
-        } else if (fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-          const arrayFields = fieldConfig._field.arrayFields;
+        } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+          const arrayFields = fieldConfig.arrayFields;
           // Recursively trim array fields
           if (Array.isArray(value)) {
             trimmedRootProps[fieldKey] = value.map(item => {

@@ -243,6 +243,7 @@ describe('transformFields', () => {
         hiddenField: {
           type: 'hidden',
           default: 'hidden-value',
+          // @ts-expect-error - even though typescript doesn't allow this, we're just testing it
           responsiveMode: true, // Should be reverted to false
         },
         // Control test: normal field that should respect responsiveMode: true
@@ -714,6 +715,7 @@ describe('transformFields', () => {
         hiddenField: {
           type: 'hidden',
           default: 'hidden-value',
+          // @ts-expect-error - even though typescript doesn't allow this, we're just testing it
           responsiveMode: true, // this will be automatically reverted to false
         },
         complexObject: {

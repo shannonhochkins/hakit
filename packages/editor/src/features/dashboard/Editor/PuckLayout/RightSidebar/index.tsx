@@ -74,6 +74,17 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
       recordHistory: true,
     });
   }, [dispatch]);
+
+  const onClickExpandSidebar = useCallback(() => {
+    setRightSidebarCollapsed(false);
+    onToggle(false);
+  }, [setRightSidebarCollapsed, onToggle]);
+
+  const onClickCollapseSidebar = useCallback(() => {
+    setRightSidebarCollapsed(true);
+    onToggle(true);
+  }, [setRightSidebarCollapsed, onToggle]);
+
   const tabHeading = selectedItem ? `${selectedItem.type} Options` : 'Global Options';
 
   return (
@@ -82,10 +93,7 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
         <CollapsedSidebar>
           <IconButton
             variant='transparent'
-            onClick={() => {
-              setRightSidebarCollapsed(false);
-              onToggle(false);
-            }}
+            onClick={onClickExpandSidebar}
             icon={<PanelLeftIcon size={18} />}
             aria-label='Expand properties'
           />
@@ -95,10 +103,7 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
           <SidebarHeader>
             <IconButton
               variant='transparent'
-              onClick={() => {
-                setRightSidebarCollapsed(true);
-                onToggle(true);
-              }}
+              onClick={onClickCollapseSidebar}
               icon={<PanelRightIcon size={16} />}
               aria-label='Collapse properties'
             />

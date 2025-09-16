@@ -111,14 +111,7 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
     : null;
 
   return (
-    <Modal
-      open
-      title='Home Assistant URL'
-      hideCloseButton
-      onClose={() => {
-        // do nothing, the value provided below will automatically close the modal when the hassUrl is provided
-      }}
-    >
+    <Modal open title='Home Assistant URL' hideCloseButton>
       <FieldGroup
         style={{
           width: '100%',

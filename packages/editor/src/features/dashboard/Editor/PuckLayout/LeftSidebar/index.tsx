@@ -4,6 +4,7 @@ import { Tabs, Tab } from '@mui/material';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { Puck } from '@measured/puck';
 import { IconButton } from '@components/Button/IconButton';
+import React, { useCallback } from 'react';
 
 const CollapsedSidebar = styled.div`
   width: 100%;
@@ -105,19 +106,39 @@ export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => vo
 
   const { isCollapsed, activeTab } = leftSidebar;
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: string) => {
-    setLeftSidebarTab(newValue as 'components' | 'outline');
-  };
+  const onClickCollapseSidebar = useCallback(() => {
+    setLeftSidebarCollapsed(true);
+    onToggle(true);
+  }, [setLeftSidebarCollapsed, onToggle]);
+
+  const onClickExpandSidebar = useCallback(() => {
+    setLeftSidebarCollapsed(false);
+    onToggle(false);
+  }, [setLeftSidebarCollapsed, onToggle]);
+
+  const onClickComponentsTab = useCallback(() => {
+    setLeftSidebarTab('components');
+    setLeftSidebarCollapsed(false);
+  }, [setLeftSidebarTab, setLeftSidebarCollapsed]);
+
+  const onClickOutlineTab = useCallback(() => {
+    setLeftSidebarTab('outline');
+    setLeftSidebarCollapsed(false);
+  }, [setLeftSidebarTab, setLeftSidebarCollapsed]);
+
+  const handleTabChange = useCallback(
+    (_: React.SyntheticEvent, newValue: string) => {
+      setLeftSidebarTab(newValue as 'components' | 'outline');
+    },
+    [setLeftSidebarTab]
+  );
 
   return (
     <>
       {isCollapsed ? (
         <CollapsedSidebar>
           <IconButton
-            onClick={() => {
-              setLeftSidebarCollapsed(false);
-              onToggle(false);
-            }}
+            onClick={onClickExpandSidebar}
             aria-label='Expand sidebar'
             variant='transparent'
             icon={<PanelRightIcon size={18} />}
@@ -127,20 +148,14 @@ export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => vo
             <IconButton
               variant='transparent'
               active={activeTab === 'components'}
-              onClick={() => {
-                setLeftSidebarCollapsed(false);
-                setLeftSidebarTab('components');
-              }}
+              onClick={onClickComponentsTab}
               aria-label='Components'
               icon={<BoxIcon size={18} />}
             ></IconButton>
             <IconButton
               variant='transparent'
               active={activeTab === 'outline'}
-              onClick={() => {
-                setLeftSidebarCollapsed(false);
-                setLeftSidebarTab('outline');
-              }}
+              onClick={onClickOutlineTab}
               aria-label='Outline'
               icon={<Layers2Icon size={18} />}
             />
@@ -156,10 +171,7 @@ export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => vo
             <IconButton
               variant='transparent'
               icon={<PanelLeftIcon size={16} />}
-              onClick={() => {
-                setLeftSidebarCollapsed(true);
-                onToggle(true);
-              }}
+              onClick={onClickCollapseSidebar}
               aria-label='Collapse sidebar'
             />
           </SidebarHeader>

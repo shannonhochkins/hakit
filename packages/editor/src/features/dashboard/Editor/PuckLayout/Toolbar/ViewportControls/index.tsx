@@ -118,7 +118,7 @@ export function formatMediaQuery(media: string): string {
   return media;
 }
 
-export const ViewportControls = () => {
+const ViewportControlsComponent = () => {
   const [editingBreakpoints, setEditingBreakpoints] = useState(false);
   const breakpointItems = useGlobalStore(store => store.breakpointItems);
   const options = useMemo(() => breakpointItems.filter(item => !item.disabled), [breakpointItems]);
@@ -264,6 +264,10 @@ export const ViewportControls = () => {
     }
   }, [activeViewport, controlledBreakpointItems, validBreakpoints]);
 
+  const onClose = useCallback(() => {
+    setEditingBreakpoints(false);
+  }, []);
+
   if (!value) {
     return null;
   }
@@ -321,13 +325,7 @@ export const ViewportControls = () => {
       <ZoomControls>
         <ZoomDisplay title='Auto-scaled zoom level'>{Math.round(previewZoom * 100)}% (auto)</ZoomDisplay>
       </ZoomControls>
-      <Modal
-        open={editingBreakpoints}
-        title='Breakpoints'
-        onClose={() => {
-          setEditingBreakpoints(false);
-        }}
-      >
+      <Modal open={editingBreakpoints} title='Breakpoints' onClose={onClose}>
         <p>
           Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one
           before it.
@@ -549,3 +547,5 @@ export const ViewportControls = () => {
     </StyledViewportControls>
   );
 };
+
+export const ViewportControls = React.memo(ViewportControlsComponent);

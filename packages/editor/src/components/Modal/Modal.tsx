@@ -131,7 +131,7 @@ export interface ModalProps extends Omit<Extendable, 'title'> {
   /** the description of the modal */
   description?: ReactNode;
   /** triggered when the users pressed the close button, this is also triggered when the escape key is pressed */
-  onClose: () => void;
+  onClose?: () => void;
   /** any prop to pass to the backdrop element */
   backdropProps?: React.ComponentPropsWithoutRef<'div'>;
   /** react elements to render next to the close button */
@@ -228,7 +228,7 @@ export function Modal({
           id={`${prefix}-backdrop`}
           onClick={() => {
             if (open) {
-              onClose();
+              onClose?.();
             }
           }}
           style={{

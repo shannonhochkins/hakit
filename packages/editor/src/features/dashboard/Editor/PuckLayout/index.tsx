@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useGlobalStore } from '@hooks/useGlobalStore';
 import { Column, Row } from '@hakit/components';
 import { Preview } from './Preview';
 import { Header } from './Header';
@@ -10,6 +9,7 @@ import styled from '@emotion/styled';
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { ResizeHandleIcon } from './ResizeHandle';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
+import { useGlobalStore } from '@hooks/useGlobalStore';
 
 const StyledPanelResizeHandle = styled(PanelResizeHandle)`
   position: relative;
@@ -98,9 +98,10 @@ export function PuckLayout() {
           opacity: emotionCache ? 1 : 0,
         }}
       >
-        <PanelGroup autoSaveId='hakit-panels' direction='horizontal'>
+        <PanelGroup autoSaveId='hakit-panels' direction='horizontal' id='hakit-panels'>
           <Panel
             ref={leftPanelRef}
+            id='hakit-left-panel'
             defaultSize={15}
             collapsible
             // get 50px as a percentage of the viewport width
@@ -115,17 +116,18 @@ export function PuckLayout() {
           <StyledPanelResizeHandle>
             <ResizeHandleIcon direction='horizontal' />
           </StyledPanelResizeHandle>
-          <Panel minSize={60}>
+          <Panel minSize={60} id='hakit-preview-panel'>
             <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
               <Toolbar />
               <Preview />
             </Column>
           </Panel>
           <StyledPanelResizeHandle>
-            <ResizeHandleIcon direction='horizontal' />
+            <ResizeHandleIcon direction='horizontal' id='hakit-preview-resize-handle' />
           </StyledPanelResizeHandle>
           <Panel
             ref={rightPanelRef}
+            id='hakit-right-panel'
             defaultSize={25}
             collapsedSize={rightSidebarCollapsedSize}
             collapsible

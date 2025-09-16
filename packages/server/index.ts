@@ -2,7 +2,7 @@ import app from './app';
 import { z } from 'zod/v4';
 
 const ServeEnv = z.object({
-  PORT: z.string().regex(/^\d+$/, 'Port must be a numeric string').prefault('5000').transform(Number),
+  PORT: z.string().regex(/^\d+$/, 'Port must be a numeric string').prefault('3002').transform(Number),
 });
 const ProcessEnv = ServeEnv.parse(process.env);
 

@@ -1,12 +1,11 @@
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
-import { transformFields } from '@helpers/editor/pageData/transformFields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import {
   AdditionalRenderProps,
   ComponentFactoryData,
   CustomComponentConfig,
-  CustomComponentConfigWithDefinition,
+  // CustomComponentConfigWithDefinition,
   RenderProps,
 } from '@typings/puck';
 import { useMemo } from 'react';
@@ -21,7 +20,7 @@ import { internalComponentFields, internalRootComponentFields } from '../interna
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
 
-type CustomComponentConfigurationWithDefinitionAndPuck<P extends object> = CustomComponentConfigWithDefinition<P> & {
+type CustomComponentConfigurationWithDefinitionAndPuck<P extends object> = CustomComponentConfig<P> & {
   defaultProps: P;
   inline: boolean;
 };
@@ -51,8 +50,6 @@ export function createComponent<P extends object>(
       entities,
       services,
     });
-    // convert the input field structure to custom field definitions
-    const transformedFields = transformFields(fields, false);
 
     // this is the config that will be used for puck
     return {
@@ -71,7 +68,7 @@ export function createComponent<P extends object>(
         );
       },
       // This is just to make puck happy on the consumer side, Fields aren't actually the correct type here
-      fields: transformedFields,
+      fields,
     };
   };
 }

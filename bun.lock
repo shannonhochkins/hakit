@@ -56,7 +56,7 @@
       },
       "dependencies": {
         "@emotion/react": "^11.0.0",
-        "@measured/puck": "^0.19.3",
+        "@measured/puck": "^0.20.1",
         "@module-federation/rsbuild-plugin": "^0.7.0",
         "@rsbuild/core": "^1.3.4",
         "@rsbuild/plugin-react": "^1.3.4",
@@ -90,7 +90,7 @@
         "@emotion/styled": "^11.14.0",
         "@hakit/components": "^5.1.5",
         "@hakit/core": "^5.1.5",
-        "@measured/puck": "^0.19.3",
+        "@measured/puck": "^0.20.1",
         "@monaco-editor/react": "^4.7.0",
         "@mui/material": "^7.0.2",
         "@tanstack/react-query": "^5.81.5",
@@ -392,7 +392,7 @@
 
     "@kinde/jwt-decoder": ["@kinde/jwt-decoder@0.2.0", "", {}, "sha512-dqtwCmAvywOVLkkUfp4UbqdvVLsK0cvHsJhU3gDY9rgjAdZhGw0vCreBW6j3MFLxbi6cZm7pMU7/O5SJgvN5Rw=="],
 
-    "@measured/puck": ["@measured/puck@0.19.3", "", { "dependencies": { "@dnd-kit/helpers": "0.1.18", "@dnd-kit/react": "0.1.18", "deep-diff": "^1.0.2", "fast-deep-equal": "^3.1.3", "flat": "^5.0.2", "object-hash": "^3.0.0", "react-hotkeys-hook": "^4.6.1", "use-debounce": "^9.0.4", "uuid": "^9.0.1", "zustand": "^5.0.3" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0" } }, "sha512-gWRiHWFZgnNj/QfeLkapVURSJJoxKEzRth7D+SVcqh9eiuQiXH7txhrAN5YEgKNqw/xzooSAf8PhLm8M9bTKug=="],
+    "@measured/puck": ["@measured/puck@0.20.1", "", { "dependencies": { "@dnd-kit/helpers": "0.1.18", "@dnd-kit/react": "0.1.18", "deep-diff": "^1.0.2", "fast-deep-equal": "^3.1.3", "flat": "^5.0.2", "object-hash": "^3.0.0", "react-hotkeys-hook": "^4.6.1", "use-debounce": "^9.0.4", "uuid": "^9.0.1", "zustand": "^5.0.3" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0" } }, "sha512-qD5nDxDqbm5dEF4nQrgR3cTEnDRSe320HtWDOFaoRe7FpHCQBBPyDqb49maK9YUR0TPy7j8OeG1ymDHnKy05Ow=="],
 
     "@microsoft/api-extractor": ["@microsoft/api-extractor@7.52.9", "", { "dependencies": { "@microsoft/api-extractor-model": "7.30.7", "@microsoft/tsdoc": "~0.15.1", "@microsoft/tsdoc-config": "~0.17.1", "@rushstack/node-core-library": "5.14.0", "@rushstack/rig-package": "0.5.3", "@rushstack/terminal": "0.15.4", "@rushstack/ts-command-line": "5.0.2", "lodash": "~4.17.15", "minimatch": "~3.0.3", "resolve": "~1.22.1", "semver": "~7.5.4", "source-map": "~0.6.1", "typescript": "5.8.2" }, "bin": { "api-extractor": "bin/api-extractor" } }, "sha512-313nyhc6DSSMVKD43jZK6Yp5XbliGw5vjN7QOw1FHzR1V6DQ67k4dzkd3BSxMtWcm+cEs1Ux8rmDqots6EABFA=="],
 
