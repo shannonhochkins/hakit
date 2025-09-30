@@ -241,7 +241,7 @@ export function AutocompleteField<T = string>({
       <div className={inputWrapperClasses} ref={containerRef}>
         {startAdornment &&
           (() => {
-            const adornment = startAdornment as React.ReactNode | AutocompleteFieldAdornmentProps;
+            const adornment = startAdornment;
             const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
             const content = isProps ? adornment.content : adornment;
             const variant = isProps ? adornment.variant : undefined;
@@ -306,16 +306,15 @@ export function AutocompleteField<T = string>({
             <SearchIcon size={18} className={getClassName('searchIcon')} onClick={() => !isDisabled && !readOnly && setIsOpen(o => !o)} />
           )}
           {(() => {
-            const adornment =
-              (endAdornment as React.ReactNode | AutocompleteFieldAdornmentProps) ??
-              ({
-                content: <ChevronDownIcon size={18} className={`${getClassName('chevron')} ${isOpen ? getClassName('chevronUp') : ''}`} />,
-                variant: 'default',
-              } as AutocompleteFieldAdornmentProps);
+            const adornment = endAdornment ?? {
+              content: <ChevronDownIcon size={18} className={`${getClassName('chevron')} ${isOpen ? getClassName('chevronUp') : ''}`} />,
+              variant: 'default',
+              className: undefined,
+            };
             const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
-            const content = isProps ? (adornment as AutocompleteFieldAdornmentProps).content : (adornment as React.ReactNode);
-            const variant = isProps ? (adornment as AutocompleteFieldAdornmentProps).variant : undefined;
-            const extraClass = isProps ? (adornment as AutocompleteFieldAdornmentProps).className : undefined;
+            const content = isProps ? adornment.content : adornment;
+            const variant = isProps ? adornment.variant : undefined;
+            const extraClass = isProps ? adornment.className : undefined;
 
             let adornmentClass = getClassName('endAdornment');
             if (variant) {

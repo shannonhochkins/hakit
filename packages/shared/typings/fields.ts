@@ -5,11 +5,11 @@ import type {
   CustomField as PuckCustomField,
   NumberField,
   ArrayField,
-  SelectField,
   TextareaField,
   RadioField,
   ObjectField,
   TextField,
+  SelectField as PuckSelectField,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
 import type { DefaultPropsCallbackData, Slot } from './puck';
@@ -18,6 +18,11 @@ import { AvailableQueries } from '@hakit/components';
 import type { OnValidate } from '@monaco-editor/react';
 
 export type SlotField = PuckSlotField;
+
+export type FieldOption = {
+  label: string;
+  value: string | number | boolean | undefined | null | object;
+};
 
 type ExcludedPuckKeys = 'visible';
 
@@ -128,7 +133,10 @@ export type FieldDefinition = {
   text: TextField;
   number: NumberField;
   textarea: TextareaField;
-  select: SelectField;
+  select: PuckSelectField & {
+    renderOption?: (option: FieldOption) => string;
+    renderValue?: (option: FieldOption) => string;
+  };
   radio: RadioField;
   page: { type: 'page' };
   pages: { type: 'pages' };

@@ -8,7 +8,7 @@ export const BREAKPOINT_ORDER: BreakPoint[] = ['xxs', 'xs', 'sm', 'md', 'lg', 'x
 export const BREAKPOINT_TRANSFORM_EXCLUDE = ['key', 'children', 'puck', 'editMode', 'id'] as const;
 
 // a list of field types that do not support responsive values
-export const EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES: readonly FieldTypes[] = ['object', 'array', 'divider', 'hidden'] as const;
+export const EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES: readonly FieldTypes[] = ['object', 'array', 'pages', 'divider', 'hidden'] as const;
 
 // Fields that should not support template mode
 export const EXCLUDE_FIELD_TYPES_FROM_TEMPLATES: readonly FieldTypes[] = ['object', 'array', 'divider', 'hidden'] as const;

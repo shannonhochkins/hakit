@@ -3,6 +3,7 @@ import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';
 import { useDashboard } from '@hooks/queeries/useDashboard';
+import { HelperText } from '@components/Form/Field/_shared/HelperText';
 
 interface NavigateProps {
   value: DashboardPageWithoutData | DashboardPageWithoutData[];
@@ -49,30 +50,32 @@ function DashboardPageMultiSelect({
   }, [value, firstDashboard?.id]);
 
   return (
-    <AutoField
-      field={{
-        type: 'array',
-        label: label ?? 'Unknown',
-        getItemSummary: (item: { page: string }) => {
-          const matchedDashboard = dashboardMap.get(item.page);
-          return matchedDashboard?.name ?? firstDashboard?.name ?? '';
-        },
-        defaultItemProps: {
-          page: firstDashboard?.id,
-        },
-        arrayFields: {
-          page: {
-            type: 'select',
-            label: 'Select Page',
-            options,
+    <>
+      <AutoField
+        field={{
+          type: 'array',
+          label: label ?? 'Unknown',
+          getItemSummary: (item: { page: string }) => {
+            const matchedDashboard = dashboardMap.get(item.page);
+            return matchedDashboard?.name ?? firstDashboard?.name ?? '';
           },
-        },
-        min,
-        max,
-      }}
-      onChange={handleChange}
-      value={selectedMultiValue}
-    />
+          defaultItemProps: {
+            page: firstDashboard?.id,
+          },
+          arrayFields: {
+            page: {
+              type: 'select',
+              label: 'Select Page',
+              options,
+            },
+          },
+          min,
+          max,
+        }}
+        onChange={handleChange}
+        value={selectedMultiValue}
+      />
+    </>
   );
 }
 

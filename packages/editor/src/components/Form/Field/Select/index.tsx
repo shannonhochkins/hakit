@@ -4,6 +4,7 @@ import { ChevronDownIcon, XIcon, CheckCircleIcon } from 'lucide-react';
 import styles from './SelectField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
+import { FieldOption } from '@typings/fields';
 
 type SelectFieldSize = 'small' | 'medium' | 'large';
 type SelectAdornmentVariant = 'default' | 'icon' | 'custom';
@@ -14,7 +15,7 @@ type SelectAdornmentProps = {
   className?: string;
 };
 
-type CommonSelectProps<T> = {
+type CommonSelectProps<T extends FieldOption> = {
   id: string;
   label?: React.ReactNode;
   placeholder?: string;
@@ -34,23 +35,23 @@ type CommonSelectProps<T> = {
   isOptionEqualToValue?: (option: T, value: T) => boolean;
 };
 
-type SingleSelectProps<T> = CommonSelectProps<T> & {
+type SingleSelectProps<T extends FieldOption> = CommonSelectProps<T> & {
   multiple?: false;
   value?: T;
   onChange?: (value: T) => void;
   renderValue?: (value: T) => React.ReactNode;
 };
 
-type MultipleSelectProps<T> = CommonSelectProps<T> & {
+type MultipleSelectProps<T extends FieldOption> = CommonSelectProps<T> & {
   multiple: true;
   value?: T[];
   onChange?: (value: T[]) => void;
   renderValue?: (values: T[]) => React.ReactNode;
 };
 
-export type SelectFieldProps<T = string> = SingleSelectProps<T> | MultipleSelectProps<T>;
+export type SelectFieldProps<T extends FieldOption = FieldOption> = SingleSelectProps<T> | MultipleSelectProps<T>;
 
-export function SelectField<T = string>({
+export function SelectField<T extends FieldOption = FieldOption>({
   id,
   label,
   placeholder = 'Select...',
@@ -183,11 +184,11 @@ export function SelectField<T = string>({
       >
         {startAdornment &&
           (() => {
-            const adornment = startAdornment as React.ReactNode | SelectAdornmentProps;
+            const adornment = startAdornment;
             const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
-            const content = isProps ? (adornment as SelectAdornmentProps).content : (adornment as React.ReactNode);
-            const variant = isProps ? (adornment as SelectAdornmentProps).variant : undefined;
-            const extra = isProps ? (adornment as SelectAdornmentProps).className : undefined;
+            const content = isProps ? adornment.content : adornment;
+            const variant = isProps ? adornment.variant : undefined;
+            const extra = isProps ? adornment.className : undefined;
             let adornmentClass = styles.startAdornment;
             adornmentClass += ` ${styles[variant || 'default'] || ''}`;
             if (extra) adornmentClass += ` ${extra}`;
@@ -216,13 +217,15 @@ export function SelectField<T = string>({
 
         <div className={styles.rightControls}>
           {(() => {
-            const adornment =
-              (endAdornment as React.ReactNode | SelectAdornmentProps) ??
-              ({ content: <ChevronDownIcon size={18} />, variant: 'default' } as SelectAdornmentProps);
+            const adornment = endAdornment ?? {
+              content: <ChevronDownIcon size={18} className={`${styles.chevron} ${isOpen ? styles.chevronUp : ''}`} />,
+              variant: 'default',
+              className: undefined,
+            };
             const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
-            const content = isProps ? (adornment as SelectAdornmentProps).content : (adornment as React.ReactNode);
-            const variant = isProps ? (adornment as SelectAdornmentProps).variant : undefined;
-            const extra = isProps ? (adornment as SelectAdornmentProps).className : undefined;
+            const content = isProps ? adornment.content : adornment;
+            const variant = isProps ? adornment.variant : undefined;
+            const extra = isProps ? adornment?.className : undefined;
             let adornmentClass = styles.endAdornment;
             adornmentClass += ` ${styles[variant || 'default'] || ''}`;
             if (extra) adornmentClass += ` ${extra}`;
@@ -235,11 +238,10 @@ export function SelectField<T = string>({
             <div className={styles.optionsList}>
               {options.map((option, idx) => {
                 const selected = selectedValues.some(v => equals(v, option));
-                const highlighted = idx === highlightedIndex;
                 return (
                   <div
                     key={idx}
-                    className={`${styles.option} ${selected ? styles.selectedOption : ''} ${highlighted ? styles.highlightedOption : ''}`}
+                    className={`${styles.option} ${selected ? styles.selectedOption : ''}`}
                     onClick={e => {
                       e.stopPropagation();
                       handleSelect(option);
@@ -260,18 +262,13 @@ export function SelectField<T = string>({
         <input
           type='hidden'
           name={name}
-          value={typeof selectedValues[0] === 'string' ? (selectedValues[0] as unknown as string) : JSON.stringify(selectedValues[0])}
+          value={typeof selectedValues[0] === 'string' ? selectedValues[0] : JSON.stringify(selectedValues[0])}
         />
       )}
       {name && multiple && selectedValues.length > 0 && (
         <div style={{ display: 'none' }}>
           {selectedValues.map((val, i) => (
-            <input
-              key={i}
-              type='hidden'
-              name={`${name}[]`}
-              value={typeof val === 'string' ? (val as unknown as string) : JSON.stringify(val)}
-            />
+            <input key={i} type='hidden' name={`${name}[]`} value={typeof val === 'string' ? val : JSON.stringify(val)} />
           ))}
         </div>
       )}

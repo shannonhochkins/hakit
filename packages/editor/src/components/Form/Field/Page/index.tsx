@@ -3,20 +3,19 @@ import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';
 import { useDashboard } from '@hooks/queeries/useDashboard';
-import { SelectField } from '../Select';
-
-interface NavigateProps {
-  value: DashboardPageWithoutData | DashboardPageWithoutData[];
-  label?: React.ReactNode;
-  muiltiSelect?: boolean;
-  onChange: (value: DashboardPageWithoutData | DashboardPageWithoutData[]) => void;
-  min?: number;
-  max?: number;
+import { HelperText } from '../_shared/HelperText';
+interface PageFieldProps {
   readOnly?: boolean;
   icon?: React.ReactNode;
   id?: string;
   name?: string;
   helperText?: string;
+  value: DashboardPageWithoutData | DashboardPageWithoutData[];
+  label?: string;
+  muiltiSelect?: boolean;
+  onChange: (value: DashboardPageWithoutData | DashboardPageWithoutData[]) => void;
+  min?: number;
+  max?: number;
 }
 
 function DashboardPageMultiSelect({
@@ -24,37 +23,20 @@ function DashboardPageMultiSelect({
   onChange,
   options,
   firstDashboard,
+  dashboardMap,
   min,
   max,
-  label,
-  readOnly,
-  id,
-  name,
-  icon,
 }: {
-  label?: React.ReactNode;
   value?: DashboardPageWithoutData[];
   onChange: (value: DashboardPageWithoutData[]) => void;
-  options: DashboardPageWithoutData[];
+  options: { value: string; label: string }[];
   firstDashboard?: DashboardPageWithoutData;
+  dashboardMap: Map<string, DashboardPageWithoutData>;
   min?: number;
   max?: number;
-  readOnly?: boolean;
-  id?: string;
-  name?: string;
-  icon?: React.ReactNode;
 }) {
-  const dashboardMap = useMemo(
-    () =>
-      new Map(
-        value?.map(page => [page.id, page]) // or from external source if needed
-      ),
-    [value]
-  );
-
   const handleChange = (rawValue: Array<{ page: string }>) => {
     const newValue = rawValue.map(({ page }) => dashboardMap.get(page)).filter((v): v is DashboardPageWithoutData => !!v);
-
     onChange(newValue);
   };
 
@@ -63,61 +45,47 @@ function DashboardPageMultiSelect({
   }, [value, firstDashboard?.id]);
 
   return (
-    <AutoField
-      field={{
-        type: 'array',
-        label: label ?? 'Unknown',
-        getItemSummary: (item: { page: string }) => {
-          const matchedDashboard = dashboardMap.get(item.page);
-          return matchedDashboard?.name ?? firstDashboard?.name ?? '';
-        },
-        defaultItemProps: {
-          page: firstDashboard?.id,
-        },
-        arrayFields: {
-          page: {
-            type: 'select',
-            label: 'Select Page',
-            options,
+    <>
+      <AutoField
+        field={{
+          type: 'array',
+          getItemSummary: (item: { page: string }) => {
+            const matchedDashboard = dashboardMap.get(item.page);
+            return matchedDashboard?.name ?? firstDashboard?.name ?? '';
           },
-        },
-        min,
-        max,
-        readOnly,
-        icon,
-        id,
-        name,
-      }}
-      onChange={handleChange}
-      value={selectedMultiValue}
-    />
+          defaultItemProps: {
+            page: firstDashboard?.id,
+          },
+          arrayFields: {
+            page: {
+              type: 'select',
+              label: 'Select Page',
+              description: 'Select the page to navigate to',
+              options,
+            },
+          },
+          min,
+          max,
+        }}
+        onChange={handleChange}
+        value={selectedMultiValue}
+      />
+      {selectedMultiValue.length === 0 && <HelperText helperText={'Add a page to the list'} />}
+    </>
   );
 }
-
-export const PageField = memo(function PageField({
-  value,
-  label,
-  muiltiSelect,
-  min,
-  max,
-  onChange,
-  readOnly,
-  id,
-  name,
-  helperText,
-  icon,
-}: NavigateProps) {
+export const PageField = memo(function Page({ value, label, muiltiSelect, min, max, onChange }: PageFieldProps) {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
   const { pagePath } = params;
   const dashboardQuery = useDashboard(params.dashboardPath);
   const dashboard = dashboardQuery?.data;
-  const dashboardItems: DashboardPageWithoutData[] = useMemo(() => dashboard?.pages ?? [], [dashboard]);
-  const options: DashboardPageWithoutData[] = useMemo(() => {
+  const dashboardItems = useMemo(() => dashboard?.pages ?? [], [dashboard]);
+  const options = useMemo(() => {
     return dashboardItems.map(item => ({
-      ...item,
-      name: item.name + (item.path === pagePath ? ` (current)` : ''),
+      value: item.id,
+      label: item.name + (item.path === pagePath ? ` (current)` : ''),
     }));
   }, [dashboardItems, pagePath]);
 
@@ -129,23 +97,24 @@ export const PageField = memo(function PageField({
 
   const handleChange = (
     value:
-      | DashboardPageWithoutData
+      | string
       | Array<{
           page: string;
         }>
   ) => {
-    if (!Array.isArray(value)) {
-      if (!value) {
+    if (typeof value === 'string') {
+      const matchedDashboard = dashboardItems.find(item => item.id === value);
+      if (!matchedDashboard) {
         console.error('No dashboard found for id', value);
       } else {
         onChange({
-          id: value.id,
-          dashboardId: value.dashboardId,
-          name: value.name,
-          path: value.path,
-          createdAt: value.createdAt,
-          updatedAt: value.updatedAt,
-          thumbnail: value.thumbnail,
+          id: matchedDashboard.id,
+          dashboardId: matchedDashboard.dashboardId,
+          name: matchedDashboard.name,
+          path: matchedDashboard.path,
+          createdAt: matchedDashboard.createdAt,
+          updatedAt: matchedDashboard.updatedAt,
+          thumbnail: matchedDashboard.thumbnail,
         });
       }
     } else {
@@ -173,37 +142,30 @@ export const PageField = memo(function PageField({
     }
   };
 
-  const _value = useMemo(() => {
-    return value ? (value as DashboardPageWithoutData) : firstDashboard;
-  }, [value, firstDashboard]);
-
   if (muiltiSelect) {
     return (
       <DashboardPageMultiSelect
         value={value as DashboardPageWithoutData[]}
-        label={label}
         onChange={onChange}
         options={options}
+        dashboardMap={dashboardMap}
         firstDashboard={firstDashboard}
         min={min}
         max={max}
-        readOnly={readOnly}
-        id={id}
-        name={name}
       />
     );
   }
 
   return (
-    <SelectField
-      helperText={helperText}
-      readOnly={readOnly}
-      icon={icon}
-      id={id ?? name ?? 'unknown'}
-      name={name}
-      options={options}
-      value={_value}
+    <AutoField
+      field={{
+        type: 'select',
+        label: label,
+        options: options,
+        description: 'Select the page to navigate to',
+      }}
       onChange={handleChange}
+      value={value ? (value as DashboardPageWithoutData).id : firstDashboard.id}
     />
   );
 });

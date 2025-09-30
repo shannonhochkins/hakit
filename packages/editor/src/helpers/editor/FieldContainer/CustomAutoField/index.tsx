@@ -14,8 +14,6 @@ import { HassEntity } from 'home-assistant-js-websocket';
 import { Alert } from '@components/Alert';
 import styled from '@emotion/styled';
 import { SwitchField } from '@components/Form/Field/Switch';
-import styles from '../FieldContainer.module.css';
-import { InfoIcon, Lock } from 'lucide-react';
 
 const StyledAlert = styled(Alert)`
   margin: 0;
@@ -230,15 +228,15 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
         label={field.label ?? 'Select'}
         icon={icon}
         readOnly={field.readOnly}
+        renderOption={field.renderOption}
         value={field.options.find(option => option.value === _value)}
         options={[...field.options]}
-        // getOptionLabel={option => option?.label ?? '-'}
+        renderValue={field.renderValue}
         onChange={selectedOption => {
           if (selectedOption) {
             _onChange(selectedOption.value);
           }
         }}
-        size='small'
         name={name}
         id={id}
         helperText={description}

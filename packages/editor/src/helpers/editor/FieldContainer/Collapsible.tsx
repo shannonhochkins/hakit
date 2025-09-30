@@ -85,29 +85,6 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
       className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''}`}
       onClick={onFieldsetClick}
     >
-      {/* <FieldLabel
-        label={field.label}
-        description={field.description}
-        icon={_icon}
-        readOnly={field.readOnly}
-        className={`hakit-field-label ${!isExpanded && field.collapseOptions ? 'collapsed' : ''}`}
-        endAdornment={
-          <>
-            {field.collapseOptions && (
-              <IconButton
-                icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                onClick={onToggleExpand}
-                variant='transparent'
-                size='xs'
-                tooltipProps={{
-                  placement: 'left',
-                }}
-                aria-label={isExpanded ? 'Collapse' : 'Expand'}
-              />
-            )}
-          </>
-        }
-      /> */}
       <FieldLabel
         className='field-label'
         label={field.label}

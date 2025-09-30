@@ -4,12 +4,7 @@
   width: 100%;
   margin-bottom: var(--space-4);
 }
-.label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--space-1);
-  color: var(--color-text-secondary);
-}
+
 .inputWrapper {
   position: relative;
   display: inline-flex;
@@ -172,8 +167,6 @@
 .footer {
   display: flex;
   justify-content: space-between;
-  margin-top: var(--space-1);
-  min-height: var(--space-5);
 }
 
 .charCount {

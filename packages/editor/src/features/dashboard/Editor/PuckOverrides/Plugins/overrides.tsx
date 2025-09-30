@@ -15,7 +15,7 @@ type AllFieldRenderers = FieldRenderFunctions<
 type FieldWrapperProps = Parameters<AllFieldRenderers[keyof AllFieldRenderers]>[0];
 
 const FieldWrapper = ({ field, name, onChange, value, id }: FieldWrapperProps) => {
-  if (field.type === 'object' || field.type === 'array') {
+  if (field.type === 'object' || field.type === 'array' || field.type === 'pages') {
     return (
       <CollapsibleFieldWrapper
         field={field as CollapsibleFieldComponentProps['field']}

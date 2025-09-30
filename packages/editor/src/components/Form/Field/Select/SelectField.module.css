@@ -147,10 +147,14 @@
 .selectedOption:hover {
   background-color: var(--color-primary-800);
 }
-.highlightedOption {
-  background-color: var(--color-surface-elevated);
-}
 .checkIcon { color: var(--color-primary-500); justify-self: center; }
+
+.chevron {
+  transition: transform var(--transition-normal);
+}
+.chevronUp {
+  transform: rotate(180deg);
+}
 
 .error .inputWrapper { border-color: var(--color-error-500); }
 .error .inputWrapper:focus-within { box-shadow: var(--shadow-error-focus-sm); }
