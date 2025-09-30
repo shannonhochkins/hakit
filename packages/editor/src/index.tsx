@@ -74,6 +74,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             --color-primary-700: rgb(29, 78, 216);
             --color-primary-800: rgb(30, 64, 175);
             --color-primary-900: rgb(30, 58, 138);
+            --color-primary-950: rgb(26, 45, 89);
+            --color-primary-1000: rgb(14, 23, 49);
 
             /* Secondary Accent Colors */
             --color-secondary-50: rgb(236, 254, 255);
@@ -171,18 +173,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             --shadow-primary-hover: 0 2px 10px 0 rgba(59, 130, 246, 0.25);
             --shadow-primary-active: 0 2px 4px 0 rgba(59, 130, 246, 0.3);
             --shadow-primary-focus: 0 0 0 3px rgba(59, 130, 246, 0.4);
+            --shadow-primary-focus-sm: 0 0 0 2px rgba(59, 130, 246, 0.2);
 
-            /* error Button Shadows */
+            /* Error Button Shadows */
             --shadow-error-base: 0 1px 7px 0 rgba(239, 68, 68, 0.15);
             --shadow-error-hover: 0 2px 10px 0 rgba(239, 68, 68, 0.25);
             --shadow-error-active: 0 2px 4px 0 rgba(239, 68, 68, 0.35);
             --shadow-error-focus: 0 0 0 3px rgba(239, 68, 68, 0.3);
+            --shadow-error-focus-sm: 0 0 0 2px rgba(239, 68, 68, 0.2);
 
-            /* success Button Shadows */
+            /* Success Button Shadows */
             --shadow-success-base: 0 1px 7px 0 rgba(34, 197, 94, 0.15);
             --shadow-success-hover: 0 2px 10px 0 rgba(34, 197, 94, 0.25);
             --shadow-success-active: 0 2px 4px 0 rgba(34, 197, 94, 0.35);
             --shadow-success-focus: 0 0 0 3px rgba(34, 197, 94, 0.3);
+            --shadow-success-focus-sm: 0 0 0 2px rgba(34, 197, 94, 0.2);
 
             /* === TYPOGRAPHY === */
             --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;

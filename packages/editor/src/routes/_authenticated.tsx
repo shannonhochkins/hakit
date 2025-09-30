@@ -4,7 +4,7 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
 import { HassConnect } from '@hakit/core';
 import { useEffect } from 'react';
 import { useAuthButtonState } from '@hooks/useAuthButtonState';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { HassModal } from '@components/HassModal';
 
 const Login = () => {

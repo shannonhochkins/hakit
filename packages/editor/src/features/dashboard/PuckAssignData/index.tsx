@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { useDashboardWithData } from '@hooks/queeries/useDashboardWithData';
 import { trimPuckDataToConfig } from '@helpers/editor/pageData/trimPuckDataToConfig';
 import { dbValueToPuck } from '../../../helpers/editor/pageData/dbValueToPuck';

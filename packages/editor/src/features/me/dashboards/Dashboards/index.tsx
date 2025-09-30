@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardsQueryOptions, deleteDashboard, deleteDashboardPage } from '@services/dashboard';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { PrimaryButton } from '@components/Button/Primary';
 import { EmptyState } from '@components/EmptyState';
 import { DashboardForm } from '@components/Modal/DashboardForm';

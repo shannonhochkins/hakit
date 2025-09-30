@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { Row, Column } from '@hakit/components';
 import {
   ArrowLeftIcon,

@@ -19,6 +19,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
+    "plugins": [{ "name": "typescript-plugin-css-modules" }],
+
     "paths": {
       "@typings/*": ["../shared/typings/*"],
       "@helpers/*": ["./src/helpers/*"],

@@ -2,7 +2,7 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { Config, Puck } from '@measured/puck';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { PuckPageData } from '@typings/puck';
 import { PuckLayout } from './PuckLayout';
 import { puckToDBValue } from '@helpers/editor/pageData/puckToDBValue';

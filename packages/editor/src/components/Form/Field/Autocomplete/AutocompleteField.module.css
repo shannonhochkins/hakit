@@ -1,0 +1,285 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+.inputWrapper {
+  position: relative;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  min-height: 2.5rem; /* Default medium size */
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  box-sizing: border-box;
+}
+.inputWrapper:hover {
+  border-color: var(--color-border-hover);
+}
+.inputWrapper:focus-within {
+  border-color: var(--color-primary-500);
+  box-shadow: var(--shadow-primary-focus-sm);
+}
+.valueContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  cursor: text;
+  min-height: calc(2.5rem - 2px); /* Account for border */
+}
+.input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  min-width: 50px;
+  font-size: var(--font-size-sm);
+  padding: var(--space-1);
+  color: var(--color-text-primary);
+  text-indent: var(--space-1);
+}
+.placeholder {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  position: absolute;
+  pointer-events: none;
+  left: var(--space-3);
+}
+.hasStartAdornment .placeholder { left: calc(2.5rem + var(--space-2)); }
+.hasStartAdornment .valueContainer { padding-left: calc(2.5rem + var(--space-2)); }
+.startAdornment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+  color: var(--color-text-muted);
+  margin-right: var(--space-2);
+}
+.endAdornment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+  color: var(--color-text-muted);
+  margin-left: var(--space-2);
+}
+
+.rightControls {
+  flex-direction: row;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Adornment variants */
+.startAdornment.default, .endAdornment.default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem; /* Fixed height for medium size */
+  width: 2.5rem; /* 1:1 ratio */
+  padding: var(--space-2);
+  background-color: var(--color-surface-elevated);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-border);
+  box-sizing: border-box;
+}
+
+/* Size overrides for adornment default boxes */
+.Autocomplete.small .startAdornment.default,
+.Autocomplete.small .endAdornment.default {
+  height: 2rem;
+  width: 2rem;
+}
+
+.Autocomplete.large .startAdornment.default,
+.Autocomplete.large .endAdornment.default {
+  height: 3rem;
+  width: 3rem;
+}
+.startAdornment.default {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-right: 1px solid var(--color-border);
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+}
+.endAdornment.default {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: 1px solid var(--color-border);
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+}
+.startAdornment.icon, .endAdornment.icon {
+  padding: var(--space-2);
+}
+.startAdornment.custom, .endAdornment.custom {
+  /* Custom adornments don't get default styling */
+}
+
+/* Size-specific heights */
+.Autocomplete.small .inputWrapper {
+  min-height: 2rem;
+}
+.Autocomplete.small .valueContainer {
+  min-height: calc(2rem - 2px);
+  padding: var(--space-1) var(--space-2);
+}
+.Autocomplete.small .placeholder {
+  font-size: var(--font-size-xs);
+}
+.Autocomplete.small .input {
+  font-size: var(--font-size-xs);
+}
+
+.Autocomplete.large .inputWrapper {
+  min-height: 3rem;
+}
+.Autocomplete.large .valueContainer {
+  min-height: calc(3rem - 2px);
+  padding: var(--space-3) var(--space-4);
+}
+.Autocomplete.large .placeholder {
+  font-size: var(--font-size-md);
+}
+.Autocomplete.large .input {
+  font-size: var(--font-size-md);
+}
+.statusIcon {
+  position: absolute;
+  right: calc(3rem + var(--space-2));
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.chip {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-primary-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-700);
+}
+.chipLabel {
+  margin-right: var(--space-1);
+}
+.chipRemove {
+  cursor: pointer;
+  color: var(--color-primary-500);
+}
+.chipRemove:hover {
+  color: var(--color-primary-700);
+}
+.dropdown {
+  max-height: 200px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+.optionsList {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  background-color: var(--color-surface);
+}
+.option:hover {
+  background-color: var(--color-surface-elevated);
+}
+.selectedOption {
+  background-color: var(--color-primary-900);
+  color: var(--color-primary-100);
+}
+.selectedOption:hover {
+  background-color: var(--color-primary-800);
+}
+.highlightedOption {
+  background-color: var(--color-surface-elevated);
+}
+.checkIcon {
+  color: var(--color-primary-100);
+  justify-self: center;
+}
+.chevron {
+  transition: transform var(--transition-normal);
+}
+.chevronUp {
+  transform: rotate(180deg);
+}
+.searchIcon {
+  margin-right: var(--space-1);
+}
+.errorIcon {
+  color: var(--color-error-500);
+}
+.successIcon {
+  color: var(--color-success-500);
+}
+/* States */
+.error .inputWrapper {
+  border-color: var(--color-error-500);
+}
+.error .inputWrapper:focus-within {
+  box-shadow: var(--shadow-error-focus-sm);
+}
+.success .inputWrapper {
+  border-color: var(--color-success-500);
+}
+.success .inputWrapper:focus-within {
+  box-shadow: var(--shadow-success-focus-sm);
+}
+.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.disabled .inputWrapper {
+  background-color: var(--color-surface-muted);
+  cursor: not-allowed;
+}
+.disabled .input,
+.disabled .valueContainer {
+  cursor: not-allowed;
+}
+/* Responsive */
+@media (max-width: 576px) {
+  .input {
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+}
+
+/* ClassNameFactory BEM aliases for root modifiers */
+.Autocomplete--small { composes: small; }
+.Autocomplete--large { composes: large; }
+.Autocomplete--error { composes: error; }
+.Autocomplete--success { composes: success; }
+.Autocomplete--disabled { composes: disabled; }
+.Autocomplete--hasStartAdornment { composes: hasStartAdornment; }

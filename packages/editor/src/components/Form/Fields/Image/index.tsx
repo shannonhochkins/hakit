@@ -4,7 +4,7 @@ import { ImageUp, X } from 'lucide-react';
 import { Alert, PreloadImage } from '@hakit/components';
 import { Confirm } from '@components/Modal/confirm';
 import { deleteFile, uploadImage } from '@services/upload';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { IconButton } from '@components/Button/IconButton';
 
 const Container = styled.div`

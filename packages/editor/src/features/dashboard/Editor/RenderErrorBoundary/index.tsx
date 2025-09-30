@@ -6,12 +6,20 @@ import { PrimaryButton } from '@components/Button/Primary';
 interface Fallback {
   prefix: string;
   ref?: ((element: Element | null) => void) | null;
+  styles?: React.CSSProperties;
 }
 
-export const fallback = ({ prefix, ref }: Fallback): ErrorBoundaryProps => ({
+export const fallback = ({ prefix, ref, styles }: Fallback): ErrorBoundaryProps => ({
   fallbackRender({ error, resetErrorBoundary }) {
     return (
-      <Alert ref={ref} className={`error-boundary-alert`} title={prefix} severity='error' onClick={() => resetErrorBoundary()}>
+      <Alert
+        ref={ref}
+        className={`error-boundary-alert`}
+        title={prefix}
+        severity='error'
+        onClick={() => resetErrorBoundary()}
+        style={styles}
+      >
         {error.message ? error.message : 'An error occurred while rendering this dashboard.'}
         <div style={{ marginTop: '0.5rem' }}>
           <PrimaryButton
@@ -36,10 +44,10 @@ type RenderErrorBoundaryProps = {
   ref?: ((element: Element | null) => void) | null;
 } & Fallback;
 
-export function RenderErrorBoundary({ children, prefix, ref }: RenderErrorBoundaryProps) {
+export function RenderErrorBoundary({ children, prefix, ref, styles }: RenderErrorBoundaryProps) {
   return (
     <ErrorBoundary
-      {...fallback({ prefix, ref })}
+      {...fallback({ prefix, ref, styles })}
       onError={(error, errorInfo) => {
         console.error('HAKIT: Error rendering:', prefix, error, errorInfo);
         // Log detailed error information for developers (only in development)

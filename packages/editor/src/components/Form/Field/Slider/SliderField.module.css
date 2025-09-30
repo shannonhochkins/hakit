@@ -1,0 +1,234 @@
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+/* Size variants */
+.container.small {
+  margin-bottom: var(--space-3);
+}
+
+.container.large {
+  margin-bottom: var(--space-5);
+}
+
+/* Label styling */
+.labelContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.valueDisplay {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Slider container */
+.sliderContainer {
+  padding: var(--space-2) 0;
+}
+
+.slider {
+  position: relative;
+  /* Increased height to accommodate ghost area */
+  height: calc(var(--space-6) + var(--space-1));
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* Rail (background track) */
+.rail {
+  position: absolute;
+  /* Center the rail in the larger container */
+  top: var(--space-3);
+  left: 0;
+  right: 0;
+  /* 10% fatter track */
+  height: calc(var(--space-1) * 1.1);
+  background-color: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+/* Track (active portion) */
+.track {
+  position: absolute;
+  /* Center the track in the larger container */
+  top: var(--space-3);
+  left: 0;
+  /* 10% fatter track */
+  height: calc(var(--space-1) * 1.1);
+  background-color: var(--color-primary-500);
+  border-radius: var(--radius-sm);
+  transition: width var(--transition-fast);
+}
+
+/* Disable track transition when dragging for immediate response */
+.container.dragging .track {
+  transition: none;
+}
+
+/* Thumb styling */
+.thumb {
+  position: absolute;
+  /* Center the thumb in the larger container */
+  top: calc(var(--space-3) + calc(var(--space-1) * 1.1) / 2);
+  /* 20% bigger thumb */
+  width: calc(var(--space-4) * 1.2);
+  height: calc(var(--space-4) * 1.2);
+  background-color: var(--color-primary-500);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Disable transitions when dragging for immediate response */
+.container.dragging .thumb {
+  transition: none;
+}
+
+.thumb:hover {
+  box-shadow: var(--shadow-md);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.thumb:active {
+  cursor: grabbing;
+  box-shadow: var(--shadow-lg);
+}
+
+/* State-specific styling */
+.error .track {
+  background-color: var(--color-error-500);
+}
+
+.error .thumb {
+  background-color: var(--color-error-500);
+  border-color: var(--color-error-500);
+}
+
+.success .track {
+  background-color: var(--color-success-500);
+}
+
+.success .thumb {
+  background-color: var(--color-success-500);
+  border-color: var(--color-success-500);
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled .slider,
+.disabled .rail,
+.disabled .thumb {
+  cursor: not-allowed;
+}
+
+.disabled .thumb {
+  background-color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.disabled .thumb:hover {
+  transform: translate(-50%, -50%);
+  box-shadow: none;
+}
+
+.disabled .track {
+  background-color: var(--color-surface-muted);
+}
+
+/* Read-only state */
+.readOnly .slider,
+.readOnly .rail,
+.readOnly .thumb {
+  cursor: default;
+}
+
+.readOnly .thumb {
+  background-color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+/* Size-specific styling */
+.container.small .slider {
+  height: calc(var(--space-6) + calc(var(--space-1) * 0.75));
+}
+
+.container.small .rail,
+.container.small .track {
+  top: calc(var(--space-3) * 0.75);
+  height: calc(var(--space-1) * 0.75 * 1.1);
+}
+
+.container.small .thumb {
+  top: calc(calc(var(--space-3) * 0.75) + calc(var(--space-1) * 0.75 * 1.1) / 2);
+  width: calc(var(--space-4) * 0.75 * 1.2);
+  height: calc(var(--space-4) * 0.75 * 1.2);
+}
+
+.container.medium .slider {
+  height: calc(var(--space-6) + calc(var(--space-1) * 1.125));
+}
+
+.container.medium .rail,
+.container.medium .track {
+  top: calc(var(--space-3) * 1.125);
+  height: calc(var(--space-1) * 1.125 * 1.1);
+}
+
+.container.medium .thumb {
+  top: calc(calc(var(--space-3) * 1.125) + calc(var(--space-1) * 1.125 * 1.1) / 2);
+  width: calc(var(--space-4) * 1.125 * 1.2);
+  height: calc(var(--space-4) * 1.125 * 1.2);
+}
+
+.container.large .slider {
+  height: calc(var(--space-6) + calc(var(--space-1) * 1.25));
+}
+
+.container.large .rail,
+.container.large .track {
+  top: calc(var(--space-3) * 1.25);
+  height: calc(var(--space-1) * 1.25 * 1.1);
+}
+
+.container.large .thumb {
+  top: calc(calc(var(--space-3) * 1.25) + calc(var(--space-1) * 1.25 * 1.1) / 2);
+  width: calc(var(--space-4) * 1.25 * 1.2);
+  height: calc(var(--space-4) * 1.25 * 1.2);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .thumb {
+    width: calc(20px * 1.2);
+    height: calc(20px * 1.2);
+  }
+
+  .container.small .thumb {
+    width: calc(16px * 1.2);
+    height: calc(16px * 1.2);
+  }
+}

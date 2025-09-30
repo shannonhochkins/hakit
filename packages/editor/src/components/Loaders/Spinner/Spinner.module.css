@@ -1,0 +1,52 @@
+.Spinner {
+  width: var(--spinner-size, 2rem);
+  height: var(--spinner-size, 2rem);
+  position: relative;
+  margin: auto;
+}
+
+.Spinner--absolute {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+}
+
+.Spinner--absolute.Spinner--hasText {
+  transform: translate(-50%, calc(-50% - 1rem));
+}
+
+.Spinner > span {
+  display: block;
+  width: var(--spinner-size, 2rem);
+  height: var(--spinner-size, 2rem);
+  border: 0.15rem solid transparent;
+  border-radius: 50%;
+  border-right-color: var(--spinner-color, var(--color-gray-50));
+  animation: spinner-spin 0.8s linear infinite;
+}
+
+.Spinner--dark {
+  --spinner-color: var(--color-gray-950);
+}
+
+.Spinner > div {
+  white-space: nowrap;
+  font-size: 1rem;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 1rem);
+}
+
+@keyframes spinner-spin {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+

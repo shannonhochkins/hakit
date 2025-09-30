@@ -43,5 +43,17 @@ export default createModuleFederationConfig({
       shareStrategy: 'loaded-first',
       requiredVersion: dependencies['@emotion/react'],
     },
+    'monaco-editor': {
+      singleton: true,
+      eager: true,
+      shareStrategy: 'loaded-first',
+      requiredVersion: dependencies['monaco-editor'],
+    },
+    '@monaco-editor/react': {
+      singleton: true,
+      eager: true,
+      shareStrategy: 'loaded-first',
+      requiredVersion: dependencies['@monaco-editor/react'],
+    },
   },
 });

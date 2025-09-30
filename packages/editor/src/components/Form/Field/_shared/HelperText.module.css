@@ -1,0 +1,10 @@
+.helperText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+  user-select: none;
+  cursor: default;
+}
+.errorText {
+  color: var(--color-error-500);
+}

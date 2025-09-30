@@ -1,0 +1,228 @@
+.fab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 !important;
+  min-width: 0 !important;
+  gap: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+
+  /* Neutralize BaseButton hover/active variable-driven background/border changes */
+  --button-bg: transparent;
+  --button-bg-hover: transparent;
+  --button-bg-active: transparent;
+  --button-border: none;
+  --button-border-hover: none;
+  --button-border-active: none;
+}
+
+.fab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: -1;
+}
+
+.fab:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.fab:hover:not(:disabled)::before {
+  opacity: 1;
+}
+
+.fab:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-primary-focus);
+}
+
+.fab:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+}
+
+.fab:active:not(:disabled)::before {
+  opacity: 1;
+}
+
+.fab:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+.loading {
+  cursor: default;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* Sizes */
+.sizeXs { width: 32px; height: 32px; font-size: var(--font-size-xs); }
+.sizeSm { width: 40px; height: 40px; font-size: var(--font-size-sm); }
+.sizeMd { width: 56px; height: 56px; font-size: var(--font-size-lg); }
+.sizeLg { width: 64px; height: 64px; font-size: var(--font-size-xl); }
+
+/* Positions */
+.positionRelative {}
+.positionFixed { position: fixed; z-index: var(--z-fixed); }
+.bottomRight { bottom: var(--space-6); right: var(--space-6); }
+.bottomLeft { bottom: var(--space-6); left: var(--space-6); }
+.topRight { top: var(--space-6); right: var(--space-6); }
+.topLeft { top: var(--space-6); left: var(--space-6); }
+
+/* Variants */
+.variantSecondary {
+  /* Mirror BaseButton secondary (explicitly set to ensure consistency) */
+  --button-bg: var(--color-surface-elevated);
+  --button-bg-hover: var(--color-border-subtle);
+  --button-bg-active: var(--color-gray-700);
+  --button-bg-disabled: var(--color-gray-800);
+
+  --button-color: var(--color-text-primary);
+
+  --button-border: 1px solid var(--color-border);
+  --button-border-hover: 1px solid var(--color-gray-600);
+  --button-border-active: 1px solid var(--color-gray-600);
+  --button-border-disabled: 1px solid var(--color-gray-700);
+
+  --button-shadow: none;
+  --button-shadow-hover: none;
+  --button-shadow-active: none;
+  --button-shadow-focus: var(--shadow-primary-focus);
+
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: transparent;
+  --button-overlay-bg-active: transparent;
+}
+
+.variantTransparent {
+  --button-bg: transparent;
+  --button-bg-hover: transparent;
+  --button-bg-active: transparent;
+  --button-color: var(--color-text-muted);
+  --button-border: none;
+  --button-border-hover: none;
+  --button-border-active: none;
+  --button-shadow: none;
+  --button-shadow-hover: var(--shadow-lg);
+  --button-shadow-active: var(--shadow-lg);
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: rgba(255, 255, 255, 0.1);
+  --button-overlay-bg-active: rgba(255, 255, 255, 0.2);
+}
+
+.variantError {
+  --button-bg: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-hover: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-active: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+
+  --button-color: var(--color-text-primary);
+  --button-border: none;
+  --button-border-hover: none;
+  --button-border-active: none;
+
+  --button-shadow: var(--shadow-error-base), var(--shadow-lg);
+  --button-shadow-hover: var(--shadow-error-hover), var(--shadow-xl);
+  --button-shadow-active: var(--shadow-error-active), var(--shadow-xl);
+  --button-shadow-focus: var(--shadow-error-focus);
+
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-700) 100%);
+  --button-overlay-bg-active: linear-gradient(135deg, var(--color-error-700) 0%, var(--color-error-800) 100%);
+}
+
+.variantPrimary {
+  --button-bg: var(--gradient-primary);
+  --button-bg-hover: var(--gradient-primary);
+  --button-bg-active: var(--gradient-primary);
+  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+
+  --button-color: var(--color-text-primary);
+  --button-border: none;
+  --button-border-hover: none;
+  --button-border-active: none;
+
+  --button-shadow: var(--shadow-primary-base), var(--shadow-lg);
+  --button-shadow-hover: var(--shadow-primary-hover), var(--shadow-xl);
+  --button-shadow-active: var(--shadow-primary-active), var(--shadow-xl);
+  --button-shadow-focus: var(--shadow-primary-focus);
+
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: var(--gradient-primary-hover);
+  --button-overlay-bg-active: var(--gradient-primary-active);
+}
+
+.active {
+  /* non-empty so it can be composed */
+  transform: translateZ(0);
+}
+
+/* ClassNameFactory compatibility */
+.Fab { composes: fab; }
+.Fab--pulse { composes: pulse; }
+.Fab--loading { composes: loading; }
+.Fab--active { composes: active; }
+.Fab--sizeXs { composes: sizeXs; }
+.Fab--sizeSm { composes: sizeSm; }
+.Fab--sizeMd { composes: sizeMd; }
+.Fab--sizeLg { composes: sizeLg; }
+.Fab--variantSecondary { composes: variantSecondary; }
+.Fab--variantTransparent { composes: variantTransparent; }
+.Fab--variantError { composes: variantError; }
+.Fab--variantPrimary { composes: variantPrimary; }
+/* Use base position classes directly in TS instead of composing here */
+
+@media (prefers-contrast: high) {
+  .fab { border: 2px solid currentColor; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab { transition: none; transform: none !important; animation: none !important; }
+  .fab:hover:not(:disabled), .fab:active:not(:disabled) { transform: none; }
+}
+
+

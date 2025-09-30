@@ -8,6 +8,8 @@ import { FieldOptions, type FieldOption } from './FieldOptions';
 import { FieldLabel } from './FieldLabel';
 import { IconButton } from '@components/Button/IconButton';
 
+// TODO  Remove this
+
 const Description = styled.div`
   font-size: 12px;
   margin-top: 6px;

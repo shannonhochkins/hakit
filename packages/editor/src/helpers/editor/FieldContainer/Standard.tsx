@@ -7,35 +7,14 @@ import { Fieldset } from './Fieldset';
 import { FieldLabel } from './FieldLabel';
 import { IconButton } from '@components/Button/IconButton';
 import { FieldWrapper } from './FieldWrapper';
-import styled from '@emotion/styled';
 import { Row } from '@hakit/components';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { CodeField } from '@components/Form/Fields/Code';
 import { SwitchField } from '@components/Form/Fields/Switch';
 import { useTemplateMode } from './useTemplateMode';
 import { ICON_MAP } from './constants';
-
-const Description = styled.div`
-  font-size: 12px;
-  margin-top: 6px;
-  font-weight: 400;
-`;
-
-const Mark = styled.div`
-  color: var(--color-gray-300);
-  background-color: var(--color-gray-950);
-  padding: 4px 6px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 4px;
-`;
-
-const FieldInput = styled.div`
-  width: 100%;
-  > * {
-    width: 100%;
-  }
-`;
+import { CustomAutoField } from './CustomAutoField';
+import styles from './FieldContainer.module.css';
 
 const RESPONSIVE_MODE_DEFAULT = true;
 
@@ -43,14 +22,13 @@ const RESPONSIVE_MODE_DEFAULT = true;
  * Helper function to create custom fields (cf - custom field)
  */
 
-type CustomFieldComponentProps<Props extends DefaultComponentProps> = {
+export type StandardFieldComponentProps<Props extends DefaultComponentProps = DefaultComponentProps> = {
   // these excluded field types render differently and don't need all these fancy changes
   field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'divider' | 'hidden' }>;
   name: string;
   onChange: (value: Props) => void;
   value: Props;
   id: string;
-  children: React.ReactNode;
 };
 
 export function StandardFieldWrapper<Props extends DefaultComponentProps>({
@@ -59,8 +37,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   onChange: puckOnChange,
   value,
   id,
-  children,
-}: CustomFieldComponentProps<Props>) {
+}: StandardFieldComponentProps<Props>) {
   const responsiveMode = useMemo(() => {
     if ('responsiveMode' in field) {
       return field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT;
@@ -140,7 +117,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         breakpointMode && responsiveMode ? 'bp-mode-enabled' : ''
       }`}
     >
-      <FieldLabel
+      {/* <FieldLabel
         label={field.label}
         description={field.description}
         icon={_icon}
@@ -161,15 +138,15 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
             )}
           </>
         }
-      />
+      /> */}
       <FieldWrapper className={`hakit-field-wrapper`}>
-        <FieldInput className='hakit-field-input'>
+        <div className={styles.fieldInput}>
           {allowTemplates && templateMode ? (
             <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} />
           ) : (
-            children
+            <CustomAutoField field={field} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
           )}
-        </FieldInput>
+        </div>
         {responsiveMode && (
           <IconButton
             icon={breakpointMode ? <Touchpad size={16} /> : <TouchpadOff size={16} />}
@@ -185,15 +162,13 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         )}
       </FieldWrapper>
       {breakpointMode && responsiveMode && (
-        <>
-          <Description className='hakit-field-responsive-description'>
-            <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>
-              <Row justifyContent='flex-start' gap='0.25rem'>
-                Active <Mark>{activeBreakpoint}</Mark>
-              </Row>
+        <div className={`${styles.description} hakit-field-responsive-description`}>
+          <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>
+            <Row justifyContent='flex-start' gap='0.25rem'>
+              Active <span className={styles.mark}>{activeBreakpoint}</span>
             </Row>
-          </Description>
-        </>
+          </Row>
+        </div>
       )}
     </Fieldset>
   );

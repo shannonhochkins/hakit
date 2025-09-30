@@ -50,7 +50,17 @@ export default defineConfig({
     swc: {
       jsc: {
         experimental: {
-          plugins: [['@swc/plugin-emotion', {}]],
+          plugins: [
+            [
+              '@swc/plugin-emotion',
+              {
+                sourceMap: true,
+                autoLabel: 'dev-only',
+                labelFormat: '[local]',
+                cssPropOptimization: true,
+              },
+            ],
+          ],
         },
       },
     },
