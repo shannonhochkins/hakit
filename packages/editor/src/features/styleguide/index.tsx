@@ -14,6 +14,7 @@ import { StyleguideButtons } from './Buttons';
 import { StyleguideCodeFields } from './CodeFields';
 import { StyleguideServiceFields } from './ServiceFields';
 import { StyleguideLoaders } from './Loaders';
+import { StyleguideAlerts } from './Alerts';
 
 const options = [
   {
@@ -68,6 +69,10 @@ const options = [
     label: 'Loaders',
     value: 'Loaders',
   },
+  {
+    label: 'Alerts',
+    value: 'Alerts',
+  },
 ] as const;
 
 export function Styleguide() {
@@ -106,6 +111,7 @@ export function Styleguide() {
       {preview.value === 'Code Fields' && <StyleguideCodeFields />}
       {preview.value === 'Service Fields' && <StyleguideServiceFields />}
       {preview.value === 'Loaders' && <StyleguideLoaders />}
+      {preview.value === 'Alerts' && <StyleguideAlerts />}
     </>
   );
 }

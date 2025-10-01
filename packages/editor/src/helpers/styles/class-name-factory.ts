@@ -72,7 +72,7 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
         if (k) prefixed[k] = (mods as Record<string, unknown>)[mod as string];
       });
     }
-    return config.baseClass + classnames({ [rootClassName]: !!rootClassName, ...prefixed });
+    return config.baseClass + classnames(prefixed);
   };
 
   const buildFromDescendant = (descendant: DescendantName): string => {
@@ -86,7 +86,14 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
   function factory(descendant: DescendantName | R | StyleKey, extraClassName?: string): string;
   function factory(modifiers: Modifiers | undefined, extraClassName?: string): string;
   function factory(arg1?: Modifiers | DescendantName | R | StyleKey, extraClassName?: string): string {
-    if (typeof arg1 === 'string' && !stylesAny[`${rootClass}-${arg1}`]) {
+    if (!arg1) return rootClassName;
+    if (typeof arg1 === 'string') {
+      // Check if it's a descendant class first
+      const descendantStyle = stylesAny[`${rootClass}-${arg1}`];
+      if (descendantStyle) {
+        return appendExtra(config.baseClass + descendantStyle, extraClassName);
+      }
+      // Otherwise treat as exact match
       const exact = stylesAny[arg1];
       return appendExtra(config.baseClass + (exact || ''), extraClassName);
     }
