@@ -21,6 +21,21 @@ export function StyleguideInputFields() {
         backgroundColor: 'var(--color-gray-900)',
       }}
     >
+      <Group title='Input Fields - With all configurations' alignItems='start' justifyContent='start' gap='var(--space-4)'>
+        <InputField
+          id='controlled-email'
+          label='Controlled Email Input'
+          value={emailValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setEmailValue(e.target.value)}
+          placeholder='Enter your email'
+          helperText='Enter your email'
+          valuePrefix='https://'
+          valueSuffix='.com'
+          startAdornment={<LockIcon size={18} />}
+          endAdornment={<CheckCircleIcon size={18} />}
+          icon={<MailIcon size={18} />}
+        />
+      </Group>
       <Group title='Input Fields - With Label and Helper Text' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <InputField
           id='controlled-email'

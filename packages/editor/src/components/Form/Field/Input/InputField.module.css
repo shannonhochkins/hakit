@@ -41,6 +41,9 @@
   cursor: not-allowed;
   min-height: 2.5rem; /* Ensure consistent height even when disabled */
 }
+.withPrefix .input::placeholder {
+  color: var(--color-text-primary);
+}
 .input {
   flex: 1;
   padding: var(--space-2) var(--space-3);
@@ -76,6 +79,20 @@
   color: var(--color-text-muted);
   flex-shrink: 0; /* Prevent adornments from shrinking */
   z-index: 1; /* Ensure adornments appear above input */
+}
+
+.valuePrefix, .valueSuffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-1);
+}
+.valuePrefix {
+  margin-left: var(--space-2);
+}
+.valueSuffix {
+  margin-right: var(--space-2);
 }
 
 /* Default adornment styling for 1:1 boxes */

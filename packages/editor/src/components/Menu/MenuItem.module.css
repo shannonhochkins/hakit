@@ -1,0 +1,58 @@
+.menuItem {
+  --item-bg: var(--color-surface);
+  --item-color: var(--color-text-primary);
+  --item-bg-hover: var(--color-surface-elevated);
+  --item-color-hover: var(--color-text-primary);
+  --item-bg-active: var(--color-gray-700);
+  --item-color-active: var(--color-text-primary);
+  --item-bg-disabled: transparent;
+  --item-color-disabled: var(--color-text-disabled);
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  user-select: none;
+  background: var(--item-bg);
+  color: var(--item-color);
+  border: 0;
+  outline: none;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.menuItem:hover,
+.menuItem[data-highlighted="true"] {
+  background: var(--item-bg-hover);
+  color: var(--item-color-hover);
+}
+
+.menuItem:active {
+  background: var(--item-bg-active);
+  color: var(--item-color-active);
+}
+
+.menuItem[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--item-bg-disabled);
+  color: var(--item-color-disabled);
+}
+
+.menuItemIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+}
+
+.menuItemLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+

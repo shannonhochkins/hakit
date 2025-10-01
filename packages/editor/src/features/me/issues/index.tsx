@@ -5,9 +5,9 @@ import { issuesQueryOptions, createIssue } from '@services/issues';
 import { Row } from '@hakit/components';
 import { BaseButton, PrimaryButton } from '@components/Button';
 import { IssueModal } from './issueModal';
-import { InputField } from '@components/Form/Fields/Input';
+import { InputField } from '@components/Form/Field/Input';
 import { EmptyState } from '@components/EmptyState';
-import { SelectField } from '@components/Form/Fields/Select';
+import { SelectField } from '@components/Form/Field/Select';
 import {
   AlertTriangle,
   Loader2,
@@ -29,12 +29,10 @@ import { toReadableDate } from '@helpers/date';
 import { useNavigate } from '@tanstack/react-router';
 import { useUser } from '@hakit/core';
 import { EDITOR_VERSION } from '@constants';
-import { InputAdornment } from '@mui/material';
 import type { IssueType, IssueSummary } from '@typings/issues';
 import { ISSUE_TYPES } from '@typings/issues';
 import IssueLabel from './issueLabel';
 import { Route as IssuesRoute } from '@routes/_authenticated/me/issues/index';
-import React from 'react';
 
 const Container = styled.div`
   display: flex;
@@ -276,41 +274,39 @@ export function Issues() {
         <InputField
           type='text'
           size='medium'
+          id='search-issues'
+          label='Search issues...'
+          helperText='Search for issues by title or description'
+          name='search-issues'
           placeholder='Search issues...'
           value={q}
           onChange={e => setQ(e.target.value)}
-          variant='outlined'
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          startAdornment={<SearchIcon size={18} />}
         />
         <SelectField
-          value={state}
+          value={{
+            label: state,
+            value: state,
+          }}
           name='state'
-          onChange={e => {
-            setState(e.target.value);
+          onChange={option => {
+            setState(option.value as 'open' | 'closed' | 'all');
             setPage(1);
           }}
-          options={['open', 'closed', 'all']}
-          getOptionLabel={opt => String(opt)}
+          options={['open', 'closed', 'all'].map(opt => ({ label: opt, value: opt }))}
           size='small'
         />
         <SelectField
-          value={typeFilter}
+          value={{
+            label: typeFilter,
+            value: typeFilter,
+          }}
           name='type'
-          onChange={e => {
-            setTypeFilter(e.target.value || 'all');
+          onChange={option => {
+            setTypeFilter(option.value as IssueType | 'all');
             setPage(1);
           }}
-          options={['', ...ISSUE_TYPES]}
-          getOptionLabel={opt => (opt ? String(opt) : 'All')}
+          options={['', ...ISSUE_TYPES].map(opt => ({ label: opt, value: opt }))}
           size='small'
         />
       </SearchAndFilter>

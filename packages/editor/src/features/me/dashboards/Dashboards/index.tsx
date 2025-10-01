@@ -22,8 +22,7 @@ import { DashboardForm } from '@components/Modal/DashboardForm';
 import { PageForm } from '@components/Modal/PageForm';
 import { Confirm } from '@components/Modal/confirm';
 import { Column, Row } from '@hakit/components';
-import { InputField } from '@components/Form/Fields/Input';
-import { InputAdornment } from '@mui/material';
+import { InputField } from '@components/Form/Field/Input';
 import { Tooltip } from '@components/Tooltip';
 import { Dashboard, DashboardPageWithoutData } from '@typings/hono';
 import {
@@ -325,6 +324,15 @@ export function Dashboards() {
   // Unified action handlers with type discrimination
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, type: 'dashboard' | 'page', dashboardId: string, pageId?: string) => {
     event.stopPropagation();
+    const sameAnchor = menuAnchorEl && event.currentTarget === menuAnchorEl;
+    const sameContext = menuType === type && menuDashboardId === dashboardId && (menuPageId || null) === (pageId || null);
+
+    if (menuAnchorEl && sameAnchor && sameContext) {
+      // Toggle close if clicking the active trigger again
+      handleMenuClose();
+      return;
+    }
+
     setMenuAnchorEl(event.currentTarget);
     setMenuDashboardId(dashboardId);
     setMenuPageId(pageId || null);
@@ -717,21 +725,15 @@ export function Dashboards() {
       <SearchAndFilter>
         <InputField
           type='text'
+          id='search-dashboards-and-pages'
+          label=''
+          helperText='Search for dashboards and pages'
+          name='search-dashboards-and-pages'
           size='medium'
-          placeholder='Search dashboards and pages...'
+          placeholder='Enter a search term...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          variant='outlined'
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          startAdornment={<SearchIcon size={18} />}
         />
       </SearchAndFilter>
 

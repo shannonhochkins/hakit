@@ -3,8 +3,7 @@ import styled from '@emotion/styled';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
 import { PlusIcon, SearchIcon, PackageIcon, EyeIcon } from 'lucide-react';
-import { InputField } from '@components/Form/Fields/Input';
-import { InputAdornment } from '@mui/material';
+import { InputField } from '@components/Form/Field/Input';
 import { Column, Row } from '@components/Layout';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -121,20 +120,14 @@ export function Explore() {
         <InputField
           size='medium'
           type='text'
-          placeholder='Search components...'
+          id='search-components'
+          name='search-components'
+          label=''
+          helperText='Search for public repositories & components'
+          placeholder='Enter a search term...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          variant='outlined'
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          startAdornment={<SearchIcon size={18} />}
         />
       </SearchAndFilter>
 

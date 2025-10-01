@@ -191,24 +191,26 @@ export const ImageField = ({
           content: value ? (
             <Tooltip
               title={
-                <>
-                  <img
-                    src={value}
-                    alt='Image'
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      maxWidth: '100px',
-                    }}
-                  />
-                  <div className={styles.stats}>
-                    <span>{file?.filesize}</span>
-                    <span>{file?.filetype}</span>
-                    <span>
-                      {file?.resolution.width}x{file?.resolution.height}
-                    </span>
-                  </div>
-                </>
+                value ? (
+                  <>
+                    <img
+                      src={value}
+                      alt='Image'
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        maxWidth: '100px',
+                      }}
+                    />
+                    <div className={styles.stats}>
+                      <span>{file?.filesize}</span>
+                      <span>{file?.filetype}</span>
+                      <span>
+                        {file?.resolution.width}x{file?.resolution.height}
+                      </span>
+                    </div>
+                  </>
+                ) : null
               }
               style={{
                 width: '100%',

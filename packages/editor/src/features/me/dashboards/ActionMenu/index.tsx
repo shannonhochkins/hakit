@@ -1,4 +1,4 @@
-import { Menu, MenuItem } from '@mui/material';
+import { Menu, MenuItem } from '@components/Menu';
 import { EyeIcon, EditIcon, FileTextIcon, PlusIcon, LayoutDashboardIcon } from 'lucide-react';
 
 // Types for ActionsMenu
@@ -39,11 +39,11 @@ export const ActionMenu = (props: ActionsMenuProps) => {
       onClose={onClose}
       anchorOrigin={{
         vertical: 'bottom',
-        horizontal: 'right',
+        horizontal: 'left',
       }}
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'right',
+        horizontal: 'left',
       }}
     >
       <MenuItem

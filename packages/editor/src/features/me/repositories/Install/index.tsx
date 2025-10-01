@@ -13,9 +13,7 @@ import {
   RefreshCcwDot,
 } from 'lucide-react';
 import { PrimaryButton } from '@components/Button/Primary';
-import { InputField } from '@components/Form/Fields/Input';
-import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
+import { InputField } from '@components/Form/Field/Input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { installRepositoryFromGithub, userRepositoriesQueryOptions } from '@services/repositories';
 import { Row } from '@components/Layout';
@@ -331,55 +329,41 @@ export function Install() {
       </PageHeader>
       {installationStatus.status === 'idle' ? (
         <>
-          <FieldGroup className='full-width'>
-            <FieldLabel htmlFor='repo-url' label='Repository URL' />
-            <InputField
-              id='repo-url'
-              type='url'
-              placeholder='https://github.com/username/repository'
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              variant='outlined'
-              size='small'
-              fullWidth
-              helperText='Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.'
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <GitBranchIcon
-                      size={16}
-                      style={{
-                        marginRight: 'var(--space-2)',
-                      }}
-                    />
-                  ),
-                },
-              }}
-            />
-            <Important>
-              <ImportantTitle>
-                <AlertCircleIcon
-                  size={16}
-                  style={{
-                    color: 'var(--color-warning-500)',
-                  }}
-                />
-                Important Information
-              </ImportantTitle>
-              <ImportantBlock>
-                <ArrowRightIcon size={16} />
-                Only install repositories from trusted sources.
-              </ImportantBlock>
-              <ImportantBlock>
-                <ArrowRightIcon size={16} />
-                Custom repositories must follow the HAKIT component structure.
-              </ImportantBlock>
-              <ImportantBlock>
-                <ArrowRightIcon size={16} />
-                Installation may take several minutes to complete.
-              </ImportantBlock>
-            </Important>
-          </FieldGroup>
+          <InputField
+            id='repo-url'
+            type='text'
+            name='repo-url'
+            label='Repository URL'
+            placeholder='https://github.com/username/repository'
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            size='small'
+            helperText='Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.'
+            startAdornment={<GitBranchIcon size={16} />}
+          />
+          <Important>
+            <ImportantTitle>
+              <AlertCircleIcon
+                size={16}
+                style={{
+                  color: 'var(--color-warning-500)',
+                }}
+              />
+              Important Information
+            </ImportantTitle>
+            <ImportantBlock>
+              <ArrowRightIcon size={16} />
+              Only install repositories from trusted sources.
+            </ImportantBlock>
+            <ImportantBlock>
+              <ArrowRightIcon size={16} />
+              Custom repositories must follow the HAKIT component structure.
+            </ImportantBlock>
+            <ImportantBlock>
+              <ArrowRightIcon size={16} />
+              Installation may take several minutes to complete.
+            </ImportantBlock>
+          </Important>
         </>
       ) : (
         <>

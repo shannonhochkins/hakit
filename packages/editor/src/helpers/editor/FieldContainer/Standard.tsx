@@ -8,7 +8,7 @@ import { IconButton } from '@components/Button/IconButton';
 import { FieldWrapper } from './FieldWrapper';
 import { Row } from '@components/Layout';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
-import { CodeField } from '@components/Form/Fields/Code';
+import { CodeField } from '@components/Form/Field/Code';
 import { useTemplateMode } from './useTemplateMode';
 import { ICON_MAP } from './constants';
 import { CustomAutoField } from './CustomAutoField';
@@ -140,7 +140,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       <FieldWrapper className={`hakit-field-wrapper`}>
         <div className={styles.fieldInput}>
           {allowTemplates && templateMode ? (
-            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} />
+            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} id={id} name={name} />
           ) : (
             <CustomAutoField field={field} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
           )}

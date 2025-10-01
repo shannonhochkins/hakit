@@ -2,9 +2,7 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
 import { Modal, ModalActions } from '@components/Modal';
 import { useRef, useState, useMemo } from 'react';
 import { PrimaryButton } from '../Button';
-import { InputField } from '../Form/Fields/Input';
-import { FieldGroup } from '../Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '../Form/FieldWrapper/FieldLabel';
+import { InputField } from '../Form/Field/Input';
 import { Alert } from '../Alert';
 import React from 'react';
 
@@ -112,31 +110,26 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
 
   return (
     <Modal open title='Home Assistant URL' hideCloseButton>
-      <FieldGroup
+      <InputField
+        id='url'
+        type='text'
+        label='Home Assistant URL *'
+        required
+        value={inputValue}
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        placeholder='Enter your Home Assistant URL'
+        error={!validation.isValid}
+        helperText={
+          validation.error ||
+          'Enter the URL of your Home Assistant instance. Can be local (http://192.168.1.100:8123) or remote (https://my-ha.duckdns.org)'
+        }
+        autoComplete='url'
+        spellCheck={false}
         style={{
-          width: '100%',
           marginBottom: 'var(--space-4)',
         }}
-      >
-        <FieldLabel htmlFor='url' label='Home Assistant URL *' description='Enter your Home Assistant URL' />
-        <InputField
-          id='url'
-          type='url'
-          required
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          placeholder='https://homeassistant.local:8123'
-          error={!validation.isValid}
-          helperText={
-            validation.error ||
-            'Enter the URL of your Home Assistant instance. Can be local (http://192.168.1.100:8123) or remote (https://my-ha.duckdns.org)'
-          }
-          fullWidth
-          autoComplete='url'
-          spellCheck={false}
-        />
-      </FieldGroup>
+      />
 
       {errorMessage && storageUrl && (
         <Alert severity='warning' title='Invalid Credentials'>

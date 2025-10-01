@@ -563,7 +563,3 @@ body, html {
   width: 100%;
   height: 100%;
 }
-
-.MuiPaper-root.MuiPopover-paper.MuiMenu-paper {
-  background: var(--color-gray-800);
-}

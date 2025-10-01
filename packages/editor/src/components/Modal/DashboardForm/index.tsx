@@ -7,10 +7,8 @@ import { nameToPath } from '@helpers/editor/routes/nameToPath';
 import { usePrevious } from '@hooks/usePrevious';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
-import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
-import { InputField } from '@components/Form/Fields/Input';
-import { ImageUpload } from '@components/Form/Fields/Image';
+import { InputField } from '@components/Form/Field/Input';
+import { ImageField } from '@components/Form/Field/Image';
 import { Modal } from '@components/Modal';
 
 // Styled Components
@@ -44,6 +42,9 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
 
   const previousName = usePrevious(name);
   const currentDashboard = useMemo(() => dashboards?.find(d => d.id === dashboardId), [dashboards, dashboardId]);
+
+  const isTouchedAndEmpty = pathTouched && path.trim() === '';
+  const errorHelperText = isTouchedAndEmpty ? 'Dashboard path is required' : pathError;
 
   // Auto-generate path from name
   useEffect(() => {
@@ -228,51 +229,40 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
           gap: 'var(--space-4)',
         }}
       >
-        <FieldGroup>
-          <FieldLabel htmlFor='dashboard-name' label='Dashboard Name *' description='The name of the dashboard.' />
-          <InputField
-            id='dashboard-name'
-            type='text'
-            value={name}
-            required
-            onChange={e => setName(e.target.value)}
-            placeholder='Home'
-            error={!!nameError}
-            helperText={nameError}
-            fullWidth
-          />
-        </FieldGroup>
+        <InputField
+          label='Dashboard Name *'
+          id='dashboard-name'
+          type='text'
+          value={name}
+          required
+          onChange={e => setName(e.target.value)}
+          placeholder='The name of the dashboard.'
+          error={!!nameError}
+          helperText={nameError}
+        />
 
-        <FieldGroup>
-          <FieldLabel
-            htmlFor='dashboard-path'
-            label='Dashboard Path *'
-            description='The path is used to identify the dashboard in the URL.'
-          />
-          <InputField
-            id='dashboard-path'
-            type='text'
-            value={path}
-            required
-            onChange={e => {
-              setPath(e.target.value);
-              setPathTouched(true);
-            }}
-            placeholder='home'
-            error={!!pathError}
-            helperText={pathError || 'The path is automatically generated from the dashboard name'}
-            fullWidth
-          />
-        </FieldGroup>
+        <InputField
+          id='dashboard-path'
+          label='Dashboard Path *'
+          type='text'
+          value={path}
+          required
+          onChange={e => {
+            setPath(e.target.value);
+            setPathTouched(true);
+          }}
+          placeholder='The path is used to identify the dashboard in the URL.'
+          error={!!pathError || isTouchedAndEmpty}
+          helperText={errorHelperText || 'The path is automatically generated from the dashboard name'}
+        />
 
-        <FieldGroup>
-          <FieldLabel
-            htmlFor='dashboard-thumbnail'
-            label='Thumbnail (optional)'
-            description='Upload an image thumbnail for this dashboard.'
-          />
-          <ImageUpload id='dashboard-thumbnail' value={thumbnail || ''} onChange={setThumbnail} />
-        </FieldGroup>
+        <ImageField
+          id='dashboard-thumbnail'
+          label='Thumbnail (optional)'
+          value={thumbnail || ''}
+          onChange={setThumbnail}
+          helperText='Upload an image thumbnail for this dashboard.'
+        />
 
         <FormActions>
           <SecondaryButton aria-label='' type='button' onClick={onClose}>

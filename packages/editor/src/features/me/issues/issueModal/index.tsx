@@ -2,20 +2,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { Column, Row } from '@hakit/components';
 import { Modal } from '@components/Modal/Modal';
-import { InputField } from '@components/Form/Fields/Input';
-import { SelectField } from '@components/Form/Fields/Select';
+import { InputField } from '@components/Form/Field/Input';
+import { SelectField } from '@components/Form/Field/Select';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Loader2, Search } from 'lucide-react';
 import { listIssues } from '@services/issues';
-import type { IssueType, IssueSummary } from '@typings/issues';
+import { type IssueType, type IssueSummary, ISSUE_TYPES } from '@typings/issues';
 import { Alert } from '@components/Alert';
-import { ISSUE_TYPES, getIssueTypeLabel } from '@typings/issues';
 import bugTemplate from './templates/bug.md?raw';
 import enhancementTemplate from './templates/enhancement.md?raw';
 import documentationTemplate from './templates/documentation.md?raw';
 import featureTemplate from './templates/feature.md?raw';
 import questionTemplate from './templates/question.md?raw';
 import { MarkdownEditor } from '@components/Markdown/MarkdownEditor';
+import { FieldOption } from '@typings/fields';
 
 const ResultItem = styled.button`
   width: 100%;
@@ -191,22 +191,26 @@ export function IssueModal({
       <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Type</div>
-          <SelectField<IssueType | ''>
-            value={type}
-            onChange={e => setType(e.target.value || '')}
-            options={['', ...ISSUE_TYPES]}
-            getOptionLabel={opt => (opt === '' ? 'Please select' : getIssueTypeLabel(opt))}
+          <SelectField
+            value={{
+              label: type,
+              value: type,
+            }}
+            onChange={option => setType(option.value as IssueType | '')}
+            options={['', ...ISSUE_TYPES].map(opt => ({ label: opt, value: opt }))}
             size='small'
             style={{ minWidth: 220 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Package / Area</div>
-          <SelectField<AreaType | ''>
-            value={area}
-            onChange={e => setArea(e.target.value || '')}
-            options={['', ...AREAS]}
-            getOptionLabel={opt => (opt ? String(opt) : 'Please select')}
+          <SelectField
+            value={{
+              label: area,
+              value: area,
+            }}
+            onChange={option => setArea(option.value as AreaType | '')}
+            options={['', ...AREAS].map(opt => ({ label: opt, value: opt }))}
             size='small'
             style={{ minWidth: 260 }}
           />
@@ -215,9 +219,12 @@ export function IssueModal({
           <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Title</div>
           <InputField
             value={title}
+            id='title'
+            name='title'
+            label='Title'
+            helperText={type === 'feature' ? 'Brief description of the feature' : 'Brief description of the issue'}
             onChange={e => setTitle(e.target.value)}
-            placeholder={type === 'feature' ? 'Brief description of the feature' : 'Brief description of the issue'}
-            fullWidth
+            placeholder={'Enter a title...'}
           />
         </Column>
         <SimilarIssues query={title} onSelect={onClose} />

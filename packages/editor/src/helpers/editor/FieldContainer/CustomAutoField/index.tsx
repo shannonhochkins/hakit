@@ -10,7 +10,6 @@ import { CodeField } from '@components/Form/Field/Code';
 import { InputField } from '@components/Form/Field/Input';
 import { SelectField } from '@components/Form/Field/Select';
 import { RadioField, type RadioOption } from '@components/Form/Field/Radio';
-import { HassEntity } from 'home-assistant-js-websocket';
 import { Alert } from '@components/Alert';
 import styled from '@emotion/styled';
 import { SwitchField } from '@components/Form/Field/Switch';
@@ -146,7 +145,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
   if (field.type === 'entity') {
     return (
       <Entity
-        options={(field.options || []) as HassEntity[]}
+        filterOptions={field.filterOptions}
         value={_value}
         label={field.label ?? 'Unknown'}
         icon={icon}

@@ -1,0 +1,107 @@
+.menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 200px;
+  max-width: min(360px, 90vw);
+  padding: var(--space-1) 0;
+
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-popover);
+
+  outline: none;
+  overflow: visible;
+  contain: layout style;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: calc(var(--z-popover) - 1);
+}
+
+/* Reset inner elements to be triangles using borders */
+.arrowBorder, .arrowFill { position: absolute; }
+
+/* TOP ORIENTATION */
+.arrowTop { top: -7px; }
+.arrowTop .arrowBorder {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid var(--color-border);
+  top: 0;
+  left: -7px; /* shift half width so arrow tip aligns to wrapper left */
+}
+.arrowTop .arrowFill {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--color-surface);
+  top: 1px; /* inset to reveal border */
+  left: -6px; /* shift half width of inner triangle */
+}
+
+/* BOTTOM ORIENTATION */
+.arrowBottom { bottom: -7px; }
+.arrowBottom .arrowBorder {
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid var(--color-border);
+  bottom: 0;
+  left: -7px;
+}
+.arrowBottom .arrowFill {
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--color-surface);
+  bottom: 1px;
+  left: -6px;
+}
+
+/* LEFT ORIENTATION */
+.arrowLeft { left: -7px; }
+.arrowLeft .arrowBorder {
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid var(--color-border);
+  left: 0;
+  top: -7px; /* shift half height so arrow tip aligns to wrapper top */
+}
+.arrowLeft .arrowFill {
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid var(--color-surface);
+  left: 1px; /* inset to reveal border */
+  top: -6px;
+}
+
+/* RIGHT ORIENTATION */
+.arrowRight { right: -7px; }
+.arrowRight .arrowBorder {
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 7px solid var(--color-border);
+  right: 0;
+  top: -7px;
+}
+.arrowRight .arrowFill {
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid var(--color-surface);
+  right: 1px; /* inset to reveal border */
+  top: -6px;
+}
+
+

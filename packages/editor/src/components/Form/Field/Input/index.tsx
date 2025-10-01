@@ -23,6 +23,10 @@ type InputFieldBaseProps = {
   middleAdornment?: React.ReactNode | InputFieldAdornmentProps;
   startAdornment?: React.ReactNode | InputFieldAdornmentProps;
   endAdornment?: React.ReactNode | InputFieldAdornmentProps;
+  /** Visual-only prefix rendered inside the field before the value (not part of value) */
+  valuePrefix?: React.ReactNode;
+  /** Visual-only suffix rendered inside the field after the value (not part of value) */
+  valueSuffix?: React.ReactNode;
   className?: string;
   size?: InputFieldSize;
   icon?: React.ReactNode;
@@ -80,9 +84,11 @@ export function InputField(props: InputFieldProps) {
     inputStyles,
     hidden,
     value,
+    valuePrefix,
+    valueSuffix,
   } = props;
   const [charCount, setCharCount] = useState(0);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (props.type === 'multiline' && props.showCharCount) {
@@ -101,6 +107,7 @@ export function InputField(props: InputFieldProps) {
     error ? styles.error : '',
     success ? styles.success : '',
     disabled ? styles.disabled : '',
+    valuePrefix ? styles.withPrefix : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -159,6 +166,18 @@ export function InputField(props: InputFieldProps) {
               </div>
             );
           })()}
+        {valuePrefix && (
+          <div
+            className={styles.valuePrefix}
+            onClick={() => {
+              if (!readOnly && !disabled) {
+                inputRef.current?.focus();
+              }
+            }}
+          >
+            {valuePrefix}
+          </div>
+        )}
         {props.type === 'multiline' ? (
           <textarea
             id={id}
@@ -169,16 +188,22 @@ export function InputField(props: InputFieldProps) {
             maxLength={props.maxLength}
             onChange={handleChange}
             value={value}
-            style={inputStyles}
+            style={{
+              ...inputStyles,
+              paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
+            }}
             placeholder={props.placeholder}
             hidden={hidden}
+            ref={el => {
+              inputRef.current = el;
+            }}
           />
         ) : (
           <input
             id={id}
             name={name}
             disabled={disabled}
-            value={value}
+            value={props.type === 'file' ? undefined : value}
             readOnly={readOnly}
             className={inputClasses}
             type={props.type}
@@ -188,7 +213,10 @@ export function InputField(props: InputFieldProps) {
             step={props.type === 'number' ? props.step : undefined}
             onChange={handleChange}
             accept={props.type === 'file' ? props.accept : undefined}
-            style={inputStyles}
+            style={{
+              ...inputStyles,
+              paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
+            }}
             placeholder={props.placeholder}
             hidden={hidden}
             ref={el => {
@@ -197,6 +225,7 @@ export function InputField(props: InputFieldProps) {
             }}
           />
         )}
+        {valueSuffix && <div className={styles.valueSuffix}>{valueSuffix}</div>}
         {middleAdornment && <>{middleAdornment}</>}
         {endAdornment &&
           (() => {

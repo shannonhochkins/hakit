@@ -9,16 +9,14 @@ import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem, IconKey } from '@typings/breakpoints';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { SelectField } from '@components/Form/Fields/Select';
-import { InputField } from '@components/Form/Fields/Input';
-import { SwitchField } from '@components/Form/Fields/Switch';
+import { SelectField } from '@components/Form/Field/Select';
+import { InputField } from '@components/Form/Field/Input';
+import { SwitchField } from '@components/Form/Field/Switch';
 import { CircleHelp, Edit, TabletSmartphone } from 'lucide-react';
 import { Modal, ModalActions } from '@components/Modal';
 import { breakpointItemToBreakPoints } from '@helpers/editor/breakpoints';
 import { PrimaryButton } from '@components/Button';
 import { Tooltip } from '@components/Tooltip';
-import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
 import { BREAKPOINT_ICONS } from '@constants';
 import { updateDashboardForUser } from '@services/dashboard';
 import { toast } from 'react-toastify';
@@ -268,6 +266,10 @@ const ViewportControlsComponent = () => {
   const onClose = useCallback(() => {
     setEditingBreakpoints(false);
   }, []);
+  const optionsWithNew = useMemo(
+    () => [...options.map(item => ({ label: String(item.title), value: String(item.id) })), { value: 'new', label: 'Customize' } as const],
+    [options]
+  );
 
   if (!value) {
     return null;
@@ -282,19 +284,15 @@ const ViewportControlsComponent = () => {
         title={<>{valueQueryHelper?.[value.id] && <HelperText>{formatMediaQuery(valueQueryHelper?.[value.id] as string)}</HelperText>}</>}
       >
         <SelectField
-          value={value}
-          options={[
-            ...options,
-            {
-              id: 'new',
-              title: 'Customize',
-              width: -1,
-            },
-          ]}
+          value={{
+            label: value.title,
+            value: value.id,
+          }}
+          options={optionsWithNew}
           name='breakpoint'
           size='small'
-          getOptionLabel={option =>
-            option.id === 'new' ? (
+          renderOption={option =>
+            option.value === 'new' ? (
               <Row gap='0.5rem' fullHeight>
                 <Edit size={16} />
                 Customize
@@ -306,15 +304,14 @@ const ViewportControlsComponent = () => {
               </Row>
             )
           }
-          onChange={event => {
-            const value = event?.target.value;
-            if (typeof value === 'string' || (value as { id?: unknown })?.id === 'new') {
+          onChange={option => {
+            if (option?.value === 'new') {
               // empty value, consider we've hit the "edit" option
               setEditingBreakpoints(true);
             } else {
               const bp = value as BreakpointItem;
               // Save selected breakpoint to localStorage - this will trigger the sync effect
-              setSelectedBreakpointId(bp.id);
+              setSelectedBreakpointId(option.value);
               const globalStore = useGlobalStore.getState();
               globalStore.setPreviewCanvasWidth(bp.width);
             }
@@ -354,178 +351,150 @@ const ViewportControlsComponent = () => {
                   borderRadius: '8px',
                 }}
               >
-                <FieldGroup className='full-width'>
-                  <FieldLabel
-                    label='Icon'
-                    htmlFor={`icon-${item.id}`}
-                    description={item.disabled ? '' : 'Icon for this breakpoint'}
-                    style={{
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                  />
-                  <SelectField
-                    readOnly={item.disabled}
-                    id={`icon-${item.id}`}
-                    style={{
-                      width: '100%',
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                    size='small'
-                    value={
-                      Object.entries(BREAKPOINT_ICONS).find(([key]) => key === (item.icon || getDefaultIconForBreakpoint(item.id)))?.[0] ||
-                      getDefaultIconForBreakpoint(item.id)
-                    }
-                    disabled={item.disabled}
-                    options={Object.keys(BREAKPOINT_ICONS)}
-                    getOptionLabel={iconKey => (
-                      <Row gap='0.5rem' alignItems='center' justifyContent='flex-start'>
-                        {React.createElement(BREAKPOINT_ICONS[iconKey as IconKey].component, { size: 18 })}
-                        {BREAKPOINT_ICONS[iconKey as IconKey].label}
-                      </Row>
-                    )}
-                    onChange={event => {
-                      const val = event.target.value;
-                      setControlledBreakpointItems(prev => {
-                        const newItems = [...prev];
-                        const index = newItems.findIndex(i => i.id === item.id);
-                        if (index !== -1) {
-                          newItems[index] = {
-                            ...newItems[index],
-                            icon: val as IconKey,
-                          };
-                        }
-                        return newItems;
-                      });
-                    }}
-                  />
-                </FieldGroup>
+                <SelectField
+                  label='Icon'
+                  name={`icon-${item.id}`}
+                  readOnly={item.disabled}
+                  id={`icon-${item.id}`}
+                  style={{
+                    width: '100%',
+                    opacity: item.disabled ? '0.3' : '1',
+                  }}
+                  size='small'
+                  value={
+                    Object.entries(BREAKPOINT_ICONS).find(([key]) => key === (item.icon || getDefaultIconForBreakpoint(item.id)))?.[0] ||
+                    getDefaultIconForBreakpoint(item.id)
+                  }
+                  disabled={item.disabled}
+                  options={Object.keys(BREAKPOINT_ICONS).map(key => ({ label: BREAKPOINT_ICONS[key as IconKey].label, value: key }))}
+                  renderOption={option => (
+                    <Row gap='0.5rem' alignItems='center' justifyContent='flex-start'>
+                      {React.createElement(BREAKPOINT_ICONS[option.value as IconKey].component, { size: 18 })}
+                      {BREAKPOINT_ICONS[option.value as IconKey].label}
+                    </Row>
+                  )}
+                  helperText={item.disabled ? '' : 'Icon for this breakpoint'}
+                  onChange={option => {
+                    const val = option.value;
+                    setControlledBreakpointItems(prev => {
+                      const newItems = [...prev];
+                      const index = newItems.findIndex(i => i.id === item.id);
+                      if (index !== -1) {
+                        newItems[index] = {
+                          ...newItems[index],
+                          icon: val as IconKey,
+                        };
+                      }
+                      return newItems;
+                    });
+                  }}
+                />
 
-                <FieldGroup className='full-width'>
-                  <FieldLabel
-                    label='Title *'
-                    htmlFor={`name-${item.id}`}
-                    description={item.disabled ? '' : 'Name of the breakpoint'}
-                    style={{
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                  />
-                  <InputField
-                    readOnly={item.disabled}
-                    id={`name-${item.id}`}
-                    style={{
-                      width: '100%',
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                    error={!isTitleValid}
-                    helperText={!item.editable ? '' : isTitleValid ? '' : 'Name is required'}
-                    required
-                    value={item.title}
-                    type='text'
-                    disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
-                    onChange={event => {
-                      const val = event.target.value;
-                      setControlledBreakpointItems(prev => {
-                        const newItems = [...prev];
-                        const index = newItems.findIndex(i => i.id === item.id);
-                        if (index !== -1) {
-                          newItems[index] = {
-                            ...newItems[index],
-                            title: val,
-                          };
-                        }
-                        return newItems;
-                      });
-                    }}
-                  />
-                </FieldGroup>
+                <InputField
+                  readOnly={item.disabled}
+                  id={`name-${item.id}`}
+                  name={`name-${item.id}`}
+                  label='Title *'
+                  placeholder='Name of the breakpoint'
+                  style={{
+                    width: '100%',
+                    opacity: item.disabled ? '0.3' : '1',
+                  }}
+                  error={!isTitleValid}
+                  helperText={!item.editable ? '' : isTitleValid ? 'Name of the breakpoint' : 'Name is required'}
+                  required
+                  value={item.title}
+                  type='text'
+                  disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
+                  onChange={event => {
+                    const val = event.target.value;
+                    setControlledBreakpointItems(prev => {
+                      const newItems = [...prev];
+                      const index = newItems.findIndex(i => i.id === item.id);
+                      if (index !== -1) {
+                        newItems[index] = {
+                          ...newItems[index],
+                          title: val,
+                        };
+                      }
+                      return newItems;
+                    });
+                  }}
+                />
 
-                <FieldGroup className='full-width'>
-                  <FieldLabel
-                    htmlFor={`size-${item.id}`}
-                    label='Size *'
-                    description={item.disabled ? '' : 'The max size for the current breakpoint'}
-                    style={{
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                  />
-                  <InputField
-                    readOnly={item.disabled}
-                    id={`size-${item.id}`}
-                    style={{
-                      width: '100%',
-                      opacity: item.disabled ? '0.3' : '1',
-                    }}
-                    value={item.width}
-                    error={!isWidthValue}
-                    helperText={!item.editable ? '' : isWidthValue ? '' : `Value should be larger than ${previousWidth}`}
-                    type='number'
-                    disabled={!item.editable || item.disabled}
-                    className={item.width === 1 && item.id === 'xlg' ? 'hide-value' : ''}
-                    slotProps={{
-                      input: {
-                        endAdornment: queries && typeof queries[item.id] === 'string' && (
-                          <Tooltip
-                            title={formatMediaQuery(queries[item.id] as string)}
-                            placement='top'
-                            style={{
-                              display: 'flex',
-                            }}
-                          >
-                            <CircleHelp size={18} />
-                          </Tooltip>
-                        ),
-                      },
-                    }}
-                    onChange={event => {
-                      const val = event.target.value;
-                      setControlledBreakpointItems(prev => {
-                        const newItems = [...prev];
-                        const index = newItems.findIndex(i => i.id === item.id);
-                        if (index !== -1) {
-                          newItems[index] = {
-                            ...newItems[index],
-                            width: parseInt(val, 10),
-                          };
-                        }
-                        return newItems;
-                      });
-                    }}
-                  />
-                </FieldGroup>
+                <InputField
+                  readOnly={item.disabled}
+                  id={`size-${item.id}`}
+                  style={{
+                    width: '100%',
+                    opacity: item.disabled ? '0.3' : '1',
+                  }}
+                  value={item.width}
+                  error={!isWidthValue}
+                  helperText={
+                    !item.editable
+                      ? ''
+                      : isWidthValue
+                        ? 'The max size for the current breakpoint'
+                        : `Value should be larger than ${previousWidth}`
+                  }
+                  type='number'
+                  disabled={!item.editable || item.disabled}
+                  className={item.width === 1 && item.id === 'xlg' ? 'hide-value' : ''}
+                  endAdornment={
+                    queries &&
+                    typeof queries[item.id] === 'string' && (
+                      <Tooltip
+                        title={formatMediaQuery(queries[item.id] as string)}
+                        placement='top'
+                        style={{
+                          display: 'flex',
+                        }}
+                      >
+                        <CircleHelp size={18} />
+                      </Tooltip>
+                    )
+                  }
+                  onChange={event => {
+                    const val = event.target.value;
+                    setControlledBreakpointItems(prev => {
+                      const newItems = [...prev];
+                      const index = newItems.findIndex(i => i.id === item.id);
+                      if (index !== -1) {
+                        newItems[index] = {
+                          ...newItems[index],
+                          width: parseInt(val, 10),
+                        };
+                      }
+                      return newItems;
+                    });
+                  }}
+                />
                 {item.editable ? (
-                  <FieldGroup>
-                    <FieldLabel
-                      htmlFor={`toggle-${item.id}`}
-                      label='Status'
-                      description='Toggle this breakpoint on/off'
-                      style={{
-                        // intentionally hidden, screen reader will read this label
-                        // including this is just visually cluttered
-                        opacity: 0,
-                      }}
-                    />
-                    <SwitchField
-                      style={{
-                        minWidth: '70px',
-                      }}
-                      id={`toggle-${item.id}`}
-                      checked={!item.disabled}
-                      onChange={event => {
-                        const val = (event.target as HTMLInputElement).checked;
-                        setControlledBreakpointItems(prev => {
-                          const newItems = [...prev];
-                          const index = newItems.findIndex(i => i.id === item.id);
-                          if (index !== -1) {
-                            newItems[index] = {
-                              ...newItems[index],
-                              disabled: !val,
-                            };
-                          }
-                          return newItems;
-                        });
-                      }}
-                    />
-                  </FieldGroup>
+                  <SwitchField
+                    style={{
+                      minWidth: '70px',
+                    }}
+                    id={`toggle-${item.id}`}
+                    name={`toggle-${item.id}`}
+                    label='Status'
+                    helperText='Toggle this breakpoint on/off'
+                    checked={!item.disabled}
+                    onChange={event => {
+                      const val = (event.target as HTMLInputElement).checked;
+                      setControlledBreakpointItems(prev => {
+                        const newItems = [...prev];
+                        const index = newItems.findIndex(i => i.id === item.id);
+                        if (index !== -1) {
+                          newItems[index] = {
+                            ...newItems[index],
+                            disabled: !val,
+                          };
+                        }
+                        return newItems;
+                      });
+                    }}
+                  />
                 ) : (
                   <div
                     style={{

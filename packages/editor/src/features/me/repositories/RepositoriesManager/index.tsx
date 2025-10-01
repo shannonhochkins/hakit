@@ -5,14 +5,14 @@ import { PrimaryButton } from '@components/Button/Primary';
 import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
 import { RepositoryListItem } from '@features/me/repositories/RepositoriesManager/RepositoryListItem';
 import { Row } from '@components/Layout';
-import { InputField } from '@components/Form/Fields/Input';
-import { InputAdornment, Menu, MenuItem } from '@mui/material';
+import { InputField } from '@components/Form/Field/Input';
+import { Menu, MenuItem } from '@components/Menu';
 import { Confirm } from '@components/Modal/confirm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus } from '@services/repositories';
 
 import { UserRepository } from '@typings/hono';
-import { SwitchField } from '@components/Form/Fields/Switch';
+import { SwitchField } from '@components/Form/Field/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@components/Table';
 import { SecondaryButton } from '@components/Button';
 import { RepositoryInstallButton } from '@features/me/repositories/RepositoriesManager/RepositoryInstallButton';
@@ -320,20 +320,14 @@ export function RepositoriesManager() {
         <InputField
           size='medium'
           type='text'
+          id='search-components'
+          name='search-components'
+          label=''
+          helperText='Search for installed components'
           placeholder='Search components...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          variant='outlined'
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          startAdornment={<SearchIcon size={18} />}
         />
       </SearchAndFilter>
 
@@ -425,6 +419,8 @@ export function RepositoriesManager() {
                               <TableCell>
                                 <StatusContainer>
                                   <SwitchField
+                                    id={`${component.name}-${index}`}
+                                    name={`${component.name}-${index}`}
                                     checked={component.enabled ?? true}
                                     onChange={() => handleToggleComponent(repo.id, component.name)}
                                     disabled={isToggling}
