@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import styled from '@emotion/styled';
 import {
   PlusIcon,
   LayoutDashboardIcon,
@@ -26,13 +25,13 @@ import { InputField } from '@components/Form/Field/Input';
 import { Tooltip } from '@components/Tooltip';
 import { Dashboard, DashboardPageWithoutData } from '@typings/hono';
 import {
-  TableContainer as StyledTableContainer,
-  Table as StyledTable,
-  TableHead as StyledTableHead,
-  TableBody as StyledTableBody,
-  TableRow as StyledTableRow,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
   TableHeaderCell,
-  TableCell as StyledTableCell,
+  TableCell,
   CollapsibleRow,
   ChildTableRow,
   ExpandIcon,
@@ -44,6 +43,10 @@ import { IconButton } from '@components/Button/IconButton';
 import { timeAgo } from '@hakit/core';
 import { ActionMenu } from '@features/me/dashboards/ActionMenu';
 import { getStorageKey } from '@hooks/useUnsavedChanges';
+import styles from './Dashboards.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('Dashboards', styles);
 
 // Table column configuration
 const TABLE_COLUMNS = {
@@ -62,226 +65,7 @@ interface SortConfig {
   direction: SortDirection;
 }
 
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-`;
-
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-`;
-
-const PageTitle = styled.h1`
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const PageSubtitle = styled.p`
-  color: var(--color-text-muted);
-  margin: 0;
-`;
-
-const SearchAndFilter = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-`;
-
-const SearchFilterIndicator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background-color: var(--color-primary-500);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: white;
-`;
-
-const DashboardInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-`;
-
-const DashboardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  transition: all var(--transition-normal);
-`;
-
-const PageInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-left: var(--space-10); /* Align with dashboard content after expand button */
-  padding-left: var(--space-1); /* Small padding to account for the pseudo-element border */
-  width: 100%;
-  transition: all var(--transition-normal);
-`;
-
-const ThumbnailContainer = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background-color: var(--color-surface-elevated);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const PageThumbnailContainer = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background-color: var(--color-surface-elevated);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const ThumbnailPlaceholder = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-`;
-
-const DashboardName = styled.span`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-`;
-
-const PageName = styled.span`
-  font-weight: var(--font-weight-normal);
-  color: var(--color-text-primary);
-  font-size: var(--font-size-sm);
-`;
-
-const PathText = styled.span`
-  color: var(--color-text-muted);
-`;
-
-const PagePathText = styled.span`
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-`;
-
-const DateText = styled.span`
-  color: var(--color-text-muted);
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-end;
-  gap: var(--space-2);
-`;
-
-const PageCount = styled.span<{ isEmpty?: boolean }>`
-  font-size: var(--font-size-xs);
-  color: ${props => (props.isEmpty ? 'var(--color-text-muted)' : 'var(--color-text-muted)')};
-  font-style: ${props => (props.isEmpty ? 'italic' : 'normal')};
-`;
-
-const ChildTable = styled(StyledTable)`
-  table-layout: fixed;
-  width: 100%;
-
-  /* Force column widths to match parent table */
-  colgroup col:nth-child(1) {
-    width: ${TABLE_COLUMNS.DASHBOARD.width};
-    min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth};
-  }
-  colgroup col:nth-child(2) {
-    width: ${TABLE_COLUMNS.PATH.width};
-  }
-  colgroup col:nth-child(3) {
-    width: ${TABLE_COLUMNS.CREATED.width};
-  }
-  colgroup col:nth-child(4) {
-    width: ${TABLE_COLUMNS.ACTIONS.width};
-  }
-
-  /* Ensure cells respect the column widths */
-  td:nth-child(1) {
-    width: ${TABLE_COLUMNS.DASHBOARD.width};
-    min-width: ${TABLE_COLUMNS.DASHBOARD.minWidth};
-  }
-  td:nth-child(2) {
-    width: ${TABLE_COLUMNS.PATH.width};
-  }
-  td:nth-child(3) {
-    width: ${TABLE_COLUMNS.CREATED.width};
-  }
-  td:nth-child(4) {
-    width: ${TABLE_COLUMNS.ACTIONS.width};
-  }
-`;
-
-// Sortable Header Component
-const SortableHeaderCell = styled(TableHeaderCell)<{ sortable?: boolean }>`
-  cursor: ${props => (props.sortable ? 'pointer' : 'default')};
-  user-select: none;
-  transition: background-color var(--transition-normal);
-
-  &:hover {
-    background-color: ${props => (props.sortable ? 'var(--color-gray-700)' : 'transparent')};
-  }
-`;
-
-const SortHeaderContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-`;
-
-const SortIcon = styled.div<{ direction?: 'asc' | 'desc' }>`
-  display: flex;
-  align-items: center;
-  opacity: ${props => (props.direction ? 1 : 0.5)};
-  transition: opacity var(--transition-normal);
-`;
+// CSS Modules equivalents handled via getClassName
 
 function getDashboardById(dashboards: Dashboard[], id: string) {
   return dashboards.find(dashboard => dashboard.id === id) || null;
@@ -709,20 +493,20 @@ export function Dashboards() {
       : null;
 
   return (
-    <Container>
-      <PageHeader>
+    <div className={getClassName()}>
+      <div className={getClassName('pageHeader')}>
         <Row fullWidth justifyContent='space-between' alignItems='center'>
-          <HeaderContent>
-            <PageTitle>Dashboards</PageTitle>
-            <PageSubtitle>Manage your custom dashboards</PageSubtitle>
-          </HeaderContent>
+          <div className={getClassName('headerContent')}>
+            <h1 className={getClassName('pageTitle')}>Dashboards</h1>
+            <p className={getClassName('pageSubtitle')}>Manage your custom dashboards</p>
+          </div>
           <PrimaryButton aria-label='' onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
             Create Dashboard
           </PrimaryButton>
         </Row>
-      </PageHeader>
+      </div>
 
-      <SearchAndFilter>
+      <div className={getClassName('searchAndFilter')}>
         <InputField
           type='text'
           id='search-dashboards-and-pages'
@@ -735,10 +519,10 @@ export function Dashboards() {
           onChange={e => setSearchQuery(e.target.value)}
           startAdornment={<SearchIcon size={18} />}
         />
-      </SearchAndFilter>
+      </div>
 
       {searchQuery && hasMatches && (
-        <SearchFilterIndicator>
+        <div className={getClassName('searchFilterIndicator')}>
           <Row gap='var(--space-3)' alignItems='center'>
             <InfoIcon size={14} />
             <span>
@@ -754,7 +538,7 @@ export function Dashboards() {
             icon={<X size={16} onClick={() => setSearchQuery('')} />}
             aria-label='Clear search term'
           />
-        </SearchFilterIndicator>
+        </div>
       )}
 
       <DashboardForm
@@ -804,25 +588,25 @@ export function Dashboards() {
           }
         />
       ) : (
-        <StyledTableContainer>
-          <StyledTable>
+        <TableContainer>
+          <Table>
             <colgroup>
               <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
               <col style={{ width: TABLE_COLUMNS.PATH.width }} />
               <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
               <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
             </colgroup>
-            <StyledTableHead>
-              <StyledTableRow>
-                <SortableHeaderCell
+            <TableHead>
+              <TableRow>
+                <TableHeaderCell
                   width={TABLE_COLUMNS.DASHBOARD.width}
                   minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}
                   sortable
                   onClick={() => handleSort('name')}
                 >
-                  <SortHeaderContent>
+                  <div className={getClassName('sortHeaderContent')}>
                     <span>Dashboard</span>
-                    <SortIcon direction={sortConfig.column === 'name' ? sortConfig.direction : undefined}>
+                    <div className={getClassName({ sortIconActive: sortConfig.column === 'name' }, getClassName('sortIcon'))}>
                       {sortConfig.column === 'name' ? (
                         sortConfig.direction === 'asc' ? (
                           <ArrowUp size={16} />
@@ -832,13 +616,13 @@ export function Dashboards() {
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
-                    </SortIcon>
-                  </SortHeaderContent>
-                </SortableHeaderCell>
-                <SortableHeaderCell width={TABLE_COLUMNS.PATH.width} sortable onClick={() => handleSort('path')}>
-                  <SortHeaderContent>
+                    </div>
+                  </div>
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.PATH.width} sortable onClick={() => handleSort('path')}>
+                  <div className={getClassName('sortHeaderContent')}>
                     <span>Path</span>
-                    <SortIcon direction={sortConfig.column === 'path' ? sortConfig.direction : undefined}>
+                    <div className={getClassName({ sortIconActive: sortConfig.column === 'path' }, getClassName('sortIcon'))}>
                       {sortConfig.column === 'path' ? (
                         sortConfig.direction === 'asc' ? (
                           <ArrowUp size={16} />
@@ -848,13 +632,13 @@ export function Dashboards() {
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
-                    </SortIcon>
-                  </SortHeaderContent>
-                </SortableHeaderCell>
-                <SortableHeaderCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg' sortable onClick={() => handleSort('created')}>
-                  <SortHeaderContent>
+                    </div>
+                  </div>
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg' sortable onClick={() => handleSort('created')}>
+                  <div className={getClassName('sortHeaderContent')}>
                     <span>Created</span>
-                    <SortIcon direction={sortConfig.column === 'created' ? sortConfig.direction : undefined}>
+                    <div className={getClassName({ sortIconActive: sortConfig.column === 'created' }, getClassName('sortIcon'))}>
                       {sortConfig.column === 'created' ? (
                         sortConfig.direction === 'asc' ? (
                           <ArrowUp size={16} />
@@ -864,17 +648,17 @@ export function Dashboards() {
                       ) : (
                         <ArrowUpDown size={16} />
                       )}
-                    </SortIcon>
-                  </SortHeaderContent>
-                </SortableHeaderCell>
-                <SortableHeaderCell width={TABLE_COLUMNS.ACTIONS.width}>
-                  <SortHeaderContent>
+                    </div>
+                  </div>
+                </TableHeaderCell>
+                <TableHeaderCell width={TABLE_COLUMNS.ACTIONS.width}>
+                  <div className={getClassName('sortHeaderContent')}>
                     <span>Actions</span>
-                  </SortHeaderContent>
-                </SortableHeaderCell>
-              </StyledTableRow>
-            </StyledTableHead>
-            <StyledTableBody>
+                  </div>
+                </TableHeaderCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {filteredDashboards.map((dashboard: DashboardWithMatching) => (
                 <CollapsibleRow
                   key={dashboard.id}
@@ -883,16 +667,16 @@ export function Dashboards() {
                   colSpan={Object.keys(TABLE_COLUMNS).length}
                   expandedContent={
                     <>
-                      <ChildTable>
+                      <Table className={getClassName('childTable')}>
                         <colgroup>
                           <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
                           <col style={{ width: TABLE_COLUMNS.PATH.width }} />
                           <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
                           <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
                         </colgroup>
-                        <StyledTableBody>
+                        <TableBody>
                           <ChildTableRow>
-                            <StyledTableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
+                            <TableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
                               <Row fullWidth justifyContent='space-between' alignItems='center'>
                                 <span>{(dashboard.matchedPages || dashboard.pages).length > 0 ? 'PAGES' : 'No pages found'}</span>
                                 <PrimaryButton
@@ -904,35 +688,35 @@ export function Dashboards() {
                                   Create Page
                                 </PrimaryButton>
                               </Row>
-                            </StyledTableCell>
+                            </TableCell>
                           </ChildTableRow>
 
                           {(dashboard.matchedPages || dashboard.pages).map((page: DashboardPageWithoutData) => (
                             <ChildTableRow key={page.id}>
-                              <StyledTableCell>
-                                <PageInfo>
-                                  <PageThumbnailContainer>
+                              <TableCell>
+                                <div className={getClassName('pageInfo')}>
+                                  <div className={getClassName('pageThumbnailContainer')}>
                                     {page.thumbnail ? (
                                       <img src={page.thumbnail} alt={page.name} />
                                     ) : (
-                                      <ThumbnailPlaceholder>
+                                      <div className={getClassName('thumbnailPlaceholder')}>
                                         <FileTextIcon size={16} />
-                                      </ThumbnailPlaceholder>
+                                      </div>
                                     )}
-                                  </PageThumbnailContainer>
-                                  <PageName>{page.name}</PageName>
-                                </PageInfo>
-                              </StyledTableCell>
-                              <StyledTableCell>
-                                <PagePathText>{page.path}</PagePathText>
-                              </StyledTableCell>
-                              <StyledTableCell hiddenBelow='lg'>
+                                  </div>
+                                  <span className={getClassName('pageName')}>{page.name}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className={getClassName('pagePathText')}>{page.path}</span>
+                              </TableCell>
+                              <TableCell hiddenBelow='lg'>
                                 <Tooltip title={`Updated ${timeAgo(new Date(page.updatedAt))}`}>
-                                  <DateText>{timeAgo(new Date(page.createdAt))}</DateText>
+                                  <span className={getClassName('dateText')}>{timeAgo(new Date(page.createdAt))}</span>
                                 </Tooltip>
-                              </StyledTableCell>
-                              <StyledTableCell>
-                                <ActionButtons>
+                              </TableCell>
+                              <TableCell>
+                                <div className={getClassName('actionButtons')}>
                                   <IconButton
                                     aria-label='View Page'
                                     size='sm'
@@ -951,17 +735,17 @@ export function Dashboards() {
                                     size='sm'
                                     onClick={e => handleMenuOpen(e, 'page', dashboard.id, page.id)}
                                   />
-                                </ActionButtons>
-                              </StyledTableCell>
+                                </div>
+                              </TableCell>
                             </ChildTableRow>
                           ))}
-                        </StyledTableBody>
-                      </ChildTable>
+                        </TableBody>
+                      </Table>
                     </>
                   }
                 >
-                  <StyledTableCell width={TABLE_COLUMNS.DASHBOARD.width} minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}>
-                    <DashboardHeader>
+                  <TableCell width={TABLE_COLUMNS.DASHBOARD.width} minWidth={TABLE_COLUMNS.DASHBOARD.minWidth}>
+                    <div className={getClassName('dashboardHeader')}>
                       <Tooltip
                         title={
                           expandedDashboards.has(dashboard.id)
@@ -976,37 +760,37 @@ export function Dashboards() {
                           <ExpandIcon expanded={expandedDashboards.has(dashboard.id)} onClick={() => toggleExpanded(dashboard.id)} />
                         </span>
                       </Tooltip>
-                      <DashboardInfo>
-                        <ThumbnailContainer>
+                      <div className={getClassName('dashboardInfo')}>
+                        <div className={getClassName('thumbnailContainer')}>
                           {dashboard.thumbnail ? (
                             <img src={dashboard.thumbnail} alt={dashboard.name} width={100} />
                           ) : (
-                            <ThumbnailPlaceholder>
+                            <div className={getClassName('thumbnailPlaceholder')}>
                               <LayoutDashboardIcon size={50} />
-                            </ThumbnailPlaceholder>
+                            </div>
                           )}
-                        </ThumbnailContainer>
+                        </div>
                         <Column>
-                          <DashboardName>{dashboard.name}</DashboardName>
-                          <PageCount isEmpty={dashboard.pages.length === 0}>
+                          <span className={getClassName('dashboardName')}>{dashboard.name}</span>
+                          <span className={getClassName({ pageCountIsEmpty: dashboard.pages.length === 0 }, getClassName('pageCount'))}>
                             {dashboard.pages.length === 0
                               ? 'No pages'
                               : `${dashboard.pages.length} page${dashboard.pages.length !== 1 ? 's' : ''}`}
-                          </PageCount>
+                          </span>
                         </Column>
-                      </DashboardInfo>
-                    </DashboardHeader>
-                  </StyledTableCell>
-                  <StyledTableCell width={TABLE_COLUMNS.PATH.width}>
-                    <PathText>{dashboard.path}</PathText>
-                  </StyledTableCell>
-                  <StyledTableCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg'>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell width={TABLE_COLUMNS.PATH.width}>
+                    <span className={getClassName('pathText')}>{dashboard.path}</span>
+                  </TableCell>
+                  <TableCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg'>
                     <Tooltip title={`Updated on ${timeAgo(new Date(dashboard.updatedAt))}`}>
-                      <DateText>{timeAgo(new Date(dashboard.createdAt))}</DateText>
+                      <span className={getClassName('dateText')}>{timeAgo(new Date(dashboard.createdAt))}</span>
                     </Tooltip>
-                  </StyledTableCell>
-                  <StyledTableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
-                    <ActionButtons>
+                  </TableCell>
+                  <TableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
+                    <div className={getClassName('actionButtons')}>
                       <IconButton
                         aria-label='View Dashboard'
                         size='sm'
@@ -1025,13 +809,13 @@ export function Dashboards() {
                         size='sm'
                         onClick={e => handleMenuOpen(e, 'dashboard', dashboard.id)}
                       />
-                    </ActionButtons>
-                  </StyledTableCell>
+                    </div>
+                  </TableCell>
                 </CollapsibleRow>
               ))}
-            </StyledTableBody>
-          </StyledTable>
-        </StyledTableContainer>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       <ActionMenu
@@ -1058,6 +842,6 @@ export function Dashboards() {
               onDelete: handleDelete,
             })}
       />
-    </Container>
+    </div>
   );
 }

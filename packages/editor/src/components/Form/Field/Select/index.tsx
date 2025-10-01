@@ -33,6 +33,7 @@ type CommonSelectProps<T extends FieldOption> = {
   name?: string;
   renderOption?: (option: T) => React.ReactNode;
   isOptionEqualToValue?: (option: T, value: T) => boolean;
+  style?: React.CSSProperties;
 };
 
 type SingleSelectProps<T extends FieldOption> = CommonSelectProps<T> & {
@@ -73,6 +74,7 @@ export function SelectField<T extends FieldOption = FieldOption>({
   renderOption,
   renderValue,
   isOptionEqualToValue,
+  style,
 }: SelectFieldProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -167,7 +169,7 @@ export function SelectField<T extends FieldOption = FieldOption>({
   const inputWrapperClasses = [styles.inputWrapper].filter(Boolean).join(' ');
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} style={style}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
       <div
         className={inputWrapperClasses}

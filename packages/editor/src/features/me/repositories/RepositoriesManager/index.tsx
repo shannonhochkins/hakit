@@ -110,11 +110,6 @@ const StatusContainer = styled.div`
   gap: var(--space-2);
 `;
 
-const StatusText = styled.span`
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-`;
-
 export function RepositoriesManager() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -419,16 +414,14 @@ export function RepositoriesManager() {
                               <TableCell>
                                 <StatusContainer>
                                   <SwitchField
+                                    isolated={false}
                                     id={`${component.name}-${index}`}
                                     name={`${component.name}-${index}`}
                                     checked={component.enabled ?? true}
                                     onChange={() => handleToggleComponent(repo.id, component.name)}
                                     disabled={isToggling}
-                                    label=''
+                                    label={isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}
                                   />
-                                  <StatusText>
-                                    {isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}
-                                  </StatusText>
                                 </StatusContainer>
                               </TableCell>
                             </TableRow>

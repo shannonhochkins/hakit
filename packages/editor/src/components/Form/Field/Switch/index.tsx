@@ -15,6 +15,8 @@ type SwitchFieldProps = {
   name?: string;
   icon?: React.ReactNode;
   readOnly?: boolean;
+  /** should the switch be wrapped in a container matching other input styles @default true */
+  isolated?: boolean;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'checked' | 'size'>;
 
 // Define size-specific CSS custom properties
@@ -49,14 +51,16 @@ export function SwitchField({
   name,
   icon,
   readOnly,
+  isolated = true,
   ...inputProps
 }: SwitchFieldProps) {
   const containerClasses = [styles.container, inputProps.disabled ? styles.disabled : '', className || ''].filter(Boolean).join(' ');
+  const switchWrapperClasses = [styles.switchWrapper, isolated ? styles.isolated : ''].filter(Boolean).join(' ');
 
   return (
     <div className={containerClasses} style={size ? sizeStyles[size] : undefined}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
-      <div className={styles.switchWrapper}>
+      <div className={switchWrapperClasses}>
         <input type='checkbox' id={id} name={name} checked={checked} className={styles.switchInput} {...inputProps} />
         <label htmlFor={id} className={styles.switchLabel}>
           <span className={styles.switchButton}></span>

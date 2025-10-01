@@ -1,0 +1,231 @@
+/* TableContainer */
+.TableContainer {
+  width: 100%;
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Table */
+.Table {
+  width: 100%;
+  border-spacing: 0;
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* TableHead */
+.TableHead {
+  display: table-header-group;
+  background-color: var(--color-gray-800);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* TableBody - no special styling needed, just semantic wrapper */
+.TableBody {
+  display: table-row-group;
+  /* Intentionally empty - just a semantic wrapper */
+}
+
+/* TableRow */
+.TableRow {
+  display: table-row;
+  vertical-align: middle;
+  outline: 0;
+  transition: background-color var(--transition-normal);
+  cursor: default;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.TableRow--clickable {
+  cursor: pointer;
+}
+
+.TableRow--hover:hover {
+  background-color: var(--color-border-subtle);
+}
+
+.TableRow:last-child {
+  border-bottom: none;
+}
+
+/* CollapsibleTableRow */
+.CollapsibleTableRow {
+  transition: all var(--transition-normal);
+  border-bottom: 1px solid var(--color-border);
+  cursor: default;
+}
+
+.CollapsibleTableRow--expanded {
+  border-bottom: none;
+}
+
+.CollapsibleTableRow--clickable {
+  cursor: pointer;
+}
+
+.CollapsibleTableRow--clickable:hover {
+  background-color: var(--color-border-subtle);
+}
+
+/* ChildTableRow */
+.ChildTableRow {
+  background-color: var(--color-surface);
+  pointer-events: auto;
+  cursor: default;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ChildTableRow:hover {
+  background-color: var(--color-surface);
+}
+
+.ChildTableRow td:first-of-type {
+  position: relative;
+}
+
+.ChildTableRow td:first-of-type::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--color-primary-200);
+}
+
+.ChildTableRow:last-child {
+  border-bottom: none;
+}
+
+/* TableHeaderCell */
+.TableHeaderCell {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  display: table-cell;
+  vertical-align: inherit;
+  text-align: left;
+  line-height: 1.5rem;
+  font-weight: 500;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  width: 100%;
+  min-width: 300px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-transition: background-color var(--transition-normal);
+  transition: background-color var(--transition-normal);
+}
+
+.TableHeaderCell:last-child {
+  text-align: right;
+}
+
+/* Hidden below MD breakpoint */
+.mq-xs .TableHeaderCell--hiddenBelowMd,
+.mq-sm .TableHeaderCell--hiddenBelowMd {
+  display: none;
+}
+
+/* Hidden below LG breakpoint */
+.mq-xs .TableHeaderCell--hiddenBelowLg,
+.mq-sm .TableHeaderCell--hiddenBelowLg,
+.mq-md .TableHeaderCell--hiddenBelowLg {
+  display: none;
+}
+
+/* Sortable header cell */
+.TableHeaderCell--sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transition-normal);
+}
+
+.TableHeaderCell--sortable:hover {
+  background-color: var(--color-gray-700);
+}
+
+/* TableCell */
+.TableCell {
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+  display: table-cell;
+  vertical-align: inherit;
+  border-bottom: 1px solid rgba(224, 224, 224, 1);
+  text-align: left;
+  color: var(--color-text-primary);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  width: 100%;
+}
+
+.TableCell:last-child {
+  text-align: right;
+}
+
+/* Hidden below MD breakpoint */
+.mq-xs .TableCell--hiddenBelowMd,
+.mq-sm .TableCell--hiddenBelowMd {
+  display: none;
+}
+
+/* Hidden below LG breakpoint */
+.mq-xs .TableCell--hiddenBelowLg,
+.mq-sm .TableCell--hiddenBelowLg,
+.mq-md .TableCell--hiddenBelowLg {
+  display: none;
+}
+
+/* ExpandButton */
+.ExpandButton {
+  color: var(--color-text-muted);
+  padding: var(--space-1);
+  transition: all var(--transition-normal);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.ExpandButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border-subtle);
+  transform: scale(1.1);
+}
+
+.ExpandButton:active {
+  transform: scale(0.95);
+}
+
+/* Collapse animation container */
+.CollapseContainer {
+  overflow: hidden;
+  transition: height var(--transition-normal);
+}
+
+.CollapseContainer--entering,
+.CollapseContainer--entered {
+  height: auto;
+}
+
+.CollapseContainer--exiting,
+.CollapseContainer--exited {
+  height: 0;
+}
+

@@ -29,8 +29,8 @@ import { toReadableDate } from '@helpers/date';
 import { useNavigate } from '@tanstack/react-router';
 import { useUser } from '@hakit/core';
 import { EDITOR_VERSION } from '@constants';
-import type { IssueType, IssueSummary } from '@typings/issues';
-import { ISSUE_TYPES } from '@typings/issues';
+import type { IssueType, IssueSummary, IssueState } from '@typings/issues';
+import { ISSUE_STATES_OPTIONS, ISSUE_TYPES_OPTIONS } from '@typings/issues';
 import IssueLabel from './issueLabel';
 import { Route as IssuesRoute } from '@routes/_authenticated/me/issues/index';
 
@@ -174,8 +174,8 @@ const FooterRow = styled.div`
 function getIssueTypesFromLabels(labels: string[]): IssueType[] {
   const set = new Set(labels.map(l => l.toLowerCase()));
   const list: IssueType[] = [];
-  for (const t of ISSUE_TYPES) {
-    if (set.has(t)) list.push(t);
+  for (const t of ISSUE_TYPES_OPTIONS) {
+    if (set.has(t.value)) list.push(t.value);
   }
   return list;
 }
@@ -215,7 +215,7 @@ export function Issues() {
   const clientVersion = EDITOR_VERSION;
 
   const [q, setQ] = useState('');
-  const [state, setState] = useState<'open' | 'closed' | 'all'>('open');
+  const [state, setState] = useState<IssueState>('open');
   const [typeFilter, setTypeFilter] = useState<IssueType | 'all'>('all');
   const [page, setPage] = useState(1);
   const perPage = 20;
@@ -275,39 +275,43 @@ export function Issues() {
           type='text'
           size='medium'
           id='search-issues'
-          label='Search issues...'
+          label='Search issues'
           helperText='Search for issues by title or description'
           name='search-issues'
-          placeholder='Search issues...'
+          placeholder='Enter a search term...'
           value={q}
           onChange={e => setQ(e.target.value)}
           startAdornment={<SearchIcon size={18} />}
         />
         <SelectField
-          value={{
-            label: state,
-            value: state,
-          }}
+          id='state'
+          label='State'
+          value={ISSUE_STATES_OPTIONS.find(opt => opt.value === state)}
           name='state'
           onChange={option => {
-            setState(option.value as 'open' | 'closed' | 'all');
+            setState(option.value);
             setPage(1);
           }}
-          options={['open', 'closed', 'all'].map(opt => ({ label: opt, value: opt }))}
-          size='small'
+          helperText='Filter issues by state'
+          options={ISSUE_STATES_OPTIONS}
         />
         <SelectField
-          value={{
-            label: typeFilter,
-            value: typeFilter,
-          }}
+          id='type'
+          label='Type'
+          value={ISSUE_TYPES_OPTIONS.find(opt => opt.value === typeFilter)}
           name='type'
           onChange={option => {
             setTypeFilter(option.value as IssueType | 'all');
             setPage(1);
           }}
-          options={['', ...ISSUE_TYPES].map(opt => ({ label: opt, value: opt }))}
-          size='small'
+          helperText='Filter issues by type'
+          options={[
+            {
+              label: 'All',
+              value: 'all',
+            },
+            ...ISSUE_TYPES_OPTIONS,
+          ]}
         />
       </SearchAndFilter>
 

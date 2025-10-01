@@ -8,6 +8,9 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+}
+
+.switchWrapper.isolated {
   width: 100%;
   min-height: var(--switch-container-height, 2.5rem); /* Match input field height */
   background-color: var(--color-surface);

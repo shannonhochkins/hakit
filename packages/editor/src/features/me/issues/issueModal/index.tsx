@@ -7,7 +7,7 @@ import { SelectField } from '@components/Form/Field/Select';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Loader2, Search } from 'lucide-react';
 import { listIssues } from '@services/issues';
-import { type IssueType, type IssueSummary, ISSUE_TYPES } from '@typings/issues';
+import { type IssueType, type IssueSummary, ISSUE_TYPES_OPTIONS } from '@typings/issues';
 import { Alert } from '@components/Alert';
 import bugTemplate from './templates/bug.md?raw';
 import enhancementTemplate from './templates/enhancement.md?raw';
@@ -15,7 +15,6 @@ import documentationTemplate from './templates/documentation.md?raw';
 import featureTemplate from './templates/feature.md?raw';
 import questionTemplate from './templates/question.md?raw';
 import { MarkdownEditor } from '@components/Markdown/MarkdownEditor';
-import { FieldOption } from '@typings/fields';
 
 const ResultItem = styled.button`
   width: 100%;
@@ -123,8 +122,30 @@ function SimilarIssues({ query, onSelect }: { query: string; onSelect: (issue: I
   );
 }
 
-const AREAS = ['@hakit/core', '@hakit/components', '@hakit/editor', '@hakit/addon', '@hakit/website'] as const;
-type AreaType = (typeof AREAS)[number];
+const AREAS_OPTIONS = [
+  {
+    label: '@hakit/core',
+    value: '@hakit/core',
+  },
+  {
+    label: '@hakit/components',
+    value: '@hakit/components',
+  },
+  {
+    label: '@hakit/editor',
+    value: '@hakit/editor',
+  },
+  {
+    label: '@hakit/addon',
+    value: '@hakit/addon',
+  },
+  {
+    label: '@hakit/website',
+    value: '@hakit/website',
+  },
+] as const;
+
+type AreaType = (typeof AREAS_OPTIONS)[number]['value'];
 
 export function IssueModal({
   open,
@@ -190,33 +211,44 @@ export function IssueModal({
     <Modal open={open} onClose={onClose} title={modalTitle} fullscreen={fullscreen}>
       <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Type</div>
           <SelectField
-            value={{
-              label: type,
-              value: type,
-            }}
+            id='type'
+            label='Type'
+            value={
+              type
+                ? {
+                    label: type,
+                    value: type,
+                  }
+                : undefined
+            }
             onChange={option => setType(option.value as IssueType | '')}
-            options={['', ...ISSUE_TYPES].map(opt => ({ label: opt, value: opt }))}
+            options={[...ISSUE_TYPES_OPTIONS]}
+            placeholder='Select a type'
             size='small'
             style={{ minWidth: 220 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Package / Area</div>
           <SelectField
-            value={{
-              label: area,
-              value: area,
-            }}
+            id='area'
+            label='Package / Area'
+            value={
+              area
+                ? {
+                    label: area,
+                    value: area,
+                  }
+                : undefined
+            }
             onChange={option => setArea(option.value as AreaType | '')}
-            options={['', ...AREAS].map(opt => ({ label: opt, value: opt }))}
+            options={[...AREAS_OPTIONS]}
+            placeholder='Select a package / area'
             size='small'
             style={{ minWidth: 260 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Title</div>
           <InputField
             value={title}
             id='title'

@@ -1,6 +1,50 @@
 export type IssueType = 'bug' | 'feature' | 'enhancement' | 'documentation' | 'question';
 
-export const ISSUE_TYPES: IssueType[] = ['bug', 'feature', 'enhancement', 'documentation', 'question'];
+export const ISSUE_TYPES_OPTIONS: {
+  label: string;
+  value: IssueType;
+}[] = [
+  {
+    label: 'Bug',
+    value: 'bug',
+  },
+  {
+    label: 'Feature Request',
+    value: 'feature',
+  },
+  {
+    label: 'Enhancement',
+    value: 'enhancement',
+  },
+  {
+    label: 'Documentation',
+    value: 'documentation',
+  },
+  {
+    label: 'Question',
+    value: 'question',
+  },
+];
+
+export type IssueState = 'all' | 'open' | 'closed';
+
+export const ISSUE_STATES_OPTIONS: {
+  label: string;
+  value: IssueState;
+}[] = [
+  {
+    label: 'All',
+    value: 'all',
+  },
+  {
+    label: 'Open',
+    value: 'open',
+  },
+  {
+    label: 'Closed',
+    value: 'closed',
+  },
+];
 
 export const ISSUE_TYPE_LABELS: Record<IssueType, string> = {
   bug: 'Bug',

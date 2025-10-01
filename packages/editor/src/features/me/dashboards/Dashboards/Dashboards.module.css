@@ -1,0 +1,243 @@
+/* CSS Variables for table column widths */
+:root {
+  --dashboard-width: 100%;
+  --dashboard-min-width: 300px;
+  --path-width: 200px;
+  --created-width: 150px;
+  --actions-width: 300px;
+}
+
+/* Container */
+.Dashboards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* Page Header */
+.Dashboards-pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Responsive adjustments when wrapped by breakpoint helpers */
+.mq-md .Dashboards-pageHeader {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.Dashboards-headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.Dashboards-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.Dashboards-pageSubtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Search and Filter */
+.Dashboards-searchAndFilter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.Dashboards-searchFilterIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-primary-500);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: white;
+}
+
+/* Dashboard Info */
+.Dashboards-dashboardInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.Dashboards-dashboardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  transition: all var(--transition-normal);
+}
+
+.Dashboards-pageInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-10); /* Align with dashboard content after expand button */
+  padding-left: var(--space-1); /* Small padding to account for the pseudo-element border */
+  width: 100%;
+  transition: all var(--transition-normal);
+}
+
+/* Thumbnails */
+.Dashboards-thumbnailContainer {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-surface-elevated);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Dashboards-thumbnailContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.Dashboards-pageThumbnailContainer {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-surface-elevated);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Dashboards-pageThumbnailContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.Dashboards-thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+/* Text Elements */
+.Dashboards-dashboardName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.Dashboards-pageName {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.Dashboards-pathText {
+  color: var(--color-text-muted);
+}
+
+.Dashboards-pagePathText {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.Dashboards-dateText {
+  color: var(--color-text-muted);
+}
+
+.Dashboards-actionButtons {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.Dashboards-pageCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.Dashboards-pageCount--isEmpty {
+  font-style: italic;
+}
+
+/* Child Table */
+.Dashboards-childTable {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Force column widths to match parent table */
+.Dashboards-childTable colgroup col:nth-child(1) {
+  width: var(--dashboard-width);
+  min-width: var(--dashboard-min-width);
+}
+
+.Dashboards-childTable colgroup col:nth-child(2) {
+  width: var(--path-width);
+}
+
+.Dashboards-childTable colgroup col:nth-child(3) {
+  width: var(--created-width);
+}
+
+.Dashboards-childTable colgroup col:nth-child(4) {
+  width: var(--actions-width);
+}
+
+/* Ensure cells respect the column widths */
+.Dashboards-childTable td:nth-child(1) {
+  width: var(--dashboard-width);
+  min-width: var(--dashboard-min-width);
+}
+
+.Dashboards-childTable td:nth-child(2) {
+  width: var(--path-width);
+}
+
+.Dashboards-childTable td:nth-child(3) {
+  width: var(--created-width);
+}
+
+.Dashboards-childTable td:nth-child(4) {
+  width: var(--actions-width);
+}
+
+/* Sort Header Content */
+.Dashboards-sortHeaderContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.Dashboards-sortIcon {
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity var(--transition-normal);
+}
+
+.Dashboards--sortIconActive {
+  opacity: 1;
+}
+
+.Dashboards--pageCountIsEmpty {
+  font-style: italic;
+}
