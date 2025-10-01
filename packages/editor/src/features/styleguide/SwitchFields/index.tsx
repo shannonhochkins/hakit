@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { SwitchField } from '@components/Form/Field/Switch';
 
 export function StyleguideSwitchFields() {

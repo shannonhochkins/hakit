@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { createDashboard, dashboardsQueryOptions, updateDashboardForUser, duplicateDashboard } from '@services/dashboard';
@@ -10,14 +9,10 @@ import { SecondaryButton } from '@components/Button/Secondary';
 import { InputField } from '@components/Form/Field/Input';
 import { ImageField } from '@components/Form/Field/Image';
 import { Modal } from '@components/Modal';
+import styles from './DashboardForm.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-// Styled Components
-const FormActions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
-`;
+const getClassName = getClassNameFactory('DashboardForm', styles);
 
 // React Component
 interface DashboardFormProps {
@@ -264,7 +259,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
           helperText='Upload an image thumbnail for this dashboard.'
         />
 
-        <FormActions>
+        <div className={getClassName('actions')}>
           <SecondaryButton aria-label='' type='button' onClick={onClose}>
             <XIcon size={16} />
             Cancel
@@ -273,7 +268,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
             {validateForm() ? <CheckIcon size={16} /> : null}
             {getSubmitLabel()}
           </PrimaryButton>
-        </FormActions>
+        </div>
       </form>
     </Modal>
   );

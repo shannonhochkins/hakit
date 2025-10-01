@@ -1,4 +1,5 @@
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { Spinner } from '@components/Loaders/Spinner';
 import { LinearProgress } from '@components/Loaders/LinearProgress';
 

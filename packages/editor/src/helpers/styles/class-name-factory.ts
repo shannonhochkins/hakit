@@ -59,7 +59,9 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
   type ModifierKey = Extract<StyleKey, `${R}--${string}`>;
   type DescendantName = DescendantKey extends `${R}-${infer D}` ? D : never;
   type ModifierName = ModifierKey extends `${R}--${infer M}` ? M : never;
-  type Modifiers = { [K in ModifierName]?: boolean | string | number | null | undefined };
+  type Modifiers = { [K in ModifierName]?: boolean | string | number | null | undefined } & {
+    [K in R]?: boolean | string | number | null | undefined;
+  } & { [K in StyleKey]?: boolean | string | number | null | undefined };
 
   const stylesAny: Record<string, string> = styles as Record<string, string>;
   const rootClassName = stylesAny[rootClass as string] || '';
@@ -69,6 +71,10 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
     if (mods) {
       (Object.keys(mods) as Array<ModifierName>).forEach(mod => {
         const k = stylesAny[`${rootClass}--${mod}`];
+        const base = stylesAny[`${mod}`];
+        if (base) {
+          return (prefixed[base] = (mods as Record<string, unknown>)[mod as string]);
+        }
         if (k) prefixed[k] = (mods as Record<string, unknown>)[mod as string];
       });
     }

@@ -1,80 +1,12 @@
 import { useCallback, useState } from 'react';
-import styled from '@emotion/styled';
-import { Row, Column, fallback, CardBase, CardBaseProps, mq, type AvailableQueries } from '@components';
-import { ErrorBoundary } from 'react-error-boundary';
+import { Row, Column } from '@components/Layout';
+import { AutoHeight } from '@components/Shared/AutoHeight';
+import styles from './Group.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-const StyledGroup = styled.div<{
-  collapsed: boolean;
-  collapsible: boolean;
-}>`
-  background-color: var(--ha-S200);
-  color: var(--ha-S200-contrast);
-  padding: ${({ collapsed }) => (collapsed ? '0 2rem' : '0 2rem 2rem')};
-  transition: var(--ha-transition-duration) var(--ha-easing);
-  transition-property: height, padding, background-color;
-  &.expanded {
-    height: calc-size(auto);
-  }
-  width: 100%;
-  > div.contents > .header-title {
-    cursor: pointer;
-    padding: ${({ collapsed }) => (collapsed ? '1.5rem 0' : '2rem 0')};
-    > h3 {
-      color: var(--ha-S100-contrast);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      transition: padding var(--ha-transition-duration) var(--ha-easing);
-      ${({ collapsible, collapsed }) =>
-        collapsible &&
-        `&:before {
-        content: "${collapsed ? '+' : '-'}";
-        display: inline-block;
-        color: var(--ha-A400);
-        width: 1rem;
-      }`}
-    }
-  }
-  ${({ collapsed }) => `
-    ${mq(
-      ['xxs', 'xs'],
-      `
-      padding: ${collapsed ? '1rem 0rem' : '1.5rem 1rem 1rem'};
-    `
-    )}
-  `};
-`;
+const getClassName = getClassNameFactory('Group', styles);
 
-const Description = styled.span`
-  color: var(--ha-S300-contrast);
-  font-size: 0.9rem;
-  margin: 0.5rem 0 0;
-  width: 100%;
-  display: block;
-  padding-left: 1rem;
-`;
-
-const Header = styled.div`
-  transition: padding var(--ha-transition-duration) var(--ha-easing);
-`;
-const Title = styled.h3``;
-
-type OmitProperties =
-  | 'title'
-  | 'as'
-  | 'layout'
-  | 'entity'
-  | 'serviceData'
-  | 'service'
-  | 'longPressCallback'
-  | 'modalProps'
-  | 'onClick'
-  | 'disableScale'
-  | 'onlyFunctionality'
-  | 'rippleProps'
-  | 'disableActiveState'
-  | 'disableRipples';
-export interface GroupProps extends Omit<CardBaseProps, OmitProperties> {
+export interface GroupProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   /** the title of the group */
   title: React.ReactNode;
   /** the optional description of the group */
@@ -95,7 +27,7 @@ export interface GroupProps extends Omit<CardBaseProps, OmitProperties> {
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 }
 
-function InternalGroup({
+export function Group({
   title,
   description,
   children,
@@ -116,6 +48,10 @@ function InternalGroup({
     alignItems,
   };
 
+  const onCollapseComplete = useCallback(() => {
+    setCollapsed(true);
+  }, []);
+
   const onHeaderClick = useCallback(
     (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
       if (collapsible) {
@@ -127,22 +63,34 @@ function InternalGroup({
   );
 
   return (
-    <StyledGroup
-      onlyFunctionality
-      disableScale
-      disableActiveState
-      disableRipples
-      borderRadius={'16px'}
-      className={`${className ?? ''} ${_collapsed ? 'collapsed' : 'expanded'} group`}
-      collapsed={_collapsed}
-      collapsible={collapsible}
+    <div
+      className={getClassName(
+        {
+          Group: true,
+          collapsed: _collapsed,
+          expanded: !_collapsed,
+        },
+        className
+      )}
       {...rest}
     >
-      <Header onClick={onHeaderClick} className='header-title'>
-        <Title className='title'>{title}</Title>
-        {description && <Description>{description}</Description>}
-      </Header>
-      <div className='contents'>
+      <div
+        onClick={onHeaderClick}
+        className={getClassName('header') + (_collapsed ? ' ' + getClassName({ headerCollapsed: true }) : '') + ' header-title'}
+      >
+        <h3
+          className={
+            getClassName('title') +
+            (collapsible ? ' ' + getClassName({ titleCollapsible: true }) : '') +
+            (_collapsed ? ' ' + getClassName({ titleCollapsed: true }) : '') +
+            ' title'
+          }
+        >
+          {title}
+        </h3>
+        {description && <span className={getClassName('description')}>{description}</span>}
+      </div>
+      <AutoHeight isOpen={!_collapsed || !collapsible} className={getClassName('content')} onCollapseComplete={onCollapseComplete}>
         {layout === 'row' ? (
           <Row className='row' {...cssProps}>
             {children}
@@ -152,23 +100,7 @@ function InternalGroup({
             {children}
           </Column>
         )}
-      </div>
-    </StyledGroup>
-  );
-}
-/** The group component will automatically layout the children in a row with a predefined gap between the children. The Group component is handy when you want to be able to collapse sections of cards */
-export function Group(props: GroupProps) {
-  const defaultColumns: AvailableQueries = {
-    xxs: 12,
-    xs: 12,
-    sm: 12,
-    md: 12,
-    lg: 12,
-    xlg: 12,
-  };
-  return (
-    <ErrorBoundary {...fallback({ prefix: 'Group' })}>
-      <InternalGroup {...defaultColumns} {...props} />
-    </ErrorBoundary>
+      </AutoHeight>
+    </div>
   );
 }

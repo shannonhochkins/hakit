@@ -90,6 +90,7 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
         createPortal(
           <span
             className={getClassName({
+              TooltipSpan: true,
               top: placement === 'top',
               right: placement === 'right',
               bottom: placement === 'bottom',

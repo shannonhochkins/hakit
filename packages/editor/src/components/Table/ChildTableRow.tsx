@@ -10,7 +10,7 @@ export interface ChildTableRowProps extends HTMLAttributes<HTMLTableRowElement> 
 
 export const ChildTableRow = ({ children, className, ...props }: ChildTableRowProps) => {
   return (
-    <tr className={getClassName({}, className)} {...props}>
+    <tr className={getClassName({ ChildTableRow: true }, className)} {...props}>
       {children}
     </tr>
   );

@@ -47,6 +47,7 @@ export const BaseButton = ({
   const { className: providedClassName, style: providedStyle, ...restProps } = props;
   const className = getClassName(
     {
+      BaseButton: true,
       sizeXs: size === 'xs',
       sizeSm: size === 'sm',
       sizeMd: size === 'md',

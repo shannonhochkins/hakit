@@ -10,7 +10,7 @@ export interface TableBodyProps extends HTMLAttributes<HTMLTableSectionElement> 
 
 export const TableBody = ({ children, className, ...props }: TableBodyProps) => {
   return (
-    <tbody className={getClassName({}, className)} {...props}>
+    <tbody className={getClassName({ TableBody: true }, className)} {...props}>
       {children}
     </tbody>
   );

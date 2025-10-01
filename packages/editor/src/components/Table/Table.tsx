@@ -10,7 +10,7 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
 
 export const Table = ({ children, className, ...props }: TableProps) => {
   return (
-    <table className={getClassName({}, className)} {...props}>
+    <table className={getClassName({ Table: true }, className)} {...props}>
       {children}
     </table>
   );

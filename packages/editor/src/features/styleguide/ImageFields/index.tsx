@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Group, PreloadImage, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
+import { PreloadImage } from '@hakit/components';
 import { ImageField } from '@components/Form/Field/Image';
 
 export function StyleguideImageFields() {

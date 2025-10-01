@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { CodeField } from '@components/Form/Field/Code';
 
 export function StyleguideCodeFields() {

@@ -1,4 +1,4 @@
-import { Row, type RowProps } from '@hakit/components';
+import { Row, type RowProps } from '@components/Layout';
 
 export function ModalActions({ children, ...rest }: { children: React.ReactNode } & RowProps) {
   return (

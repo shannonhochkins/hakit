@@ -48,6 +48,7 @@ export const Fab = ({
 }: FabProps) => {
   const computed = getFabClassName(
     {
+      Fab: true,
       sizeXs: size === 'xs',
       sizeSm: size === 'sm',
       sizeMd: size === 'md',

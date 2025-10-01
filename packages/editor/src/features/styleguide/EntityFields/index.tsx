@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Column, Row } from '@hakit/components';
+import { Row, Column } from '@components/Layout';
+
 import { Entity } from '@components/Form/Field/Entity';
 import { EntityName } from '@hakit/core';
 

@@ -10,7 +10,7 @@ export interface TableHeadProps extends HTMLAttributes<HTMLTableSectionElement> 
 
 export const TableHead = ({ children, className, ...props }: TableHeadProps) => {
   return (
-    <thead className={getClassName({}, className)} {...props}>
+    <thead className={getClassName({ TableHead: true }, className)} {...props}>
       {children}
     </thead>
   );

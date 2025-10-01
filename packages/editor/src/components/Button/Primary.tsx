@@ -13,6 +13,7 @@ export interface PrimaryButtonProps extends BaseButtonProps {
 export const PrimaryButton = ({ variant = 'primary', className, ...props }: PrimaryButtonProps) => {
   const computed = getPrimaryClassName(
     {
+      PrimaryButton: true,
       success: variant === 'success',
       error: variant === 'error',
     },

@@ -1,0 +1,5 @@
+/* Confirm Modal */
+.Confirm {
+  --modal-width: 500px;
+  z-index: var(--z-modal);
+}

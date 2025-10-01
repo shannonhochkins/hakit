@@ -31,6 +31,7 @@ export function Row(props: RowProps) {
       {...rest}
       className={getClassName(
         {
+          Row: true,
           fullWidth: !!fullWidth,
           fullHeight: !!fullHeight,
           wrapWrap: (wrap || 'wrap') === 'wrap',

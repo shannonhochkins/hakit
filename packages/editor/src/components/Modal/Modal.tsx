@@ -1,111 +1,14 @@
-import { Column, Row } from '@hakit/components';
+import { Column, Row } from '@components/Layout';
 import { Fab } from '@components/Button';
-import styled from '@emotion/styled';
 import { ReactNode, useCallback, useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
 import { useGlobalStore } from '@hooks/useGlobalStore';
+import styles from './Modal.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-const ModalContainer = styled.div<{ $fullscreen?: boolean }>`
-  --modal-width: 750px;
-  position: ${p => (p.$fullscreen ? 'fixed' : 'absolute')};
-  top: ${p => (p.$fullscreen ? '0' : '50%')};
-  left: ${p => (p.$fullscreen ? '0' : '50%')};
-  display: flex;
-  width: ${p => (p.$fullscreen ? '100vw' : 'var(--modal-width)')};
-  font-weight: var(--font-weight-normal);
-  max-width: ${p => (p.$fullscreen ? '100vw' : '95%')};
-  transform: ${p => (p.$fullscreen ? 'none' : 'translate3d(-50%, -50%, 0)')};
-  color: var(--color-text-primary);
-  max-height: ${p => (p.$fullscreen ? '100vh' : 'calc(100% - 4rem)')};
-  height: ${p => (p.$fullscreen ? '100vh' : 'auto')};
-  overflow: hidden;
-  border-radius: ${p => (p.$fullscreen ? '0' : 'var(--radius-lg)')};
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  background-color: var(--color-surface-elevated);
-  z-index: calc(var(--z-modal, 1050) + 1);
-  box-shadow: var(--shadow-2xl);
-  border: 1px solid var(--color-border);
-`;
-
-ModalContainer.displayName = 'ModalContainer';
-
-const ModalInner = styled.div`
-  display: flex;
-  padding: var(--space-4);
-  align-items: flex-start;
-  flex-direction: column;
-`;
-
-ModalInner.displayName = 'ModalInner';
-
-const ModalOverflow = styled.div`
-  overflow-x: hidden;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height */
-  justify-content: flex-start;
-  align-items: stretch;
-  width: 100%;
-`;
-
-ModalOverflow.displayName = 'ModalOverflow';
-
-const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4);
-  flex-wrap: nowrap;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-`;
-
-ModalHeader.displayName = 'ModalHeader';
-
-const Title = styled.h4`
-  margin: 0;
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  color: var(--color-text-primary);
-`;
-
-Title.displayName = 'ModalTitle';
-
-const Description = styled.h4`
-  margin: 0;
-  font-weight: var(--font-weight-normal);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-`;
-
-Description.displayName = 'ModalDescription';
-
-const ModalBackdrop = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  background: var(--color-surface-overlay);
-  z-index: var(--z-modal-backdrop, 1040);
-  backdrop-filter: blur(var(--blur-sm)) brightness(0.75);
-`;
-
-ModalBackdrop.displayName = 'ModalBackdrop';
+const getClassName = getClassNameFactory('Modal', styles);
 
 /** animation variant controls for the modal container */
 export type CustomModalAnimation = (
@@ -222,9 +125,9 @@ export function Modal({
   return createPortal(
     open ? (
       <div key={`${prefix}-modal-wrapper`}>
-        <ModalBackdrop
+        <div
           key={`${prefix}-backdrop`}
-          className='modal-backdrop'
+          className={getClassName('backdrop')}
           id={`${prefix}-backdrop`}
           onClick={() => {
             if (open) {
@@ -237,17 +140,22 @@ export function Modal({
           }}
           {...backdropProps}
         />
-        <ModalContainer
+        <div
           {...rest}
           style={{
             ...style,
             zIndex: containerZ,
           }}
-          $fullscreen={fullscreen}
           key={`${prefix}-container`}
-          className={`modal-container ${className ?? ''}`}
+          className={getClassName(
+            {
+              Modal: true,
+              fullscreen: fullscreen,
+            },
+            className
+          )}
         >
-          <ModalHeader key={`${prefix}-header`} className={`modal-header`}>
+          <div key={`${prefix}-header`} className={getClassName('header')}>
             <Column
               alignItems='flex-start'
               className={`modal-column`}
@@ -256,8 +164,8 @@ export function Modal({
                 maxWidth: '70%',
               }}
             >
-              {title && <Title className={`modal-title`}>{title}</Title>}
-              {description && <Description className={`modal-description`}>{description}</Description>}
+              {title && <h4 className={getClassName('title')}>{title}</h4>}
+              {description && <h4 className={getClassName('description')}>{description}</h4>}
             </Column>
             <Row
               gap='0.5rem'
@@ -280,11 +188,11 @@ export function Modal({
                 />
               )}
             </Row>
-          </ModalHeader>
-          <ModalOverflow key={`${prefix}-overflow`} className={`modal-overflow`}>
-            <ModalInner className={'modal-inner'}>{children}</ModalInner>
-          </ModalOverflow>
-        </ModalContainer>
+          </div>
+          <div key={`${prefix}-overflow`} className={getClassName('overflow')}>
+            <div className={getClassName('inner')}>{children}</div>
+          </div>
+        </div>
       </div>
     ) : null,
     window.document.body

@@ -1,20 +1,8 @@
-import styled from '@emotion/styled';
 import type { ReactNode } from 'react';
+import styles from './FeatureText.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-const GradientText = styled.span`
-  font-size: inherit;
-  font-weight: var(--font-weight-bold);
-  background: var(--gradient-text);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  &.secondary {
-    background: var(--gradient-text-secondary);
-    background-clip: text;
-    -webkit-background-clip: text;
-  }
-`;
-
+const getClassName = getClassNameFactory('FeatureText', styles);
 interface FeatureTextProps {
   primary?: ReactNode;
   secondary?: ReactNode;
@@ -24,8 +12,8 @@ interface FeatureTextProps {
 export function FeatureText({ primary, secondary, className }: FeatureTextProps) {
   return (
     <>
-      {primary && <GradientText className={`${className || ''} primary`}>{primary}</GradientText>}
-      {secondary && <GradientText className={`${className || ''} secondary`}>{secondary}</GradientText>}
+      {primary && <span className={getClassName({ FeatureText: true }, className)}>{primary}</span>}
+      {secondary && <span className={getClassName({ FeatureText: true, secondary: true }, className)}>{secondary}</span>}
     </>
   );
 }

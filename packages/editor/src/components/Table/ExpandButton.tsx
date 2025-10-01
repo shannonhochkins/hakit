@@ -13,7 +13,7 @@ export interface ExpandButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
 export const ExpandButton = ({ expanded, onClick, className, ...props }: ExpandButtonProps) => {
   return (
     <button
-      className={getClassName({}, className)}
+      className={getClassName({ ExpandButton: true }, className)}
       onClick={e => {
         e.stopPropagation();
         onClick?.(e);

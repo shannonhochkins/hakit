@@ -47,12 +47,13 @@ export function Alert({ children, severity = 'info', title, className, onClick, 
     <div
       className={getClassName(
         {
+          Alert: true,
           severityInfo: severity === 'info',
           severityWarning: severity === 'warning',
           severitySuccess: severity === 'success',
           severityError: severity === 'error',
         },
-        getClassName() + (className ? ` ${className}` : '')
+        className
       )}
       onClick={onClick}
       ref={ref}

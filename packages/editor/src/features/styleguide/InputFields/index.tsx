@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { InputField } from '@components/Form/Field/Input';
 import { MailIcon, UserIcon, LockIcon, CheckCircleIcon, DollarSignIcon } from 'lucide-react';
 

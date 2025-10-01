@@ -10,7 +10,7 @@ export interface TableContainerProps extends HTMLAttributes<HTMLDivElement> {
 
 export const TableContainer = ({ children, className, ...props }: TableContainerProps) => {
   return (
-    <div className={getClassName({}, className)} {...props}>
+    <div className={getClassName({ TableContainer: true }, className)} {...props}>
       {children}
     </div>
   );

@@ -33,6 +33,7 @@ export function Column(props: ColumnProps) {
       {...rest}
       className={getClassName(
         {
+          Column: true,
           fullWidth: !!fullWidth,
           fullHeight: !!fullHeight,
           wrapWrap: (wrap || 'wrap') === 'wrap',

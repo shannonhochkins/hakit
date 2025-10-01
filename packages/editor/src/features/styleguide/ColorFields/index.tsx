@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Column, Group } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Column } from '@components/Layout';
 import { ColorField } from '@components/Form/Field/Color';
 
 export function StyleguideColorFields() {

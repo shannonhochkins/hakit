@@ -15,6 +15,7 @@ export const TableRow = ({ children, hover = true, onClick, className, ...props 
     <tr
       className={getClassName(
         {
+          TableRow: true,
           clickable: !!onClick,
           hover: hover !== false,
         },

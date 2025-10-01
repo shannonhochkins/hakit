@@ -15,6 +15,7 @@ export const CollapsibleTableRow = ({ children, expanded, onClick, className, ..
     <tr
       className={getClassName(
         {
+          CollapsibleTableRow: true,
           expanded: !!expanded,
           clickable: !!onClick,
         },

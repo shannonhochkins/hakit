@@ -1,4 +1,5 @@
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { Alert } from '@components/Alert';
 
 export function StyleguideAlerts() {
@@ -41,7 +42,7 @@ export function StyleguideAlerts() {
           This alert contains <mark>highlighted text</mark> and <code>inline code</code> elements.
         </Alert>
         <Alert severity='warning' title='Code Block Example'>
-          Here's some <code>inline code</code> and a <mark>highlighted section</mark> for emphasis.
+          Here&apos;s some <code>inline code</code> and a <mark>highlighted section</mark> for emphasis.
         </Alert>
         <Alert severity='success' title='Mixed Content'>
           Success! Your <code>deployment</code> completed successfully. <mark>All tests passed</mark>.
@@ -83,8 +84,8 @@ export function StyleguideAlerts() {
           space than a typical short message.
         </Alert>
         <Alert severity='info'>
-          This is an even longer alert without a title that contains multiple sentences and demonstrates the component's ability to handle
-          substantial amounts of text while maintaining proper spacing and visual hierarchy. The content should be easy to read and
+          This is an even longer alert without a title that contains multiple sentences and demonstrates the component&apos;s ability to
+          handle substantial amounts of text while maintaining proper spacing and visual hierarchy. The content should be easy to read and
           well-formatted regardless of length.
         </Alert>
       </Group>

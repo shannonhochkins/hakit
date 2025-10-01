@@ -1,4 +1,5 @@
-import { Group, Row } from '@hakit/components';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { PrimaryButton, SecondaryButton, Fab, IconButton } from '@components/Button';
 import { MailIcon, PlusIcon, Trash2Icon, CheckIcon } from 'lucide-react';
 

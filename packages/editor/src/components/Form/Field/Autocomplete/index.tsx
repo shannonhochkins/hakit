@@ -230,6 +230,7 @@ export function AutocompleteField<T = string>({
   // Key handling moved to portal hook
   const containerClasses = getClassName(
     {
+      Autocomplete: true,
       small: size === 'small',
       large: size === 'large',
       error: error || noFilteredOptions,

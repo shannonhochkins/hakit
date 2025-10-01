@@ -27,6 +27,7 @@ export const TableHeaderCell = ({ children, hiddenBelow, width, minWidth, sortab
     <th
       className={getClassName(
         {
+          TableHeaderCell: true,
           hiddenBelowMd: hiddenBelow === 'md',
           hiddenBelowLg: hiddenBelow === 'lg',
           sortable: !!sortable,

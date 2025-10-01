@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Group, Row } from '@hakit/components';
+import { useState } from 'react';
+import { Group } from '@components/Group';
+import { Row } from '@components/Layout';
 import { AutocompleteField } from '@components/Form/Field/Autocomplete';
 import { SearchIcon, UserIcon, MapPinIcon } from 'lucide-react';
 

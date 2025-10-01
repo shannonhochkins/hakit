@@ -25,6 +25,7 @@ export const TableCell = ({ children, hiddenBelow, width, minWidth, className, s
     <td
       className={getClassName(
         {
+          TableCell: true,
           hiddenBelowMd: hiddenBelow === 'md',
           hiddenBelowLg: hiddenBelow === 'lg',
         },

@@ -1,0 +1,105 @@
+/* Modal Container */
+.Modal {
+  --modal-width: 750px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: var(--modal-width);
+  font-weight: var(--font-weight-normal);
+  max-width: 95%;
+  transform: translate3d(-50%, -50%, 0);
+  color: var(--color-text-primary);
+  max-height: calc(100% - 4rem);
+  height: auto;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background-color: var(--color-surface-elevated);
+  z-index: calc(var(--z-modal, 1050) + 1);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--color-border);
+}
+
+/* Fullscreen variant */
+.Modal--fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  max-width: 100vw;
+  transform: none;
+  max-height: 100vh;
+  height: 100vh;
+  border-radius: 0;
+}
+
+/* Modal Inner */
+.Modal-inner {
+  display: flex;
+  padding: var(--space-4);
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+/* Modal Overflow */
+.Modal-overflow {
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height */
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Modal Header */
+.Modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  flex-wrap: nowrap;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Modal Title */
+.Modal-title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: var(--color-text-primary);
+}
+
+/* Modal Description */
+.Modal-description {
+  margin: 0;
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Modal Backdrop */
+.Modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  background: var(--color-surface-overlay);
+  z-index: var(--z-modal-backdrop, 1040);
+  backdrop-filter: blur(var(--blur-sm)) brightness(0.75);
+}

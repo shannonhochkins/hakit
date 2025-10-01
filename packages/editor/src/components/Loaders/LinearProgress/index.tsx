@@ -29,6 +29,7 @@ export function LinearProgress({
   const clamped = Math.max(0, Math.min(100, value));
   const computed = getClassName(
     {
+      LinearProgress: true,
       colorSecondary: color === 'secondary',
       colorError: color === 'error',
       colorSuccess: color === 'success',
