@@ -1,6 +1,6 @@
 import { RepositoryVersion } from '@typings/hono';
 import styled from '@emotion/styled';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 
 const ComponentTag = styled.span`
   background: var(--color-primary-900);

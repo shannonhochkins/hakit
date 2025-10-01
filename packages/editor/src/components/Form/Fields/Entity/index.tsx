@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import TextField from '@mui/material/TextField';
 import { VariableSizeList, ListChildComponentProps } from 'react-window';
 import { useIcon, useIconByDomain, computeDomain, type EntityName } from '@hakit/core';
-import { Row, Column } from '@hakit/components';
+import { Row, Column } from '@components/Layout';
 import { HassEntity } from 'home-assistant-js-websocket';
 
 const StyledTextField = styled(TextField)`

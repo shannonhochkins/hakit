@@ -18,7 +18,7 @@ import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
 import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { installRepositoryFromGithub, userRepositoriesQueryOptions } from '@services/repositories';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { SecondaryButton } from '@components/Button';
 import { Alert } from '@components/Alert';
 

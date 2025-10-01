@@ -5,7 +5,7 @@ import { SecondaryButton } from '@components/Button/Secondary';
 import { PlusIcon, SearchIcon, PackageIcon, EyeIcon } from 'lucide-react';
 import { InputField } from '@components/Form/Fields/Input';
 import { InputAdornment } from '@mui/material';
-import { Column, Row } from '@hakit/components';
+import { Column, Row } from '@components/Layout';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { searchRepositoriesQueryOptions, popularRepositoriesQueryOptions } from '@services/repositories';

@@ -4,13 +4,11 @@ import { Touchpad, TouchpadOff } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
-import { FieldLabel } from './FieldLabel';
 import { IconButton } from '@components/Button/IconButton';
 import { FieldWrapper } from './FieldWrapper';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { CodeField } from '@components/Form/Fields/Code';
-import { SwitchField } from '@components/Form/Fields/Switch';
 import { useTemplateMode } from './useTemplateMode';
 import { ICON_MAP } from './constants';
 import { CustomAutoField } from './CustomAutoField';

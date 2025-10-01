@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { PrimaryButton } from '@components/Button/Primary';
 import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
 import { RepositoryListItem } from '@features/me/repositories/RepositoriesManager/RepositoryListItem';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { InputField } from '@components/Form/Fields/Input';
 import { InputAdornment, Menu, MenuItem } from '@mui/material';
 import { Confirm } from '@components/Modal/confirm';

@@ -1,9 +1,12 @@
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { Row } from '@hakit/components';
 import { SelectField } from '@components/Form/Fields/Select';
 import { Layers } from 'lucide-react';
 import { useDashboard } from '@hooks/queeries/useDashboard';
+import styles from './PageSelector.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('PageSelector', styles);
 
 export function PageSelector() {
   const params = useParams({
@@ -28,11 +31,7 @@ export function PageSelector() {
   }
 
   return (
-    <Row
-      style={{
-        maxWidth: '100%',
-      }}
-    >
+    <div className={getClassName()}>
       <SelectField
         value={value}
         options={pages}
@@ -53,6 +52,6 @@ export function PageSelector() {
           });
         }}
       />
-    </Row>
+    </div>
   );
 }

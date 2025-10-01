@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { PackageIcon, DownloadIcon, GitBranchIcon, RefreshCw, GithubIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { ComponentTags } from '../ComponentTags';
 import { formatNumber } from '@helpers/number';

@@ -5,7 +5,7 @@ import { databaseData } from './__mocks__/databaseData';
 import { puckChangeData } from './__mocks__/puckChangeData';
 import { fieldsWithBreakpointsEnabled } from './__mocks__/fieldsWithBreakpointsEnabled';
 import { CustomConfig, PuckPageData } from '@typings/puck';
-import { BreakPoint } from '@hakit/components';
+import { type BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { DefaultComponentProps } from '@measured/puck';
 import { dbValueToPuck } from '../dbValueToPuck';

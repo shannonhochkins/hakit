@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import React from 'react';
-import { Column, Row, type BreakPoint, getBreakpoints } from '@hakit/components';
+import { type BreakPoint, getBreakpoints } from '@hakit/components';
+import { Column, Row } from '@components/Layout';
 import styled from '@emotion/styled';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { useThemeStore } from '@hakit/components';

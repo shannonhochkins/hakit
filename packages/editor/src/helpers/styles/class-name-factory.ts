@@ -86,22 +86,14 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
   function factory(descendant: DescendantName | R | StyleKey, extraClassName?: string): string;
   function factory(modifiers: Modifiers | undefined, extraClassName?: string): string;
   function factory(arg1?: Modifiers | DescendantName | R | StyleKey, extraClassName?: string): string {
-    if (typeof arg1 === 'string') {
-      // If caller passed the root class name directly, include root
-      if (arg1 === (rootClass as string)) {
-        return appendExtra(config.baseClass + rootClassName, extraClassName);
-      }
-      // If caller passed a full style key that exists, include root + that key
+    if (typeof arg1 === 'string' && !stylesAny[`${rootClass}-${arg1}`]) {
       const exact = stylesAny[arg1];
-      if (exact) {
-        return appendExtra(classnames({ [rootClassName]: !!rootClassName, [exact]: true }), extraClassName);
-      }
-      // Otherwise treat as descendant suffix and include root + descendant
-      const builtDescendant = buildFromDescendant(arg1 as DescendantName);
-      const descendant = config.baseClass ? builtDescendant.replace(config.baseClass, '') : builtDescendant;
-      return appendExtra(classnames({ [rootClassName]: !!rootClassName, [descendant]: true }), extraClassName);
+      return appendExtra(config.baseClass + (exact || ''), extraClassName);
     }
-    return appendExtra(buildFromModifiers(arg1), extraClassName);
+    if (typeof arg1 === 'object' || typeof arg1 === 'undefined') {
+      return appendExtra(buildFromModifiers(arg1), extraClassName);
+    }
+    return appendExtra(buildFromDescendant(arg1 as DescendantName), extraClassName);
   }
 
   return factory;

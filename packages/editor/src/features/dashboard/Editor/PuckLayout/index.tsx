@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Column, Row } from '@hakit/components';
+import { Column, Row } from '@components/Layout';
 import { Preview } from './Preview';
 import { Header } from './Header';
 import { LeftSidebar } from './LeftSidebar';

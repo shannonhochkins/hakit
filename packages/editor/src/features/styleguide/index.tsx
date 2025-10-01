@@ -8,7 +8,7 @@ import { StyleguideSliderFields } from './SliderFields';
 import { StyleguideEntityFields } from './EntityFields';
 import { StyleguideColorFields } from './ColorFields';
 import { StyleguideImageFields } from './ImageFields';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { SelectField } from '@components/Form/Field/Select';
 import { StyleguideButtons } from './Buttons';
 import { StyleguideCodeFields } from './CodeFields';

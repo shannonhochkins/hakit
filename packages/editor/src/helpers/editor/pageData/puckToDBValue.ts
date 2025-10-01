@@ -1,4 +1,4 @@
-import { BreakPoint } from '@hakit/components';
+import type { BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { merge } from 'ts-deepmerge';

@@ -1,0 +1,47 @@
+.ProgressButton {
+  display: inline-block;
+  position: relative;
+  outline: none;
+}
+
+.ProgressButton--contentHidden .ProgressButton-Content {
+  opacity: 0;
+}
+
+.ProgressButton-Content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.ProgressButton-Overlay {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 100%;
+  text-align: center;
+  pointer-events: none; /* don't block clicks over the overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ProgressButton-Overlay svg {
+  width: 1.25em;
+  height: 1.25em;
+  color: #fff;
+}
+
+.ProgressButton-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+

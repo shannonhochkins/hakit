@@ -1,38 +1,10 @@
-import { PropsOf } from '@emotion/react';
-import styled from '@emotion/styled';
-import { Column, Row } from '@hakit/components';
-import { Overrides } from '@measured/puck';
+import { Column, Row } from '@components/Layout';
 import { GripIcon } from 'lucide-react';
+import styles from './DrawerItem.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+const getClassName = getClassNameFactory('DrawerItem', styles);
 
-const DrawerItemWrapper = styled(Row)`
-  gap: var(--space-3);
-  padding: var(--space-2);
-  background-color: var(--color-surface-elevated);
-  border-radius: var(--radius-md);
-  cursor: move;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: var(--color-border);
-  }
-
-  &:hover .grip-icon {
-    color: var(--color-text-primary);
-  }
-`;
-
-const GripIconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  transition: color 0.2s ease;
-`;
-
-const ComponentName = styled.span`
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-`;
+type DrawerItemProps = { name: string };
 
 // const ComponentThumbnail = styled.div`
 //   margin-left: auto;
@@ -48,23 +20,20 @@ const ComponentName = styled.span`
 //   }
 // `;
 
-export function DrawerItem({
-  name,
-  // children
-}: PropsOf<Overrides['drawerItem']>) {
+export function DrawerItem({ name }: DrawerItemProps) {
   return (
-    <DrawerItemWrapper key={name} draggable wrap='nowrap' fullWidth alignItems='center' justifyContent='start'>
-      <GripIconWrapper className='grip-icon'>
+    <Row key={name} draggable wrap='nowrap' fullWidth alignItems='center' justifyContent='start' className={getClassName('DrawerItem')}>
+      <div className={getClassName('DrawerItem-Icon')}>
         <GripIcon size={20} />
-      </GripIconWrapper>
+      </div>
       <Column fullWidth alignItems='start' gap={0} justifyContent='start'>
-        <ComponentName>{name}</ComponentName>
+        <span className={getClassName('DrawerItem-Name')}>{name}</span>
       </Column>
       {/* {component.thumbnail && (
           <ComponentThumbnail>
             <img src={component.thumbnail} alt={component.name} />
           </ComponentThumbnail>
         )} */}
-    </DrawerItemWrapper>
+    </Row>
   );
 }

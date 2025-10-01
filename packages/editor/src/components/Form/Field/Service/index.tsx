@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { computeDomain, EntityName } from '@hakit/core';
-import { Row, Column } from '@hakit/components';
+import { Row, Column } from '@components/Layout';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckSelectedItem } from '@hooks/usePuckSelectedItem';
 import { getDefaultServiceByEntity } from '@helpers/editor/services';

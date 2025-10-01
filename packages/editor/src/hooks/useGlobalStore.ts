@@ -5,7 +5,7 @@ import type { DashboardWithPageData, Dashboard } from '@typings/hono';
 import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
-import { BreakPoint } from '@hakit/components';
+import { type BreakPoint } from '@hakit/components';
 import { DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
