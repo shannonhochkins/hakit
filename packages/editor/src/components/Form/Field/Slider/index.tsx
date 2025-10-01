@@ -24,6 +24,10 @@ type SliderFieldProps = {
   valueSuffix?: string;
   className?: string;
   size?: SliderFieldSize;
+  /** should the tooltip value be hidden @default false */
+  hideTooltip?: boolean;
+  /** function to format the value displayed in the tooltip */
+  formatTooltipValue?: (value: number) => string;
 };
 export function SliderField({
   id,
@@ -44,10 +48,15 @@ export function SliderField({
   valueSuffix = '',
   className,
   size = 'medium',
+  formatTooltipValue,
+  hideTooltip = false,
   icon,
 }: SliderFieldProps) {
   const [localValue, setLocalValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const tooltipRefWrapper = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const localValueRef = useRef(value);
 
   // Reset dragging state when component becomes disabled or readonly
@@ -63,6 +72,22 @@ export function SliderField({
     setLocalValue(value);
     localValueRef.current = value;
   }, [value]);
+
+  useEffect(() => {
+    if (!localValueRef.current || hideTooltip) return;
+    const _min = parseFloat(`${min ?? 0}`);
+    const _max = parseFloat(`${max ?? 100}`);
+    const _step = parseFloat(`${step ?? 1}`);
+    const roundedValue = parseFloat(localValueRef.current.toFixed(_step < 1 ? Math.abs(Math.log10(_step)) : 0));
+    const percentage = ((localValueRef.current - _min) / (_max - _min)) * 100;
+
+    if (tooltipRef.current) {
+      tooltipRef.current.style.left = `${percentage}%`;
+      const tooltipValue = typeof formatTooltipValue === 'function' ? formatTooltipValue(roundedValue) : roundedValue;
+      tooltipRef.current.setAttribute('data-title', `${tooltipValue}`);
+    }
+  }, [value, min, max, step, formatTooltipValue, hideTooltip]);
+
   // Handle mouse/touch events only when dragging
   useEffect(() => {
     if (!isDragging) return;
@@ -144,6 +169,15 @@ export function SliderField({
 
   const percent = Math.max(0, Math.min(100, ((localValue - min) / (max - min)) * 100));
 
+  useEffect(() => {
+    if (tooltipRefWrapper.current) {
+      tooltipRefWrapper.current.style.left = `${percent}%`;
+    }
+    if (trackRef.current) {
+      trackRef.current.style.width = `${percent}%`;
+    }
+  }, [percent]);
+
   const containerClasses = [
     styles.container,
     styles[size],
@@ -169,15 +203,28 @@ export function SliderField({
       <div className={styles.sliderContainer}>
         <div className={styles.slider} ref={sliderRef} onClick={handleTrackClick}>
           <div className={styles.rail} />
-          <div className={styles.track} style={{ width: `${percent}%` }} />
+          <div className={styles.track} ref={trackRef} />
           <div
             className={styles.thumb}
             style={{ left: `${percent}%` }}
             onMouseDown={handleThumbMouseDown}
             onClick={e => e.stopPropagation()}
           />
+          {!hideTooltip && (
+            <div
+              ref={tooltipRefWrapper}
+              className='tooltip-holder'
+              style={{
+                position: 'absolute',
+                top: 0,
+              }}
+            >
+              <div className={styles.tooltip} ref={tooltipRef} />
+            </div>
+          )}
         </div>
       </div>
+
       <input type='hidden' name={name} value={localValue} />
 
       <HelperText helperText={helperText} error={error} />

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Column, Row } from '@hakit/components';
 import { Entity } from '@components/Form/Field/Entity';
-import { HassEntity } from 'home-assistant-js-websocket';
 import { EntityName } from '@hakit/core';
 
 export function StyleguideEntityFields() {
-  const [selectedEntity, setSelectedEntity] = useState<HassEntity | null>(null);
+  const [selectedEntity, setSelectedEntity] = useState<EntityName | undefined>(undefined);
+  const [selectedEntity2, setSelectedEntity2] = useState<EntityName | undefined>('light.fake');
+  const [selectedEntity3, setSelectedEntity3] = useState<EntityName | undefined>(undefined);
+  const [selectedEntity4, setSelectedEntity4] = useState<EntityName | undefined>(undefined);
 
   return (
     <Column
@@ -21,10 +23,13 @@ export function StyleguideEntityFields() {
     >
       <Row title='Entity Fields' fullWidth justifyContent='start' alignItems='start'>
         <Entity
-          value={selectedEntity?.entity_id as EntityName}
+          id='entity-field-1'
+          name='entity-field-1'
+          value={selectedEntity}
+          filterOptions={entities => entities.filter(entity => entity.entity_id?.startsWith('light'))}
           onChange={(entityId, entity) => {
             console.log('Selected entity:', entityId, entity);
-            setSelectedEntity(entity);
+            setSelectedEntity(entityId);
           }}
         />
       </Row>
@@ -37,10 +42,12 @@ export function StyleguideEntityFields() {
           }}
         >
           <Entity
-            value={selectedEntity?.entity_id as EntityName}
+            id='entity-field-2'
+            name='entity-field-2'
+            value={selectedEntity2}
             onChange={(entityId, entity) => {
               console.log('Selected entity:', entityId, entity);
-              setSelectedEntity(entity);
+              setSelectedEntity2(entityId);
             }}
           />
         </Column>
@@ -52,10 +59,12 @@ export function StyleguideEntityFields() {
           }}
         >
           <Entity
-            value={selectedEntity?.entity_id as EntityName}
+            id='entity-field-3'
+            name='entity-field-3'
+            value={selectedEntity3}
             onChange={(entityId, entity) => {
               console.log('Selected entity:', entityId, entity);
-              setSelectedEntity(entity);
+              setSelectedEntity3(entityId);
             }}
           />
         </Column>
@@ -67,17 +76,19 @@ export function StyleguideEntityFields() {
           }}
         >
           <Entity
-            value={selectedEntity?.entity_id as EntityName}
+            id='entity-field-4'
+            name='entity-field-4'
+            value={selectedEntity4}
             onChange={(entityId, entity) => {
               console.log('Selected entity:', entityId, entity);
-              setSelectedEntity(entity);
+              setSelectedEntity4(entityId);
             }}
           />
         </Column>
       </Row>
       <div style={{ marginTop: 'var(--space-4)' }}>
         <p>
-          Selected: <strong>{selectedEntity?.attributes?.friendly_name}</strong>
+          Selected: <strong>{selectedEntity}</strong>
         </p>
       </div>
 

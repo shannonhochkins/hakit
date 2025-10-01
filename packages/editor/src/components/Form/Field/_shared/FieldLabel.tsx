@@ -1,4 +1,4 @@
-import { InfoIcon, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import styles from './FieldLabel.module.css';
 import { ReactNode } from 'react';
 
@@ -23,7 +23,7 @@ export function FieldLabel({
   return (
     <div className={`${styles.labelRow} ${className}`} style={style}>
       <div className={styles.simpleRow}>
-        <div className={styles.labelIcon}>{icon || <InfoIcon size={16} />}</div>
+        {icon && <div className={styles.labelIcon}>{icon}</div>}
         {htmlFor ? (
           <label className={styles.labelText} htmlFor={htmlFor}>
             {label}

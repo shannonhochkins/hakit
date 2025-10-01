@@ -15,8 +15,63 @@ import { StyleguideCodeFields } from './CodeFields';
 import { StyleguideServiceFields } from './ServiceFields';
 import { StyleguideLoaders } from './Loaders';
 
+const options = [
+  {
+    label: 'Input Fields',
+    value: 'Input Fields',
+  },
+  {
+    label: 'Switch Fields',
+    value: 'Switch Fields',
+  },
+  {
+    label: 'Radio Fields',
+    value: 'Radio Fields',
+  },
+  {
+    label: 'Autocomplete Fields',
+    value: 'Autocomplete Fields',
+  },
+  {
+    label: 'Select Fields',
+    value: 'Select Fields',
+  },
+  {
+    label: 'Slider Fields',
+    value: 'Slider Fields',
+  },
+  {
+    label: 'Entity Fields',
+    value: 'Entity Fields',
+  },
+  {
+    label: 'Color Fields',
+    value: 'Color Fields',
+  },
+  {
+    label: 'Image Fields',
+    value: 'Image Fields',
+  },
+  {
+    label: 'Buttons',
+    value: 'Buttons',
+  },
+  {
+    label: 'Code Fields',
+    value: 'Code Fields',
+  },
+  {
+    label: 'Service Fields',
+    value: 'Service Fields',
+  },
+  {
+    label: 'Loaders',
+    value: 'Loaders',
+  },
+] as const;
+
 export function Styleguide() {
-  const [preview, setPreview] = useState<string>('Input Fields');
+  const [preview, setPreview] = useState<(typeof options)[number]>(options[0]);
   return (
     <>
       <h1>Styleguide</h1>
@@ -32,38 +87,25 @@ export function Styleguide() {
         <SelectField
           id='styleguide-selector'
           label='Choose Field Type'
+          multiple={false}
           value={preview}
           onChange={setPreview}
-          options={[
-            'Input Fields',
-            'Switch Fields',
-            'Radio Fields',
-            'Autocomplete Fields',
-            'Select Fields',
-            'Slider Fields',
-            'Entity Fields',
-            'Color Fields',
-            'Image Fields',
-            'Buttons',
-            'Code Fields',
-            'Service Fields',
-            'Loaders',
-          ]}
+          options={options}
         />
       </Row>
-      {preview === 'Input Fields' && <StyleguideInputFields />}
-      {preview === 'Switch Fields' && <StyleguideSwitchFields />}
-      {preview === 'Radio Fields' && <StyleguideRadioFields />}
-      {preview === 'Autocomplete Fields' && <StyleguideAutocompleteFields />}
-      {preview === 'Select Fields' && <StyleguideSelectFields />}
-      {preview === 'Slider Fields' && <StyleguideSliderFields />}
-      {preview === 'Entity Fields' && <StyleguideEntityFields />}
-      {preview === 'Color Fields' && <StyleguideColorFields />}
-      {preview === 'Image Fields' && <StyleguideImageFields />}
-      {preview === 'Buttons' && <StyleguideButtons />}
-      {preview === 'Code Fields' && <StyleguideCodeFields />}
-      {preview === 'Service Fields' && <StyleguideServiceFields />}
-      {preview === 'Loaders' && <StyleguideLoaders />}
+      {preview.value === 'Input Fields' && <StyleguideInputFields />}
+      {preview.value === 'Switch Fields' && <StyleguideSwitchFields />}
+      {preview.value === 'Radio Fields' && <StyleguideRadioFields />}
+      {preview.value === 'Autocomplete Fields' && <StyleguideAutocompleteFields />}
+      {preview.value === 'Select Fields' && <StyleguideSelectFields />}
+      {preview.value === 'Slider Fields' && <StyleguideSliderFields />}
+      {preview.value === 'Entity Fields' && <StyleguideEntityFields />}
+      {preview.value === 'Color Fields' && <StyleguideColorFields />}
+      {preview.value === 'Image Fields' && <StyleguideImageFields />}
+      {preview.value === 'Buttons' && <StyleguideButtons />}
+      {preview.value === 'Code Fields' && <StyleguideCodeFields />}
+      {preview.value === 'Service Fields' && <StyleguideServiceFields />}
+      {preview.value === 'Loaders' && <StyleguideLoaders />}
     </>
   );
 }

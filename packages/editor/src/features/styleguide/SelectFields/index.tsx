@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { Group, Row } from '@hakit/components';
 import { SelectField } from '@components/Form/Field/Select';
 
-const simpleOptions = ['Apple', 'Banana', 'Cherry', 'Date'] as const;
+const simpleOptions = [
+  { label: 'Apple', value: 'apple' },
+  { label: 'Banana', value: 'banana' },
+  { label: 'Cherry', value: 'cherry' },
+  { label: 'Date', value: 'date' },
+] as const;
 const objectOptions = [
   { label: 'United States', value: 'us' },
   { label: 'Australia', value: 'au' },
@@ -10,7 +15,7 @@ const objectOptions = [
 ] as const;
 
 export function StyleguideSelectFields() {
-  const [simple, setSimple] = useState<(typeof simpleOptions)[number]>('Apple');
+  const [simple, setSimple] = useState<(typeof simpleOptions)[number]>(simpleOptions[0]);
   const [country, setCountry] = useState<(typeof objectOptions)[number]>(objectOptions[0]);
   const [multi, setMulti] = useState<(typeof simpleOptions)[number][]>([]);
 

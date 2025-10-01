@@ -12,7 +12,7 @@ import type {
   SelectField as PuckSelectField,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
-import type { DefaultPropsCallbackData, Slot } from './puck';
+import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import { AvailableQueries } from '@hakit/components';
 import type { OnValidate } from '@monaco-editor/react';
@@ -149,8 +149,8 @@ export type FieldDefinition = {
   divider: { type: 'divider' };
   entity: {
     type: 'entity';
-    options: HassEntity[] | ((data: DefaultPropsCallbackData) => Promise<HassEntity[]> | HassEntity[]);
-    default: (options: HassEntity[], data: DefaultPropsCallbackData) => Promise<string | undefined> | string | undefined;
+    filterOptions: (entities: HassEntity[]) => Promise<HassEntity[]> | HassEntity[];
+    default: (options: HassEntity[]) => Promise<string | undefined> | string | undefined;
   };
   hidden: { type: 'hidden' };
   slot: PuckSlotField;

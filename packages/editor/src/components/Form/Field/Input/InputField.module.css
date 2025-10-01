@@ -234,6 +234,11 @@
   width: 3rem;
 }
 
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
 /* Mobile responsive - prevent zoom on iOS */
 .mq-xs .input {
   font-size: 16px;

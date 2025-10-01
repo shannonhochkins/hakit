@@ -20,6 +20,9 @@
 }
 .vertical {
   flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-3);
+  gap: var(--space-3);
 }
 .horizontal {
   flex-direction: row;

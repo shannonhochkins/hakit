@@ -16,9 +16,7 @@ async function loadMonaco() {
 
     if (!monacoSetupDone) {
       loader.config({ monaco: MonacoConfig });
-      // @ts-expect-error - MonacoEnvironment is a global
       if (typeof window !== 'undefined' && !window.MonacoEnvironment) {
-        // @ts-expect-error - MonacoEnvironment is a global
         window.MonacoEnvironment = {
           getWorker(_moduleId: unknown, label: string) {
             switch (label) {
@@ -38,7 +36,7 @@ async function loadMonaco() {
                 return new Worker(new URL('monaco-editor/esm/vs/editor/editor.worker', import.meta.url), { type: 'module' });
             }
           },
-        } as any;
+        };
       }
       monacoSetupDone = true;
     }

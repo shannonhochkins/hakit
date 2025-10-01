@@ -59,6 +59,7 @@ type CommonAutocompleteProps<T> = {
   endAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
   className?: string;
   size?: AutocompleteFieldSize;
+  listItemSize?: number;
   name?: string;
   // Renderers
   renderOption?: (option: T) => React.ReactNode;
@@ -102,12 +103,10 @@ export function AutocompleteField<T = string>({
   renderOption,
   renderValue,
   isOptionEqualToValue,
+  listItemSize = 32,
 }: AutocompleteFieldProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const noOptions = options.length === 0;
-  const isDisabled = disabled || noOptions;
-  const effectivePlaceholder = noOptions ? 'No options available' : placeholder;
   const renderOptionNode = React.useCallback(
     (option: T) => {
       if (renderOption) return renderOption(option);
@@ -126,6 +125,11 @@ export function AutocompleteField<T = string>({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const noOptions = options.length === 0;
+  const noFilteredOptions = filteredOptions.length === 0;
+  const isDisabled = disabled || noOptions;
+  const effectivePlaceholder = noOptions ? 'No options available' : placeholder;
+
   // Navigation functions (must be declared before use)
   const handleNavigateDown = () => {
     if (filteredOptions.length > 0) {
@@ -142,6 +146,12 @@ export function AutocompleteField<T = string>({
       handleOptionClick(filteredOptions[highlightedIndex]);
     }
   };
+
+  useEffect(() => {
+    if (noFilteredOptions) {
+      setIsOpen(false);
+    }
+  }, [noFilteredOptions]);
 
   const { renderPortal } = useDropdownPortal({
     anchorRef: containerRef,
@@ -165,13 +175,9 @@ export function AutocompleteField<T = string>({
     } else {
       const lower = inputValue.toLowerCase();
       const filtered = options.filter(option => {
-        if (renderOption) {
-          // Generic fallback: try stringifying for filter; consumers should provide their own filtering if needed
-          const text = typeof option === 'string' ? (option as unknown as string) : '';
-          return text.toLowerCase().includes(lower);
-        }
-        if (typeof option === 'string') return (option as unknown as string).toLowerCase().includes(lower);
-        throw new Error('Autocomplete: filtering non-string options requires renderOption and/or custom filtering.');
+        if (typeof option === 'string') return option.toLowerCase().includes(lower);
+        // if the option isn't a simple string, stringify it
+        return JSON.stringify(option).toLowerCase().includes(lower);
       });
       setFilteredOptions(filtered);
     }
@@ -226,7 +232,7 @@ export function AutocompleteField<T = string>({
     {
       small: size === 'small',
       large: size === 'large',
-      error,
+      error: error || noFilteredOptions,
       success,
       disabled: isDisabled,
       hasStartAdornment: !!startAdornment,
@@ -350,12 +356,17 @@ export function AutocompleteField<T = string>({
           </div>
         )}
         {renderPortal(
-          <div className={getClassName('dropdown')}>
+          <div
+            className={getClassName('dropdown')}
+            style={{
+              display: noFilteredOptions ? 'none' : 'block',
+            }}
+          >
             <List
-              height={Math.min(filteredOptions.length * 32, 200)}
+              height={Math.min(filteredOptions.length * listItemSize, 200)}
               width={'100%'}
               itemCount={filteredOptions.length}
-              itemSize={32}
+              itemSize={listItemSize}
               itemData={{ options: filteredOptions, selectedValues, handleOptionClick, highlightedIndex }}
               className={getClassName('optionsList')}
             >
@@ -387,7 +398,10 @@ export function AutocompleteField<T = string>({
           </div>
         )}
       </div>
-      <HelperText helperText={helperText} error={error} />
+      <HelperText
+        helperText={noFilteredOptions ? `No results found matching "${inputValue}"` : helperText}
+        error={error || noFilteredOptions}
+      />
     </div>
   );
 }

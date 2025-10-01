@@ -43,7 +43,7 @@ export function StyleguideRadioFields() {
           label='Priority Level'
           options={priorityOptions}
           value={priority}
-          onChange={e => setPriority(e.target.value)}
+          onChange={e => setPriority(String(e))}
           helperText='Select your priority level'
         />
         <RadioField
@@ -51,7 +51,7 @@ export function StyleguideRadioFields() {
           label='Theme Preference'
           options={themeOptions}
           value={theme}
-          onChange={e => setTheme(e.target.value)}
+          onChange={e => setTheme(String(e))}
           horizontal
           helperText='Choose your preferred theme'
         />
@@ -60,7 +60,7 @@ export function StyleguideRadioFields() {
           label='Size Preference'
           options={sizeOptions}
           value={sizePreference}
-          onChange={e => setSizePreference(e.target.value)}
+          onChange={e => setSizePreference(String(e))}
           helperText='Select your preferred component size'
         />
       </Group>

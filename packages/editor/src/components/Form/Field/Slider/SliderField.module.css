@@ -5,7 +5,6 @@
   width: 100%;
   margin-bottom: var(--space-4);
 }
-
 /* Size variants */
 .container.small {
   margin-bottom: var(--space-3);
@@ -38,26 +37,52 @@
 /* Slider container */
 .sliderContainer {
   padding: var(--space-2) 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.container.small .sliderContainer {
+  height: 2rem;
+}
+
+.container.medium .sliderContainer {
+  height: 2.5rem;
+}
+
+.container.large .sliderContainer {
+  height: 3rem;
 }
 
 .slider {
   position: relative;
-  /* Increased height to accommodate ghost area */
-  height: calc(var(--space-6) + var(--space-1));
+  height: 100%;
   cursor: pointer;
   touch-action: none;
+  width: 100%;
 }
 
 /* Rail (background track) */
 .rail {
   position: absolute;
   /* Center the rail in the larger container */
-  top: var(--space-3);
+  top: 50%;
   left: 0;
   right: 0;
+  transform: translateY(-50%);
   /* 10% fatter track */
   height: calc(var(--space-1) * 1.1);
-  background-color: var(--color-surface-muted);
+  background-color: var(--color-gray-700);
   border-radius: var(--radius-sm);
 }
 
@@ -65,8 +90,9 @@
 .track {
   position: absolute;
   /* Center the track in the larger container */
-  top: var(--space-3);
+  top: 50%;
   left: 0;
+  transform: translateY(-50%);
   /* 10% fatter track */
   height: calc(var(--space-1) * 1.1);
   background-color: var(--color-primary-500);
@@ -83,7 +109,7 @@
 .thumb {
   position: absolute;
   /* Center the thumb in the larger container */
-  top: calc(var(--space-3) + calc(var(--space-1) * 1.1) / 2);
+  top: 50%;
   /* 20% bigger thumb */
   width: calc(var(--space-4) * 1.2);
   height: calc(var(--space-4) * 1.2);
@@ -178,12 +204,10 @@
 
 .container.small .rail,
 .container.small .track {
-  top: calc(var(--space-3) * 0.75);
   height: calc(var(--space-1) * 0.75 * 1.1);
 }
 
 .container.small .thumb {
-  top: calc(calc(var(--space-3) * 0.75) + calc(var(--space-1) * 0.75 * 1.1) / 2);
   width: calc(var(--space-4) * 0.75 * 1.2);
   height: calc(var(--space-4) * 0.75 * 1.2);
 }
@@ -194,12 +218,10 @@
 
 .container.medium .rail,
 .container.medium .track {
-  top: calc(var(--space-3) * 1.125);
   height: calc(var(--space-1) * 1.125 * 1.1);
 }
 
 .container.medium .thumb {
-  top: calc(calc(var(--space-3) * 1.125) + calc(var(--space-1) * 1.125 * 1.1) / 2);
   width: calc(var(--space-4) * 1.125 * 1.2);
   height: calc(var(--space-4) * 1.125 * 1.2);
 }
@@ -210,12 +232,10 @@
 
 .container.large .rail,
 .container.large .track {
-  top: calc(var(--space-3) * 1.25);
   height: calc(var(--space-1) * 1.25 * 1.1);
 }
 
 .container.large .thumb {
-  top: calc(calc(var(--space-3) * 1.25) + calc(var(--space-1) * 1.25 * 1.1) / 2);
   width: calc(var(--space-4) * 1.25 * 1.2);
   height: calc(var(--space-4) * 1.25 * 1.2);
 }
@@ -231,4 +251,64 @@
     width: calc(16px * 1.2);
     height: calc(16px * 1.2);
   }
+}
+
+.tooltip {
+  opacity: 0;
+  position: absolute;
+  bottom: 100%;
+  border-radius: 50% 50% 50% 0;
+  left: 0;
+  transform: translate(-50%, -0%) rotate(-45deg) scale(0);
+  background-color: var(--color-primary-500);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.tooltip:after {
+  content: attr(data-title);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transform: rotate(45deg);
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+/* show tooltip when hovered, focused within, or dragging */
+.slider:hover .tooltip,
+.slider:focus-within .tooltip,
+.container.dragging .tooltip {
+  opacity: 1;
+  transform: translate(-50%, -30%) rotate(-45deg) scale(1);
+}
+
+/* tooltip sizes per control size */
+.container.small .tooltip {
+  width: 20px;
+  height: 20px;
+}
+
+.container.medium .tooltip {
+  width: 24px;
+  height: 24px;
+}
+
+.container.large .tooltip {
+  width: 28px;
+  height: 28px;
+}
+
+/* match tooltip color to thumb state */
+.error .tooltip {
+  background-color: var(--color-error-500);
+}
+
+.success .tooltip {
+  background-color: var(--color-success-500);
 }
