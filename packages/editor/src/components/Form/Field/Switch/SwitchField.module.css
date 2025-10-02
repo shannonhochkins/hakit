@@ -1,13 +1,16 @@
 .container {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  margin-bottom: var(--space-4);
 }
 .switchWrapper {
   position: relative;
   display: inline-flex;
   align-items: center;
+  width: 100%;
+}
+
+.container.isolated {
+  width: 100%;
 }
 
 .switchWrapper.isolated {
@@ -43,7 +46,6 @@
   display: inline-block;
   width: var(--switch-width, 2.25rem); /* 36px */
   height: var(--switch-height, 1.25rem); /* 20px */
-  margin-right: var(--space-3);
   background-color: var(--color-border);
   border-radius: calc(var(--switch-height, 1.25rem) / 2); /* Half of height */
   transition: all var(--transition-normal);
@@ -62,10 +64,11 @@
   box-shadow: var(--shadow-sm);
 }
 .switchInput:checked + .switchLabel .switchButton {
-  background-color: var(--color-primary-500);
+  background-color: var(--color-primary-600);
 }
 .switchInput:checked + .switchLabel .switchButton::after {
-  transform: translateX(calc(var(--switch-width, 2.25rem) - var(--switch-thumb-size, 1rem) - 0.25rem)); /* Width - thumb size - padding */
+  transform: translateX(calc(var(--switch-width, 2.25rem) - var(--switch-thumb-size, 1rem) - 0.3rem)); /* Width - thumb size - padding */
+  background-color: var(--color-primary-100);
 }
 .switchInput:focus + .switchLabel .switchButton {
   box-shadow: var(--shadow-primary-focus-sm);

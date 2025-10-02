@@ -1,6 +1,6 @@
 import React from 'react';
 import { ButtonHTMLAttributes } from 'react';
-import { Tooltip, TooltipProps } from '@components/Tooltip';
+import { TooltipProps } from '@components/Tooltip';
 import { BaseButton } from './BaseButton';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './Fab.module.css';
@@ -78,18 +78,17 @@ export const Fab = ({
         ];
   const style = { ...(props.style || {}), borderRadius: borderRadius || '50%' } as React.CSSProperties;
   return (
-    <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps}>
-      <BaseButton
-        className={[computed, ...positionClasses].join(' ')}
-        disabled={disabled || loading}
-        style={style}
-        size={size}
-        autoWidth
-        {...props}
-      >
-        {loading ? null : icon}
-        {children}
-      </BaseButton>
-    </Tooltip>
+    <BaseButton
+      className={[computed, ...positionClasses].join(' ')}
+      disabled={disabled || loading}
+      style={style}
+      size={size}
+      autoWidth
+      tooltipProps={tooltipProps}
+      {...props}
+    >
+      {loading ? null : icon}
+      {children}
+    </BaseButton>
   );
 };

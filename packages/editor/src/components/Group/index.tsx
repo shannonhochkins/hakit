@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Row, Column } from '@components/Layout';
-import { AutoHeight } from '@components/Shared/AutoHeight';
+import { AutoHeight } from '@components/AutoHeight';
 import styles from './Group.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 

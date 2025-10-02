@@ -3,6 +3,9 @@ import styles from './SwitchField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
 
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+const getClassName = getClassNameFactory('Switch', styles);
+
 type SwitchFieldSize = 'small' | 'medium' | 'large';
 
 type SwitchFieldProps = {
@@ -54,8 +57,17 @@ export function SwitchField({
   isolated = true,
   ...inputProps
 }: SwitchFieldProps) {
-  const containerClasses = [styles.container, inputProps.disabled ? styles.disabled : '', className || ''].filter(Boolean).join(' ');
-  const switchWrapperClasses = [styles.switchWrapper, isolated ? styles.isolated : ''].filter(Boolean).join(' ');
+  const containerClasses = getClassName(
+    {
+      container: true,
+      isolated: isolated,
+    },
+    className
+  );
+  const switchWrapperClasses = getClassName({
+    switchWrapper: true,
+    isolated: isolated,
+  });
 
   return (
     <div className={containerClasses} style={size ? sizeStyles[size] : undefined}>

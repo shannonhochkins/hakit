@@ -71,11 +71,13 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
     if (mods) {
       (Object.keys(mods) as Array<ModifierName>).forEach(mod => {
         const k = stylesAny[`${rootClass}--${mod}`];
+        const k2 = stylesAny[`${rootClass}-${mod}`];
         const base = stylesAny[`${mod}`];
         if (base) {
           return (prefixed[base] = (mods as Record<string, unknown>)[mod as string]);
         }
         if (k) prefixed[k] = (mods as Record<string, unknown>)[mod as string];
+        if (k2) prefixed[k2] = (mods as Record<string, unknown>)[mod as string];
       });
     }
     return config.baseClass + classnames(prefixed);

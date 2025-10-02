@@ -81,12 +81,14 @@
   transition: all var(--transition-normal);
 }
 
+.Dashboards-pageInset {
+  margin-left: var(--space-8); /* Align with dashboard content after expand button */
+}
+
 .Dashboards-pageInfo {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin-left: var(--space-10); /* Align with dashboard content after expand button */
-  padding-left: var(--space-1); /* Small padding to account for the pseudo-element border */
   width: 100%;
   transition: all var(--transition-normal);
 }

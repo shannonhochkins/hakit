@@ -5,6 +5,13 @@
   "version": "1.0.0",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
+  "browserslist": [
+    ">0.2%",
+    "last 3 versions",
+    "Android >= 4.4",
+    "ChromeAndroid >= 56",
+    "not dead"
+  ],
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",

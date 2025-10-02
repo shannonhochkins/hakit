@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './Tooltip.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
@@ -17,6 +17,8 @@ export interface TooltipProps extends Omit<React.ComponentPropsWithoutRef<'div'>
 export function Tooltip({ placement = 'top', title = null, children, ...rest }: TooltipProps) {
   const tooltipRef = useRef<HTMLSpanElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
 
   const calculatePosition = useCallback(() => {
     const childRect = childRef.current?.getBoundingClientRect();
@@ -54,20 +56,20 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
   }, [calculatePosition]);
 
   const handleMouseEnter = useCallback(() => {
-    const tooltipEl = tooltipRef.current;
-    if (tooltipEl) {
-      tooltipEl.style.opacity = '1';
-      tooltipEl.style.visibility = 'visible';
+    setShouldRender(true);
+    // Use requestAnimationFrame to ensure the element is rendered before animating
+    requestAnimationFrame(() => {
+      setIsVisible(true);
       calculatePosition();
-    }
+    });
   }, [calculatePosition]);
 
   const handleHide = useCallback(() => {
-    const tooltipEl = tooltipRef.current;
-    if (tooltipEl) {
-      tooltipEl.style.opacity = '0';
-      tooltipEl.style.visibility = 'hidden';
-    }
+    setIsVisible(false);
+    // Remove from DOM after animation completes
+    setTimeout(() => {
+      setShouldRender(false);
+    }, 300); // Match CSS transition duration (--transition-normal: 0.3s)
   }, []);
 
   if (title === null || title === '') {
@@ -86,7 +88,8 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
       {...rest}
     >
       {children}
-      {typeof document !== 'undefined' &&
+      {shouldRender &&
+        typeof document !== 'undefined' &&
         createPortal(
           <span
             className={getClassName({
@@ -96,8 +99,13 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
               bottom: placement === 'bottom',
               left: placement === 'left',
               noWrap: typeof title === 'string' && title.length < 20,
+              visible: isVisible,
             })}
             ref={tooltipRef}
+            style={{
+              opacity: isVisible ? 1 : 0,
+              visibility: isVisible ? 'visible' : 'hidden',
+            }}
           >
             {title}
           </span>,

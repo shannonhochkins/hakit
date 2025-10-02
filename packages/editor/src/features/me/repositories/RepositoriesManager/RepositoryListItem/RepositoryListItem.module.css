@@ -1,0 +1,139 @@
+/* RepositoryListItem CSS Module */
+
+.RepositoryListItem {
+  width: 100%;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.RepositoryListItem--isClickable {
+  cursor: pointer;
+}
+
+.RepositoryListItem--isClickable:hover {
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-elevated);
+}
+
+.RepositoryListItem--hasChildren .RepositoryListItem-cardHeader {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.RepositoryListItem-cardHeader {
+  padding: var(--space-4);
+}
+
+.RepositoryListItem-headerContent {
+  gap: var(--space-3);
+}
+
+.RepositoryListItem-thumbnailContainer {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.RepositoryListItem-thumbnailPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.RepositoryListItem-repositoryInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.RepositoryListItem-repositoryHeader {
+  margin-bottom: var(--space-2);
+}
+
+.RepositoryListItem-repositoryTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.RepositoryListItem-repositoryName {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RepositoryListItem-repositoryAuthor {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.RepositoryListItem-actionsContainer {
+  flex-shrink: 0;
+  margin-left: var(--space-3);
+}
+
+.RepositoryListItem-repositoryDescription {
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 var(--space-3) 0;
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-sm);
+}
+
+.RepositoryListItem-metaGrid {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.RepositoryListItem-metaItem {
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.RepositoryListItem-metaValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.RepositoryListItem-expandButton {
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+  margin-left: var(--space-2);
+}
+
+.RepositoryListItem-expandButton:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-overlay);
+}
+
+.RepositoryListItem-childrenContainer {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}

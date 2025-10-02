@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './Column.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-
 export interface ColumnProps extends React.ComponentPropsWithoutRef<'div'> {
   /** standard flex css properties for align-items, @default center */
   alignItems?: React.CSSProperties['alignItems'];
@@ -23,7 +22,7 @@ export function Column(props: ColumnProps) {
   const { alignItems, justifyContent, wrap, gap, fullHeight, fullWidth, className, style, ...rest } = props;
 
   const mergedStyle: React.CSSProperties = {
-    ...(typeof gap === 'string' ? ({ ['--gap' as unknown as keyof React.CSSProperties]: gap } as unknown as React.CSSProperties) : {}),
+    ...(typeof gap === 'string' ? ({ gap } as React.CSSProperties) : {}),
     ...style,
   };
 

@@ -9,6 +9,7 @@ type DashboardMenuProps = {
   onEdit: (type: 'dashboard', id: string) => void;
   onDuplicate: (type: 'dashboard', id: string) => void;
   onCreatePage: (dashboardId: string) => void;
+  onDesign: (type: 'dashboard', id: string) => void;
   onDelete: (type: 'dashboard', id: string) => void;
 };
 
@@ -19,6 +20,7 @@ type PageMenuProps = {
   onView: (type: 'page', id: string, dashboardId: string) => void;
   onEdit: (type: 'page', id: string, dashboardId: string) => void;
   onDuplicate: (type: 'page', id: string, dashboardId: string) => void;
+  onDesign: (type: 'page', id: string, dashboardId: string) => void;
   onDelete: (type: 'page', id: string, dashboardId: string) => void;
 };
 
@@ -49,13 +51,25 @@ export const ActionMenu = (props: ActionsMenuProps) => {
       <MenuItem
         onClick={() => {
           if (type === 'dashboard') {
+            props.onDesign('dashboard', id);
+          } else {
+            props.onDesign('page', id, props.dashboardId);
+          }
+        }}
+        startIcon={<LayoutDashboardIcon size={16} />}
+      >
+        {type === 'dashboard' ? 'Design Dashboard' : 'Design Page'}
+      </MenuItem>
+      <MenuItem
+        onClick={() => {
+          if (type === 'dashboard') {
             props.onView('dashboard', id);
           } else {
             props.onView('page', id, props.dashboardId);
           }
         }}
+        startIcon={<EyeIcon size={16} />}
       >
-        <EyeIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'View Dashboard' : 'View Page'}
       </MenuItem>
       <MenuItem
@@ -66,9 +80,9 @@ export const ActionMenu = (props: ActionsMenuProps) => {
             props.onEdit('page', id, props.dashboardId);
           }
         }}
+        startIcon={<EditIcon size={16} />}
       >
-        <EditIcon size={16} style={{ marginRight: 8 }} />
-        {type === 'dashboard' ? 'Rename Dashboard' : 'Edit Page'}
+        {type === 'dashboard' ? 'Rename Dashboard' : 'Rename Page'}
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -78,13 +92,12 @@ export const ActionMenu = (props: ActionsMenuProps) => {
             props.onDuplicate('page', id, props.dashboardId);
           }
         }}
+        startIcon={<FileTextIcon size={16} />}
       >
-        <FileTextIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'Duplicate Dashboard' : 'Duplicate Page'}
       </MenuItem>
       {type === 'dashboard' && (
-        <MenuItem onClick={() => props.onCreatePage(id)}>
-          <PlusIcon size={16} style={{ marginRight: 8 }} />
+        <MenuItem onClick={() => props.onCreatePage(id)} startIcon={<PlusIcon size={16} />}>
           Add Page
         </MenuItem>
       )}
@@ -96,9 +109,9 @@ export const ActionMenu = (props: ActionsMenuProps) => {
             props.onDelete('page', id, props.dashboardId);
           }
         }}
+        startIcon={<LayoutDashboardIcon size={16} />}
         style={{ color: 'var(--color-error-500)' }}
       >
-        <LayoutDashboardIcon size={16} style={{ marginRight: 8 }} />
         {type === 'dashboard' ? 'Delete Dashboard' : 'Delete Page'}
       </MenuItem>
     </Menu>

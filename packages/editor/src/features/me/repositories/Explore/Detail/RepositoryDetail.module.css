@@ -1,0 +1,171 @@
+/* RepositoryDetail CSS Module */
+
+.RepositoryDetail {
+  gap: var(--space-6);
+}
+
+.RepositoryDetail-backButtonContainer {
+  gap: var(--space-4);
+}
+
+.RepositoryDetail-backButton {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.RepositoryDetail-backButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-overlay);
+}
+
+.RepositoryDetail-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.RepositoryDetail-repositoryOverview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+}
+
+.RepositoryDetail-overviewContent {
+  padding: var(--space-6);
+  width: 100%;
+}
+
+.RepositoryDetail-repositoryLayout {
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.mq-md .RepositoryDetail-repositoryLayout {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.RepositoryDetail-thumbnailContainer {
+  height: 128px;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+  flex-shrink: 0;
+}
+
+.RepositoryDetail-thumbnailPlaceholder {
+  height: 100%;
+  width: 100%;
+  color: var(--color-text-muted);
+}
+
+.RepositoryDetail-repositoryInfo {
+  flex: 1;
+}
+
+.RepositoryDetail-description {
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-4) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.RepositoryDetail-metaGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4);
+}
+
+.RepositoryDetail-metaItem {
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.RepositoryDetail-metaLabel {
+  color: var(--color-text-muted);
+}
+
+.RepositoryDetail-metaValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.RepositoryDetail-metaLink {
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.RepositoryDetail-metaLink:hover {
+  color: var(--color-text-primary);
+}
+
+.RepositoryDetail-actionsContainer {
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.RepositoryDetail-readmeSection {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+}
+
+.RepositoryDetail-readmeHeader {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4) var(--space-6);
+}
+
+.RepositoryDetail-readmeTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+  cursor: pointer;
+}
+
+.RepositoryDetail-readmeContent {
+  padding: var(--space-6);
+}
+
+.RepositoryDetail-loadingContainer {
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.RepositoryDetail-errorContainer {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.RepositoryDetail-errorTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.RepositoryDetail-errorDescription {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4) 0;
+}

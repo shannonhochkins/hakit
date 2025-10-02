@@ -4,7 +4,6 @@ import {
   LayoutDashboardIcon,
   SearchIcon,
   InfoIcon,
-  EyeIcon,
   FileTextIcon,
   X,
   MoreVertical,
@@ -51,13 +50,12 @@ const getClassName = getClassNameFactory('Dashboards', styles);
 // Table column configuration
 const TABLE_COLUMNS = {
   DASHBOARD: { width: '100%', minWidth: '300px' },
-  PATH: { width: '200px' },
   CREATED: { width: '150px' },
   ACTIONS: { width: '300px' },
 } as const;
 
 // Sorting configuration
-type SortColumn = 'name' | 'path' | 'created' | 'status';
+type SortColumn = 'name' | 'created' | 'status';
 type SortDirection = 'asc' | 'desc';
 
 interface SortConfig {
@@ -423,10 +421,6 @@ export function Dashboards() {
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case 'path':
-          aValue = a.path.toLowerCase();
-          bValue = b.path.toLowerCase();
-          break;
         case 'created':
           aValue = new Date(a.createdAt);
           bValue = new Date(b.createdAt);
@@ -500,7 +494,7 @@ export function Dashboards() {
             <h1 className={getClassName('pageTitle')}>Dashboards</h1>
             <p className={getClassName('pageSubtitle')}>Manage your custom dashboards</p>
           </div>
-          <PrimaryButton aria-label='' onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
+          <PrimaryButton aria-label='Create a new dashboard' onClick={() => setFormMode('new')} startIcon={<PlusIcon size={16} />}>
             Create Dashboard
           </PrimaryButton>
         </Row>
@@ -592,7 +586,6 @@ export function Dashboards() {
           <Table>
             <colgroup>
               <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
-              <col style={{ width: TABLE_COLUMNS.PATH.width }} />
               <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
               <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
             </colgroup>
@@ -608,22 +601,6 @@ export function Dashboards() {
                     <span>Dashboard</span>
                     <div className={getClassName({ sortIconActive: sortConfig.column === 'name' }, getClassName('sortIcon'))}>
                       {sortConfig.column === 'name' ? (
-                        sortConfig.direction === 'asc' ? (
-                          <ArrowUp size={16} />
-                        ) : (
-                          <ArrowDown size={16} />
-                        )
-                      ) : (
-                        <ArrowUpDown size={16} />
-                      )}
-                    </div>
-                  </div>
-                </TableHeaderCell>
-                <TableHeaderCell width={TABLE_COLUMNS.PATH.width} sortable onClick={() => handleSort('path')}>
-                  <div className={getClassName('sortHeaderContent')}>
-                    <span>Path</span>
-                    <div className={getClassName({ sortIconActive: sortConfig.column === 'path' }, getClassName('sortIcon'))}>
-                      {sortConfig.column === 'path' ? (
                         sortConfig.direction === 'asc' ? (
                           <ArrowUp size={16} />
                         ) : (
@@ -670,15 +647,16 @@ export function Dashboards() {
                       <Table className={getClassName('childTable')}>
                         <colgroup>
                           <col style={{ width: TABLE_COLUMNS.DASHBOARD.width, minWidth: TABLE_COLUMNS.DASHBOARD.minWidth }} />
-                          <col style={{ width: TABLE_COLUMNS.PATH.width }} />
                           <col style={{ width: TABLE_COLUMNS.CREATED.width }} />
                           <col style={{ width: TABLE_COLUMNS.ACTIONS.width }} />
                         </colgroup>
                         <TableBody>
                           <ChildTableRow>
-                            <TableCell colSpan={Object.keys(TABLE_COLUMNS).length}>
+                            <TableCell colSpan={Object.keys(TABLE_COLUMNS).length} rightAlignLast={false}>
                               <Row fullWidth justifyContent='space-between' alignItems='center'>
-                                <span>{(dashboard.matchedPages || dashboard.pages).length > 0 ? 'PAGES' : 'No pages found'}</span>
+                                <span className={getClassName('pageInset')}>
+                                  {(dashboard.matchedPages || dashboard.pages).length > 0 ? 'PAGES' : 'No pages found'}
+                                </span>
                                 <PrimaryButton
                                   aria-label='Create New Page'
                                   size='sm'
@@ -694,7 +672,7 @@ export function Dashboards() {
                           {(dashboard.matchedPages || dashboard.pages).map((page: DashboardPageWithoutData) => (
                             <ChildTableRow key={page.id}>
                               <TableCell>
-                                <div className={getClassName('pageInfo')}>
+                                <div className={getClassName('pageInfo', getClassName('pageInset'))}>
                                   <div className={getClassName('pageThumbnailContainer')}>
                                     {page.thumbnail ? (
                                       <img src={page.thumbnail} alt={page.name} />
@@ -704,11 +682,11 @@ export function Dashboards() {
                                       </div>
                                     )}
                                   </div>
-                                  <span className={getClassName('pageName')}>{page.name}</span>
+                                  <Column alignItems='flex-start'>
+                                    <span className={getClassName('pageName')}>{page.name}</span>
+                                    <span className={getClassName('pagePathText')}>{page.path}</span>
+                                  </Column>
                                 </div>
-                              </TableCell>
-                              <TableCell>
-                                <span className={getClassName('pagePathText')}>{page.path}</span>
                               </TableCell>
                               <TableCell hiddenBelow='lg'>
                                 <Tooltip title={`Updated ${timeAgo(new Date(page.updatedAt))}`}>
@@ -717,18 +695,6 @@ export function Dashboards() {
                               </TableCell>
                               <TableCell>
                                 <div className={getClassName('actionButtons')}>
-                                  <IconButton
-                                    aria-label='View Page'
-                                    size='sm'
-                                    icon={<EyeIcon size={14} />}
-                                    onClick={() => handleView('page', page.id, dashboard.id)}
-                                  />
-                                  <IconButton
-                                    aria-label='Design Page'
-                                    size='sm'
-                                    icon={<LayoutDashboardIcon size={14} />}
-                                    onClick={() => handleDesign('page', page.id, dashboard.id)}
-                                  />
                                   <IconButton
                                     aria-label='Actions'
                                     icon={<MoreVertical size={14} />}
@@ -770,7 +736,7 @@ export function Dashboards() {
                             </div>
                           )}
                         </div>
-                        <Column>
+                        <Column alignItems='flex-start'>
                           <span className={getClassName('dashboardName')}>{dashboard.name}</span>
                           <span className={getClassName({ pageCountIsEmpty: dashboard.pages.length === 0 }, getClassName('pageCount'))}>
                             {dashboard.pages.length === 0
@@ -781,9 +747,6 @@ export function Dashboards() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell width={TABLE_COLUMNS.PATH.width}>
-                    <span className={getClassName('pathText')}>{dashboard.path}</span>
-                  </TableCell>
                   <TableCell width={TABLE_COLUMNS.CREATED.width} hiddenBelow='lg'>
                     <Tooltip title={`Updated on ${timeAgo(new Date(dashboard.updatedAt))}`}>
                       <span className={getClassName('dateText')}>{timeAgo(new Date(dashboard.createdAt))}</span>
@@ -791,18 +754,6 @@ export function Dashboards() {
                   </TableCell>
                   <TableCell width={TABLE_COLUMNS.ACTIONS.width} onClick={e => e.stopPropagation()}>
                     <div className={getClassName('actionButtons')}>
-                      <IconButton
-                        aria-label='View Dashboard'
-                        size='sm'
-                        icon={<EyeIcon size={14} />}
-                        onClick={() => handleView('dashboard', dashboard.id)}
-                      />
-                      <IconButton
-                        aria-label='Design Dashboard'
-                        size='sm'
-                        icon={<LayoutDashboardIcon size={14} />}
-                        onClick={() => handleDesign('dashboard', dashboard.id)}
-                      />
                       <IconButton
                         aria-label='Actions'
                         icon={<MoreVertical size={14} />}
@@ -824,20 +775,22 @@ export function Dashboards() {
         onClose={handleMenuClose}
         {...(menuType === 'dashboard'
           ? {
-              type: 'dashboard' as const,
+              type: 'dashboard',
               id: menuDashboardId || '',
               onView: handleView,
               onEdit: handleEdit,
+              onDesign: handleDesign,
               onDuplicate: handleDuplicate,
               onCreatePage: handleCreatePage,
               onDelete: handleDelete,
             }
           : {
-              type: 'page' as const,
+              type: 'page',
               id: menuPageId || '',
               dashboardId: menuDashboardId || '',
               onView: handleView,
               onEdit: handleEdit,
+              onDesign: handleDesign,
               onDuplicate: handleDuplicate,
               onDelete: handleDelete,
             })}

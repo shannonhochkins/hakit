@@ -21,6 +21,10 @@
   word-wrap: break-word;
 }
 .TooltipSpan--noWrap { white-space: nowrap; }
+.TooltipSpan--visible { 
+  visibility: visible; 
+  opacity: 1; 
+}
 
 .TooltipSpan--top { transform: translateY(calc(-100% - var(--space-2))) translateX(-50%); }
 .TooltipSpan--right { transform: translateX(var(--space-2)) translateY(-50%); }

@@ -70,7 +70,7 @@
 }
 
 .CollapsibleTableRow--clickable:hover {
-  background-color: var(--color-border-subtle);
+  background-color: var(--color-gray-700);
 }
 
 /* ChildTableRow */
@@ -130,8 +130,14 @@
   transition: background-color var(--transition-normal);
 }
 
-.TableHeaderCell:last-child {
+.TableHeaderCell--rightAlignLast:last-child {
   text-align: right;
+}
+
+.TableHeaderCell--rightAlignLast:last-child > * {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 /* Hidden below MD breakpoint */
@@ -172,8 +178,14 @@
   width: 100%;
 }
 
-.TableCell:last-child {
+.TableCell--rightAlignLast:last-child {
   text-align: right;
+}
+
+.TableCell--rightAlignLast:last-child > * {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 /* Hidden below MD breakpoint */

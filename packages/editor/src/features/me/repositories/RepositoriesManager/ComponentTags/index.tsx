@@ -1,25 +1,20 @@
 import { RepositoryVersion } from '@typings/hono';
-import styled from '@emotion/styled';
 import { Row } from '@components/Layout';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './ComponentTags.module.css';
 
-const ComponentTag = styled.span`
-  background: var(--color-primary-900);
-  color: var(--color-primary-300);
-  font-size: var(--font-size-xs);
-  padding: calc(var(--space-1) / 2) var(--space-1);
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-weight-medium);
-`;
-
+const getClassName = getClassNameFactory('ComponentTags', styles);
 export function ComponentTags({ components }: { components: RepositoryVersion['components'] }) {
   return (
     components &&
     components.length > 0 && (
       <Row fullWidth alignItems='flex-start' justifyContent='flex-start' gap='var(--space-2)'>
         {components.slice(0, 3).map(component => (
-          <ComponentTag key={component.name}>{component.name}</ComponentTag>
+          <span key={component.name} className={getClassName()}>
+            {component.name}
+          </span>
         ))}
-        {components.length > 3 && <ComponentTag>+{components.length - 3} more</ComponentTag>}
+        {components.length > 3 && <span className={getClassName()}>+{components.length - 3} more</span>}
       </Row>
     )
   );

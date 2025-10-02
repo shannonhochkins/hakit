@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import styled from '@emotion/styled';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
 import { PlusIcon, SearchIcon, PackageIcon, EyeIcon } from 'lucide-react';
@@ -12,70 +11,10 @@ import { RepositoryWithLatestVersion } from '@typings/hono';
 import { RepositoryListItem } from '@features/me/repositories/RepositoriesManager/RepositoryListItem';
 import { RepositoryInstallButton } from '@features/me/repositories/RepositoriesManager/RepositoryInstallButton';
 import { EmptyState } from '@components/EmptyState';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './Explore.module.css';
 
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-`;
-
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-`;
-
-const PageTitle = styled.h1`
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const PageSubtitle = styled.p`
-  color: var(--color-text-muted);
-  margin: 0;
-`;
-
-const SearchAndFilter = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-  }
-`;
-
-const RepositoryList = styled(Column)`
-  gap: var(--space-3);
-`;
-
-const LoadingState = styled.div`
-  text-align: center;
-  padding: var(--space-8) var(--space-4);
-  color: var(--color-text-muted);
-`;
-
-const ErrorState = styled.div`
-  text-align: center;
-  padding: var(--space-8) var(--space-4);
-  color: var(--color-error-500);
-`;
+const getClassName = getClassNameFactory('Explore', styles);
 
 export function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,20 +42,22 @@ export function Explore() {
   };
 
   return (
-    <Container>
-      <PageHeader>
+    <div className={getClassName()}>
+      <div className={getClassName('pageHeader')}>
         <Row fullWidth justifyContent='space-between' alignItems='center'>
-          <HeaderContent>
-            <PageTitle>{isSearching ? `Search Results (${repositories.length})` : 'Explore Repositories'}</PageTitle>
-            <PageSubtitle>Discover and install repositories for your dashboards</PageSubtitle>
-          </HeaderContent>
+          <div className={getClassName('headerContent')}>
+            <h1 className={getClassName('pageTitle')}>
+              {isSearching ? `Search Results (${repositories.length})` : 'Explore Repositories'}
+            </h1>
+            <p className={getClassName('pageSubtitle')}>Discover and install repositories for your dashboards</p>
+          </div>
           <PrimaryButton aria-label='Add custom repository' startIcon={<PlusIcon size={16} />} onClick={handleOnInstall}>
             Install Addon
           </PrimaryButton>
         </Row>
-      </PageHeader>
+      </div>
 
-      <SearchAndFilter>
+      <div className={getClassName('searchAndFilter')}>
         <InputField
           size='medium'
           type='text'
@@ -129,13 +70,13 @@ export function Explore() {
           onChange={e => setSearchQuery(e.target.value)}
           startAdornment={<SearchIcon size={18} />}
         />
-      </SearchAndFilter>
+      </div>
 
-      <RepositoryList fullWidth>
+      <Column className={getClassName('repositoryList')} fullWidth>
         {isLoading ? (
-          <LoadingState>{isSearching ? 'Searching now...' : 'Loading popular components...'}...</LoadingState>
+          <div className={getClassName('loadingState')}>{isSearching ? 'Searching now...' : 'Loading popular components...'}...</div>
         ) : error ? (
-          <ErrorState>Failed to load repositories: {error.message}</ErrorState>
+          <div className={getClassName('errorState')}>Failed to load repositories: {error.message}</div>
         ) : repositories.length === 0 ? (
           isSearching ? (
             <EmptyState
@@ -180,7 +121,7 @@ export function Explore() {
             />
           ))
         )}
-      </RepositoryList>
-    </Container>
+      </Column>
+    </div>
   );
 }

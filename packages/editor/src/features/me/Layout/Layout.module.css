@@ -1,0 +1,18 @@
+
+.Layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.Layout-mainContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.Layout-mainSection {
+  flex: 1;
+  padding: var(--space-6);
+}

@@ -173,7 +173,7 @@
   --color-gray-800: rgb(31, 41, 55);
   --color-gray-850: rgb(24, 32, 46);
   --color-gray-900: rgb(17, 24, 39);
-  --color-gray-950: rgb(3, 7, 18);
+  --color-gray-950: rgb(8, 14, 33);
 
   /* Semantic Colors */
   --color-surface: var(--color-gray-850);

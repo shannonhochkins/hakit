@@ -69,6 +69,34 @@
   outline: none;
   box-shadow: none;
 }
+
+/* Fix browser autocomplete styling issues */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure autocomplete styling works with different input states */
+.inputWrapper:focus-within .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.error .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.success .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.disabled .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface-muted) inset !important;
+}
 .input::placeholder {
   color: var(--color-text-muted);
 }
