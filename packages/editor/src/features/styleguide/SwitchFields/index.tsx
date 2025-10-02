@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { SwitchField } from '@components/Form/Field/Switch';
 
 export function StyleguideSwitchFields() {
@@ -9,16 +9,7 @@ export function StyleguideSwitchFields() {
   const [darkModeEnabled, setDarkModeEnabled] = useState(true);
   const [advancedFeaturesEnabled, setAdvancedFeaturesEnabled] = useState(false);
   return (
-    <Row
-      fullHeight
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Switch Fields - Controlled Examples'>
         <SwitchField
           id='controlled-notifications'
@@ -66,6 +57,6 @@ export function StyleguideSwitchFields() {
         <SwitchField id='disabled-unchecked' label='Disabled Unchecked' disabled />
         <SwitchField id='disabled-checked-state' label='Disabled Checked' disabled checked />
       </Group>
-    </Row>
+    </Column>
   );
 }

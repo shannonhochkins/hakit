@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Row, Column } from '@components/Layout';
+import { Column } from '@components/Layout';
 
 import { Entity } from '@components/Form/Field/Entity';
 import { EntityName } from '@hakit/core';
+import { Group } from '@components/Group';
 
 export function StyleguideEntityFields() {
   const [selectedEntity, setSelectedEntity] = useState<EntityName | undefined>(undefined);
@@ -11,18 +12,8 @@ export function StyleguideEntityFields() {
   const [selectedEntity4, setSelectedEntity4] = useState<EntityName | undefined>(undefined);
 
   return (
-    <Column
-      fullHeight
-      fullWidth
-      alignItems='flex-start'
-      justifyContent='flex-start'
-      gap='2rem'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
-      <Row title='Entity Fields' fullWidth justifyContent='start' alignItems='start'>
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
+      <Group title='Entity Fields' justifyContent='start' alignItems='start'>
         <Entity
           id='entity-field-1'
           name='entity-field-1'
@@ -33,8 +24,8 @@ export function StyleguideEntityFields() {
             setSelectedEntity(entityId);
           }}
         />
-      </Row>
-      <Row gap='1rem' fullWidth justifyContent='start' alignItems='start'>
+      </Group>
+      <Group title='Entity Fields' gap='1rem' justifyContent='start' alignItems='start'>
         <Column
           justifyContent='start'
           alignItems='start'
@@ -86,7 +77,7 @@ export function StyleguideEntityFields() {
             }}
           />
         </Column>
-      </Row>
+      </Group>
       <div style={{ marginTop: 'var(--space-4)' }}>
         <p>
           Selected: <strong>{selectedEntity}</strong>

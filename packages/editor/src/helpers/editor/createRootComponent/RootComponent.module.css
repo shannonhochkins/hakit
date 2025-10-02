@@ -1,0 +1,33 @@
+
+.RootComponent {
+  position: absolute !important;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.RootComponent-background {
+  width: 100%;
+  height: 100%;
+  background-position: var(--root-component-background-position, center center);
+  background-repeat: var(--root-component-background-repeat, no-repeat);
+  background-size: var(--root-component-background-size, cover);
+  background-image: var(--root-component-background-image);
+  filter:
+    blur(var(--root-component-background-blur))
+    brightness(var(--root-component-filter-brightness, 1))
+    contrast(var(--root-component-filter-contrast, 1))
+    saturate(var(--root-component-filter-saturate, 1))
+    grayscale(var(--root-component-filter-grayscale, 0));
+  overflow: hidden;
+}
+
+.RootComponent-background:after { content: none; }
+.RootComponent-background:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--root-component-overlay-color, transparent);
+  opacity: var(--root-component-overlay-opacity, 0);
+  mix-blend-mode: var(--root-component-overlay-blendMode, normal);
+}

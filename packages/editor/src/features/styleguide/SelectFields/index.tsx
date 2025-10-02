@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { SelectField } from '@components/Form/Field/Select';
 
 const simpleOptions = [
@@ -21,12 +21,7 @@ export function StyleguideSelectFields() {
   const [multi, setMulti] = useState<(typeof simpleOptions)[number][]>([]);
 
   return (
-    <Row
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{ padding: 'var(--space-4)', backgroundColor: 'var(--color-gray-900)' }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Select Fields - Controlled Examples' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <SelectField
           id='select-simple'
@@ -67,6 +62,6 @@ export function StyleguideSelectFields() {
         <SelectField id='select-error' label='Error' options={simpleOptions} error helperText='This field has an error' />
         <SelectField id='select-success' label='Success' options={simpleOptions} success helperText='This field is valid' />
       </Group>
-    </Row>
+    </Column>
   );
 }

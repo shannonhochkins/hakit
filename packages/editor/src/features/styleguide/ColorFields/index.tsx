@@ -15,16 +15,7 @@ export function StyleguideColorFields() {
   const [transparentColor, setTransparentColor] = useState('rgba(0, 0, 0, 0)');
 
   return (
-    <Column
-      fullHeight
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Color Fields - With Label and Helper Text' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <ColorField
           label='Interactive Blue'

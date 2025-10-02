@@ -23,54 +23,50 @@ export type FieldOption = {
   label: string;
   value: string | number | boolean | undefined | null | object;
 };
-
+// some puck types can clash with our own custom ones, so we need to exclude them
 type ExcludedPuckKeys = 'visible';
 
 // Omit Puck's BaseField.visible for all field variants to avoid clash with our ExtendedFieldTypes.visible
 type WithoutPuckFields<F> = F extends unknown ? Omit<F, ExcludedPuckKeys> : never;
 
-// Add field-type-specific extensions (for now: expose render on custom with correct Value)
-type WithCustomAdditions<F, Value> = F extends { type: 'custom' } ? { render: PuckCustomField<Value>['render'] } : unknown;
+type Kind = keyof FieldDefinition;
 
-// Compute which ExtendedFieldTypes keys to omit based on the concrete field kind
-// - slot: omit all ExtendedFieldTypes (slot shouldn't have these extras)
-// - object: omit only 'default' (object container itself has no default, its children do)
-// - others: keep all ExtendedFieldTypes keys
-type OmitKeysForField<F> = F extends { type: infer T extends PropertyKey }
-  ? T extends keyof FieldTypeOmitMap
-    ? FieldTypeOmitMap[T]
-    : never
-  : never;
+type ExtKeysForKind<K extends Kind> = K extends keyof FieldTypeOmitMap ? FieldTypeOmitMap[K] : never;
 
-// Strict augmentation that only augments the current field kind
-type AugmentCurrentField<F, Value, DataShape> = WithoutPuckFields<F> &
-  Omit<ExtendedFieldTypes<DataShape, Value>, OmitKeysForField<F>> &
-  (F extends { type: 'custom' } ? { render: PuckCustomField<Value>['render'] } : unknown);
+type BaseForKind<K extends Kind> = WithoutPuckFields<FieldDefinition[K]>;
 
-// Same mapping as FieldDefinition but with ExtendedFieldTypes applied (omitting per FieldTypeOmitMap)
-// and with BaseField.visible removed to avoid intersection issues.
-type AugmentedFieldDefinition = {
-  [K in keyof FieldDefinition]: WithoutPuckFields<FieldDefinition[K]> &
-    Omit<ExtendedFieldTypes<unknown, unknown>, OmitKeysForField<FieldDefinition[K]>> &
-    WithCustomAdditions<FieldDefinition[K], unknown>;
+type ExtrasForKind<K extends Kind, Value> = K extends 'custom' ? { render: PuckCustomField<Value>['render'] } : unknown;
+
+type WithExtended<K extends Kind, Value, DataShape> = Omit<ExtendedFieldTypes<DataShape, Value>, ExtKeysForKind<K>>;
+
+/** Single node shape for a specific kind K */
+type FieldNode<K extends Kind, Value, DataShape> = BaseForKind<K> & WithExtended<K, Value, DataShape> & ExtrasForKind<K, Value>;
+
+/** Union of all non-container, non-slot leaf kinds */
+type LeafKinds = Exclude<Kind, 'object' | 'array' | 'slot'>;
+
+type LeafField<Value, DataShape> = {
+  [K in LeafKinds]: FieldNode<K, Value, DataShape>;
+}[LeafKinds];
+
+/** Object kind rebuilt with recursive children */
+type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
+  objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
 };
 
-// Recursive field shape for a given Value, using only our FieldDefinition kinds
+/** Array kind rebuilt with recursive children */
+type ArrayFieldNode<Value, DataShape> = Value extends (infer Item)[]
+  ? Omit<FieldNode<'array', Value, DataShape>, 'arrayFields'> & {
+      arrayFields: { [K in keyof Item]: FieldFor<Item[K], DataShape> };
+    }
+  : never;
+
+/** Final recursive shape */
 type FieldFor<Value, DataShape> =
-  // Slot passthrough when Value is a slot
   | (Value extends Slot ? SlotField : never)
-  // Leaf user fields (non-container kinds)
-  | AugmentCurrentField<AugmentedFieldDefinition[Exclude<keyof FieldDefinition, 'object' | 'array' | 'slot'>], Value, DataShape>
-  // Object container: carry extras (e.g., collapseOptions) but replace Puck's objectFields typing with our own
-  | (AugmentCurrentField<Omit<AugmentedFieldDefinition['object'], 'objectFields'>, Value, DataShape> & {
-      objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
-    })
-  // Array container (when Value is an array)
-  | (Value extends (infer Item)[]
-      ? AugmentCurrentField<Omit<AugmentedFieldDefinition['array'], 'arrayFields'>, Value, DataShape> & {
-          arrayFields: { [K in keyof Item]: FieldFor<Item[K], DataShape> };
-        }
-      : never);
+  | LeafField<Value, DataShape>
+  | ObjectFieldNode<Value, DataShape>
+  | ArrayFieldNode<Value, DataShape>;
 
 export type FieldConfiguration<
   ComponentProps extends DefaultComponentProps = DefaultComponentProps,

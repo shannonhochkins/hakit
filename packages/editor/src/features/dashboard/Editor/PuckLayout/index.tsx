@@ -5,15 +5,14 @@ import { Header } from './Header';
 import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
 import { Toolbar } from './Toolbar';
-import styled from '@emotion/styled';
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { ResizeHandleIcon } from './ResizeHandle';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { useGlobalStore } from '@hooks/useGlobalStore';
+import styles from './PuckLayout.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-const StyledPanelResizeHandle = styled(PanelResizeHandle)`
-  position: relative;
-`;
+const getClassName = getClassNameFactory('PuckLayout', styles);
 
 export function PuckLayout() {
   const emotionCache = useGlobalStore(state => state.emotionCache);
@@ -113,18 +112,18 @@ export function PuckLayout() {
           >
             <LeftSidebar onToggle={onLeftSidebarToggle} />
           </Panel>
-          <StyledPanelResizeHandle>
+          <PanelResizeHandle className={getClassName('resizeHandle')}>
             <ResizeHandleIcon direction='horizontal' />
-          </StyledPanelResizeHandle>
+          </PanelResizeHandle>
           <Panel minSize={60} id='hakit-preview-panel'>
             <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
               <Toolbar />
               <Preview />
             </Column>
           </Panel>
-          <StyledPanelResizeHandle>
+          <PanelResizeHandle className={getClassName('resizeHandle')}>
             <ResizeHandleIcon direction='horizontal' id='hakit-preview-resize-handle' />
-          </StyledPanelResizeHandle>
+          </PanelResizeHandle>
           <Panel
             ref={rightPanelRef}
             id='hakit-right-panel'

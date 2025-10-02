@@ -1,105 +1,36 @@
 import { BoxIcon, Layers2Icon, PanelLeftIcon, PanelRightIcon } from 'lucide-react';
-import styled from '@emotion/styled';
-import { Tabs, Tab } from '@mui/material';
+import styles from './LeftSidebar.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+const getClassName = getClassNameFactory('LeftSidebar', styles);
+import { Tabs } from '@components/Tabs';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { Puck } from '@measured/puck';
 import { IconButton } from '@components/Button/IconButton';
 import React, { useCallback } from 'react';
 
-const CollapsedSidebar = styled.div`
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
-  background-color: var(--color-gray-900);
-  border-right: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--space-2) 0;
-`;
+const CollapsedSidebar = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('collapsedSidebar', props.className)} />
+);
 
-const ExpandedSidebar = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
-  flex-grow: 0;
-  background-color: var(--color-gray-900);
-  border-right: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-`;
+const ExpandedSidebar = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('expandedSidebar', props.className)} />
+);
 
-const CollapsedIconContainer = styled.div`
-  margin-top: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-`;
+const CollapsedIconContainer = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('collapsedIconContainer', props.className)} />
+);
 
-const SidebarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border);
-  height: var(--header-height);
-  flex-grow: 0;
-  flex-shrink: 0;
-`;
+const SidebarHeader = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('header', props.className)} />
+);
 
-const StyledTabs = styled(Tabs)`
-  flex: 1;
-  min-height: auto;
+const ComponentsList = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('componentsList', props.className)} />
+);
 
-  .MuiTabs-flexContainer {
-    height: 100%;
-  }
-
-  .MuiTab-root {
-    flex: 1;
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-muted);
-    text-transform: none;
-    min-height: auto;
-
-    &:hover {
-      color: var(--color-text-primary);
-    }
-
-    &.Mui-selected {
-      color: var(--color-text-primary);
-    }
-  }
-
-  .MuiTabs-indicator {
-    height: 2px;
-    background-color: var(--color-primary-500);
-  }
-`;
-
-const TabContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`;
-
-const ComponentsList = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-`;
-
-const OutlineContent = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--space-3);
-`;
+const OutlineContent = (props: React.HTMLAttributes<HTMLDivElement>) => (
+  <div {...props} className={getClassName('outlineContent', props.className)} />
+);
 
 export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => void }) {
   const { leftSidebar, setLeftSidebarCollapsed, setLeftSidebarTab } = useEditorUIStore();
@@ -127,7 +58,7 @@ export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => vo
   }, [setLeftSidebarTab, setLeftSidebarCollapsed]);
 
   const handleTabChange = useCallback(
-    (_: React.SyntheticEvent, newValue: string) => {
+    (newValue: string) => {
       setLeftSidebarTab(newValue as 'components' | 'outline');
     },
     [setLeftSidebarTab]
@@ -163,32 +94,33 @@ export function LeftSidebar({ onToggle }: { onToggle: (collapsed: boolean) => vo
         </CollapsedSidebar>
       ) : (
         <ExpandedSidebar>
-          <SidebarHeader>
-            <StyledTabs value={activeTab} onChange={handleTabChange} variant='fullWidth'>
-              <Tab label='Components' value='components' />
-              <Tab label='Outline' value='outline' />
-            </StyledTabs>
-            <IconButton
-              variant='transparent'
-              icon={<PanelLeftIcon size={16} />}
-              onClick={onClickCollapseSidebar}
-              aria-label='Collapse sidebar'
-            />
-          </SidebarHeader>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <SidebarHeader>
+              <Tabs.List fluid>
+                <Tabs.Control value='components'>Components</Tabs.Control>
+                <Tabs.Control value='outline'>Outline</Tabs.Control>
+              </Tabs.List>
+              <IconButton
+                variant='transparent'
+                icon={<PanelLeftIcon size={16} />}
+                onClick={onClickCollapseSidebar}
+                aria-label='Collapse sidebar'
+              />
+            </SidebarHeader>
 
-          {activeTab === 'components' && (
-            <TabContent>
-              <ComponentsList>
-                <Puck.Components />
-              </ComponentsList>
-            </TabContent>
-          )}
-
-          {activeTab === 'outline' && (
-            <OutlineContent>
-              <Puck.Outline />
-            </OutlineContent>
-          )}
+            <Tabs.Content>
+              <Tabs.Panel value='components'>
+                <ComponentsList>
+                  <Puck.Components />
+                </ComponentsList>
+              </Tabs.Panel>
+              <Tabs.Panel value='outline'>
+                <OutlineContent>
+                  <Puck.Outline />
+                </OutlineContent>
+              </Tabs.Panel>
+            </Tabs.Content>
+          </Tabs>
         </ExpandedSidebar>
       )}
     </>

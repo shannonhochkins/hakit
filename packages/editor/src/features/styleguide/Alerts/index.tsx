@@ -1,20 +1,10 @@
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { Alert } from '@components/Alert';
 
 export function StyleguideAlerts() {
   return (
-    <Row
-      fullWidth
-      fullHeight
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        gap: 'var(--space-4)',
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Alert - Severity Variants'>
         <Alert severity='info' title='Information'>
           This is an informational alert with a title and message content.
@@ -150,6 +140,6 @@ export function StyleguideAlerts() {
           This clickable alert maintains proper focus management and keyboard navigation.
         </Alert>
       </Group>
-    </Row>
+    </Column>
   );
 }

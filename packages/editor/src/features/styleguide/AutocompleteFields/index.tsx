@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { AutocompleteField } from '@components/Form/Field/Autocomplete';
 import { SearchIcon, UserIcon, MapPinIcon } from 'lucide-react';
 
@@ -37,16 +37,7 @@ export function StyleguideAutocompleteFields() {
   const [largeValue, setLargeValue] = useState('');
 
   return (
-    <Row
-      fullHeight
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group
         title='Autocomplete Fields - Controlled Examples'
         alignItems='start'
@@ -251,6 +242,6 @@ export function StyleguideAutocompleteFields() {
           onChange={setLargeValue}
         />
       </Group>
-    </Row>
+    </Column>
   );
 }

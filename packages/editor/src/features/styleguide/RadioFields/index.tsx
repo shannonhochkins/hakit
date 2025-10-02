@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { RadioField } from '../../../components/Form/Field/Radio';
 
 const priorityOptions = [
@@ -28,16 +28,7 @@ export function StyleguideRadioFields() {
   const [sizePreference, setSizePreference] = useState('medium');
 
   return (
-    <Row
-      fullHeight
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Radio Fields - Controlled Examples'>
         <RadioField
           id='controlled-priority'
@@ -126,6 +117,6 @@ export function StyleguideRadioFields() {
           readOnly
         />
       </Group>
-    </Row>
+    </Column>
   );
 }

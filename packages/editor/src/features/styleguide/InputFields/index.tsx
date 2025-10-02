@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { InputField } from '@components/Form/Field/Input';
 import { MailIcon, UserIcon, LockIcon, CheckCircleIcon, DollarSignIcon } from 'lucide-react';
 
@@ -12,16 +12,7 @@ export function StyleguideInputFields() {
   const [amountValue, setAmountValue] = useState('100.00');
   const [numberValue, setNumberValue] = useState(42);
   return (
-    <Row
-      fullHeight
-      fullWidth
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Input Fields - With all configurations' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <InputField
           id='controlled-email'
@@ -297,6 +288,6 @@ export function StyleguideInputFields() {
           placeholder='0.00'
         />
       </Group>
-    </Row>
+    </Column>
   );
 }

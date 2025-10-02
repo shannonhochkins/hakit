@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { CodeField } from '@components/Form/Field/Code';
 
 export function StyleguideCodeFields() {
@@ -9,7 +9,7 @@ export function StyleguideCodeFields() {
   "enabled": true
 }`);
   return (
-    <Row fullWidth alignItems='start' justifyContent='start' style={{ padding: 'var(--space-4)' }}>
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Code Field - Preview Only'>
         <CodeField value='' language='json' onChange={() => {}} id='code-field-preview-only' name='code-field-preview-only' />
       </Group>
@@ -42,6 +42,6 @@ export function StyleguideCodeFields() {
           name='code-field-different-languages-json'
         />
       </Group>
-    </Row>
+    </Column>
   );
 }

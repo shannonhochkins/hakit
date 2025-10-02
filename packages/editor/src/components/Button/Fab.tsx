@@ -17,7 +17,7 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Whether the FAB should pulse to draw attention */
   pulse?: boolean;
   /** Custom border radius for the FAB */
-  borderRadius?: string;
+  borderRadius?: React.CSSProperties['borderRadius'];
   /** Whether the FAB is in a loading state */
   loading?: boolean;
   /** Position variant for floating placement */
@@ -44,6 +44,7 @@ export const Fab = ({
   active,
   className,
   borderRadius = '50%',
+  style,
   ...props
 }: FabProps) => {
   const computed = getFabClassName(
@@ -76,15 +77,17 @@ export const Fab = ({
                 ? styles.topLeft
                 : styles.bottomRight,
         ];
-  const style = { ...(props.style || {}), borderRadius: borderRadius || '50%' } as React.CSSProperties;
   return (
     <BaseButton
       className={[computed, ...positionClasses].join(' ')}
       disabled={disabled || loading}
-      style={style}
       size={size}
       autoWidth
       tooltipProps={tooltipProps}
+      style={{
+        ...style,
+        borderRadius: borderRadius || style?.borderRadius || '50%',
+      }}
       {...props}
     >
       {loading ? null : icon}

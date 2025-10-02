@@ -4,19 +4,30 @@ import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';
 import { useDashboard } from '@hooks/queeries/useDashboard';
 import { HelperText } from '../_shared/HelperText';
-interface PageFieldProps {
+type CommonProps = {
   readOnly?: boolean;
   icon?: React.ReactNode;
   id?: string;
   name?: string;
   helperText?: string;
-  value: DashboardPageWithoutData | DashboardPageWithoutData[];
   label?: string;
-  muiltiSelect?: boolean;
-  onChange: (value: DashboardPageWithoutData | DashboardPageWithoutData[]) => void;
   min?: number;
   max?: number;
-}
+};
+
+type PageFieldSingleProps = CommonProps & {
+  muiltiSelect?: false;
+  value?: DashboardPageWithoutData;
+  onChange: (value: DashboardPageWithoutData) => void;
+};
+
+type PageFieldMultiProps = CommonProps & {
+  muiltiSelect: true;
+  value?: DashboardPageWithoutData[];
+  onChange: (value: DashboardPageWithoutData[]) => void;
+};
+
+type PageFieldProps = PageFieldSingleProps | PageFieldMultiProps;
 
 function DashboardPageMultiSelect({
   value,
@@ -107,7 +118,7 @@ export const PageField = memo(function Page({ value, label, muiltiSelect, min, m
       if (!matchedDashboard) {
         console.error('No dashboard found for id', value);
       } else {
-        onChange({
+        (onChange as (v: DashboardPageWithoutData) => void)({
           id: matchedDashboard.id,
           dashboardId: matchedDashboard.dashboardId,
           name: matchedDashboard.name,
@@ -138,7 +149,7 @@ export const PageField = memo(function Page({ value, label, muiltiSelect, min, m
             },
           ];
         });
-      onChange(pages);
+      (onChange as (v: DashboardPageWithoutData[]) => void)(pages);
     }
   };
 
@@ -146,7 +157,7 @@ export const PageField = memo(function Page({ value, label, muiltiSelect, min, m
     return (
       <DashboardPageMultiSelect
         value={value as DashboardPageWithoutData[]}
-        onChange={onChange}
+        onChange={onChange as (v: DashboardPageWithoutData[]) => void}
         options={options}
         dashboardMap={dashboardMap}
         firstDashboard={firstDashboard}

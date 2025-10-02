@@ -1,21 +1,11 @@
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { PrimaryButton, SecondaryButton, Fab, IconButton } from '@components/Button';
 import { MailIcon, PlusIcon, Trash2Icon, CheckIcon } from 'lucide-react';
 
 export function StyleguideButtons() {
   return (
-    <Row
-      fullWidth
-      fullHeight
-      alignItems='start'
-      justifyContent='start'
-      style={{
-        gap: 'var(--space-4)',
-        padding: 'var(--space-4)',
-        backgroundColor: 'var(--color-gray-900)',
-      }}
-    >
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Primary Button - Variants'>
         <PrimaryButton aria-label='Primary default'>Default Primary</PrimaryButton>
         <PrimaryButton aria-label='Primary success' variant='success'>
@@ -121,6 +111,6 @@ export function StyleguideButtons() {
         <Fab aria-label='Fab with pulse' pulse icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab with custom radius' borderRadius='12px' icon={<PlusIcon size={18} />} />
       </Group>
-    </Row>
+    </Column>
   );
 }

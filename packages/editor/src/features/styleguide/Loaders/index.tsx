@@ -1,11 +1,11 @@
 import { Group } from '@components/Group';
-import { Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { Spinner } from '@components/Loaders/Spinner';
 import { LinearProgress } from '@components/Loaders/LinearProgress';
 
 export function StyleguideLoaders() {
   return (
-    <Row fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4)' }}>
+    <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Spinner - Variants'>
         <Spinner aria-label='Spinner default' />
         <Spinner aria-label='Spinner default' size={10} thickness={2} />
@@ -25,6 +25,6 @@ export function StyleguideLoaders() {
       <Group title='Linear Progress - Indeterminate'>
         <LinearProgress aria-label='Linear primary' variant='indeterminate' />
       </Group>
-    </Row>
+    </Column>
   );
 }

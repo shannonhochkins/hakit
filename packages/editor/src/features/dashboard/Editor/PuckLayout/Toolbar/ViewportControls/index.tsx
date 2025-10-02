@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import { type BreakPoint, getBreakpoints } from '@hakit/components';
 import { Column, Row } from '@components/Layout';
-import styled from '@emotion/styled';
 import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 import { useThemeStore } from '@hakit/components';
 import { DEFAULT_BREAKPOINTS } from '@constants';
@@ -15,18 +14,16 @@ import { SwitchField } from '@components/Form/Field/Switch';
 import { CircleHelp, Edit, TabletSmartphone } from 'lucide-react';
 import { Modal, ModalActions } from '@components/Modal';
 import { breakpointItemToBreakPoints } from '@helpers/editor/breakpoints';
-import { PrimaryButton } from '@components/Button';
+import { IconButton, PrimaryButton } from '@components/Button';
 import { Tooltip } from '@components/Tooltip';
 import { BREAKPOINT_ICONS } from '@constants';
 import { updateDashboardForUser } from '@services/dashboard';
 import { toast } from 'react-toastify';
+import styles from './ViewportControls.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { FieldOption } from '@typings/fields';
 
-const StyledViewportControls = styled(Row)`
-  min-height: var(--header-height);
-  max-height: var(--header-height);
-  display: flex;
-  align-items: center;
-`;
+const getClassName = getClassNameFactory('ViewportControls', styles);
 
 // Helper function to get icon component by key
 const getIconComponent = (iconKey?: string, fallbackBreakpointId?: BreakPoint) => {
@@ -46,30 +43,6 @@ const getDefaultIconForBreakpoint = (breakpointId: BreakPoint): IconKey => {
   const defaultBreakpoint = DEFAULT_BREAKPOINTS.find(bp => bp.id === breakpointId);
   return (defaultBreakpoint?.icon as IconKey) || 'tablet-smartphone';
 };
-
-const HelperText = styled.span`
-  color: var(--color-gray-200);
-  font-size: 0.85rem;
-  font-weight: 400;
-`;
-
-const ZoomControls = styled(Row)`
-  gap: var(--space-2);
-  align-items: center;
-  margin-left: var(--space-4);
-  padding-left: var(--space-4);
-  border-left: 1px solid var(--color-border);
-`;
-
-const ZoomDisplay = styled.span`
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 38px;
-  text-align: center;
-  padding: 0 4px;
-  border-radius: 4px;
-`;
 
 function findPreviousNonDisabledBreakpoint(breakpoints: Required<BreakpointItem[]>, id: BreakPoint) {
   // Find this breakpoint in the array
@@ -121,6 +94,7 @@ const ViewportControlsComponent = () => {
   const [editingBreakpoints, setEditingBreakpoints] = useState(false);
   const breakpointItems = useGlobalStore(store => store.breakpointItems);
   const options = useMemo(() => breakpointItems.filter(item => !item.disabled), [breakpointItems]);
+
   const [controlledBreakpointItems, setControlledBreakpointItems] = useState(breakpointItems);
 
   // Persist selected breakpoint in localStorage
@@ -266,10 +240,6 @@ const ViewportControlsComponent = () => {
   const onClose = useCallback(() => {
     setEditingBreakpoints(false);
   }, []);
-  const optionsWithNew = useMemo(
-    () => [...options.map(item => ({ label: String(item.title), value: String(item.id) })), { value: 'new', label: 'Customize' } as const],
-    [options]
-  );
 
   if (!value) {
     return null;
@@ -278,51 +248,64 @@ const ViewportControlsComponent = () => {
   const valueQueryHelper = getQueries([value]);
 
   return (
-    <StyledViewportControls alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
+    <Row className={getClassName('ViewportControls')} alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
       <Tooltip
         placement='bottom'
-        title={<>{valueQueryHelper?.[value.id] && <HelperText>{formatMediaQuery(valueQueryHelper?.[value.id] as string)}</HelperText>}</>}
+        title={
+          <>
+            {valueQueryHelper?.[value.id] && (
+              <span className={getClassName('ViewportControls-helperText')}>
+                {formatMediaQuery(valueQueryHelper?.[value.id] as string)}
+              </span>
+            )}
+          </>
+        }
       >
         <SelectField
+          id='breakpoint'
           value={{
             label: value.title,
             value: value.id,
           }}
-          options={optionsWithNew}
+          options={options.map(item => ({ label: item.title, value: item.id }))}
           name='breakpoint'
           size='small'
-          renderOption={option =>
-            option.value === 'new' ? (
-              <Row gap='0.5rem' fullHeight>
-                <Edit size={16} />
-                Customize
-              </Row>
-            ) : (
-              <Row gap='0.5rem' alignItems='center'>
-                {React.createElement(getIconComponent((option as BreakpointItem).icon, (option as BreakpointItem).id), { size: 16 })}
-                {option.title}
-              </Row>
-            )
-          }
+          startAdornment={React.createElement(getIconComponent(value?.icon, value?.id), { size: 16 })}
+          renderOption={option => (
+            <Row gap='0.5rem' alignItems='center'>
+              {option.label}
+            </Row>
+          )}
           onChange={option => {
-            if (option?.value === 'new') {
-              // empty value, consider we've hit the "edit" option
-              setEditingBreakpoints(true);
-            } else {
-              const bp = value as BreakpointItem;
-              // Save selected breakpoint to localStorage - this will trigger the sync effect
-              setSelectedBreakpointId(option.value);
-              const globalStore = useGlobalStore.getState();
-              globalStore.setPreviewCanvasWidth(bp.width);
-            }
+            const bp = value as BreakpointItem;
+            // Save selected breakpoint to localStorage - this will trigger the sync effect
+            setSelectedBreakpointId(option.value);
+            const globalStore = useGlobalStore.getState();
+            globalStore.setPreviewCanvasWidth(bp.width);
           }}
         />
       </Tooltip>
 
+      <IconButton
+        aria-label='Edit Breakpoints'
+        icon={<Edit size={14} />}
+        size='xs'
+        onClick={() => setEditingBreakpoints(true)}
+        tooltipProps={{
+          placement: 'bottom',
+        }}
+        variant='transparent'
+        style={{
+          marginLeft: 'var(--space-2)',
+        }}
+      />
+
       {/* Zoom Display (read-only) */}
-      <ZoomControls>
-        <ZoomDisplay title='Auto-scaled zoom level'>{Math.round(previewZoom * 100)}% (auto)</ZoomDisplay>
-      </ZoomControls>
+      <Row className={getClassName('ViewportControls-zoomControls')}>
+        <span className={getClassName('ViewportControls-zoomDisplay')} title='Auto-scaled zoom level'>
+          {Math.round(previewZoom * 100)}% (auto)
+        </span>
+      </Row>
       <Modal open={editingBreakpoints} title='Breakpoints' onClose={onClose}>
         <p>
           Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one
@@ -337,6 +320,14 @@ const ViewportControlsComponent = () => {
             const previousWidth = index === 0 || !previousBreakpoint ? 0 : previousBreakpoint.width;
             const isWidthValue = previousWidth < item.width;
             const isTitleValid = item.title.length > 0;
+            const matchedIcon = Object.entries(BREAKPOINT_ICONS).find(
+              ([key]) =>
+                key === item.icon || key === getDefaultIconForBreakpoint(item.id)?.[0] || key === getDefaultIconForBreakpoint(item.id)
+            );
+            const value: FieldOption = {
+              label: matchedIcon?.[1]?.label || '',
+              value: matchedIcon?.[0],
+            };
             return (
               <Row
                 key={item.id}
@@ -352,7 +343,7 @@ const ViewportControlsComponent = () => {
                 }}
               >
                 <SelectField
-                  label='Icon'
+                  label={`Icon ${item.id}`}
                   name={`icon-${item.id}`}
                   readOnly={item.disabled}
                   id={`icon-${item.id}`}
@@ -361,18 +352,17 @@ const ViewportControlsComponent = () => {
                     opacity: item.disabled ? '0.3' : '1',
                   }}
                   size='small'
-                  value={
-                    Object.entries(BREAKPOINT_ICONS).find(([key]) => key === (item.icon || getDefaultIconForBreakpoint(item.id)))?.[0] ||
-                    getDefaultIconForBreakpoint(item.id)
-                  }
+                  value={value}
                   disabled={item.disabled}
                   options={Object.keys(BREAKPOINT_ICONS).map(key => ({ label: BREAKPOINT_ICONS[key as IconKey].label, value: key }))}
-                  renderOption={option => (
-                    <Row gap='0.5rem' alignItems='center' justifyContent='flex-start'>
-                      {React.createElement(BREAKPOINT_ICONS[option.value as IconKey].component, { size: 18 })}
-                      {BREAKPOINT_ICONS[option.value as IconKey].label}
-                    </Row>
-                  )}
+                  renderOption={option =>
+                    option && BREAKPOINT_ICONS[option.value as IconKey] ? (
+                      <Row gap='0.5rem' alignItems='center' justifyContent='flex-start'>
+                        {React.createElement(BREAKPOINT_ICONS[option.value as IconKey].component, { size: 18 })}
+                        {BREAKPOINT_ICONS[option.value as IconKey].label}
+                      </Row>
+                    ) : null
+                  }
                   helperText={item.disabled ? '' : 'Icon for this breakpoint'}
                   onChange={option => {
                     const val = option.value;
@@ -514,7 +504,7 @@ const ViewportControlsComponent = () => {
           </PrimaryButton>
         </ModalActions>
       </Modal>
-    </StyledViewportControls>
+    </Row>
   );
 };
 

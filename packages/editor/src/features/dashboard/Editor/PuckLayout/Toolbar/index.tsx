@@ -1,29 +1,12 @@
 import { useCallback } from 'react';
-import styled from '@emotion/styled';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { ExpandIcon, MinimizeIcon } from 'lucide-react';
 import { IconButton } from '@components/Button/IconButton';
 import { ViewportControls } from './ViewportControls';
+import styles from './Toolbar.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-// Styled Components
-const StyledToolbar = styled.div`
-  height: var(--header-height);
-  background-color: var(--color-gray-900);
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-4);
-  gap: var(--space-3);
-  flex-grow: 0;
-  flex-shrink: 0;
-`;
-
-const ToolbarSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-`;
+const getClassName = getClassNameFactory('Toolbar', styles);
 
 export function Toolbar() {
   // UI state
@@ -40,12 +23,12 @@ export function Toolbar() {
 
   return (
     <>
-      <StyledToolbar>
-        <ToolbarSection>
+      <div className={getClassName('Toolbar')}>
+        <div className={getClassName('Toolbar-section')}>
           <ViewportControls />
-        </ToolbarSection>
+        </div>
 
-        <ToolbarSection>
+        <div className={getClassName('Toolbar-section')}>
           <IconButton
             variant='transparent'
             active={isFullscreen}
@@ -56,8 +39,8 @@ export function Toolbar() {
               placement: 'left',
             }}
           />
-        </ToolbarSection>
-      </StyledToolbar>
+        </div>
+      </div>
     </>
   );
 }
