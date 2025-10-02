@@ -65,7 +65,7 @@
   padding: var(--space-4);
   background: var(--color-success-500);;
 }
-.Issues-statusCell-open {
+.Issues-statusCell--open {
   background: transparent
 }
 

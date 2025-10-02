@@ -70,7 +70,7 @@
 }
 
 .CollapsibleTableRow--clickable:hover {
-  background-color: var(--color-gray-700);
+  background-color: var(--color-gray-750);
 }
 
 /* ChildTableRow */
@@ -161,7 +161,7 @@
 }
 
 .TableHeaderCell--sortable:hover {
-  background-color: var(--color-gray-700);
+  background-color: var(--color-gray-750);
 }
 
 /* TableCell */

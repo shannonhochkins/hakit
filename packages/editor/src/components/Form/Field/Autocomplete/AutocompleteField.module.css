@@ -1,4 +1,3 @@
-
 .container {
   display: flex;
   flex-direction: column;
@@ -62,7 +61,7 @@
   flex-shrink: 0;
   z-index: 1;
   color: var(--color-text-muted);
-  margin-right: var(--space-2);
+  margin-right: var(--space-2); 
 }
 .endAdornment {
   display: flex;
@@ -127,36 +126,33 @@
 .startAdornment.icon, .endAdornment.icon {
   padding: var(--space-2);
 }
-.startAdornment.custom, .endAdornment.custom {
-  /* Custom adornments don't get default styling */
-}
 
 /* Size-specific heights */
-.Autocomplete.small .inputWrapper {
+.small .inputWrapper {
   min-height: 2rem;
 }
-.Autocomplete.small .valueContainer {
+.small .valueContainer {
   min-height: calc(2rem - 2px);
   padding: var(--space-1) var(--space-2);
 }
-.Autocomplete.small .placeholder {
+.small .placeholder {
   font-size: var(--font-size-xs);
 }
-.Autocomplete.small .input {
+.small .input {
   font-size: var(--font-size-xs);
 }
 
-.Autocomplete.large .inputWrapper {
+.large .inputWrapper {
   min-height: 3rem;
 }
-.Autocomplete.large .valueContainer {
+.large .valueContainer {
   min-height: calc(3rem - 2px);
   padding: var(--space-3) var(--space-4);
 }
-.Autocomplete.large .placeholder {
+.large .placeholder {
   font-size: var(--font-size-md);
 }
-.Autocomplete.large .input {
+.large .input {
   font-size: var(--font-size-md);
 }
 .statusIcon {

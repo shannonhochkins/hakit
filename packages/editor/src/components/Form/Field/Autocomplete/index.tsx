@@ -36,7 +36,7 @@ import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
 type AutocompleteFieldSize = 'small' | 'medium' | 'large';
 
-type AutocompleteFieldAdornmentVariant = 'default' | 'icon' | 'custom';
+type AutocompleteFieldAdornmentVariant = 'default' | 'icon';
 
 type AutocompleteFieldAdornmentProps = {
   content: React.ReactNode;

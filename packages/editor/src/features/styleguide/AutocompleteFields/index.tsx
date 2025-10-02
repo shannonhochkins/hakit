@@ -148,7 +148,7 @@ export function StyleguideAutocompleteFields() {
           value={countryValue}
           onChange={setCountryValue}
           startAdornment={<UserIcon size={16} />}
-          endAdornment={{ content: 'Select', variant: 'custom' }}
+          endAdornment={{ content: 'Select' }}
         />
         <AutocompleteField
           id='custom-adornment'
@@ -156,8 +156,8 @@ export function StyleguideAutocompleteFields() {
           options={simpleOptions}
           value={simpleValue}
           onChange={setSimpleValue}
-          startAdornment={{ content: '🔍', variant: 'custom' }}
-          endAdornment={{ content: '▼', variant: 'custom' }}
+          startAdornment={{ content: '🔍' }}
+          endAdornment={{ content: '▼' }}
         />
       </Group>
 

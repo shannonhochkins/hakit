@@ -57,58 +57,148 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
   type StyleKey = Extract<keyof S, string>;
   type DescendantKey = Extract<StyleKey, `${R}-${string}`>;
   type ModifierKey = Extract<StyleKey, `${R}--${string}`>;
+  type DescendantModifierKey = Extract<StyleKey, `${R}-${string}--${string}`>;
+
+  // Extract the actual names (without the root prefix)
   type DescendantName = DescendantKey extends `${R}-${infer D}` ? D : never;
   type ModifierName = ModifierKey extends `${R}--${infer M}` ? M : never;
-  type Modifiers = { [K in ModifierName]?: boolean | string | number | null | undefined } & {
-    [K in R]?: boolean | string | number | null | undefined;
-  } & { [K in StyleKey]?: boolean | string | number | null | undefined };
+
+  // Map descendant -> its specific modifier names (e.g. overlay -> 'open' when `${R}-overlay--open` exists)
+  type DescendantModifiers<D extends DescendantName> = DescendantModifierKey extends `${R}-${D}--${infer M}` ? M : never;
+
+  // Pairs like 'overlay--open' for standalone modifier object usage
+  type DescendantModifierPair = DescendantModifierKey extends `${R}-${infer D}--${infer M}` ? `${D}--${M}` : never;
+
+  // Standalone modifiers (no descendant arg): allow root, descendants, full descendant modifier pairs, and global modifier names
+  type StandaloneModifiers = {
+    [K in R | DescendantName | DescendantModifierPair | ModifierName]?: boolean | string | number | null | undefined;
+  };
+
+  // Combined call with descendant: allow root, descendants, descendant-specific short modifier names, and global modifier names
+  type CombinedModifiers<D extends DescendantName> = {
+    [K in R | DescendantName | DescendantModifiers<D> | ModifierName]?: boolean | string | number | null | undefined;
+  };
 
   const stylesAny: Record<string, string> = styles as Record<string, string>;
   const rootClassName = stylesAny[rootClass as string] || '';
 
-  const buildFromModifiers = (mods?: Modifiers): string => {
+  const buildFromModifiers = (mods?: Record<string, unknown>, descendantName?: string): string => {
     const prefixed: Record<string, unknown> = {};
     if (mods) {
-      (Object.keys(mods) as Array<ModifierName>).forEach(mod => {
-        const k = stylesAny[`${rootClass}--${mod}`];
-        const k2 = stylesAny[`${rootClass}-${mod}`];
-        const base = stylesAny[`${mod}`];
-        if (base) {
-          return (prefixed[base] = (mods as Record<string, unknown>)[mod as string]);
+      Object.keys(mods).forEach(key => {
+        const value = (mods as Record<string, unknown>)[key];
+        if (value) {
+          let matched = false;
+
+          // Check if it's the root class
+          if (key === rootClass) {
+            prefixed[rootClassName] = true;
+            matched = true;
+          } else {
+            // Check if it's a modifier class (with descendant prefix if provided)
+            let modifierClass;
+            if (descendantName) {
+              // Look for descendant-specific modifier: overlay--open
+              modifierClass = stylesAny[`${rootClass}-${descendantName}--${key}`];
+            }
+            if (!modifierClass) {
+              // Look for general modifier: --key
+              modifierClass = stylesAny[`${rootClass}--${key}`];
+            }
+            if (modifierClass) {
+              prefixed[modifierClass] = value;
+              matched = true;
+            }
+            // check if it's a descendant class
+            const descendantClass = stylesAny[`${rootClass}-${key}`];
+            if (descendantClass) {
+              prefixed[descendantClass] = value;
+              matched = true;
+            }
+          }
+
+          // Throw error if no match found
+          if (!matched) {
+            throw new Error(
+              `Invalid class name key "${key}" for ${rootClass}. Available keys: ${Object.keys(stylesAny)
+                .filter(k => k.startsWith(rootClass))
+                .join(', ')}`
+            );
+          }
         }
-        if (k) prefixed[k] = (mods as Record<string, unknown>)[mod as string];
-        if (k2) prefixed[k2] = (mods as Record<string, unknown>)[mod as string];
       });
     }
-    return config.baseClass + classnames(prefixed);
+    const result = classnames(prefixed);
+    return result;
   };
 
   const buildFromDescendant = (descendant: DescendantName): string => {
-    const style = stylesAny[`${rootClass}-${descendant}`] || '';
+    const style = stylesAny[`${rootClass}-${descendant}`];
+    if (!style) {
+      throw new Error(
+        `Invalid descendant class name "${descendant}" for ${rootClass}. Available descendants: ${Object.keys(stylesAny)
+          .filter(k => k.startsWith(`${rootClass}-`) && !k.includes('--'))
+          .map(k => k.replace(`${rootClass}-`, ''))
+          .join(', ')}`
+      );
+    }
     return config.baseClass + style;
   };
 
-  const appendExtra = (base: string, extra?: string): string => (extra ? `${base} ${extra}` : base);
+  const appendExtra = (base: string, extra?: string): string => {
+    if (!extra) return base;
+    if (!base) return extra;
+    return `${base} ${extra}`;
+  };
 
   function factory(): string;
   function factory(descendant: DescendantName | R | StyleKey, extraClassName?: string): string;
-  function factory(modifiers: Modifiers | undefined, extraClassName?: string): string;
-  function factory(arg1?: Modifiers | DescendantName | R | StyleKey, extraClassName?: string): string {
-    if (!arg1) return rootClassName;
+  function factory(modifiers: StandaloneModifiers | undefined, extraClassName?: string): string;
+  function factory<D extends DescendantName>(descendant: D | StyleKey, modifiers: CombinedModifiers<D>, extraClassName?: string): string;
+  function factory<D extends DescendantName>(
+    arg1?: StandaloneModifiers | DescendantName | R | StyleKey,
+    arg2?: string | StandaloneModifiers | CombinedModifiers<D>,
+    extraClassName?: string
+  ): string {
+    if (arg1 === undefined) return rootClassName;
+    if (arg1 === null) return rootClassName;
+
     if (typeof arg1 === 'string') {
       // Check if it's a descendant class first
       const descendantStyle = stylesAny[`${rootClass}-${arg1}`];
       if (descendantStyle) {
-        return appendExtra(config.baseClass + descendantStyle, extraClassName);
+        // If second arg is modifiers object, combine them
+        if (typeof arg2 === 'object' && arg2 !== null) {
+          const baseClass = config.baseClass + descendantStyle;
+          const modifierClasses = buildFromModifiers(arg2, arg1);
+          const combined = modifierClasses ? baseClass + ' ' + modifierClasses : baseClass;
+          return appendExtra(combined, extraClassName);
+        }
+        // Otherwise treat as extra className
+        return appendExtra(config.baseClass + descendantStyle, arg2 as string);
       }
-      // Otherwise treat as exact match
+      // Check if it's the root class
+      if (arg1 === rootClass) {
+        return appendExtra(config.baseClass + rootClassName, arg2 as string);
+      }
+      // Check if it's an exact match
       const exact = stylesAny[arg1];
-      return appendExtra(config.baseClass + (exact || ''), extraClassName);
+      if (exact) {
+        return appendExtra(config.baseClass + exact, arg2 as string);
+      }
+      // Throw error for invalid string key
+      throw new Error(
+        `Invalid class name key "${arg1}" for ${rootClass}. Available keys: ${Object.keys(stylesAny)
+          .filter(k => k.startsWith(rootClass))
+          .join(', ')}`
+      );
     }
+
     if (typeof arg1 === 'object' || typeof arg1 === 'undefined') {
-      return appendExtra(buildFromModifiers(arg1), extraClassName);
+      return appendExtra(buildFromModifiers(arg1), arg2 as string);
     }
-    return appendExtra(buildFromDescendant(arg1 as DescendantName), extraClassName);
+
+    return appendExtra(buildFromDescendant(arg1 as DescendantName), arg2 as string);
   }
 
   return factory;

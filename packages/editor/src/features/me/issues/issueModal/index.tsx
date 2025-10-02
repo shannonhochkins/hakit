@@ -243,7 +243,6 @@ export function IssueModal({
           <div
             className={getClassName({
               descriptionContainer: true,
-              disabled: !type,
             })}
           >
             <MarkdownEditor

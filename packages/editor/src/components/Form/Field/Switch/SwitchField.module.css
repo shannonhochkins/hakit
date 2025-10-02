@@ -1,19 +1,17 @@
-.container {
+.Switch {
   display: flex;
   flex-direction: column;
 }
-.switchWrapper {
+.Switch-switchWrapper {
   position: relative;
   display: inline-flex;
   align-items: center;
   width: 100%;
 }
-
-.container.isolated {
+.Switch-container--isolated {
   width: 100%;
 }
-
-.switchWrapper.isolated {
+.Switch-switchWrapper--isolated {
   width: 100%;
   min-height: var(--switch-container-height, 2.5rem); /* Match input field height */
   background-color: var(--color-surface);
@@ -26,13 +24,13 @@
 }
 
 
-.switchInput {
+.Switch-switchInput {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
-.switchLabel {
+.Switch-switchLabel {
   display: flex;
   align-items: center;
   font-size: var(--font-size-sm);
@@ -41,7 +39,7 @@
   width: 100%;
   min-height: inherit;
 }
-.switchButton {
+.Switch-switchButton {
   position: relative;
   display: inline-block;
   width: var(--switch-width, 2.25rem); /* 36px */
@@ -51,7 +49,7 @@
   transition: all var(--transition-normal);
   flex-shrink: 0;
 }
-.switchButton::after {
+.Switch-switchButton::after {
   content: "";
   position: absolute;
   top: 0.125rem; /* 2px */
@@ -63,32 +61,32 @@
   transition: transform var(--transition-normal);
   box-shadow: var(--shadow-sm);
 }
-.switchInput:checked + .switchLabel .switchButton {
+.Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton {
   background-color: var(--color-primary-600);
 }
-.switchInput:checked + .switchLabel .switchButton::after {
+.Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton::after {
   transform: translateX(calc(var(--switch-width, 2.25rem) - var(--switch-thumb-size, 1rem) - 0.3rem)); /* Width - thumb size - padding */
   background-color: var(--color-primary-100);
 }
-.switchInput:focus + .switchLabel .switchButton {
+.Switch-switchInput:focus + .Switch-switchLabel .Switch-switchButton {
   box-shadow: var(--shadow-primary-focus-sm);
 }
 
-.labelText {
+.Switch-labelText {
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
   flex: 1;
 }
 /* Disabled state */
-.disabled .switchLabel {
+.Switch-disabled .Switch-switchLabel {
   color: var(--color-text-disabled);
   cursor: not-allowed;
 }
-.disabled .switchButton {
+.Switch-disabled .Switch-switchButton {
   background-color: var(--color-border);
   opacity: 0.7;
 }
-.disabled .switchInput:checked + .switchLabel .switchButton {
+.Switch-disabled .Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton {
   background-color: var(--color-primary-300);
 }
 

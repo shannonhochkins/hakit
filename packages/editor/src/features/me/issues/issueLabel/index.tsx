@@ -17,8 +17,7 @@ export function IssueLabel({ label }: { label: string }) {
   const modifier = getLabelModifier(label);
   return (
     <span
-      className={getClassName({
-        chip: true,
+      className={getClassName('chip', {
         [modifier]: true,
       })}
     >

@@ -15,7 +15,7 @@
 
 .RepositoryListItem--isClickable:hover {
   border-color: var(--color-border-hover);
-  background: var(--color-surface-elevated);
+  background: var(--color-gray-750);
 }
 
 .RepositoryListItem--hasChildren .RepositoryListItem-cardHeader {

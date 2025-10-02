@@ -225,9 +225,8 @@ export function Issues() {
                   }}
                 >
                   <div
-                    className={getClassName({
-                      statusCell: true,
-                      statusCellOpen: open,
+                    className={getClassName('statusCell', {
+                      open: open,
                     })}
                   >
                     {open ? (

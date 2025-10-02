@@ -59,13 +59,12 @@ export function SwitchField({
 }: SwitchFieldProps) {
   const containerClasses = getClassName(
     {
-      container: true,
-      isolated: isolated,
+      Switch: true,
+      'container--isolated': isolated,
     },
     className
   );
-  const switchWrapperClasses = getClassName({
-    switchWrapper: true,
+  const switchWrapperClasses = getClassName('switchWrapper', {
     isolated: isolated,
   });
 
@@ -73,9 +72,9 @@ export function SwitchField({
     <div className={containerClasses} style={size ? sizeStyles[size] : undefined}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
       <div className={switchWrapperClasses}>
-        <input type='checkbox' id={id} name={name} checked={checked} className={styles.switchInput} {...inputProps} />
-        <label htmlFor={id} className={styles.switchLabel}>
-          <span className={styles.switchButton}></span>
+        <input type='checkbox' id={id} name={name} checked={checked} className={getClassName('switchInput')} {...inputProps} />
+        <label htmlFor={id} className={getClassName('switchLabel')}>
+          <span className={getClassName('switchButton')}></span>
         </label>
       </div>
       <HelperText helperText={helperText} />
