@@ -1,9 +1,9 @@
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { Modal, ModalActions } from '@components/Modal';
 import { useRef, useState, useMemo } from 'react';
-import { PrimaryButton } from '../Button';
-import { InputField } from '../Form/Field/Input';
-import { Alert } from '../Alert';
+import { PrimaryButton } from '@components/Button';
+import { InputField } from '@components/Form/Field/Input';
+import { Alert } from '@components/Alert';
 import React from 'react';
 
 // URL validation function

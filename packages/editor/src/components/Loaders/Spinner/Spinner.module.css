@@ -1,8 +1,11 @@
 .Spinner {
-  width: var(--spinner-size, 2rem);
-  height: var(--spinner-size, 2rem);
   position: relative;
   margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .Spinner--absolute {
@@ -17,27 +20,30 @@
   transform: translate(-50%, calc(-50% - 1rem));
 }
 
-.Spinner > span {
-  display: block;
-  width: var(--spinner-size, 2rem);
-  height: var(--spinner-size, 2rem);
-  border: 0.15rem solid transparent;
-  border-radius: 50%;
-  border-right-color: var(--spinner-color, var(--color-gray-50));
-  animation: spinner-spin 0.8s linear infinite;
+
+
+.Spinner-spinner {
+  -webkit-animation: spinner-spin 2s linear infinite;
+          animation: spinner-spin 2s linear infinite;
+  z-index: 2;
 }
 
-.Spinner--dark {
-  --spinner-color: var(--color-gray-950);
+.Spinner-spinnerPath {
+  stroke: var(--spinner-color, var(--color-gray-50));
+  stroke-linecap: round;
+  -webkit-animation: dash 1.5s ease-in-out infinite;
+          animation: dash 1.5s ease-in-out infinite;
 }
 
-.Spinner > div {
+/* Spinner track (background circle) */
+.Spinner-spinnerTrack {
+  stroke: var(--spinner-track-color, var(--color-gray-700));
+  stroke-linecap: round;
+}
+
+.Spinner-spinnerText {
   white-space: nowrap;
   font-size: 1rem;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translate(-50%, 1rem);
 }
 
 @keyframes spinner-spin {
@@ -49,4 +55,18 @@
   }
 }
 
+@keyframes dash {
+  0% {
+    stroke-dasharray: var(--small-dash) var(--full-circle);
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: var(--large-dash) var(--full-circle);
+    stroke-dashoffset: var(--mid-offset);
+  }
+  100% {
+    stroke-dasharray: var(--large-dash) var(--full-circle);
+    stroke-dashoffset: var(--end-offset);
+  }
+}
 

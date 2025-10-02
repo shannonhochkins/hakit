@@ -1,38 +1,19 @@
-import styled from '@emotion/styled';
 import MDEditor from '@uiw/react-md-editor';
 import type { MarkdownPreviewProps } from '@uiw/react-markdown-preview';
+import styles from './MarkdownRenderer.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('MarkdownRenderer', styles);
 
 type MarkdownRendererProps = {
   children?: string | undefined;
   options?: Pick<MarkdownPreviewProps, 'components' | 'rehypePlugins' | 'remarkPlugins'>;
 };
 
-const StyledMarkdown = styled.div`
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
-
-  a {
-    color: var(--color-primary-400);
-  }
-
-  .markdown-image-wrapper {
-    display: inline-block;
-    max-width: 400px;
-    max-height: 400px;
-    cursor: pointer;
-  }
-  .markdown-image-wrapper img {
-    width: auto;
-    height: auto;
-    max-width: 400px;
-    max-height: 400px;
-  }
-`;
-
 export function MarkdownRenderer({ children, options }: MarkdownRendererProps) {
   if (!children) return null;
   return (
-    <StyledMarkdown>
+    <div className={getClassName({ MarkdownRenderer: true })}>
       <MDEditor.Markdown
         source={children}
         style={{
@@ -56,7 +37,7 @@ export function MarkdownRenderer({ children, options }: MarkdownRendererProps) {
         rehypePlugins={options?.rehypePlugins}
         remarkPlugins={options?.remarkPlugins}
       />
-    </StyledMarkdown>
+    </div>
   );
 }
 

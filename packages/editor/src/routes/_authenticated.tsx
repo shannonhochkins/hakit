@@ -5,7 +5,7 @@ import { HassConnect } from '@hakit/core';
 import { useEffect } from 'react';
 import { useAuthButtonState } from '@hooks/useAuthButtonState';
 import { Spinner } from '@components/Loaders/Spinner';
-import { HassModal } from '@components/HassModal';
+import { HassModal } from '@components/Modal/HassModal';
 
 const Login = () => {
   const { buttonState } = useAuthButtonState();

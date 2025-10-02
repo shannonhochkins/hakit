@@ -8,8 +8,8 @@ export function StyleguideLoaders() {
     <Row fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4)' }}>
       <Group title='Spinner - Variants'>
         <Spinner aria-label='Spinner default' />
-        <Spinner aria-label='Spinner dark' dark />
-        <Spinner aria-label='Spinner absolute' absolute style={{ position: 'relative', height: '4rem' }} />
+        <Spinner aria-label='Spinner default' size={10} thickness={2} />
+        <Spinner aria-label='Spinner default' size={50} thickness={5} />
         <Spinner aria-label='Spinner with text' text='Loading...' />
       </Group>
 

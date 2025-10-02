@@ -3,21 +3,50 @@ import styles from './Spinner.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
 interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
-  size?: string;
+  size?: number;
+  thickness?: number;
   absolute?: boolean;
-  dark?: boolean;
   text?: ReactNode;
 }
 
 const getClassName = getClassNameFactory('Spinner', styles);
 
-export function Spinner({ size = '2rem', absolute = false, dark = false, text = '', style, className, ...rest }: SpinnerProps) {
-  const computed = getClassName({ absolute, dark, hasText: !!text, Spinner: true }, className);
-  const mergedStyle = { ...(style || {}), ['--spinner-size' as unknown as string]: size } as React.CSSProperties;
+export function Spinner({ size = 20, thickness = 3, absolute = false, text = '', style, className, ...rest }: SpinnerProps) {
+  const computed = getClassName({ absolute, hasText: !!text, Spinner: true }, className);
+  const center = size + thickness;
+  const viewBoxSize = center * 2;
+
+  // Calculate scaling factor based on default size (radius 20)
+  const defaultRadius = 20;
+  const scale = size / defaultRadius;
+
+  // Scale the original static values proportionally
+  const smallDash = 1 * scale;
+  const fullCircle = 150 * scale;
+  const largeDash = 90 * scale;
+  const midOffset = -35 * scale;
+  const endOffset = -124 * scale;
+
   return (
-    <div className={computed} style={mergedStyle} {...rest}>
-      <span></span>
-      {text && <div>{text}</div>}
+    <div
+      className={computed}
+      style={
+        {
+          ...style,
+          '--small-dash': smallDash,
+          '--full-circle': fullCircle,
+          '--large-dash': largeDash,
+          '--mid-offset': midOffset,
+          '--end-offset': endOffset,
+        } as React.CSSProperties
+      }
+      {...rest}
+    >
+      <svg className={getClassName('spinner')} viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`} width={viewBoxSize} height={viewBoxSize}>
+        <circle className={getClassName('spinnerTrack')} cx={center} cy={center} r={size} fill='none' strokeWidth={thickness} />
+        <circle className={getClassName('spinnerPath')} cx={center} cy={center} r={size} fill='none' strokeWidth={thickness} />
+      </svg>
+      {text && <div className={getClassName('spinnerText')}>{text}</div>}
     </div>
   );
 }
