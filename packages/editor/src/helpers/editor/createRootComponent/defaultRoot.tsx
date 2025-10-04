@@ -6,6 +6,7 @@ const getClassName = getClassNameFactory('RootComponent', styles);
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
+  test: { foo: string };
   /** whether to use a background image or not @default true */
   useBackgroundImage: boolean;
   /** the background image to apply to the dashboard @default defaultBackground */
@@ -51,6 +52,12 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       label: 'Background options',
       description: 'General options for the main background',
       objectFields: {
+        test: {
+          type: 'custom',
+          label: 'Test',
+          default: { foo: '' },
+          render: ({ value }) => <>{value.foo}</>,
+        },
         useBackgroundImage: {
           type: 'switch',
           label: 'Use Background Image',

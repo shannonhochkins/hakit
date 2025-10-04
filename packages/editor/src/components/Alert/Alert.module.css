@@ -8,7 +8,6 @@
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   border: 1px solid;
-  margin-bottom: var(--space-8);
   opacity: 1 !important;
   width: 100%;
 }
@@ -86,7 +85,8 @@
 /* Alert Title */
 .Alert-title {
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-tight);
   margin: 0;
   padding: 0;
 }
@@ -190,4 +190,14 @@
   font-weight: var(--font-weight-medium) !important;
   background-color: rgba(239, 68, 68, 0.2) !important;
   color: var(--color-error-300) !important;
+}
+
+
+/* list elements need additional margin button if they contain a mark, code, pre */
+.Alert-message :global(ul, ol) {
+  margin-bottom: var(--space-8);
+}
+
+.Alert-message :global(li) {
+  margin-bottom: var(--space-2);
 }

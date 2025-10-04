@@ -60,35 +60,9 @@ export function Alert({ children, severity = 'info', title, className, onClick, 
       style={style}
     >
       <div className={getClassName('content')}>
-        <div
-          className={getClassName(
-            {
-              severityInfo: severity === 'info',
-              severityWarning: severity === 'warning',
-              severitySuccess: severity === 'success',
-              severityError: severity === 'error',
-            },
-            getClassName('icon')
-          )}
-        >
-          {getSeverityIcon(severity)}
-        </div>
+        <div className={getClassName('icon')}>{getSeverityIcon(severity)}</div>
         <div className={getClassName('body')}>
-          {title && (
-            <h3
-              className={getClassName(
-                {
-                  severityInfo: severity === 'info',
-                  severityWarning: severity === 'warning',
-                  severitySuccess: severity === 'success',
-                  severityError: severity === 'error',
-                },
-                getClassName('title')
-              )}
-            >
-              {title}
-            </h3>
-          )}
+          {title && <h3 className={getClassName('title')}>{title}</h3>}
           {children && <div className={getClassName('message')}>{children}</div>}
         </div>
       </div>

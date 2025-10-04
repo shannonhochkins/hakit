@@ -11,152 +11,40 @@ import { InputField } from '@components/Form/Field/Input';
 import { SelectField } from '@components/Form/Field/Select';
 import { RadioField, type RadioOption } from '@components/Form/Field/Radio';
 import { Alert } from '@components/Alert';
-import styled from '@emotion/styled';
 import { SwitchField } from '@components/Form/Field/Switch';
-import { validateString, validateNumber, validateBoolean } from './valueValidation';
-import type { HassEntity } from 'home-assistant-js-websocket';
-import type { DashboardPageWithoutData } from '@typings/hono';
-import type { EntityName } from '@hakit/core';
 
-const StyledAlert = styled(Alert)`
-  margin: 0;
-`;
-
-type CommonBaseProps = {
+interface CustomAutoFieldProps<Props extends DefaultComponentProps> {
+  field: FieldConfiguration[string];
+  value: Props;
   name: string;
   icon?: React.ReactNode;
   id: string;
+  onChange: (value: Props) => void;
   children?: React.ReactNode;
-};
+}
 
-type CAFImage = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'imageUpload' };
-  value?: string;
-  onChange: (value: string) => void;
-};
-
-type CAFColor = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'color' };
-  value?: string;
-  onChange: (value: string) => void;
-};
-
-type CAFCode = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'code' };
-  value?: string;
-  onChange: (value: string) => void;
-};
-
-type CAFText = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'text' | 'textarea' };
-  value?: string;
-  onChange: (value: string) => void;
-};
-
-type CAFService = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'service' };
-  value?: string;
-  onChange: (value: string) => void;
-};
-
-type CAFSlider = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'slider' };
-  value?: number;
-  onChange: (value: number) => void;
-};
-
-type CAFNumber = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'number' };
-  value?: number;
-  onChange: (value: number) => void;
-};
-
-type CAFSelect = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'select' };
-  value?: string | number | boolean;
-  onChange: (value: string | number | boolean) => void;
-};
-
-type CAFRadio = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'radio' };
-  value?: string | number | boolean;
-  onChange: (value: string | number | boolean) => void;
-};
-
-type CAFSwitch = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'switch' };
-  value?: boolean;
-  onChange: (value: boolean) => void;
-};
-
-type CAFPage = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'page' };
-  value?: DashboardPageWithoutData;
-  onChange: (value: DashboardPageWithoutData) => void;
-};
-
-type CAFPages = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'pages' };
-  value?: DashboardPageWithoutData[];
-  onChange: (value: DashboardPageWithoutData[]) => void;
-};
-
-type CAFEntity = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'entity' };
-  value?: EntityName;
-  onChange: (value: EntityName, entity: HassEntity) => void;
-};
-
-type CAFHidden = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'hidden' };
-  value?: unknown;
-  onChange: (value: never) => void;
-};
-
-type CAFObject = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'object' };
-  value: DefaultComponentProps;
-  onChange: (value: DefaultComponentProps, uiState?: unknown) => void;
-};
-
-type CAFArray = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'array' };
-  value: DefaultComponentProps[];
-  onChange: (value: DefaultComponentProps[], uiState?: unknown) => void;
-};
-
-type CAFCustom = CommonBaseProps & {
-  field: FieldConfiguration[string] & { type: 'custom'; render: any };
-  value: unknown;
-  onChange: (value: unknown) => void;
-};
-
-type CustomAutoFieldProps =
-  | CAFImage
-  | CAFColor
-  | CAFCode
-  | CAFText
-  | CAFService
-  | CAFSlider
-  | CAFNumber
-  | CAFSelect
-  | CAFRadio
-  | CAFSwitch
-  | CAFPage
-  | CAFPages
-  | CAFEntity
-  | CAFHidden
-  | CAFObject
-  | CAFArray
-  | CAFCustom;
-
-export function CustomAutoField(props: CustomAutoFieldProps) {
-  const { field, name, value, onChange, icon, id: _id, children } = props as CustomAutoFieldProps;
-  const _value = value;
+export function CustomAutoField<Props extends DefaultComponentProps>({
+  field,
+  name,
+  value,
+  onChange,
+  icon,
+  id: _id,
+  children,
+}: CustomAutoFieldProps<Props>) {
+  // we cast as any here intentionally, we can't narrow the types at this level
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const _value = value as any;
+  // similar to the above, onChange also can 't be narrowed at this level
+  const _onChange = onChange as unknown as (value: string | number | boolean | string[] | number[] | boolean[]) => void;
+  // split on weird » character, replace any underscores/whitespace and periods with nothing
   const [, id] = _id.replace(/[_ .]/g, '').split('»');
+  if (field.type === 'slot') {
+    return null;
+  }
 
   if (field.type === 'hidden') {
-    return <input type='hidden' value={(typeof _value === 'string' ? _value : '') as string} />;
+    return <input type='hidden' value={_value} />;
   }
 
   const { description } = field;
@@ -164,12 +52,12 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
     return field.render({
       field: {
         type: 'custom',
-        render: (field as CAFCustom['field']).render,
+        render: field.render,
       },
       name,
       id: id,
       value: _value,
-      onChange,
+      onChange: _onChange,
     });
   }
 
@@ -182,8 +70,8 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         readOnly={field.readOnly}
         id={id}
         name={name}
-        value={validateString(_value) ?? ''}
-        onChange={onChange}
+        value={typeof _value === 'string' ? _value : ''}
+        onChange={_onChange}
       />
     );
   }
@@ -194,8 +82,8 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         icon={icon}
         readOnly={field.readOnly}
         helperText={description}
-        value={_value as string | undefined}
-        onChange={onChange as CAFColor['onChange']}
+        value={_value}
+        onChange={_onChange}
         id={id}
         name={name}
       />
@@ -210,21 +98,21 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         readOnly={field.readOnly}
         id={id}
         name={name}
-        value={validateString(_value) ?? ''}
+        value={typeof _value === 'string' ? _value : ''}
         language={field.language}
         onValidate={field.onValidate}
-        onChange={onChange as CAFCode['onChange']}
+        onChange={_onChange}
       />
     );
   }
   if (field.type === 'page') {
     return (
       <PageField
-        value={_value as DashboardPageWithoutData | undefined}
+        value={_value}
         label={field.label ?? 'Page'}
         icon={icon}
         muiltiSelect={false}
-        onChange={onChange as CAFPage['onChange']}
+        onChange={e => _onChange(e.id)}
         id={id}
         name={name}
         helperText={description}
@@ -235,11 +123,11 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
   if (field.type === 'pages') {
     return (
       <PageField
-        value={_value as DashboardPageWithoutData[] | undefined}
+        value={_value}
         label={field.label ?? 'Pages'}
         icon={icon}
         muiltiSelect={true}
-        onChange={onChange as CAFPages['onChange']}
+        onChange={e => _onChange(e.map(page => page.id))}
         id={id}
         name={name}
         helperText={description}
@@ -251,10 +139,10 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
     return (
       <Entity
         filterOptions={field.filterOptions}
-        value={_value as EntityName | undefined}
+        value={_value}
         label={field.label ?? 'Unknown'}
         icon={icon}
-        onChange={onChange as CAFEntity['onChange']}
+        onChange={_onChange}
         id={id}
         name={name}
         helperText={description}
@@ -266,7 +154,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
     return (
       <ServiceField
         value={typeof _value === 'string' ? _value : undefined}
-        onChange={onChange as CAFService['onChange']}
+        onChange={_onChange}
         label={field.label ?? 'Service'}
         icon={icon}
         id={id}
@@ -289,7 +177,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         max={field.max}
         helperText={description}
         step={field.step}
-        onChange={onChange as CAFSlider['onChange']}
+        onChange={_onChange}
       />
     );
   }
@@ -299,8 +187,8 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         label={field.label ?? 'Text'}
         icon={icon}
         readOnly={field.readOnly}
-        value={validateString(_value)}
-        onChange={e => (onChange as CAFText['onChange'])(e.target.value)}
+        value={typeof _value === 'string' ? _value : undefined}
+        onChange={e => _onChange(e.target.value)}
         helperText={description}
         name={name}
         id={id}
@@ -315,8 +203,8 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         label={field.label ?? 'Number'}
         icon={icon}
         readOnly={field.readOnly}
-        value={validateNumber(_value)}
-        onChange={e => (onChange as CAFNumber['onChange'])(Number(e.target.value))}
+        value={typeof _value === 'number' ? _value : undefined}
+        onChange={e => _onChange(Number(e.target.value))}
         min={field.min}
         max={field.max}
         step={field.step}
@@ -326,6 +214,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
       />
     );
   }
+
   if (field.type === 'select') {
     return (
       <SelectField
@@ -343,7 +232,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
               typeof selectedOption.value === 'number' ||
               typeof selectedOption.value === 'boolean')
           ) {
-            (onChange as CAFSelect['onChange'])(selectedOption.value);
+            _onChange(selectedOption.value);
           }
         }}
         name={name}
@@ -359,7 +248,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         options={[...field.options.map(option => ({ value: option.value, label: option.label }) satisfies RadioOption)]}
         onChange={e => {
           if (e && (typeof e === 'string' || typeof e === 'number' || typeof e === 'boolean')) {
-            (onChange as CAFRadio['onChange'])(e);
+            _onChange(e);
           }
         }}
         label={field.label ?? 'Radio'}
@@ -375,7 +264,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
   if (field.type === 'switch') {
     return (
       <SwitchField
-        checked={validateBoolean(_value) ?? false}
+        checked={typeof _value === 'boolean' ? _value : false}
         name={name}
         label={field.label ?? 'Switch'}
         icon={icon}
@@ -384,7 +273,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         id={id}
         onChange={e => {
           const checked = (e.target as HTMLInputElement).checked;
-          (onChange as CAFSwitch['onChange'])(checked);
+          _onChange(checked);
         }}
       />
     );
@@ -398,8 +287,8 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
         icon={icon}
         readOnly={field.readOnly}
         type='multiline'
-        value={validateString(_value)}
-        onChange={e => (onChange as CAFText['onChange'])(e.target.value)}
+        value={typeof _value === 'string' ? _value : undefined}
+        onChange={e => _onChange(e.target.value)}
         rows={3}
         placeholder='Enter your message'
         helperText={description}
@@ -426,7 +315,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
           },
         }}
         value={_value}
-        onChange={onChange}
+        onChange={_onChange}
       />
     );
   }
@@ -455,7 +344,7 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
             override: true,
           },
         }}
-        onChange={onChange}
+        onChange={_onChange}
         value={_value}
       />
     );
@@ -490,5 +379,5 @@ export function CustomAutoField(props: CustomAutoFieldProps) {
     );
   }
   // Helper function for exhaustive type checking
-  return <StyledAlert severity='error'>Unsupported field type: &quot;{(field as { type?: string }).type ?? 'unknown'}&quot;</StyledAlert>;
+  return <Alert severity='error'>Unsupported field type: &quot;{(field as { type?: string }).type ?? 'unknown'}&quot;</Alert>;
 }

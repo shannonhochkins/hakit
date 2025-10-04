@@ -9,6 +9,8 @@ export function FieldLabel({
   htmlFor,
   endAdornment,
   className,
+  labelClassName,
+  iconClassName,
   style,
 }: {
   label?: ReactNode;
@@ -17,19 +19,21 @@ export function FieldLabel({
   htmlFor?: string;
   endAdornment?: ReactNode;
   className?: string;
+  labelClassName?: string;
+  iconClassName?: string;
   style?: React.CSSProperties;
 }) {
   if (!label) return null;
   return (
     <div className={`${styles.labelRow} ${className}`} style={style}>
       <div className={styles.simpleRow}>
-        {icon && <div className={styles.labelIcon}>{icon}</div>}
+        {icon && <div className={`${styles.labelIcon} ${iconClassName}`}>{icon}</div>}
         {htmlFor ? (
-          <label className={styles.labelText} htmlFor={htmlFor}>
+          <label className={`${styles.labelText} ${labelClassName}`} htmlFor={htmlFor}>
             {label}
           </label>
         ) : (
-          <span className={styles.labelText}>{label}</span>
+          <span className={`${styles.labelText} ${labelClassName}`}>{label}</span>
         )}
       </div>
       <div className={styles.simpleRow}>

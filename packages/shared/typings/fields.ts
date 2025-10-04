@@ -16,6 +16,7 @@ import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import { AvailableQueries } from '@hakit/components';
 import type { OnValidate } from '@monaco-editor/react';
+import type { EntityName } from '@hakit/core';
 
 export type SlotField = PuckSlotField;
 
@@ -23,6 +24,39 @@ export type FieldOption = {
   label: string;
   value: string | number | boolean | undefined | null | object;
 };
+
+// What each field actually stores/returns
+type FieldValueByKind = {
+  custom: unknown;
+
+  imageUpload: string;
+  color: string;
+  code: string;
+
+  page: string;
+  pages: string[];
+
+  entity: EntityName;
+  service: string;
+
+  slider: number;
+  grid: number;
+
+  text: string;
+  number: number;
+  select: string | number | boolean;
+  radio: string | number | boolean | null;
+  switch: boolean;
+  textarea: string;
+
+  // containers / special
+  object: object;
+  array: unknown[];
+  divider: never; // (or unknown, if you prefer)
+  hidden: unknown;
+  slot: Slot;
+};
+
 // some puck types can clash with our own custom ones, so we need to exclude them
 type ExcludedPuckKeys = 'visible';
 
@@ -30,38 +64,40 @@ type ExcludedPuckKeys = 'visible';
 type WithoutPuckFields<F> = F extends unknown ? Omit<F, ExcludedPuckKeys> : never;
 
 type Kind = keyof FieldDefinition;
+type LeafKinds = Exclude<Kind, 'object' | 'array' | 'slot'>;
 
 type ExtKeysForKind<K extends Kind> = K extends keyof FieldTypeOmitMap ? FieldTypeOmitMap[K] : never;
 
 type BaseForKind<K extends Kind> = WithoutPuckFields<FieldDefinition[K]>;
-
 type ExtrasForKind<K extends Kind, Value> = K extends 'custom' ? { render: PuckCustomField<Value>['render'] } : unknown;
-
 type WithExtended<K extends Kind, Value, DataShape> = Omit<ExtendedFieldTypes<DataShape, Value>, ExtKeysForKind<K>>;
 
-/** Single node shape for a specific kind K */
 type FieldNode<K extends Kind, Value, DataShape> = BaseForKind<K> & WithExtended<K, Value, DataShape> & ExtrasForKind<K, Value>;
 
-/** Union of all non-container, non-slot leaf kinds */
-type LeafKinds = Exclude<Kind, 'object' | 'array' | 'slot'>;
+// Narrowing helper: ignore optionality when checking compatibility
+type BaseV<V> = Exclude<V, undefined | null>;
 
-type LeafField<Value, DataShape> = {
-  [K in LeafKinds]: FieldNode<K, Value, DataShape>;
+// BROAD compatibility (boolean prop can use 'switch' OR 'select'/'radio', etc.)
+type CompatibleLeafKinds<V> = {
+  [K in LeafKinds]: BaseV<V> extends FieldValueByKind[K] ? K : never;
 }[LeafKinds];
 
-/** Object kind rebuilt with recursive children */
+type LeafField<Value, DataShape> = {
+  [K in CompatibleLeafKinds<Value>]: FieldNode<K, Value, DataShape>;
+}[CompatibleLeafKinds<Value>];
+
+// Containers stay as before
 type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
   objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
 };
 
-/** Array kind rebuilt with recursive children */
 type ArrayFieldNode<Value, DataShape> = Value extends (infer Item)[]
   ? Omit<FieldNode<'array', Value, DataShape>, 'arrayFields'> & {
       arrayFields: { [K in keyof Item]: FieldFor<Item[K], DataShape> };
     }
   : never;
 
-/** Final recursive shape */
+// Final recursive shape
 type FieldFor<Value, DataShape> =
   | (Value extends Slot ? SlotField : never)
   | LeafField<Value, DataShape>

@@ -9,7 +9,10 @@ import { ICON_MAP } from './constants';
 import { CustomAutoField } from './CustomAutoField';
 import styles from './FieldContainer.module.css';
 import { IconButton } from '@components/Button';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { AutoHeight } from '@components/AutoHeight';
 
+const getClassName = getClassNameFactory('CollapsibleFieldWrapper', styles);
 /**
  * Helper function to create custom fields (cf - custom field)
  */
@@ -76,42 +79,49 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     }
   }, [field.collapseOptions, onToggleExpand]);
 
+  const className = getClassName(
+    {
+      CollapsibleFieldWrapper: true,
+      collapsed: !isExpanded,
+      expanded: isExpanded,
+    },
+    field.className
+  );
+
+  const fieldLabelClassName = getClassName(
+    'FieldLabel',
+    {
+      collapsed: !isExpanded,
+      expanded: isExpanded,
+      collapsible: !!field.collapseOptions,
+    },
+    'field-label'
+  );
+
+  const fieldLabelLabelClassName = getClassName(
+    'FieldLabel',
+    {
+      color: true,
+    },
+    'field-label'
+  );
+
   return (
     <Fieldset
       style={{
         display: isVisible ? 'block' : 'none',
       }}
       id={id}
-      className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''}`}
+      className={`hakit-field ${className} ${field.type ? `field-${field.type}` : ''}`}
       onClick={onFieldsetClick}
     >
       <FieldLabel
-        className='field-label'
         label={field.label}
         icon={_icon}
         readOnly={field.readOnly}
-        style={{
-          paddingTop: `var(--space-3)`,
-          paddingBottom: `var(--space-3)`,
-          paddingLeft: `var(--space-2)`,
-          paddingRight: `var(--space-2)`,
-          ...(field.collapseOptions
-            ? {
-                cursor: 'pointer',
-              }
-            : {}),
-          ...(field.collapseOptions && isExpanded
-            ? {
-                color: 'var(--color-primary-50)',
-                backgroundColor: 'var(--color-primary-950)',
-              }
-            : {}),
-          ...(field.collapseOptions && !isExpanded
-            ? {
-                borderBottom: `1px solid var(--color-gray-800)`,
-              }
-            : {}),
-        }}
+        className={fieldLabelClassName}
+        labelClassName={fieldLabelLabelClassName}
+        iconClassName={fieldLabelLabelClassName}
         endAdornment={
           <>
             {field.collapseOptions && (
@@ -129,11 +139,13 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
           </>
         }
       />
-      <FieldWrapper className={`hakit-field-wrapper ${!isExpanded && field.collapseOptions ? styles.fieldWrapperCollapsed : ''} `}>
-        <div className={styles.fieldInput}>
-          <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} />
-        </div>
-      </FieldWrapper>
+      <AutoHeight isOpen={isExpanded} duration={300} renderChildren>
+        <FieldWrapper className='hakit-field-wrapper'>
+          <div className={styles.fieldInput}>
+            <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} />
+          </div>
+        </FieldWrapper>
+      </AutoHeight>
     </Fieldset>
   );
 }

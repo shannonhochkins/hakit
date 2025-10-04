@@ -13,6 +13,44 @@
   background: transparent;
   transition: padding 0.2s ease-in-out;
 }
+.CollapsibleFieldWrapper {
+  border-left: 1px solid transparent;
+  transition: 0.2s ease-in-out;
+  transition-property: padding, border-left-color;
+}
+.CollapsibleFieldWrapper:hover {
+  border-left-color: var(--color-primary-300);
+}
+.CollapsibleFieldWrapper--collapsed {
+  padding: 0;
+  
+}
+.CollapsibleFieldWrapper--expanded {
+  padding: var(--space-3) 0 0 0;
+}
+
+.CollapsibleFieldWrapper-FieldLabel {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.CollapsibleFieldWrapper-FieldLabel--color {
+  color: currentColor;
+}
+
+.CollapsibleFieldWrapper-FieldLabel--expanded {
+  border-bottom: 0;
+  color: var(--color-text-primary);
+}
+
+.CollapsibleFieldWrapper-FieldLabel--collapsed {
+  border-bottom: 0;
+  color: var(--color-text-muted);
+}
+.CollapsibleFieldWrapper-FieldLabel--collapsible {
+  cursor: pointer;
+}
 .collapsible:hover > :global(.field-label) {
   background-color: rgba(0, 0, 0, 0);
   transition: background-color 0.2s ease-in-out;
@@ -44,6 +82,10 @@
   flex-wrap: nowrap;
 }
 
+.fieldWrapper :global([class*='_InputWrapper_']:has( > fieldset[style*="display: none"])) {
+  margin: 0;
+  padding: 0;
+}
 
 .fieldWrapper :global([class*='_Input-input_']) {
   background-color: var(--color-gray-950) !important;
@@ -59,7 +101,6 @@
 .fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_']) > fieldset) {
   padding: 0;
   border-top: 0;
-  padding-bottom: var(--space-3);
 }
 .fieldWrapper :global([class*='_ObjectField_'] > fieldset) {
   margin-top: var(--space-3);
@@ -68,13 +109,13 @@
   border-left: 1px solid var(--color-gray-800);
   border-top: 1px solid var(--color-gray-800);
   border-bottom: 1px solid var(--color-gray-800);
-
+  transition: border-left-color 0.2s ease;
 }
+
 .fieldWrapper :global([class*='_ObjectField_'] [class*='_ObjectField_']) {
   border: 0;
 }
 .fieldWrapper :global(.field-object:has([class*='_ObjectField_'])) {
-  padding: 12px 0 0 0;
   border-top: 1px solid var(--color-gray-800);
 }
 .fieldWrapper :global([class*='_ArrayFieldItem_']) {
@@ -111,9 +152,6 @@
 .fieldWrapper :global([class*='_Input-labelIcon_']) {
   color: currentColor;
 }
-.fieldWrapperCollapsed {
-  display: none;
-}
 .fieldWrapper > * {
   margin: 0;
   padding: 0;
@@ -139,3 +177,4 @@
 .fieldInput > * {
   width: 100%;
 }
+
