@@ -87,8 +87,7 @@ export function attachDragRefToElement(
           // Call the dragRef
           dragRef(node);
           // If the original element had a ref, call it too
-          const elementWithRef = element as { ref?: unknown };
-          const originalRef = elementWithRef.ref;
+          const originalRef = (element.props as { ref?: unknown })?.ref;
           if (originalRef) {
             if (typeof originalRef === 'function') {
               originalRef(node);

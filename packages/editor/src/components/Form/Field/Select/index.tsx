@@ -166,7 +166,7 @@ export function SelectField<T extends FieldOption = FieldOption>({
   ]
     .filter(Boolean)
     .join(' ');
-  const inputWrapperClasses = [styles.inputWrapper].filter(Boolean).join(' ');
+  const inputWrapperClasses = [styles.inputWrapper, 'select-input-wrapper'].filter(Boolean).join(' ');
 
   return (
     <div className={containerClasses} style={style}>

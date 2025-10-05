@@ -99,8 +99,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
           type: 'entity',
           description: 'The entity to use for the time, entity ID must contain the word "time"',
           label: 'Time Entity',
-          options(data) {
-            return filterEntitiesByDomains(data.entities, 'sensor').filter(entity => entity.entity_id.includes('time'));
+          filterOptions(entities) {
+            return filterEntitiesByDomains(entities, 'sensor').filter(entity => entity.entity_id.includes('time'));
           },
           default: options => {
             const defaultEntity = options.find(entity => entity.entity_id === 'sensor.time');
@@ -148,8 +148,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
           type: 'entity',
           label: 'Date Entity',
           description: 'The entity to use for the date, entity ID must contain the word "date"',
-          options(data) {
-            return filterEntitiesByDomains(data.entities, 'sensor').filter(entity => entity.entity_id.includes('date'));
+          filterOptions(entities) {
+            return filterEntitiesByDomains(entities, 'sensor').filter(entity => entity.entity_id.includes('date'));
           },
           default: options => {
             const defaultEntity = options.find(entity => entity.entity_id === 'sensor.date');

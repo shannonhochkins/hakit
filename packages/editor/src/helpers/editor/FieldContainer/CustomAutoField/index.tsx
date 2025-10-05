@@ -12,6 +12,7 @@ import { SelectField } from '@components/Form/Field/Select';
 import { RadioField, type RadioOption } from '@components/Form/Field/Radio';
 import { Alert } from '@components/Alert';
 import { SwitchField } from '@components/Form/Field/Switch';
+import { UnitField, UnitFieldValue } from '@components/Form/Field/Unit';
 
 interface CustomAutoFieldProps<Props extends DefaultComponentProps> {
   field: FieldConfiguration[string];
@@ -36,7 +37,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const _value = value as any;
   // similar to the above, onChange also can 't be narrowed at this level
-  const _onChange = onChange as unknown as (value: string | number | boolean | string[] | number[] | boolean[]) => void;
+  const _onChange = onChange as unknown as (value: string | number | boolean | string[] | number[] | boolean[] | UnitFieldValue) => void;
   // split on weird » character, replace any underscores/whitespace and periods with nothing
   const [, id] = _id.replace(/[_ .]/g, '').split('»');
   if (field.type === 'slot') {
@@ -59,6 +60,20 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
       value: _value,
       onChange: _onChange,
     });
+  }
+  if (field.type === 'unit') {
+    return (
+      <UnitField
+        value={typeof _value === 'object' ? _value : ''}
+        onChange={_onChange}
+        label={field.label}
+        icon={icon}
+        helperText={description}
+        readOnly={field.readOnly}
+        id={id}
+        name={name}
+      />
+    );
   }
 
   if (field.type === 'imageUpload') {
@@ -111,7 +126,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
         value={_value}
         label={field.label ?? 'Page'}
         icon={icon}
-        muiltiSelect={false}
+        multiple={false}
         onChange={e => _onChange(e.id)}
         id={id}
         name={name}
@@ -126,7 +141,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
         value={_value}
         label={field.label ?? 'Pages'}
         icon={icon}
-        muiltiSelect={true}
+        multiple={true}
         onChange={e => _onChange(e.map(page => page.id))}
         id={id}
         name={name}
@@ -216,6 +231,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
   }
 
   if (field.type === 'select') {
+    console.log('field', field.label, field, _value);
     return (
       <SelectField
         label={field.label ?? 'Select'}

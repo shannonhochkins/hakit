@@ -1,8 +1,6 @@
-import { CSSProperties } from 'react';
+import React, { CSSProperties } from 'react';
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import styles from './RootComponent.module.css';
-import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-const getClassName = getClassNameFactory('RootComponent', styles);
+import { UnitFieldValue } from '@components/Form/Field/Unit';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -38,8 +36,28 @@ interface BackgroundProps {
   /** Optional radial glow overlay controls - removed */
 }
 
+interface TypographyProps {
+  /** Font family selection */
+  fontFamily: string;
+  /** Font color */
+  fontColor: string;
+  /** Advanced typography options */
+  useAdvancedTypography?: boolean;
+  /** Font weight for headings */
+  headingWeight: number;
+  /** Font weight for body text */
+  bodyWeight: number;
+  /** Base font size */
+  baseFontSize: UnitFieldValue;
+  /** Line height */
+  lineHeight: number;
+  /** Letter spacing */
+  letterSpacing: number;
+}
+
 export type DefaultRootProps = {
   background: BackgroundProps;
+  typography: TypographyProps;
 };
 export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   label: 'Root',
@@ -225,39 +243,299 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         },
       },
     },
+    typography: {
+      type: 'object',
+      collapseOptions: {
+        startExpanded: true,
+      },
+      label: 'Typography',
+      description: 'Font and text styling options',
+      objectFields: {
+        fontFamily: {
+          type: 'select',
+          label: 'Font Family',
+          description: 'Choose a font family for your dashboard',
+          default: 'roboto',
+          options: [
+            { label: 'System Font', value: 'system' },
+            { label: 'Roboto', value: 'roboto' },
+            { label: 'Open Sans', value: 'open-sans' },
+            { label: 'Lato', value: 'lato' },
+            { label: 'Montserrat', value: 'montserrat' },
+            { label: 'Source Sans Pro', value: 'source-sans-pro' },
+            { label: 'Poppins', value: 'poppins' },
+            { label: 'Nunito', value: 'nunito' },
+            { label: 'Inter', value: 'inter' },
+            { label: 'Playfair Display', value: 'playfair-display' },
+            { label: 'Merriweather', value: 'merriweather' },
+          ],
+        },
+        fontColor: {
+          type: 'color',
+          label: 'Font Color',
+          description: 'Primary text color for your dashboard',
+          default: '#ffffff',
+        },
+        useAdvancedTypography: {
+          type: 'switch',
+          label: 'Advanced Typography',
+          description: 'Enable advanced typography options',
+          default: false,
+        },
+        headingWeight: {
+          type: 'select',
+          label: 'Heading Weight',
+          description: 'Font weight for headings and titles',
+          default: 600,
+          options: [
+            { label: 'Light (300)', value: 300 },
+            { label: 'Regular (400)', value: 400 },
+            { label: 'Medium (500)', value: 500 },
+            { label: 'Semi Bold (600)', value: 600 },
+            { label: 'Bold (700)', value: 700 },
+          ],
+          visible(data) {
+            return data.typography?.useAdvancedTypography ?? false;
+          },
+        },
+        bodyWeight: {
+          type: 'select',
+          label: 'Body Weight',
+          description: 'Font weight for body text',
+          default: 400,
+          options: [
+            { label: 'Light (300)', value: 300 },
+            { label: 'Regular (400)', value: 400 },
+            { label: 'Medium (500)', value: 500 },
+            { label: 'Semi Bold (600)', value: 600 },
+          ],
+          visible(data) {
+            return data.typography?.useAdvancedTypography ?? false;
+          },
+        },
+        baseFontSize: {
+          type: 'unit',
+          label: 'Base Font Size',
+          description: 'Base font size to apply to the dashboard',
+          default: { value: 16, unit: 'px' },
+          min: 12,
+          max: 24,
+          step: 1,
+          visible(data) {
+            return data.typography?.useAdvancedTypography ?? false;
+          },
+        },
+        lineHeight: {
+          type: 'number',
+          label: 'Line Height',
+          description: 'Line height multiplier',
+          default: 1.5,
+          min: 1.2,
+          max: 2.0,
+          step: 0.1,
+          visible(data) {
+            return data.typography?.useAdvancedTypography ?? false;
+          },
+        },
+        letterSpacing: {
+          type: 'number',
+          label: 'Letter Spacing',
+          description: 'Letter spacing in pixels',
+          default: 0,
+          min: -1,
+          max: 2,
+          step: 0.1,
+          visible(data) {
+            return data.typography?.useAdvancedTypography ?? false;
+          },
+        },
+      },
+    },
+  },
+  styles(props) {
+    const { background, typography } = props;
+    const bgSize =
+      background?.backgroundSize === 'custom' ? (background?.backgroundSizeCustom ?? 'cover') : (background?.backgroundSize ?? 'cover');
+    const bgImageUrl = background?.useBackgroundImage
+      ? `url(${background?.backgroundImage ? background.backgroundImage : defaultBackground})`
+      : '';
+
+    // Font family mapping
+    const fontFamilyMap: Record<string, string> = {
+      system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      roboto: '"Roboto", system-ui, sans-serif',
+      'open-sans': '"Open Sans", system-ui, sans-serif',
+      lato: '"Lato", system-ui, sans-serif',
+      montserrat: '"Montserrat", system-ui, sans-serif',
+      'source-sans-pro': '"Source Sans Pro", system-ui, sans-serif',
+      poppins: '"Poppins", system-ui, sans-serif',
+      nunito: '"Nunito", system-ui, sans-serif',
+      inter: '"Inter", system-ui, sans-serif',
+      'playfair-display': '"Playfair Display", system-ui, serif',
+      merriweather: '"Merriweather", system-ui, serif',
+    };
+
+    // Debug: Log font family mapping
+    console.log('Font family mapping:', fontFamilyMap);
+    console.log('Selected font family in styles:', typography?.fontFamily ?? 'roboto');
+
+    const selectedFontFamily = typography?.fontFamily ?? 'roboto';
+    const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
+
+    return `
+      :root {
+        /* Background Variables */
+        --background-image: ${bgImageUrl};
+        --background-size: ${bgSize};
+        --background-position: ${background?.backgroundPosition ?? 'center center'};
+        --background-repeat: ${background?.backgroundRepeat ?? 'no-repeat'};
+        --background-overlay-color: ${background?.overlayColor ?? '#4254c5'};
+        --background-overlay-blend-mode: ${background?.overlayBlendMode ?? 'multiply'};
+        --background-overlay-opacity: ${background?.overlayOpacity ?? 0.9};
+        --background-blur: ${background?.blur ?? 25}px;
+        --background-filter-brightness: ${background?.filterBrightness ?? 1};
+        --background-filter-contrast: ${background?.filterContrast ?? 1};
+        --background-filter-saturate: ${background?.filterSaturate ?? 1};
+        --background-filter-grayscale: ${background?.filterGrayscale ?? 0};
+        
+        /* Typography Variables */
+        --typography-font-family: ${fontFamily};
+        --typography-font-color: ${typography?.fontColor ?? '#ffffff'};
+        --typography-heading-weight: ${typography?.headingWeight ?? 600};
+        --typography-body-weight: ${typography?.bodyWeight ?? 400};
+        --typography-base-font-size: ${typography?.baseFontSize ?? 16}px;
+        --typography-line-height: ${typography?.lineHeight ?? 1.5};
+        --typography-letter-spacing: ${typography?.letterSpacing ?? 0}px;
+      }
+      
+      /* Root Component Styles */
+      .root-component {
+        position: absolute !important;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+      
+      .root-component-background {
+        width: 100%;
+        height: 100%;
+        background-position: var(--background-position, center center);
+        background-repeat: var(--background-repeat, no-repeat);
+        background-size: var(--background-size, cover);
+        background-image: var(--background-image);
+        filter:
+          blur(var(--background-blur))
+          brightness(var(--background-filter-brightness, 1))
+          contrast(var(--background-filter-contrast, 1))
+          saturate(var(--background-filter-saturate, 1))
+          grayscale(var(--background-filter-grayscale, 0));
+        overflow: hidden;
+      }
+      
+      .root-component-background:after { 
+        content: none; 
+      }
+      
+      .root-component-background:before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-color: var(--background-overlay-color, transparent);
+        opacity: var(--background-overlay-opacity, 0);
+        mix-blend-mode: var(--background-overlay-blend-mode, normal);
+      }
+      
+      /* Global Typography Styles */
+      body {
+        font-family: var(--typography-font-family);
+        font-size: var(--typography-base-font-size);
+        line-height: var(--typography-line-height);
+        letter-spacing: var(--typography-letter-spacing);
+        color: var(--typography-font-color);
+      }
+      
+      h1, h2, h3, h4, h5, h6 {
+        font-family: var(--typography-font-family);
+        font-weight: var(--typography-heading-weight);
+        color: var(--typography-font-color);
+      }
+      
+      p, span, div, a, button, input, textarea, select {
+        font-family: var(--typography-font-family);
+        font-weight: var(--typography-body-weight);
+        color: var(--typography-font-color);
+      }
+    `;
   },
   render: Render,
 };
 
 function Render(props: RenderProps<DefaultRootProps>) {
-  const { background } = props;
-  const bgSize =
-    background?.backgroundSize === 'custom' ? background?.backgroundSizeCustom || 'cover' : background?.backgroundSize || 'cover';
-  const bgImageUrl = background?.useBackgroundImage
-    ? `url(${background?.backgroundImage ? background.backgroundImage : defaultBackground})`
-    : '';
+  const { typography } = props;
+
+  // Generate Google Fonts link for non-system fonts
+  const selectedFontFamily = typography?.fontFamily ?? 'roboto';
+
+  // Map font family names to Google Fonts API format
+  const googleFontsNameMap: Record<string, string> = {
+    roboto: 'Roboto',
+    'open-sans': 'Open+Sans',
+    lato: 'Lato',
+    montserrat: 'Montserrat',
+    'source-sans-pro': 'Source+Sans+Pro',
+    poppins: 'Poppins',
+    nunito: 'Nunito',
+    inter: 'Inter',
+    'playfair-display': 'Playfair+Display',
+    merriweather: 'Merriweather',
+  };
+
+  const googleFontsUrl =
+    selectedFontFamily !== 'system'
+      ? (() => {
+          const headingWeight = typography?.headingWeight ?? 600;
+          const bodyWeight = typography?.bodyWeight ?? 400;
+          // Sort weights in ascending order as required by Google Fonts API
+          const sortedWeights = [headingWeight, bodyWeight].sort((a, b) => a - b);
+          const uniqueWeights = [...new Set(sortedWeights)]; // Remove duplicates
+          const weightsString = uniqueWeights.join(';');
+          return `https://fonts.googleapis.com/css2?family=${googleFontsNameMap[selectedFontFamily]}:wght@${weightsString}&display=swap`;
+        })()
+      : '';
+
+  // Clean up any existing Google Fonts links when font changes
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      // Remove existing Google Fonts links whenever font changes
+      // This handles: system -> Google Font, Google Font -> system, Google Font -> Google Font
+      const existingLinks = document.querySelectorAll('link[href*="fonts.googleapis.com"][rel="stylesheet"]');
+      existingLinks.forEach(link => {
+        if (link.parentNode) {
+          link.parentNode.removeChild(link);
+        }
+      });
+    }
+  }, [typography?.fontFamily]);
+
   return (
     <>
-      <div className={getClassName()}>
-        <div
-          className={getClassName('background')}
-          style={
-            {
-              '--root-component-overlay-color': background?.overlayColor,
-              '--root-component-overlay-blendMode': background?.overlayBlendMode,
-              '--root-component-overlay-opacity': background?.overlayOpacity,
-              '--root-component-background-blur': `${background?.blur ?? 0}px`,
-              '--root-component-background-image': bgImageUrl,
-              '--root-component-background-size': bgSize,
-              '--root-component-background-position': background?.backgroundPosition,
-              '--root-component-background-repeat': background?.backgroundRepeat,
-              '--root-component-filter-brightness': background?.filterBrightness,
-              '--root-component-filter-contrast': background?.filterContrast,
-              '--root-component-filter-saturate': background?.filterSaturate,
-              '--root-component-filter-grayscale': background?.filterGrayscale,
-            } as CSSProperties
-          }
-        ></div>
+      {/* 
+        Note: Font links are rendered in component body rather than <head>.
+        This is acceptable because:
+        1. Modern browsers handle font loading asynchronously regardless of placement
+        2. React's rendering and Puck's architecture manage document structure
+        3. Font loading timing isn't critical for this use case
+        4. We clean up previous fonts via useEffect to prevent accumulation
+      */}
+      {googleFontsUrl && (
+        <>
+          <link rel='preconnect' href='https://fonts.googleapis.com' />
+          <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+          <link href={googleFontsUrl} rel='stylesheet' />
+        </>
+      )}
+      <div className='root-component' id={props.id}>
+        <div className='root-component-background'></div>
       </div>
     </>
   );

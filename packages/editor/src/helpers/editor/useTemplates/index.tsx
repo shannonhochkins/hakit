@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { useStore, useTemplate } from '@hakit/core';
 import { TEMPLATE_PREFIX } from '../pageData/constants';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import type { CustomConfigWithDefinition } from '@typings/puck';
 import type { DefaultComponentProps } from '@measured/puck';
-import type { FieldConfigurationWithDefinition } from '@typings/fields';
+import { CustomPuckConfig } from '@typings/puck';
+import { FieldConfiguration } from '@typings/fields';
 
 type Path = Array<string | number>;
 
@@ -140,7 +140,7 @@ function coerceToTypeStrict(value: unknown, fieldType: string | undefined): Coer
 }
 
 function resolveFieldTypeForPath(
-  fields: FieldConfigurationWithDefinition<DefaultComponentProps> | undefined,
+  fields: FieldConfiguration<DefaultComponentProps> | undefined,
   pathSegs: (string | number)[]
 ): string | undefined {
   if (!fields) return undefined;
@@ -172,7 +172,7 @@ function resolveFieldTypeForPath(
 }
 
 function getExpectedFieldType(
-  userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null,
+  userConfig: CustomPuckConfig<DefaultComponentProps> | null,
   componentId: string,
   flatKey: string
 ): string | undefined {
@@ -181,14 +181,14 @@ function getExpectedFieldType(
   // Resolve component type from page data in store
   const pageData = useGlobalStore.getState().puckPageData;
   if (componentId === 'root') {
-    const rootCfg = userConfig.root as unknown as { fields?: FieldConfigurationWithDefinition<DefaultComponentProps> };
+    const rootCfg = userConfig.root as unknown as { fields?: FieldConfiguration<DefaultComponentProps> };
     const rootFields = rootCfg?.fields;
     return resolveFieldTypeForPath(rootFields, segs);
   }
   const item = pageData?.content?.find(c => (c as { props?: { id?: string } })?.props?.id === componentId) as { type?: string } | undefined;
   const compType = item?.type;
   if (!compType) return undefined;
-  const comps = userConfig.components as unknown as Record<string, { fields?: FieldConfigurationWithDefinition<DefaultComponentProps> }>;
+  const comps = userConfig.components as unknown as Record<string, { fields?: FieldConfiguration<DefaultComponentProps> }>;
   const compFields = comps?.[compType]?.fields;
   return resolveFieldTypeForPath(compFields, segs);
 }
@@ -200,7 +200,7 @@ function isNonPrimitive(value: unknown): value is object {
 export function useTemplates<T>(props: T, componentId: string = 'root'): T {
   const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId]);
   const connection = useStore(s => s.connection);
-  const userConfig = useGlobalStore(s => s.userConfig) as CustomConfigWithDefinition<DefaultComponentProps> | null;
+  const userConfig = useGlobalStore(s => s.userConfig);
 
   // 1) Build expressions from known template paths
   const { expressions, keys, emptyKeys } = useMemo(() => {
@@ -272,14 +272,6 @@ export function useTemplates<T>(props: T, componentId: string = 'root'): T {
 
   // 3) Resolve with a single template call
   const resolvedJson = useTemplate(templateParams);
-  console.log('resolvedJson', {
-    expressions,
-    resolvedJson,
-    combinedTemplate,
-    templateParams,
-    templatePaths,
-    enabled,
-  });
   // 4) Write resolved values back using per-entry updates, including empty templates
   const resolvedProps = useMemo(() => {
     let next = props as unknown as T;

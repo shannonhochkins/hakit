@@ -1,8 +1,18 @@
 import { expect, test, describe, beforeEach, afterAll, mock } from 'bun:test';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { createElement } from 'react';
 import { createModuleMocker } from '@test-utils/moduleMocker';
+
+// Mock html2canvas to prevent DOM errors in test environment
+mock.module('html2canvas', () => ({
+  default: mock(() =>
+    Promise.resolve({
+      toDataURL: () => 'data:image/png;base64,test',
+      toBlob: () => Promise.resolve(new Blob()),
+      toCanvas: () => document.createElement('canvas'),
+    })
+  ),
+}));
 
 /**
  * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules

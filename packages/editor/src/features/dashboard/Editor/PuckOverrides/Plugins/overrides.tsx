@@ -54,6 +54,7 @@ export const createPuckOverridesPlugin = (): Plugin<
         );
       },
       fieldTypes: {
+        unit: FieldWrapper,
         switch: FieldWrapper,
         radio: FieldWrapper,
         select: FieldWrapper,

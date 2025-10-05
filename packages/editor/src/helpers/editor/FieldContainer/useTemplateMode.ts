@@ -30,7 +30,7 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
   componentIdForMap,
 }: UseTemplateModeParams<Props>): UseTemplateModeReturn {
   const templatesEnabledByType = !EXCLUDE_FIELD_TYPES_FROM_TEMPLATES.includes(field.type);
-  const templatesEnabledByField = field.templates?.enabled !== false;
+  const templatesEnabledByField = 'templates' in field && field.templates?.enabled !== false;
   const allowTemplates = templatesEnabledByType && templatesEnabledByField;
 
   const isTemplateValue = useMemo(() => typeof value === 'string' && (value as unknown as string).startsWith(TEMPLATE_PREFIX), [value]);

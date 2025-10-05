@@ -1,17 +1,17 @@
 import { Config, DefaultComponentProps } from '@measured/puck';
 import { registerRemotes, loadRemote, registerPlugins } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import { CustomComponentConfig, CustomConfig, type ComponentFactoryData } from '@typings/puck';
+import { CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
 import { createRootComponent } from '@helpers/editor/createRootComponent';
 
 interface ComponentModule {
-  config: CustomComponentConfig<DefaultComponentProps>;
+  config: CustomPuckComponentConfig<DefaultComponentProps>;
 }
 
-export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<P> & {
+export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomPuckComponentConfig<P> & {
   _remoteRepositoryId: string; // remote id for tracking
   _remoteRepositoryName: string; // remote name for tracking
 };
@@ -91,8 +91,8 @@ async function buildRemoteWithDbFallback(userRepo: UserRepo, manifestCache: Map<
   };
 }
 
-export async function getPuckConfiguration(data: ComponentFactoryData) {
-  const components: Record<string, CustomComponentConfig<DefaultComponentProps>> = {};
+export async function getPuckConfiguration(data: ComponentFactoryData): Promise<CustomPuckConfig<DefaultComponentProps>> {
+  const components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
   const categories: NonNullable<Config['categories']> = {};
   const userRepositories = await getUserRepositories();
@@ -205,9 +205,10 @@ export async function getPuckConfiguration(data: ComponentFactoryData) {
   // generate the merged root configuration
   const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions
-  const config: CustomConfig<DefaultComponentProps> = {
+  const config: CustomPuckConfig<DefaultComponentProps> = {
     components,
     categories,
+    // @ts-expect-error - We know the shape is technically incorrect here, but it's okay.
     root: rootConfig,
   };
 

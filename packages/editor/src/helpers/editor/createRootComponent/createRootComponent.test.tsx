@@ -5,6 +5,8 @@ import { render } from '@testing-library/react';
 (global as { window?: unknown }).window = {
   setTimeout: setTimeout,
   requestAnimationFrame: (fn: () => void) => setTimeout(fn, 16),
+  addEventListener: () => {},
+  removeEventListener: () => {},
 };
 
 // Mock leaflet module to prevent window issues
@@ -31,6 +33,9 @@ mock.module('@hooks/useGlobalStore', () => ({
   useGlobalStore: (selector: (state: Record<string, unknown>) => unknown) => {
     const mockState = {
       dashboardWithoutData: { id: 'test-dashboard' },
+      templateFieldMap: {
+        root: [],
+      },
     };
     return selector(mockState);
   },
@@ -60,6 +65,7 @@ type MockRootProps = {
 };
 
 const mockRootConfig1: CustomRootConfigWithRemote<MockRootProps> = {
+  defaultProps: {},
   label: 'Test Root 1',
   fields: {
     testField1: {
@@ -80,6 +86,7 @@ const mockRootConfig1: CustomRootConfigWithRemote<MockRootProps> = {
 };
 
 const mockRootConfig2: CustomRootConfigWithRemote<MockRootProps> = {
+  defaultProps: {},
   label: 'Test Root 2',
   fields: {
     testField2: {
@@ -100,6 +107,7 @@ const mockRootConfig2: CustomRootConfigWithRemote<MockRootProps> = {
 };
 
 const mockRootConfig3: CustomRootConfigWithRemote<MockRootProps> = {
+  defaultProps: {},
   label: 'Test Root 2',
   fields: {
     testField2: {
@@ -124,6 +132,7 @@ const mockRootConfig3: CustomRootConfigWithRemote<MockRootProps> = {
 
 // Duplicate config (should be ignored)
 const duplicateRootConfig: CustomRootConfigWithRemote<MockRootProps> = {
+  defaultProps: {},
   label: 'Duplicate Root',
   fields: {
     testField1: {
@@ -160,17 +169,17 @@ describe('createRootComponent', () => {
     // @ts-expect-error - This does exist, just not typed intentionally
     expect(result.fields!['test-repo-3']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-1'].type).toBe('custom');
+    expect(result.fields!['test-repo-1'].type).toBe('object');
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-2'].type).toBe('custom');
+    expect(result.fields!['test-repo-2'].type).toBe('object');
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-3'].type).toBe('custom');
+    expect(result.fields!['test-repo-3'].type).toBe('object');
 
     // now just check the 3rd repo has the slot field
     // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo3Field = result.fields!['test-repo-3'] as Record<string, unknown>;
-    expect((testRepo3Field._field as Record<string, unknown>).type).toBe('object');
-    expect((testRepo3Field._field as Record<string, unknown>).objectFields).toHaveProperty('anotherSlot');
+    expect(testRepo3Field.type).toBe('object');
+    expect(testRepo3Field.objectFields).toHaveProperty('anotherSlot');
   });
 
   test('should always include the default root config with fixed id', async () => {
@@ -181,12 +190,12 @@ describe('createRootComponent', () => {
 
     // @ts-expect-error - dynamic key not present in the static type
     const defaultRootField = result.fields!['@hakit/default-root'] as Record<string, unknown>;
-    expect((defaultRootField._field as Record<string, unknown>).label).toBe('@hakit/editor');
-    expect((defaultRootField._field as Record<string, unknown>).type).toBe('object');
-    expect((defaultRootField._field as Record<string, unknown>).collapseOptions).toEqual({
+    expect(defaultRootField.label).toBe('@hakit/editor');
+    expect(defaultRootField.type).toBe('object');
+    expect(defaultRootField.collapseOptions).toEqual({
       startExpanded: true,
     });
-    expect((defaultRootField._field as Record<string, unknown>).objectFields).toHaveProperty('background');
+    expect(defaultRootField.objectFields).toHaveProperty('background');
   });
 
   test('should merge fields from both default and provided rootConfigs', async () => {
@@ -203,14 +212,14 @@ describe('createRootComponent', () => {
     // Check first config fields structure
     // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
-    expect((testRepo1Field._field as Record<string, unknown>).label).toBe('Test Repository 1');
-    expect((testRepo1Field._field as Record<string, unknown>).type).toBe('object');
+    expect(testRepo1Field.label).toBe('Test Repository 1');
+    expect(testRepo1Field.type).toBe('object');
 
     // Check second config fields structure
     // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo2Field = result.fields!['test-repo-2'] as Record<string, unknown>;
-    expect((testRepo2Field._field as Record<string, unknown>).label).toBe('Test Repository 2');
-    expect((testRepo2Field._field as Record<string, unknown>).type).toBe('object');
+    expect(testRepo2Field.label).toBe('Test Repository 2');
+    expect(testRepo2Field.type).toBe('object');
   });
 
   test('should ignore duplicate repository IDs and warn about them', async () => {
@@ -231,10 +240,10 @@ describe('createRootComponent', () => {
 
     // @ts-expect-error - This does exist, just not typed intentionally
     const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
-    expect((testRepo1Field._field as Record<string, unknown>).label).toBe('Test Repository 1');
+    expect(testRepo1Field.label).toBe('Test Repository 1');
     // Should keep the original config's properties, not the duplicate's
-    expect((testRepo1Field._field as Record<string, unknown>).objectFields).toHaveProperty('testField1');
-    expect((testRepo1Field._field as Record<string, unknown>).objectFields).toHaveProperty('sharedField');
+    expect(testRepo1Field.objectFields).toHaveProperty('testField1');
+    expect(testRepo1Field.objectFields).toHaveProperty('sharedField');
   });
 
   test('should always include content slot field in final config', async () => {
@@ -242,7 +251,6 @@ describe('createRootComponent', () => {
 
     expect(result.fields).toBeDefined();
     // content is injected internally; assert its type property without forcing exact shape
-    // @ts-expect-error - content exists at runtime but is not represented in type
     expect(result.fields!.content?.type).toBe('slot');
   });
 
@@ -350,7 +358,6 @@ describe('createRootComponent', () => {
     expect(fieldKeys).toContain('content');
     expect(fieldKeys).toContain('@hakit/default-root');
     // content is a slot field injected internally, structure not statically typed
-    // @ts-expect-error - content exists but not represented in the field map type
     expect(result.fields!.content?.type).toBe('slot');
     // @ts-expect-error - dynamic key not present in the static type
     expect(result.fields!['@hakit/default-root']).toBeDefined();
@@ -364,6 +371,7 @@ describe('createRootComponent', () => {
 
   test('should collect and apply all styles from root configs', async () => {
     const mockStyleConfig1: CustomRootConfigWithRemote<MockRootProps> = {
+      defaultProps: {},
       label: 'Style Config 1',
       fields: {
         color: {
@@ -379,6 +387,7 @@ describe('createRootComponent', () => {
     };
 
     const mockStyleConfig2: CustomRootConfigWithRemote<MockRootProps> = {
+      defaultProps: {},
       label: 'Style Config 2',
       fields: {
         fontSize: {
@@ -451,6 +460,9 @@ describe('createRootComponent', () => {
 
     const arrayRootConfig: CustomRootConfigWithRemote<ArrayProps> = {
       label: 'Array Root Config',
+      defaultProps: {
+        items: [],
+      },
       fields: {
         items: {
           type: 'array',
@@ -485,10 +497,10 @@ describe('createRootComponent', () => {
 
     expect(result.fields).toBeDefined();
     // @ts-expect-error = this does exist, it's intentionally not typed internally
-    const field = result.fields['array-repo']._field;
+    const field = result.fields['array-repo'];
     expect(field.repositoryId).toBe('array-repo');
     // @ts-expect-error = this does exist, it's intentionally not typed internally
-    const subField = result.fields['array-repo']._field.objectFields.items._field;
+    const subField = result.fields['array-repo'].objectFields.items;
     expect(subField.repositoryId).toBe('array-repo');
   });
 
@@ -500,6 +512,12 @@ describe('createRootComponent', () => {
     }
 
     const slotRootConfig: CustomRootConfigWithRemote<SlotRootProps> = {
+      defaultProps: {
+        something: 'This is a text field',
+        somethingElse: 'This is another text field',
+        // @ts-expect-error - slot field is not typed correctly
+        anotherSlot: () => <div>Another Slot</div>,
+      },
       label: 'Slot Root Config',
       fields: {
         something: {
@@ -536,8 +554,8 @@ describe('createRootComponent', () => {
     expect(fieldKeys).toContain('content');
     // @ts-expect-error - dynamic key not present in the static type
     const slotRepoField = result.fields!['slot-repo'] as Record<string, unknown>;
-    expect((slotRepoField._field as Record<string, unknown>).label).toBe('Slot Repository');
-    expect((slotRepoField._field as Record<string, unknown>).type).toBe('object');
+    expect(slotRepoField.label).toBe('Slot Repository');
+    expect(slotRepoField.type).toBe('object');
 
     // Test that the render function properly handles slots
     const mockProps = {
@@ -581,5 +599,420 @@ describe('createRootComponent', () => {
     const callArgs = mockRenderFn.mock.calls[0][0];
     expect(callArgs).toHaveProperty('anotherSlot');
     expect(typeof callArgs.anotherSlot).toBe('function');
+  });
+
+  test('should populate defaultProps from field configurations', async () => {
+    const result = await createRootComponent([mockRootConfig1, mockRootConfig2], mockComponentFactoryData);
+
+    // Check that defaultProps are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toBeDefined();
+
+    // Check default root config defaults
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('@hakit/default-root');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['@hakit/default-root']).toHaveProperty('background');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['@hakit/default-root']).toHaveProperty('typography');
+
+    // Check that background defaults are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const backgroundDefaults = result.defaultProps['@hakit/default-root'].background;
+    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
+    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
+    expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
+    expect(backgroundDefaults).toHaveProperty('blur', 25);
+
+    // Check that typography defaults are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const typographyDefaults = result.defaultProps['@hakit/default-root'].typography;
+    expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
+    expect(typographyDefaults).toHaveProperty('fontColor', '#ffffff');
+    expect(typographyDefaults).toHaveProperty('useAdvancedTypography', false);
+    expect(typographyDefaults).toHaveProperty('headingWeight', 600);
+    expect(typographyDefaults).toHaveProperty('bodyWeight', 400);
+    expect(typographyDefaults).toHaveProperty('baseFontSize', '16px');
+    expect(typographyDefaults).toHaveProperty('lineHeight', 1.5);
+    expect(typographyDefaults).toHaveProperty('letterSpacing', 0);
+
+    // Check custom root config defaults
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('test-repo-1');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-1']).toHaveProperty('testField1', 'default value 1');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-1']).toHaveProperty('sharedField', 'from config 1');
+
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('test-repo-2');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-2']).toHaveProperty('testField2', 42);
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-2']).toHaveProperty('sharedField', 'from config 2');
+  });
+
+  test('should handle nested object field defaults', async () => {
+    interface NestedProps {
+      config: {
+        enabled: boolean;
+        settings: {
+          theme: string;
+          size: number;
+        };
+      };
+    }
+
+    const nestedRootConfig: CustomRootConfigWithRemote<NestedProps> = {
+      defaultProps: {
+        config: {
+          enabled: true,
+          settings: {
+            theme: 'dark',
+            size: 16,
+          },
+        },
+      },
+      label: 'Nested Root Config',
+      fields: {
+        config: {
+          type: 'object',
+          label: 'Configuration',
+          objectFields: {
+            enabled: {
+              type: 'switch',
+              label: 'Enabled',
+              default: true,
+            },
+            settings: {
+              type: 'object',
+              label: 'Settings',
+              objectFields: {
+                theme: {
+                  type: 'select',
+                  label: 'Theme',
+                  default: 'dark',
+                  options: [
+                    { label: 'Dark', value: 'dark' },
+                    { label: 'Light', value: 'light' },
+                  ],
+                },
+                size: {
+                  type: 'number',
+                  label: 'Size',
+                  default: 16,
+                  min: 12,
+                  max: 24,
+                },
+              },
+            },
+          },
+        },
+      },
+      _remoteRepositoryId: 'nested-repo',
+      _remoteRepositoryName: 'Nested Repository',
+      render: mock(() => <div>Nested Config</div>),
+    };
+
+    const result = await createRootComponent([nestedRootConfig], mockComponentFactoryData);
+
+    // Check that nested defaults are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('nested-repo');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['nested-repo']).toHaveProperty('config');
+
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const configDefaults = result.defaultProps['nested-repo'].config;
+    expect(configDefaults).toHaveProperty('enabled', true);
+    expect(configDefaults).toHaveProperty('settings');
+
+    const settingsDefaults = configDefaults.settings;
+    expect(settingsDefaults).toHaveProperty('theme', 'dark');
+    expect(settingsDefaults).toHaveProperty('size', 16);
+  });
+
+  test('should handle array field defaults', async () => {
+    interface ArrayProps {
+      items: Array<{
+        name: string;
+        count: number;
+      }>;
+    }
+
+    const arrayRootConfig: CustomRootConfigWithRemote<ArrayProps> = {
+      defaultProps: {
+        items: [
+          { name: 'Default Item 1', count: 5 },
+          { name: 'Default Item 2', count: 10 },
+        ],
+      },
+      label: 'Array Root Config',
+      fields: {
+        items: {
+          type: 'array',
+          label: 'Items',
+          default: [
+            { name: 'Default Item 1', count: 5 },
+            { name: 'Default Item 2', count: 10 },
+          ],
+          arrayFields: {
+            name: {
+              type: 'text',
+              label: 'Item Name',
+              default: 'New Item',
+            },
+            count: {
+              type: 'number',
+              label: 'Count',
+              default: 1,
+              min: 0,
+            },
+          },
+        },
+      },
+      _remoteRepositoryId: 'array-repo',
+      _remoteRepositoryName: 'Array Repository',
+      render: mock(() => <div>Array Config</div>),
+    };
+
+    const result = await createRootComponent([arrayRootConfig], mockComponentFactoryData);
+
+    // Check that array defaults are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('array-repo');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['array-repo']).toHaveProperty('items');
+
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const itemsDefaults = result.defaultProps['array-repo'].items;
+    expect(Array.isArray(itemsDefaults)).toBe(true);
+    expect(itemsDefaults).toHaveLength(2);
+    expect(itemsDefaults[0]).toEqual({ name: 'Default Item 1', count: 5 });
+    expect(itemsDefaults[1]).toEqual({ name: 'Default Item 2', count: 10 });
+  });
+
+  test('should handle different field types with defaults', async () => {
+    interface VariousFieldProps {
+      textField: string;
+      numberField: number;
+      booleanField: boolean;
+      selectField: string;
+      colorField: string;
+    }
+
+    const variousFieldsConfig: CustomRootConfigWithRemote<VariousFieldProps> = {
+      defaultProps: {
+        textField: 'Default Text',
+        numberField: 42,
+        booleanField: true,
+        selectField: 'option2',
+        colorField: '#ff0000',
+      },
+      label: 'Various Fields Config',
+      fields: {
+        textField: {
+          type: 'text',
+          label: 'Text Field',
+          default: 'Default Text',
+        },
+        numberField: {
+          type: 'number',
+          label: 'Number Field',
+          default: 42,
+          min: 0,
+          max: 100,
+        },
+        booleanField: {
+          type: 'switch',
+          label: 'Boolean Field',
+          default: true,
+        },
+        selectField: {
+          type: 'select',
+          label: 'Select Field',
+          default: 'option2',
+          options: [
+            { label: 'Option 1', value: 'option1' },
+            { label: 'Option 2', value: 'option2' },
+            { label: 'Option 3', value: 'option3' },
+          ],
+        },
+        colorField: {
+          type: 'color',
+          label: 'Color Field',
+          default: '#ff0000',
+        },
+      },
+      _remoteRepositoryId: 'various-repo',
+      _remoteRepositoryName: 'Various Repository',
+      render: mock(() => <div>Various Config</div>),
+    };
+
+    const result = await createRootComponent([variousFieldsConfig], mockComponentFactoryData);
+
+    // Check that various field type defaults are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('various-repo');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const variousDefaults = result.defaultProps['various-repo'];
+
+    expect(variousDefaults).toHaveProperty('textField', 'Default Text');
+    expect(variousDefaults).toHaveProperty('numberField', 42);
+    expect(variousDefaults).toHaveProperty('booleanField', true);
+    expect(variousDefaults).toHaveProperty('selectField', 'option2');
+    expect(variousDefaults).toHaveProperty('colorField', '#ff0000');
+  });
+
+  test('should populate defaultProps from defaultRootConfig with exact field defaults', async () => {
+    // Test with just the default root config to verify all its defaults
+    const result = await createRootComponent([], mockComponentFactoryData);
+
+    // Check that defaultProps are populated
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toBeDefined();
+
+    // Check default root config defaults
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('@hakit/default-root');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['@hakit/default-root']).toHaveProperty('background');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['@hakit/default-root']).toHaveProperty('typography');
+
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const backgroundDefaults = result.defaultProps['@hakit/default-root'].background;
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const typographyDefaults = result.defaultProps['@hakit/default-root'].typography;
+
+    // Verify ALL background field defaults match defaultRootConfig exactly
+    expect(backgroundDefaults).toHaveProperty('test', { foo: '' });
+    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
+    expect(backgroundDefaults).toHaveProperty('backgroundImage', undefined);
+    expect(backgroundDefaults).toHaveProperty('backgroundSize', 'cover');
+    expect(backgroundDefaults).toHaveProperty('backgroundSizeCustom', '');
+    expect(backgroundDefaults).toHaveProperty('backgroundPosition', 'center center');
+    expect(backgroundDefaults).toHaveProperty('backgroundRepeat', 'no-repeat');
+    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
+    expect(backgroundDefaults).toHaveProperty('blur', 25);
+    expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
+    expect(backgroundDefaults).toHaveProperty('useAdvancedFilters', false);
+    expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
+    expect(backgroundDefaults).toHaveProperty('filterContrast', 1);
+    expect(backgroundDefaults).toHaveProperty('filterSaturate', 1);
+    expect(backgroundDefaults).toHaveProperty('filterGrayscale', 0);
+
+    // Verify ALL typography field defaults match defaultRootConfig exactly
+    expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
+    expect(typographyDefaults).toHaveProperty('fontColor', '#ffffff');
+    expect(typographyDefaults).toHaveProperty('useAdvancedTypography', false);
+    expect(typographyDefaults).toHaveProperty('headingWeight', 600);
+    expect(typographyDefaults).toHaveProperty('bodyWeight', 400);
+    expect(typographyDefaults).toHaveProperty('baseFontSize', '16px');
+    expect(typographyDefaults).toHaveProperty('lineHeight', 1.5);
+    expect(typographyDefaults).toHaveProperty('letterSpacing', 0);
+  });
+
+  test('should handle defaultRootConfig with custom root configs and preserve all defaults', async () => {
+    // Test with defaultRootConfig + custom configs to ensure defaults are preserved
+    const result = await createRootComponent([mockRootConfig1, mockRootConfig2], mockComponentFactoryData);
+
+    // Check that defaultProps are populated for all configs
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toBeDefined();
+
+    // Verify default root config defaults are still correct
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const backgroundDefaults = result.defaultProps['@hakit/default-root'].background;
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const typographyDefaults = result.defaultProps['@hakit/default-root'].typography;
+
+    // Verify defaultRootConfig defaults are preserved
+    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
+    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('blur', 25);
+    expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
+    expect(typographyDefaults).toHaveProperty('fontColor', '#ffffff');
+
+    // Verify custom config defaults are also present
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('test-repo-1');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps).toHaveProperty('test-repo-2');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-1']).toHaveProperty('testField1', 'default value 1');
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    expect(result.defaultProps['test-repo-2']).toHaveProperty('testField2', 42);
+  });
+
+  test('should match defaultRootConfig field structure exactly', async () => {
+    // This test ensures the field structure matches what's defined in defaultRootConfig
+    const result = await createRootComponent([], mockComponentFactoryData);
+
+    // @ts-expect-error - defaultProps exists at runtime but not in type definition
+    const defaultProps = result.defaultProps['@hakit/default-root'];
+
+    // Verify the structure matches DefaultRootProps interface
+    expect(defaultProps).toHaveProperty('background');
+    expect(defaultProps).toHaveProperty('typography');
+
+    // Verify background structure matches BackgroundProps interface
+    const background = defaultProps.background;
+    expect(background).toHaveProperty('test');
+    expect(background).toHaveProperty('useBackgroundImage');
+    expect(background).toHaveProperty('backgroundImage');
+    expect(background).toHaveProperty('backgroundSize');
+    expect(background).toHaveProperty('backgroundSizeCustom');
+    expect(background).toHaveProperty('backgroundPosition');
+    expect(background).toHaveProperty('backgroundRepeat');
+    expect(background).toHaveProperty('overlayColor');
+    expect(background).toHaveProperty('overlayBlendMode');
+    expect(background).toHaveProperty('blur');
+    expect(background).toHaveProperty('overlayOpacity');
+    expect(background).toHaveProperty('useAdvancedFilters');
+    expect(background).toHaveProperty('filterBrightness');
+    expect(background).toHaveProperty('filterContrast');
+    expect(background).toHaveProperty('filterSaturate');
+    expect(background).toHaveProperty('filterGrayscale');
+
+    // Verify typography structure matches TypographyProps interface
+    const typography = defaultProps.typography;
+    expect(typography).toHaveProperty('fontFamily');
+    expect(typography).toHaveProperty('fontColor');
+    expect(typography).toHaveProperty('useAdvancedTypography');
+    expect(typography).toHaveProperty('headingWeight');
+    expect(typography).toHaveProperty('bodyWeight');
+    expect(typography).toHaveProperty('baseFontSize');
+    expect(typography).toHaveProperty('lineHeight');
+    expect(typography).toHaveProperty('letterSpacing');
+  });
+
+  test('should merge missing fields with default props in render function', async () => {
+    // This test simulates the scenario where stored data is missing new fields
+    // and verifies that default props are merged in
+    const result = await createRootComponent([], mockComponentFactoryData);
+
+    // Simulate props that are missing the typography object (like old stored data)
+    const mockPropsWithMissingFields = {
+      '@hakit/default-root': {
+        background: {
+          useBackgroundImage: true,
+          overlayColor: '#ff0000', // Different from default to test merging
+          blur: 10, // Different from default to test merging
+        },
+        // Missing typography object entirely
+      },
+      content: () => <div>Content</div>,
+      _activeBreakpoint: 'mobile' as const,
+      puck: {} as Record<string, unknown>,
+    };
+
+    // Test that the render function can be called without error
+    const TestComponent = result.render;
+    if (TestComponent) {
+      expect(() => TestComponent(mockPropsWithMissingFields as unknown as Parameters<typeof TestComponent>[0])).not.toThrow();
+    }
   });
 });

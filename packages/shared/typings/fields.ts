@@ -17,6 +17,7 @@ import type { HassEntity } from 'home-assistant-js-websocket';
 import { AvailableQueries } from '@hakit/components';
 import type { OnValidate } from '@monaco-editor/react';
 import type { EntityName } from '@hakit/core';
+import { UnitFieldValue } from '@components/Form/Field/Unit';
 
 export type SlotField = PuckSlotField;
 
@@ -55,6 +56,7 @@ type FieldValueByKind = {
   divider: never; // (or unknown, if you prefer)
   hidden: unknown;
   slot: Slot;
+  unit: UnitFieldValue;
 };
 
 // some puck types can clash with our own custom ones, so we need to exclude them
@@ -138,6 +140,8 @@ export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   default: Props;
   /** if enabled, this field will be able to configure different values at different breakpoints @default true */
   responsiveMode?: boolean;
+  /** The id of the repository that the field belongs to */
+  repositoryId?: string;
   /** The label of the field */
   label: string;
   /** used to determine if we want to show the current field based on the current data */
@@ -157,6 +161,7 @@ type FieldTypeOmitMap = {
   hidden: Exclude<keyof ExtendedFieldTypes, 'default' | 'visible'>;
   object: 'default';
   entity: 'default';
+  unit: 'default';
 };
 
 export type FieldDefinition = {
@@ -175,6 +180,7 @@ export type FieldDefinition = {
   service: { type: 'service' };
   color: { type: 'color' };
   imageUpload: { type: 'imageUpload' };
+  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };
   grid: { type: 'grid'; step?: number; min?: number; max?: number };
   code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
@@ -182,7 +188,7 @@ export type FieldDefinition = {
   entity: {
     type: 'entity';
     filterOptions: (entities: HassEntity[]) => HassEntity[];
-    default: (options: HassEntity[]) => Promise<string | undefined> | string | undefined;
+    default: (options: HassEntity[]) => Promise<EntityName | undefined | string> | EntityName | undefined | string;
   };
   hidden: { type: 'hidden' };
   slot: PuckSlotField;

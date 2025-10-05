@@ -15,6 +15,7 @@ import {
   ImagePlus,
   CodeXml,
   Minus,
+  Ruler,
 } from 'lucide-react';
 
 // Create an object with keys based on the extracted type values
@@ -41,4 +42,5 @@ export const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   switch: <CheckCircle size={16} />,
   // not seen anyway
   hidden: <Hash size={16} />,
+  unit: <Ruler size={16} />,
 };

@@ -4,12 +4,11 @@ import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
 import { updateDashboardPageForUser, dashboardByPathWithPageDataQueryOptions } from '@services/dashboard';
 import { type PuckAction } from '@measured/puck';
-import { trimPuckDataToConfig } from '@helpers/editor/pageData/trimPuckDataToConfig';
-import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
 import { useQueryClient } from '@tanstack/react-query';
+import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 
 const TIME_THRESHOLD_SECONDS = 1; // Threshold for showing recovery prompt
 
@@ -173,24 +172,23 @@ export function useUnsavedChanges(): UnsavedChangesState {
       });
       return;
     }
-    const updated = trimPuckDataToConfig(stored.data, userConfig);
-    if (!updated) {
-      toast('Failed to trim stored data to user config, unable to restore', {
+    const sanitizedData = sanitizePuckData(stored.data, userConfig, activeBreakpoint);
+    if (!sanitizedData) {
+      toast('Failed to sanitize stored data, unable to restore', {
         type: 'error',
         theme: 'dark',
       });
       return;
     }
-    const puckValue = dbValueToPuck(updated, activeBreakpoint);
     // Update internal puck data
-    setPuckPageData(puckValue);
+    setPuckPageData(sanitizedData);
     // the user has accepted the recovery, so we update the dashboard page data
     // in the db
     updateDashboardPageForUser(
       dashboard.id,
       {
         id: page.id,
-        data: puckValue,
+        data: sanitizedData,
       },
       {
         success: 'Recovery successful, Dashboard saved',

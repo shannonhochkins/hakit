@@ -16,13 +16,13 @@ type CommonProps = {
 };
 
 type PageFieldSingleProps = CommonProps & {
-  muiltiSelect?: false;
+  multiple?: false;
   value?: DashboardPageWithoutData;
   onChange: (value: DashboardPageWithoutData) => void;
 };
 
 type PageFieldMultiProps = CommonProps & {
-  muiltiSelect: true;
+  multiple: true;
   value?: DashboardPageWithoutData[];
   onChange: (value: DashboardPageWithoutData[]) => void;
 };
@@ -85,7 +85,7 @@ function DashboardPageMultiSelect({
     </>
   );
 }
-export const PageField = memo(function Page({ value, label, muiltiSelect, min, max, onChange }: PageFieldProps) {
+export const PageField = memo(function Page({ value, label, multiple, min, max, onChange }: PageFieldProps) {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
@@ -153,7 +153,7 @@ export const PageField = memo(function Page({ value, label, muiltiSelect, min, m
     }
   };
 
-  if (muiltiSelect) {
+  if (multiple) {
     return (
       <DashboardPageMultiSelect
         value={value as DashboardPageWithoutData[]}

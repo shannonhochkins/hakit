@@ -1,16 +1,21 @@
 import { describe, test, expect } from 'bun:test';
-import { trimPuckDataToConfig } from '../trimPuckDataToConfig';
-import { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
+import { extendPuckDataWithDefaults, trimPuckDataToConfig } from '../trimPuckDataToConfig';
+import { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import { DefaultComponentProps } from '@measured/puck';
 
 describe('trimPuckDataToConfig', () => {
   describe('basic functionality', () => {
     test('should return null when data is null', () => {
-      const userConfig = {
+      const userConfig: CustomPuckConfig<DefaultComponentProps> = {
         components: {},
+        root: {
+          defaultProps: {
+            title: 'Test',
+          },
+        },
       };
 
-      const result = trimPuckDataToConfig(null, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(null, userConfig);
       expect(result).toBeNull();
     });
 
@@ -37,11 +42,14 @@ describe('trimPuckDataToConfig', () => {
         zones: { main: [] },
       };
 
-      const userConfig: CustomConfigWithDefinition = {
+      const userConfig: CustomPuckConfig<DefaultComponentProps> = {
         components: {},
+        root: {
+          defaultProps: {},
+        },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig);
 
       expect(result).toEqual({
         root: { props: {} },
@@ -100,53 +108,52 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
-        [componentName]: {
-          validField: string;
-          _activeBreakpoint: string;
-          anotherValidField: string;
-        };
-      }> = {
+      const userConfig: CustomPuckConfig<
+        {
+          [componentName]: {
+            validField: string;
+            _activeBreakpoint: string;
+            anotherValidField: string;
+          };
+        },
+        DefaultComponentProps
+      > = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              _activeBreakpoint: '',
+              validField: '',
+              anotherValidField: '',
+            },
             render() {
               return <></>;
             },
             label: componentName,
             fields: {
               _activeBreakpoint: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: '_activeBreakpoint',
-                  default: '',
-                },
+                type: 'text',
+                label: '_activeBreakpoint',
+                default: '',
               },
               validField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Valid Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Valid Field',
+                default: '',
               },
               anotherValidField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Another Valid Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Another Valid Field',
+                default: '',
               },
             },
           },
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
       expect(result?.content[0].props).toEqual({
         id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
         validField: {
@@ -171,43 +178,42 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           validField: string;
           anotherValidField: string;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              validField: '',
+              anotherValidField: '',
+            },
             render() {
               return <></>;
             },
             label: componentName,
             fields: {
               validField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Valid Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Valid Field',
+                default: '',
               },
               anotherValidField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Another Valid Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Another Valid Field',
+                default: '',
               },
             },
           },
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         validField: 'keep this',
@@ -232,33 +238,35 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [validComponent]: {
           text: string;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [validComponent]: {
+            defaultProps: {
+              text: '',
+            },
             render() {
               return <></>;
             },
             label: validComponent,
             fields: {
               text: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Text',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Text',
+                default: '',
               },
             },
           },
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content).toHaveLength(1);
       expect(result?.content[0].type).toBe('ValidComponent');
@@ -276,11 +284,15 @@ describe('trimPuckDataToConfig', () => {
         ],
         zones: {},
       };
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [noFieldsComponent]: Record<string, never>;
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [noFieldsComponent]: {
+            defaultProps: {},
             render() {
               return <></>;
             },
@@ -290,7 +302,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content).toHaveLength(1);
       expect(result?.content[0].type).toBe('NoFieldsComponent');
@@ -314,27 +326,29 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           validField: string;
           // Note: id is NOT defined in the config
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              validField: '',
+            },
             render() {
               return <></>;
             },
             label: componentName,
             fields: {
               validField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Valid Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Valid Field',
+                default: '',
               },
               // Note: id field is NOT defined here
             },
@@ -342,7 +356,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         id: 'test-component-123', // Should be preserved even though not in config
@@ -377,7 +391,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           settings: {
             theme: string;
@@ -391,69 +405,55 @@ describe('trimPuckDataToConfig', () => {
           }>;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              settings: {
+                theme: '',
+                validSetting: '',
+              },
+              items: [],
+            },
             render() {
               return <></>;
             },
             label: componentName,
             fields: {
               settings: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Settings',
-                  objectFields: {
-                    theme: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Theme',
-                        default: '',
-                      },
-                    },
-                    validSetting: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Valid Setting',
-                        default: '',
-                      },
-                    },
+                type: 'object',
+                label: 'Settings',
+                objectFields: {
+                  theme: {
+                    type: 'text',
+                    label: 'Theme',
+                    default: '',
+                  },
+                  validSetting: {
+                    type: 'text',
+                    label: 'Valid Setting',
+                    default: '',
                   },
                 },
               },
               items: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'array',
-                  label: 'Items',
-                  default: [],
-                  arrayFields: {
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
-                    validField: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Valid Field',
-                        default: '',
-                      },
-                    },
-                    // Note: no id field defined here
+                type: 'array',
+                label: 'Items',
+                default: [],
+                arrayFields: {
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
                   },
+                  validField: {
+                    type: 'text',
+                    label: 'Valid Field',
+                    default: '',
+                  },
+                  // Note: no id field defined here
                 },
               },
             },
@@ -461,7 +461,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         id: 'test-component-123', // Top-level id should be preserved
@@ -495,37 +495,30 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition = {
+      const userConfig: CustomPuckConfig<DefaultComponentProps> = {
         components: {},
         root: {
+          defaultProps: {},
           render() {
             return <></>;
           },
           label: 'Root',
           fields: {
             title: {
-              _field: {
-                type: 'text',
-                label: 'Title',
-                default: '',
-              },
-              type: 'custom',
-              render: () => <></>,
+              type: 'text',
+              label: 'Title',
+              default: '',
             },
             subtitle: {
-              _field: {
-                type: 'text',
-                label: 'Subtitle',
-                default: '',
-              },
-              type: 'custom',
-              render: () => <></>,
+              type: 'text',
+              label: 'Subtitle',
+              default: '',
             },
           },
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig);
 
       expect(result?.root?.props).toEqual({
         title: 'Keep this title',
@@ -544,11 +537,14 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition = {
+      const userConfig: CustomPuckConfig<DefaultComponentProps> = {
+        root: {
+          defaultProps: {},
+        },
         components: {},
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig);
 
       expect(result?.root?.props).toEqual({});
     });
@@ -574,7 +570,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [nestedComponent]: {
           settings: {
             name: string;
@@ -582,38 +578,35 @@ describe('trimPuckDataToConfig', () => {
           };
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [nestedComponent]: {
+            defaultProps: {
+              settings: {
+                name: '',
+                value: 0,
+              },
+            },
             render() {
               return <></>;
             },
             label: nestedComponent,
             fields: {
               settings: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Settings',
-                  objectFields: {
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
-                    value: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'number',
-                        label: 'Value',
-                        default: 0,
-                      },
-                    },
+                type: 'object',
+                label: 'Settings',
+                objectFields: {
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
+                  },
+                  value: {
+                    type: 'number',
+                    label: 'Value',
+                    default: 0,
                   },
                 },
               },
@@ -622,7 +615,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         settings: {
@@ -655,7 +648,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           config: {
             ui: {
@@ -667,54 +660,47 @@ describe('trimPuckDataToConfig', () => {
           };
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              config: {
+                ui: {
+                  theme: '',
+                  colors: {
+                    primary: '',
+                  },
+                },
+              },
+            },
             label: componentName,
             fields: {
               config: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Config',
-                  objectFields: {
-                    ui: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
+                type: 'object',
+                label: 'Config',
+                objectFields: {
+                  ui: {
+                    type: 'object',
+                    label: 'UI',
+                    objectFields: {
+                      theme: {
+                        type: 'text',
+                        label: 'Theme',
+                        default: '',
+                      },
+                      colors: {
                         type: 'object',
-                        label: 'UI',
+                        label: 'Colors',
                         objectFields: {
-                          theme: {
-                            type: 'custom',
-                            render: () => <></>,
-                            _field: {
-                              type: 'text',
-                              label: 'Theme',
-                              default: '',
-                            },
-                          },
-                          colors: {
-                            type: 'custom',
-                            render: () => <></>,
-                            _field: {
-                              type: 'object',
-                              label: 'Colors',
-                              objectFields: {
-                                primary: {
-                                  type: 'custom',
-                                  render: () => <></>,
-                                  _field: {
-                                    type: 'text',
-                                    label: 'Primary Color',
-                                    default: '',
-                                  },
-                                },
-                              },
-                            },
+                          primary: {
+                            type: 'text',
+                            label: 'Primary Color',
+                            default: '',
                           },
                         },
                       },
@@ -727,7 +713,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         config: {
@@ -759,43 +745,42 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           definedField: string;
           undefinedField?: string; // Optional to allow undefined
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              definedField: '',
+              undefinedField: '',
+            },
             label: componentName,
             fields: {
               definedField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Defined Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Defined Field',
+                default: '',
               },
               undefinedField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Undefined Field',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Undefined Field',
+                default: '',
               },
             },
           },
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         definedField: 'value',
@@ -817,36 +802,36 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           settings: {
             name: string;
           };
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              settings: {
+                name: '',
+              },
+            },
             label: componentName,
             fields: {
               settings: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Settings',
-                  objectFields: {
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
+                type: 'object',
+                label: 'Settings',
+                objectFields: {
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
                   },
                 },
               },
@@ -855,7 +840,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({});
     });
@@ -875,36 +860,36 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           settings: {
             name: string;
           };
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              settings: {
+                name: '',
+              },
+            },
             render() {
               return <></>;
             },
             label: 'TestComponent',
             fields: {
               settings: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Settings',
-                  objectFields: {
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
+                type: 'object',
+                label: 'Settings',
+                objectFields: {
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
                   },
                 },
               },
@@ -913,7 +898,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({});
     });
@@ -937,7 +922,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           textField: string;
           numberField: number;
@@ -947,57 +932,46 @@ describe('trimPuckDataToConfig', () => {
           }[];
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              textField: '',
+              numberField: 0,
+              booleanField: false,
+              arrayField: [],
+            },
             label: componentName,
             fields: {
               textField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Text',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Text',
+                default: '',
               },
               numberField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'number',
-                  label: 'Number',
-                  default: 0,
-                },
+                type: 'number',
+                label: 'Number',
+                default: 0,
               },
               booleanField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text', // Using text type for simplicity
-                  label: 'Boolean',
-                  default: false,
-                },
+                type: 'switch',
+                label: 'Boolean',
+                default: false,
               },
               arrayField: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'array',
-                  label: 'Array Field',
-                  default: [],
-                  arrayFields: {
-                    number: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'number',
-                        label: 'Number',
-                        default: 0,
-                      },
-                    },
+                type: 'array',
+                label: 'Array Field',
+                default: [],
+                arrayFields: {
+                  number: {
+                    type: 'number',
+                    label: 'Number',
+                    default: 0,
                   },
                 },
               },
@@ -1006,7 +980,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result?.content[0].props).toEqual({
         textField: 'text value',
@@ -1036,11 +1010,14 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const userConfig: CustomConfigWithDefinition = {
+      const userConfig: CustomPuckConfig = {
+        root: {
+          defaultProps: {},
+        },
         components: {},
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig);
 
       expect(result).toBeTruthy();
       if (result && data.zones) {
@@ -1074,7 +1051,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           items: Array<{
             id: string;
@@ -1083,41 +1060,35 @@ describe('trimPuckDataToConfig', () => {
           }>;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              items: [],
+            },
             label: componentName,
             fields: {
               items: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'array',
-                  label: 'Items',
-                  default: [],
-                  arrayFields: {
-                    id: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'ID',
-                        default: '',
-                      },
-                    },
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
-                    // Note: invalidField and anotherInvalidField are NOT defined here
+                type: 'array',
+                label: 'Items',
+                default: [],
+                arrayFields: {
+                  id: {
+                    type: 'text',
+                    label: 'ID',
+                    default: '',
                   },
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
+                  },
+                  // Note: invalidField and anotherInvalidField are NOT defined here
                 },
               },
             },
@@ -1125,7 +1096,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       // Array fields should be recursively trimmed when arrayFields are defined
       // Invalid fields inside array items should be stripped
@@ -1171,7 +1142,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           rawData: Array<{
             id: string;
@@ -1180,41 +1151,35 @@ describe('trimPuckDataToConfig', () => {
           }>;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
             render() {
               return <></>;
             },
+            defaultProps: {
+              rawData: [],
+            },
             label: componentName,
             fields: {
               rawData: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'array',
-                  label: 'Raw Data',
-                  default: [],
-                  arrayFields: {
-                    id: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'ID',
-                        default: '',
-                      },
-                    },
-                    name: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Name',
-                        default: '',
-                      },
-                    },
-                    // Note: invalidField and anotherInvalidField are NOT defined here
+                type: 'array',
+                label: 'Raw Data',
+                default: [],
+                arrayFields: {
+                  id: {
+                    type: 'text',
+                    label: 'ID',
+                    default: '',
                   },
+                  name: {
+                    type: 'text',
+                    label: 'Name',
+                    default: '',
+                  },
+                  // Note: invalidField and anotherInvalidField are NOT defined here
                 },
               },
             },
@@ -1222,7 +1187,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       // Array fields without arrayFields should be preserved as-is
       expect(result?.content[0].props).toEqual({
@@ -1293,7 +1258,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [Header]: {
           title: string;
           subtitle: string;
@@ -1311,68 +1276,55 @@ describe('trimPuckDataToConfig', () => {
             render() {
               return <></>;
             },
+            defaultProps: {
+              title: '',
+              subtitle: '',
+            },
             label: Header,
             fields: {
               title: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Title',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Title',
+                default: '',
               },
               subtitle: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Subtitle',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Subtitle',
+                default: '',
               },
             },
           },
           [Footer]: {
+            defaultProps: {
+              copyright: '',
+              links: {
+                home: '',
+                about: '',
+              },
+            },
             render() {
               return <></>;
             },
             label: Footer,
             fields: {
               copyright: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'text',
-                  label: 'Copyright',
-                  default: '',
-                },
+                type: 'text',
+                label: 'Copyright',
+                default: '',
               },
               links: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'object',
-                  label: 'Links',
-                  objectFields: {
-                    home: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Home URL',
-                        default: '',
-                      },
-                    },
-                    about: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'About URL',
-                        default: '',
-                      },
-                    },
+                type: 'object',
+                label: 'Links',
+                objectFields: {
+                  home: {
+                    type: 'text',
+                    label: 'Home URL',
+                    default: '',
+                  },
+                  about: {
+                    type: 'text',
+                    label: 'About URL',
+                    default: '',
                   },
                 },
               },
@@ -1380,36 +1332,30 @@ describe('trimPuckDataToConfig', () => {
           },
         },
         root: {
+          defaultProps: {
+            pageTitle: '',
+            pageSettings: {
+              theme: '',
+            },
+          },
           render() {
             return <></>;
           },
           label: 'Root',
           fields: {
             pageTitle: {
-              type: 'custom',
-              render: () => <></>,
-              _field: {
-                type: 'text',
-                label: 'Page Title',
-                default: '',
-              },
+              type: 'text',
+              label: 'Page Title',
+              default: '',
             },
             pageSettings: {
-              type: 'custom',
-              render: () => <></>,
-              _field: {
-                type: 'object',
-                label: 'Page Settings',
-                objectFields: {
-                  theme: {
-                    type: 'custom',
-                    render: () => <></>,
-                    _field: {
-                      type: 'text',
-                      label: 'Theme',
-                      default: '',
-                    },
-                  },
+              type: 'object',
+              label: 'Page Settings',
+              objectFields: {
+                theme: {
+                  type: 'text',
+                  label: 'Theme',
+                  default: '',
                 },
               },
             },
@@ -1417,7 +1363,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       expect(result).toEqual({
         root: {
@@ -1497,7 +1443,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomConfigWithDefinition<{
+      const userConfig: CustomPuckConfig<{
         [componentName]: {
           sections: Array<{
             title: string;
@@ -1510,68 +1456,50 @@ describe('trimPuckDataToConfig', () => {
           }>;
         };
       }> = {
+        root: {
+          defaultProps: {},
+        },
         components: {
           [componentName]: {
+            defaultProps: {
+              sections: [],
+            },
             render() {
               return <></>;
             },
             label: componentName,
             fields: {
               sections: {
-                type: 'custom',
-                render: () => <></>,
-                _field: {
-                  type: 'array',
-                  label: 'Sections',
-                  default: [],
-                  arrayFields: {
-                    title: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
-                        type: 'text',
-                        label: 'Title',
-                        default: '',
+                type: 'array',
+                label: 'Sections',
+                default: [],
+                arrayFields: {
+                  title: {
+                    type: 'text',
+                    label: 'Title',
+                    default: '',
+                  },
+                  config: {
+                    type: 'object',
+                    label: 'Config',
+                    objectFields: {
+                      enabled: {
+                        type: 'select',
+                        label: 'Enabled',
+                        default: false,
+                        options: [
+                          { value: true, label: 'Yes' },
+                          { value: false, label: 'No' },
+                        ],
                       },
-                    },
-                    config: {
-                      type: 'custom',
-                      render: () => <></>,
-                      _field: {
+                      settings: {
                         type: 'object',
-                        label: 'Config',
+                        label: 'Settings',
                         objectFields: {
-                          enabled: {
-                            type: 'custom',
-                            render: () => <></>,
-                            _field: {
-                              type: 'select',
-                              label: 'Enabled',
-                              default: false,
-                              options: [
-                                { value: true, label: 'Yes' },
-                                { value: false, label: 'No' },
-                              ],
-                            },
-                          },
-                          settings: {
-                            type: 'custom',
-                            render: () => <></>,
-                            _field: {
-                              type: 'object',
-                              label: 'Settings',
-                              objectFields: {
-                                theme: {
-                                  type: 'custom',
-                                  render: () => <></>,
-                                  _field: {
-                                    type: 'text',
-                                    label: 'Theme',
-                                    default: 'light',
-                                  },
-                                },
-                              },
-                            },
+                          theme: {
+                            type: 'text',
+                            label: 'Theme',
+                            default: 'light',
                           },
                         },
                       },
@@ -1584,7 +1512,7 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const result = trimPuckDataToConfig(data, userConfig as CustomConfigWithDefinition);
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
 
       // Nested objects within arrays should be recursively trimmed
       expect(result?.content[0].props).toEqual({
@@ -1632,7 +1560,7 @@ describe('trimPuckDataToConfig', () => {
       zones: {},
     };
 
-    const rootUserConfig: CustomConfigWithDefinition<
+    const rootUserConfig: CustomPuckConfig<
       DefaultComponentProps,
       {
         test: {
@@ -1646,27 +1574,26 @@ describe('trimPuckDataToConfig', () => {
       categories: {},
       root: {
         label: 'Root',
+        defaultProps: {
+          test: {
+            background: {
+              backgroundImage: '',
+            },
+          },
+        },
         fields: {
           test: {
-            type: 'custom',
-            render: () => <></>,
-            _field: {
-              type: 'object',
-              label: 'Test Object',
-              objectFields: {
-                background: {
-                  type: 'custom',
-                  render: () => <></>,
-                  _field: {
-                    type: 'object',
-                    label: 'Background',
-                    objectFields: {
-                      backgroundImage: {
-                        type: 'custom',
-                        render: () => <></>,
-                        _field: { type: 'text', label: 'Background Image', default: '' },
-                      },
-                    },
+            type: 'object',
+            label: 'Test Object',
+            objectFields: {
+              background: {
+                type: 'object',
+                label: 'Background',
+                objectFields: {
+                  backgroundImage: {
+                    type: 'text',
+                    label: 'Background Image',
+                    default: '',
                   },
                 },
               },
@@ -1676,7 +1603,215 @@ describe('trimPuckDataToConfig', () => {
       },
     };
 
-    const puckValue = trimPuckDataToConfig(originalData as PuckPageData, rootUserConfig as CustomConfigWithDefinition);
+    const puckValue = trimPuckDataToConfig(originalData as PuckPageData, rootUserConfig as CustomPuckConfig);
     expect(puckValue).toEqual(originalData);
+  });
+});
+
+describe('extendPuckDataWithDefaults', () => {
+  test('should extend missing typography object with defaults', () => {
+    const mockData: PuckPageData = {
+      zones: {},
+      content: [],
+      root: {
+        props: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#4254c5',
+              blur: 22,
+            },
+            // Missing typography object
+          },
+          styles: {
+            css: '',
+          },
+        },
+      },
+    };
+
+    const mockUserConfig: CustomPuckConfig<DefaultComponentProps> = {
+      components: {},
+      root: {
+        defaultProps: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#4254c5',
+              blur: 25,
+              overlayOpacity: 0.9,
+              useAdvancedFilters: false,
+              filterBrightness: 1,
+              filterContrast: 1,
+              filterSaturate: 1,
+              filterGrayscale: 0,
+            },
+            typography: {
+              fontFamily: 'roboto',
+              fontColor: '#ffffff',
+              useAdvancedTypography: false,
+              headingWeight: 600,
+              bodyWeight: 400,
+              baseFontSize: '16px',
+              lineHeight: 1.5,
+              letterSpacing: 0,
+            },
+          },
+        },
+      },
+    };
+
+    const result = extendPuckDataWithDefaults(mockData, mockUserConfig);
+
+    expect(result).toBeDefined();
+    expect(result?.root?.props?.['@hakit/default-root']).toHaveProperty('typography');
+
+    const typography = result?.root?.props?.['@hakit/default-root'].typography;
+    expect(typography).toHaveProperty('fontFamily', 'roboto');
+    expect(typography).toHaveProperty('fontColor', '#ffffff');
+    expect(typography).toHaveProperty('useAdvancedTypography', false);
+    expect(typography).toHaveProperty('headingWeight', 600);
+    expect(typography).toHaveProperty('bodyWeight', 400);
+    expect(typography).toHaveProperty('baseFontSize', '16px');
+    expect(typography).toHaveProperty('lineHeight', 1.5);
+    expect(typography).toHaveProperty('letterSpacing', 0);
+  });
+
+  test('should extend missing background properties with defaults', () => {
+    const mockData: PuckPageData = {
+      zones: {},
+      content: [],
+      root: {
+        props: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#ff0000', // Different from default
+            },
+            // Missing typography object entirely
+          },
+        },
+      },
+    };
+
+    const mockUserConfig: CustomPuckConfig<DefaultComponentProps> = {
+      components: {},
+      root: {
+        defaultProps: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#4254c5',
+              blur: 25,
+              overlayOpacity: 0.9,
+              useAdvancedFilters: false,
+              filterBrightness: 1,
+              filterContrast: 1,
+              filterSaturate: 1,
+              filterGrayscale: 0,
+            },
+            typography: {
+              fontFamily: 'roboto',
+              fontColor: '#ffffff',
+              useAdvancedTypography: false,
+              headingWeight: 600,
+              bodyWeight: 400,
+              baseFontSize: '16px',
+              lineHeight: 1.5,
+              letterSpacing: 0,
+            },
+          },
+        },
+      },
+    };
+
+    const result = extendPuckDataWithDefaults(mockData, mockUserConfig);
+
+    expect(result).toBeDefined();
+
+    const background = result?.root?.props?.['@hakit/default-root'].background;
+    // Should preserve existing values
+    expect(background).toHaveProperty('useBackgroundImage', true);
+    expect(background).toHaveProperty('overlayColor', '#ff0000'); // Preserved existing value
+
+    // Should add missing properties with defaults
+    expect(background).toHaveProperty('blur', 25);
+    expect(background).toHaveProperty('overlayOpacity', 0.9);
+    expect(background).toHaveProperty('useAdvancedFilters', false);
+    expect(background).toHaveProperty('filterBrightness', 1);
+    expect(background).toHaveProperty('filterContrast', 1);
+    expect(background).toHaveProperty('filterSaturate', 1);
+    expect(background).toHaveProperty('filterGrayscale', 0);
+
+    // Should add missing typography object
+    expect(result?.root?.props?.['@hakit/default-root']).toHaveProperty('typography');
+  });
+
+  test('should handle missing remote entirely', () => {
+    const mockData: PuckPageData = {
+      zones: {},
+      content: [],
+      root: {
+        props: {
+          // Missing '@hakit/default-root' entirely
+          styles: {
+            css: '',
+          },
+        },
+      },
+    };
+
+    const mockUserConfig: CustomPuckConfig<DefaultComponentProps> = {
+      components: {},
+      root: {
+        defaultProps: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#4254c5',
+              blur: 25,
+            },
+            typography: {
+              fontFamily: 'roboto',
+              fontColor: '#ffffff',
+            },
+          },
+        },
+      },
+    };
+
+    const result = extendPuckDataWithDefaults(mockData, mockUserConfig);
+
+    expect(result).toBeDefined();
+    expect(result?.root?.props?.['@hakit/default-root']).toBeDefined();
+
+    const defaultRoot = result?.root?.props?.['@hakit/default-root'];
+    expect(defaultRoot).toHaveProperty('background');
+    expect(defaultRoot).toHaveProperty('typography');
+
+    expect(defaultRoot.background).toHaveProperty('useBackgroundImage', true);
+    expect(defaultRoot.background).toHaveProperty('overlayColor', '#4254c5');
+    expect(defaultRoot.background).toHaveProperty('blur', 25);
+
+    expect(defaultRoot.typography).toHaveProperty('fontFamily', 'roboto');
+    expect(defaultRoot.typography).toHaveProperty('fontColor', '#ffffff');
+  });
+
+  test('should return data unchanged if no defaultProps in userConfig', () => {
+    const mockData: PuckPageData = {
+      zones: {},
+      content: [],
+      root: { props: {} },
+    };
+
+    const mockUserConfig: CustomPuckConfig<DefaultComponentProps> = {
+      components: {},
+      root: {
+        defaultProps: {},
+      },
+    };
+
+    const result = extendPuckDataWithDefaults(mockData, mockUserConfig);
+    expect(result).toEqual(mockData);
   });
 });

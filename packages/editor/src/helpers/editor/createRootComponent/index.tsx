@@ -1,35 +1,30 @@
-import {
-  AdditionalRenderProps,
-  ComponentFactoryData,
-  CustomRootConfigWithDefinition,
-  IgnorePuckConfigurableOptions,
-  RenderProps,
-  InternalRootData,
-} from '@typings/puck';
+import { AdditionalRenderProps, ComponentFactoryData, IgnorePuckConfigurableOptions, RenderProps, InternalRootData } from '@typings/puck';
 import { Fragment } from 'react';
 import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@helpers/editor/createPuckComponent';
 import { defaultRootConfig, DefaultRootProps } from '@helpers/editor/createRootComponent/defaultRoot';
 import { DefaultComponentProps } from '@measured/puck';
 import { css, Global } from '@emotion/react';
-import { CustomFields, InternalRootComponentFields } from '@typings/fields';
+import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { attachRepositoryReference } from '../pageData/transformFields';
+import { attachRepositoryReference } from '../pageData/attachRepositoryReference';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { useTemplates } from '../useTemplates';
+import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
   data: ComponentFactoryData
 ) {
-  const mergedFields: Record<string, CustomFields<P>> = {};
+  const mergedFields: Record<string, FieldConfiguration[string]> = {};
   const remoteKeys = new Set<string>();
   const processedConfigs: CustomRootConfigWithRemote<P>[] = [];
 
   // casting here as types are correct on the defaultRootConfig value
   // we have our own root config which is available to all dashboards
-  const defaultConfig: CustomRootConfigWithRemote<DefaultRootProps> = {
+  // we omit default props here as they're computed further down
+  const defaultConfig: Omit<CustomRootConfigWithRemote<DefaultRootProps>, 'defaultProps'> = {
     ...defaultRootConfig,
     _remoteRepositoryId: '@hakit/default-root', // this is the default root config
     _remoteRepositoryName: '@hakit/editor', // this is the default root config
@@ -72,6 +67,14 @@ export async function createRootComponent<P extends DefaultComponentProps>(
 
   /// now we have the merged structure, we can now create the dynamic configurations
 
+  // Get default props from the merged fields
+  const entities = data.getAllEntities();
+  const services = await data.getAllServices();
+  const defaultProps = await getDefaultPropsFromFields(mergedFields, {
+    entities,
+    services,
+  });
+
   // create the puck definitions
   const componentFactory = await createComponent<P>(
     {
@@ -80,7 +83,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       // Set the merged fields
       // @ts-expect-error - this will never match the root data as it's dynamically created above
       fields: mergedFields,
-      defaultProps: {},
+      defaultProps,
       render() {
         return <></>;
       },
@@ -90,10 +93,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // use our component factory to convert out component structure to a puck component
   const updatedRootConfig = await componentFactory(data);
 
-  const finalRootConfig: Omit<
-    CustomRootConfigWithDefinition<InternalRootData & InternalRootComponentFields>,
-    IgnorePuckConfigurableOptions
-  > = {
+  const finalRootConfig: Omit<CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields>, IgnorePuckConfigurableOptions> = {
     ...updatedRootConfig,
     // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: updatedRootConfig.fields,
@@ -175,7 +175,6 @@ function Render<P extends DefaultComponentProps>({
             _dashboard: dashboard,
           };
           const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
-
           return (
             <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>
           );

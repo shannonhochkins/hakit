@@ -3,6 +3,7 @@ import { AlertCircleIcon, CheckCircleIcon } from 'lucide-react';
 import styles from './InputField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
+import { Row } from '@components/Layout';
 
 type InputFieldSize = 'small' | 'medium' | 'large';
 
@@ -20,6 +21,7 @@ type InputFieldBaseProps = {
   helperText?: string;
   error?: boolean;
   success?: boolean;
+  rowAdornment?: React.ReactNode | InputFieldAdornmentProps;
   middleAdornment?: React.ReactNode | InputFieldAdornmentProps;
   startAdornment?: React.ReactNode | InputFieldAdornmentProps;
   endAdornment?: React.ReactNode | InputFieldAdornmentProps;
@@ -73,6 +75,7 @@ export function InputField(props: InputFieldProps) {
     startAdornment,
     middleAdornment,
     endAdornment,
+    rowAdornment,
     className,
     size = 'medium',
     name,
@@ -119,155 +122,158 @@ export function InputField(props: InputFieldProps) {
   return (
     <div className={containerClasses} onClick={onClick}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
-      <div className={inputWrapperClasses}>
-        {startAdornment &&
-          (() => {
-            const adornment = startAdornment as React.ReactNode | InputFieldAdornmentProps;
-            const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
-            const content = isProps ? adornment.content : adornment;
-            const variant = isProps ? adornment.variant : undefined;
-            const className = isProps ? adornment.className : undefined;
+      <Row alignItems='start' justifyContent='start' gap='var(--space-2)' wrap='nowrap'>
+        <div className={inputWrapperClasses}>
+          {startAdornment &&
+            (() => {
+              const adornment = startAdornment as React.ReactNode | InputFieldAdornmentProps;
+              const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
+              const content = isProps ? adornment.content : adornment;
+              const variant = isProps ? adornment.variant : undefined;
+              const className = isProps ? adornment.className : undefined;
 
-            // Determine the styling variant
-            let adornmentClass = styles.startAdornment;
-            if (variant) {
-              adornmentClass += ` ${styles[variant]}`;
-            } else if (
-              React.isValidElement(content) &&
-              content.type &&
-              typeof content.type === 'function' &&
-              'displayName' in content.type &&
-              typeof content.type.displayName === 'string' &&
-              content.type.displayName.includes('Icon')
-            ) {
-              adornmentClass += ` ${styles.icon}`;
-            } else {
-              adornmentClass += ` ${styles.default}`;
-            }
-            if (className) {
-              adornmentClass += ` ${className}`;
-            }
-
-            return (
-              <div
-                className={`startAdornment ${adornmentClass}`}
-                onClick={() => {
-                  // trigger file picker when the input is a file input
-                  if (!readOnly && !disabled) {
-                    if (props.type === 'file') {
-                      inputRef.current?.click();
-                    } else {
-                      inputRef.current?.focus();
-                    }
-                  }
-                }}
-              >
-                {content}
-              </div>
-            );
-          })()}
-        {valuePrefix && (
-          <div
-            className={styles.valuePrefix}
-            onClick={() => {
-              if (!readOnly && !disabled) {
-                inputRef.current?.focus();
+              // Determine the styling variant
+              let adornmentClass = styles.startAdornment;
+              if (variant) {
+                adornmentClass += ` ${styles[variant]}`;
+              } else if (
+                React.isValidElement(content) &&
+                content.type &&
+                typeof content.type === 'function' &&
+                'displayName' in content.type &&
+                typeof content.type.displayName === 'string' &&
+                content.type.displayName.includes('Icon')
+              ) {
+                adornmentClass += ` ${styles.icon}`;
+              } else {
+                adornmentClass += ` ${styles.default}`;
               }
-            }}
-          >
-            {valuePrefix}
-          </div>
-        )}
-        {props.type === 'multiline' ? (
-          <textarea
-            id={id}
-            name={name}
-            readOnly={readOnly}
-            className={inputClasses}
-            rows={props.rows}
-            maxLength={props.maxLength}
-            onChange={handleChange}
-            value={value}
-            style={{
-              ...inputStyles,
-              paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
-            }}
-            placeholder={props.placeholder}
-            hidden={hidden}
-            ref={el => {
-              inputRef.current = el;
-            }}
-          />
-        ) : (
-          <input
-            id={id}
-            name={name}
-            disabled={disabled}
-            value={props.type === 'file' ? undefined : value}
-            readOnly={readOnly}
-            className={inputClasses}
-            type={props.type}
-            maxLength={props.type === 'number' ? undefined : props.maxLength}
-            min={props.type === 'number' ? props.min : undefined}
-            max={props.type === 'number' ? props.max : undefined}
-            step={props.type === 'number' ? props.step : undefined}
-            onChange={handleChange}
-            accept={props.type === 'file' ? props.accept : undefined}
-            style={{
-              ...inputStyles,
-              paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
-            }}
-            placeholder={props.placeholder}
-            hidden={hidden}
-            ref={el => {
-              // only assign for non-textarea inputs
-              inputRef.current = el;
-            }}
-          />
-        )}
-        {valueSuffix && <div className={styles.valueSuffix}>{valueSuffix}</div>}
-        {middleAdornment && <>{middleAdornment}</>}
-        {endAdornment &&
-          (() => {
-            const adornment = endAdornment as React.ReactNode | InputFieldAdornmentProps;
-            const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
-            const content = isProps ? adornment.content : adornment;
-            const variant = isProps ? adornment.variant : undefined;
-            const className = isProps ? adornment.className : undefined;
+              if (className) {
+                adornmentClass += ` ${className}`;
+              }
 
-            // Determine the styling variant
-            let adornmentClass = styles.endAdornment;
-            if (variant) {
-              adornmentClass += ` ${styles[variant]}`;
-            } else if (
-              React.isValidElement(content) &&
-              content.type &&
-              typeof content.type === 'function' &&
-              'displayName' in content.type &&
-              typeof content.type.displayName === 'string' &&
-              content.type.displayName.includes('Icon')
-            ) {
-              adornmentClass += ` ${styles.icon}`;
-            } else {
-              adornmentClass += ` ${styles.default}`;
-            }
-            if (className) {
-              adornmentClass += ` ${className}`;
-            }
+              return (
+                <div
+                  className={`startAdornment ${adornmentClass}`}
+                  onClick={() => {
+                    // trigger file picker when the input is a file input
+                    if (!readOnly && !disabled) {
+                      if (props.type === 'file') {
+                        inputRef.current?.click();
+                      } else {
+                        inputRef.current?.focus();
+                      }
+                    }
+                  }}
+                >
+                  {content}
+                </div>
+              );
+            })()}
+          {valuePrefix && (
+            <div
+              className={styles.valuePrefix}
+              onClick={() => {
+                if (!readOnly && !disabled) {
+                  inputRef.current?.focus();
+                }
+              }}
+            >
+              {valuePrefix}
+            </div>
+          )}
+          {props.type === 'multiline' ? (
+            <textarea
+              id={id}
+              name={name}
+              readOnly={readOnly}
+              className={inputClasses}
+              rows={props.rows}
+              maxLength={props.maxLength}
+              onChange={handleChange}
+              value={value}
+              style={{
+                ...inputStyles,
+                paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
+              }}
+              placeholder={props.placeholder}
+              hidden={hidden}
+              ref={el => {
+                inputRef.current = el;
+              }}
+            />
+          ) : (
+            <input
+              id={id}
+              name={name}
+              disabled={disabled}
+              value={props.type === 'file' ? undefined : value}
+              readOnly={readOnly}
+              className={inputClasses}
+              type={props.type}
+              maxLength={props.type === 'number' ? undefined : props.maxLength}
+              min={props.type === 'number' ? props.min : undefined}
+              max={props.type === 'number' ? props.max : undefined}
+              step={props.type === 'number' ? props.step : undefined}
+              onChange={handleChange}
+              accept={props.type === 'file' ? props.accept : undefined}
+              style={{
+                ...inputStyles,
+                paddingLeft: valuePrefix ? 0 : inputStyles?.paddingLeft,
+              }}
+              placeholder={props.placeholder}
+              hidden={hidden}
+              ref={el => {
+                // only assign for non-textarea inputs
+                inputRef.current = el;
+              }}
+            />
+          )}
+          {valueSuffix && <div className={styles.valueSuffix}>{valueSuffix}</div>}
+          {middleAdornment && <>{middleAdornment}</>}
+          {endAdornment &&
+            (() => {
+              const adornment = endAdornment as React.ReactNode | InputFieldAdornmentProps;
+              const isProps = typeof adornment === 'object' && adornment !== null && 'content' in adornment;
+              const content = isProps ? adornment.content : adornment;
+              const variant = isProps ? adornment.variant : undefined;
+              const className = isProps ? adornment.className : undefined;
 
-            return <div className={`endAdornment ${adornmentClass}`}>{content}</div>;
-          })()}
-        {error && !endAdornment && (
-          <div className={styles.endAdornment}>
-            <AlertCircleIcon size={18} className={styles.errorIcon} />
-          </div>
-        )}
-        {success && !endAdornment && (
-          <div className={styles.endAdornment}>
-            <CheckCircleIcon size={18} className={styles.successIcon} />
-          </div>
-        )}
-      </div>
+              // Determine the styling variant
+              let adornmentClass = styles.endAdornment;
+              if (variant) {
+                adornmentClass += ` ${styles[variant]}`;
+              } else if (
+                React.isValidElement(content) &&
+                content.type &&
+                typeof content.type === 'function' &&
+                'displayName' in content.type &&
+                typeof content.type.displayName === 'string' &&
+                content.type.displayName.includes('Icon')
+              ) {
+                adornmentClass += ` ${styles.icon}`;
+              } else {
+                adornmentClass += ` ${styles.default}`;
+              }
+              if (className) {
+                adornmentClass += ` ${className}`;
+              }
+
+              return <div className={`endAdornment ${adornmentClass}`}>{content}</div>;
+            })()}
+          {error && !endAdornment && (
+            <div className={styles.endAdornment}>
+              <AlertCircleIcon size={18} className={styles.errorIcon} />
+            </div>
+          )}
+          {success && !endAdornment && (
+            <div className={styles.endAdornment}>
+              <CheckCircleIcon size={18} className={styles.successIcon} />
+            </div>
+          )}
+        </div>
+        {rowAdornment && <>{rowAdornment}</>}
+      </Row>
       {shouldShowFooter && (
         <div className={styles.footer}>
           <HelperText helperText={helperText} error={error} />

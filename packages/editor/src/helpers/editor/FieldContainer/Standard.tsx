@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { UiState, useGetPuck, type DefaultComponentProps } from '@measured/puck';
-import { Touchpad, TouchpadOff } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
@@ -13,6 +13,7 @@ import { useTemplateMode } from './useTemplateMode';
 import { ICON_MAP } from './constants';
 import { CustomAutoField } from './CustomAutoField';
 import styles from './FieldContainer.module.css';
+import { FieldOptions } from './FieldOptions';
 
 const RESPONSIVE_MODE_DEFAULT = true;
 
@@ -52,6 +53,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const getPuck = useGetPuck();
   const { selectedItem, appState } = getPuck();
   const itemOrRoot = selectedItem ?? appState.data.root;
+  const [fieldOptionsOpen, setFieldOptionsOpen] = useState(false);
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
 
   const onChange = useCallback(
@@ -145,7 +147,23 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
             <CustomAutoField field={field} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
           )}
         </div>
-        {responsiveMode && (
+        <IconButton
+          aria-label='Field options'
+          icon={<MoreVertical size={16} />}
+          onClick={() => {
+            setFieldOptionsOpen(true);
+          }}
+          variant='transparent'
+          size='xs'
+          tooltipProps={{
+            style: {
+              marginTop: '1.9rem',
+            },
+            placement: 'left',
+          }}
+        />
+
+        {/* {responsiveMode && (
           <IconButton
             icon={breakpointMode ? <Touchpad size={16} /> : <TouchpadOff size={16} />}
             onClick={onToggleBreakpointMode}
@@ -157,7 +175,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
             }}
             aria-label={breakpointMode ? 'Responsive Values Enabled' : 'Responsive Values Disabled'}
           />
-        )}
+        )} */}
       </FieldWrapper>
       {breakpointMode && responsiveMode && (
         <div className={`${styles.description} hakit-field-responsive-description`}>
@@ -168,6 +186,13 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
           </Row>
         </div>
       )}
+      <FieldOptions
+        open={fieldOptionsOpen}
+        field={field}
+        onClose={() => {
+          setFieldOptionsOpen(false);
+        }}
+      />
     </Fieldset>
   );
 }

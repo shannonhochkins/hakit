@@ -4,7 +4,7 @@ import { userConfig } from './__mocks__/userConfig';
 import { databaseData } from './__mocks__/databaseData';
 import { puckChangeData } from './__mocks__/puckChangeData';
 import { fieldsWithBreakpointsEnabled } from './__mocks__/fieldsWithBreakpointsEnabled';
-import { CustomConfig, PuckPageData } from '@typings/puck';
+import { CustomConfig, CustomPuckConfig, PuckPageData } from '@typings/puck';
 import { type BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { DefaultComponentProps } from '@measured/puck';
@@ -1602,7 +1602,7 @@ describe('puckToDBValue', () => {
       };
       expect(dbValue).toEqual(expected);
       // now when we "trim" it should still have the $xlg key
-      const puckValue = trimPuckDataToConfig(dbValue, rootUserConfig as CustomConfig);
+      const puckValue = trimPuckDataToConfig(dbValue, rootUserConfig as CustomPuckConfig);
       expect(puckValue).toEqual(expected);
     });
 

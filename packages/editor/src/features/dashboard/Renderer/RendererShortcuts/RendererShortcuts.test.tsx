@@ -1,6 +1,5 @@
 import { expect, test, describe, beforeEach, afterAll, mock } from 'bun:test';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { createElement } from 'react';
 import { createModuleMocker } from '@test-utils/moduleMocker';
 

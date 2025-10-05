@@ -42,7 +42,7 @@ await moduleMocker.mock('@components/Alert', () => ({
     createElement('div', { 'data-testid': 'alert', 'data-title': title }, children),
 }));
 
-await moduleMocker.mock('@features/dashboard/Editor/ErrorBoundary', () => ({
+await moduleMocker.mock('@features/dashboard/Editor/RenderErrorBoundary', () => ({
   RenderErrorBoundary: ({ children }: { children: React.ReactNode }) => createElement('div', { 'data-testid': 'error-boundary' }, children),
 }));
 
@@ -114,8 +114,8 @@ describe('createComponent', () => {
         text: 'hello',
         count: 0,
         _activeBreakpoint: 'xlg',
-        // css may be undefined initially
-        styles: expect.objectContaining({ css: undefined }),
+        // css may be '' initially
+        styles: expect.objectContaining({ css: '' }),
       })
     );
   });
@@ -156,17 +156,20 @@ describe('createComponent', () => {
     expect(transformedFields).toHaveProperty('styles');
 
     // Verify transformed structure
-    expect(transformedFields.text.type).toBe('custom');
-    expect(transformedFields.text.type === 'slot' ? null : transformedFields.text.type).toBe('text');
+    expect(transformedFields.text.type).toBe('text');
 
     const activeBreakpointField = transformedFields._activeBreakpoint;
     expect(activeBreakpointField.type).toBe('custom');
     expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
-    expect(stylesField.type).toBe('custom');
-    expect(stylesField.type === 'slot' ? null : stylesField.type).toBe('object');
-    expect(stylesField.type === 'slot' ? null : 'label' in stylesField ? stylesField.label : null).toBe('Style Overrides');
+    expect(stylesField.type).toBe('object');
+    if (stylesField.type === 'object') {
+      expect(stylesField.label).toBe('Style Overrides');
+    } else {
+      // should fail the test
+      expect(false).toBe(true);
+    }
   });
 
   test('should handle empty fields correctly', async () => {
@@ -189,9 +192,13 @@ describe('createComponent', () => {
     expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
-    expect(stylesField.type).toBe('custom');
-    expect(stylesField.type === 'slot' ? null : stylesField.type).toBe('object');
-    expect(stylesField.type === 'slot' ? null : 'label' in stylesField ? stylesField.label : null).toBe('Style Overrides');
+    expect(stylesField.type).toBe('object');
+    if (stylesField.type === 'object') {
+      expect(stylesField.label).toBe('Style Overrides');
+    } else {
+      // should fail the test
+      expect(false).toBe(true);
+    }
   });
 
   test('should preserve original config properties', async () => {
@@ -211,6 +218,9 @@ describe('createComponent', () => {
     expect(result.label).toBe(config.label);
     if (config.permissions) {
       expect(result.permissions).toEqual(config.permissions);
+    } else {
+      // should fail the test
+      expect(false).toBe(true);
     }
   });
 
@@ -233,7 +243,7 @@ describe('createComponent', () => {
       expect.objectContaining({
         ...expectedDefaults,
         _activeBreakpoint: 'xlg',
-        styles: expect.objectContaining({ css: undefined }),
+        styles: expect.objectContaining({ css: '' }),
       })
     );
   });

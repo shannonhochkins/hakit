@@ -16,6 +16,7 @@ import { StyleguideServiceFields } from './ServiceFields';
 import { StyleguideLoaders } from './Loaders';
 import { StyleguideAlerts } from './Alerts';
 import { StyleguideTabs } from './Tabs';
+import { StyleguideUnitFields } from './UnitFields';
 
 const options = [
   {
@@ -78,12 +79,16 @@ const options = [
     label: 'Tabs',
     value: 'Tabs',
   },
+  {
+    label: 'Unit Fields',
+    value: 'Unit Fields',
+  },
 ];
 
 const sortedList = options.sort((a, b) => a.label.localeCompare(b.label));
 
 export function Styleguide() {
-  const [preview, setPreview] = useState<(typeof options)[number]>(options[0]);
+  const [preview, setPreview] = useState<(typeof options)[number]>(options.find(option => option.value === 'Input Fields')!);
   return (
     <>
       <h1>Styleguide</h1>
@@ -120,6 +125,7 @@ export function Styleguide() {
       {preview.value === 'Loaders' && <StyleguideLoaders />}
       {preview.value === 'Alerts' && <StyleguideAlerts />}
       {preview.value === 'Tabs' && <StyleguideTabs />}
+      {preview.value === 'Unit Fields' && <StyleguideUnitFields />}
     </>
   );
 }

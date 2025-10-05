@@ -65,6 +65,7 @@ export const BaseButton = ({
       placement='top'
       {...tooltipProps}
       style={{
+        ...tooltipProps?.style,
         width: fullWidth ? '100%' : undefined,
         height: fullHeight ? '100%' : undefined,
       }}

@@ -65,23 +65,9 @@ export type CustomComponentConfig<Props extends DefaultComponentProps = DefaultC
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
-// export type CustomComponentConfigWithDefinition<Props extends DefaultComponentProps = DefaultComponentProps> = Omit<
-//   ComponentConfig<{
-//     props: Props;
-//     fields: FieldConfigurationWithDefinition<Props, true>; // Using field configs with definition support per Puck 0.20
-//     // SEE HERE - https://puckeditor.com/blog/upgrading-to-puck-020#breaking-changes
-//   }>,
-//   IgnorePuckConfigurableOptions | 'fields' | 'render' | 'label'
-// > & {
-//   // Label is required
-//   label: string;
-//   // Custom fields configuration instead of Puck's Fields
-//   fields: FieldConfigurationWithDefinition<Props, true>;
-//   render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
-//   // Optional styles function that returns CSS string for component-scoped styling
-//   styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
-//   // defaultProps is intentionally omitted, we handle this on individual field definitions
-// };
+export type CustomPuckComponentConfig<Props extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<Props> & {
+  defaultProps: Props;
+};
 
 export type ComponentFactoryData = {
   getAllEntities: () => HassEntities;
@@ -89,12 +75,6 @@ export type ComponentFactoryData = {
 };
 
 export type PuckPageData = Data<DefaultComponentProps, DefaultComponentProps>;
-
-// export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<CustomComponentConfig<RootProps>>;
-
-// export type CustomRootConfigWithDefinition<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
-//   CustomComponentConfigWithDefinition<RootProps>
-// >;
 
 export type CustomConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
@@ -111,6 +91,18 @@ export type CustomConfig<
   };
   fields?: FieldConfiguration<Props>;
   root?: Partial<CustomComponentConfig<RootProps>>;
+};
+
+export type CustomPuckConfig<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+> = Omit<CustomConfig<Props, RootProps>, 'root' | 'components'> & {
+  components: {
+    [ComponentName in keyof Props]: Omit<CustomPuckComponentConfig<Props[ComponentName]>, 'type'>;
+  };
+  root: Partial<CustomPuckComponentConfig<RootProps>> & {
+    defaultProps: RootProps;
+  };
 };
 
 export type Slot = InternalSlot;

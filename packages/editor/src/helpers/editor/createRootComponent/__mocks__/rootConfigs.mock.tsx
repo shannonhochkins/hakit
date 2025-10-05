@@ -22,6 +22,16 @@ interface BackgroundProps {
 
 export const rootConfigs: [CustomRootConfigWithRemote<RootProps>] = [
   {
+    defaultProps: {
+      background: {
+        useBackgroundImage: true,
+        backgroundImage: '',
+        backgroundColor: '#4254c5',
+        blendMode: 'multiply',
+        blur: 25,
+        opacity: 0.9,
+      },
+    },
     label: 'Root',
     fields: {
       background: {

@@ -118,7 +118,8 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
           }
 
           // Throw error if no match found
-          if (!matched) {
+          // Throw error if no match found
+          if (!matched && Object.keys(stylesAny).length > 0) {
             throw new Error(
               `Invalid class name key "${key}" for ${rootClass}. Available keys: ${Object.keys(stylesAny)
                 .filter(k => k.startsWith(rootClass))

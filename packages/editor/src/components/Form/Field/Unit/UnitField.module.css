@@ -1,0 +1,7 @@
+
+.UnitField :global( .endAdornment .select-input-wrapper), .UnitField :global( .startAdornment .select-input-wrapper) {
+  border: 0;
+  border-left: 1px solid var(--color-border);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

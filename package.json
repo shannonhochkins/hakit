@@ -31,7 +31,7 @@
     "start": "NODE_ENV=production bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
-    "test": "bun test --verbose",
+    "test": "NODE_ENV=test bun test --verbose",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",

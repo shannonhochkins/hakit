@@ -1,6 +1,7 @@
-import { CustomConfig, PuckPageData } from '@typings/puck';
+import { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
 import { FieldConfiguration } from '@typings/fields';
+import { merge } from 'ts-deepmerge';
 
 /**
  * Trims PuckPageData to only include fields that are defined in the userConfig.
@@ -27,7 +28,10 @@ import { FieldConfiguration } from '@typings/fields';
  * ```
  * // TODO - figure out how to trim zones that have information that no longer are valid
  */
-export function trimPuckDataToConfig(data: PuckPageData | null, userConfig?: CustomConfig<DefaultComponentProps>): PuckPageData | null {
+export function trimPuckDataToConfig<T extends CustomPuckConfig = CustomPuckConfig>(
+  data: PuckPageData | null,
+  userConfig?: T
+): PuckPageData | null {
   if (!data || !userConfig) return data;
 
   // Deep clone to avoid mutations
@@ -176,4 +180,58 @@ export function trimPuckDataToConfig(data: PuckPageData | null, userConfig?: Cus
   }
 
   return trimmedData;
+}
+
+/**
+ * Extends PuckPageData with missing default properties from userConfig.defaultProps.
+ * This should be called AFTER dbValueToPuck since that removes breakpoint keys.
+ * Uses deepmerge to merge defaults (base) with existing data (overlay).
+ *
+ * @param data - The PuckPageData to extend (after dbValueToPuck processing)
+ * @param userConfig - The user configuration containing defaultProps
+ * @returns Extended PuckPageData with missing default properties added
+ */
+export function extendPuckDataWithDefaults(data: PuckPageData, userConfig: CustomPuckConfig<DefaultComponentProps>): PuckPageData {
+  const defaultProps = userConfig.root?.defaultProps;
+  if (!defaultProps) return data;
+
+  // Deep clone to avoid mutations
+  const extendedData: PuckPageData = {
+    root: data.root ? { ...data.root, props: { ...data.root.props } } : { props: {} },
+    content: data.content ? [...data.content] : [],
+    zones: { ...data.zones },
+  };
+
+  // Extend root props with defaults
+  if (defaultProps && extendedData.root.props) {
+    // Extend each remote's props with their defaults
+    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps)) {
+      // only merge top level objects
+      if (remoteId in extendedData.root.props && typeof extendedData.root.props[remoteId] === 'object') {
+        // Remote exists, deep merge defaults (base) with existing data (overlay)
+        extendedData.root.props[remoteId] = merge(remoteDefaults, extendedData.root.props[remoteId]);
+      } else {
+        // Remote doesn't exist, use defaults as-is
+        extendedData.root.props[remoteId] = remoteDefaults;
+      }
+    }
+  }
+
+  // Extend component props with defaults
+  if (extendedData.content) {
+    extendedData.content = extendedData.content.map(item => {
+      const componentConfig = userConfig.components?.[item.type];
+      if (!componentConfig?.defaultProps) return item;
+
+      // Deep merge defaults (base) with existing component props (overlay)
+      const extendedProps = merge(componentConfig.defaultProps, item.props || {});
+
+      return {
+        ...item,
+        props: extendedProps,
+      };
+    });
+  }
+
+  return extendedData;
 }
