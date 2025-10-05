@@ -13,7 +13,7 @@ import { attachDragRefToElement } from './attachDragRefToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
-import { internalComponentFields, internalRootComponentFields } from '../internalFields';
+import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config

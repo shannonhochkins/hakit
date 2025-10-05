@@ -1,8 +1,8 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
 import { DrawerItem } from '../DrawerItem';
 import { FieldDefinition } from '@typings/fields';
-import { StandardFieldWrapper, type StandardFieldComponentProps } from '@helpers/editor/FieldContainer/Standard';
-import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@helpers/editor/FieldContainer/Collapsible';
+import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
+import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
 
 type AllFieldRenderers = FieldRenderFunctions<

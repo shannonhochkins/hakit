@@ -45,7 +45,7 @@ import { ComponentFactoryData } from '@typings/puck';
 import { rootConfigs } from './__mocks__/rootConfigs.mock';
 import type { Slot } from '@measured/puck';
 import { createRootComponent } from './index';
-import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
+import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import React from 'react';
 
 // Mock data for component factory

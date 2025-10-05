@@ -5,16 +5,11 @@ import { UnitField, UnitFieldValue, UnitFieldValueSingle } from '@components/For
 
 export function StyleguideUnitFields() {
   // Controlled state examples
-  const [fontSizeValue, setFontSizeValue] = useState<UnitFieldValueSingle>({ value: 16, unit: 'px' });
-  const [spacingValue, setSpacingValue] = useState<UnitFieldValue>({ value: 1.5, unit: 'rem' });
-  const [widthValue, setWidthValue] = useState<UnitFieldValueSingle>({ value: 100, unit: '%' });
-  const [heightValue, setHeightValue] = useState<UnitFieldValueSingle>({ value: 50, unit: 'vh' });
-  const [paddingValue, setPaddingValue] = useState<UnitFieldValue>({
-    top: { value: 10, unit: 'rem' },
-    right: { value: 1, unit: 'rem' },
-    bottom: { value: 12, unit: 'rem' },
-    left: { value: 1, unit: 'rem' },
-  });
+  const [fontSizeValue, setFontSizeValue] = useState<UnitFieldValueSingle>('16px');
+  const [spacingValue, setSpacingValue] = useState<UnitFieldValue>('1.5rem');
+  const [widthValue, setWidthValue] = useState<UnitFieldValueSingle>('100%');
+  const [heightValue, setHeightValue] = useState<UnitFieldValueSingle>('50vh');
+  const [paddingValue, setPaddingValue] = useState<UnitFieldValue>('10rem 1rem 12rem 1rem');
 
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>

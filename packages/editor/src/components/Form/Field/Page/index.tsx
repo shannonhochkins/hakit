@@ -17,13 +17,13 @@ type CommonProps = {
 
 type PageFieldSingleProps = CommonProps & {
   multiple?: false;
-  value?: DashboardPageWithoutData;
+  value?: DashboardPageWithoutData | string;
   onChange: (value: DashboardPageWithoutData) => void;
 };
 
 type PageFieldMultiProps = CommonProps & {
   multiple: true;
-  value?: DashboardPageWithoutData[];
+  value?: DashboardPageWithoutData[] | string[];
   onChange: (value: DashboardPageWithoutData[]) => void;
 };
 
@@ -154,9 +154,14 @@ export const PageField = memo(function Page({ value, label, multiple, min, max, 
   };
 
   if (multiple) {
+    const normalizedMultiValue: DashboardPageWithoutData[] | undefined = Array.isArray(value)
+      ? typeof value[0] === 'string'
+        ? (value as string[]).map(v => dashboardMap.get(v)).filter((v): v is DashboardPageWithoutData => !!v)
+        : (value as DashboardPageWithoutData[])
+      : undefined;
     return (
       <DashboardPageMultiSelect
-        value={value as DashboardPageWithoutData[]}
+        value={normalizedMultiValue}
         onChange={onChange as (v: DashboardPageWithoutData[]) => void}
         options={options}
         dashboardMap={dashboardMap}
@@ -176,7 +181,7 @@ export const PageField = memo(function Page({ value, label, multiple, min, max, 
         description: 'Select the page to navigate to',
       }}
       onChange={handleChange}
-      value={value ? (value as DashboardPageWithoutData).id : firstDashboard.id}
+      value={typeof value === 'string' ? value : value ? (value as DashboardPageWithoutData).id : firstDashboard.id}
     />
   );
 });

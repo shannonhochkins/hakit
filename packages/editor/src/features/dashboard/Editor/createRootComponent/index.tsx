@@ -1,17 +1,17 @@
 import { AdditionalRenderProps, ComponentFactoryData, IgnorePuckConfigurableOptions, RenderProps, InternalRootData } from '@typings/puck';
 import { Fragment } from 'react';
-import { CustomRootConfigWithRemote } from '../../../features/dashboard/PuckDynamicConfiguration';
-import { createComponent } from '@helpers/editor/createPuckComponent';
-import { defaultRootConfig, DefaultRootProps } from '@helpers/editor/createRootComponent/defaultRoot';
+import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
+import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
+import { defaultRootConfig, DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
 import { DefaultComponentProps } from '@measured/puck';
 import { css, Global } from '@emotion/react';
 import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { attachRepositoryReference } from '../pageData/attachRepositoryReference';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
-import { useTemplates } from '../useTemplates';
+import { useTemplates } from '@hooks/useTemplates';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
+import { attachRepositoryReference } from '@helpers/editor/pageData/attachRepositoryReference';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],

@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useStore, useTemplate } from '@hakit/core';
-import { TEMPLATE_PREFIX } from '../pageData/constants';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import type { DefaultComponentProps } from '@measured/puck';
 import { CustomPuckConfig } from '@typings/puck';
 import { FieldConfiguration } from '@typings/fields';
+import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 
 type Path = Array<string | number>;
 

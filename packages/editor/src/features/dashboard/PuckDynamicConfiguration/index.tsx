@@ -2,10 +2,10 @@ import { Config, DefaultComponentProps } from '@measured/puck';
 import { registerRemotes, loadRemote, registerPlugins } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
 import { CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
-import { createComponent } from '@helpers/editor/createPuckComponent';
+import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
 import { getUserRepositories } from '@services/repositories';
 import { MfManifest } from '@server/routes/repositories/validate-zip';
-import { createRootComponent } from '@helpers/editor/createRootComponent';
+import { createRootComponent } from '@features/dashboard/Editor/createRootComponent';
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;

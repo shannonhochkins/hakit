@@ -25,40 +25,6 @@ export type FieldOption = {
   label: string;
   value: string | number | boolean | undefined | null | object;
 };
-
-// What each field actually stores/returns
-type FieldValueByKind = {
-  custom: unknown;
-
-  imageUpload: string;
-  color: string;
-  code: string;
-
-  page: string;
-  pages: string[];
-
-  entity: EntityName;
-  service: string;
-
-  slider: number;
-  grid: number;
-
-  text: string;
-  number: number;
-  select: string | number | boolean;
-  radio: string | number | boolean | null;
-  switch: boolean;
-  textarea: string;
-
-  // containers / special
-  object: object;
-  array: unknown[];
-  divider: never; // (or unknown, if you prefer)
-  hidden: unknown;
-  slot: Slot;
-  unit: UnitFieldValue;
-};
-
 // some puck types can clash with our own custom ones, so we need to exclude them
 type ExcludedPuckKeys = 'visible';
 
@@ -164,6 +130,38 @@ type FieldTypeOmitMap = {
   unit: 'default';
 };
 
+// What each field actually stores/returns
+export type FieldValueByKind = {
+  custom: unknown;
+
+  imageUpload: string;
+  color: string;
+  code: string;
+
+  page: string;
+  pages: string[];
+
+  entity: EntityName;
+  service: string;
+
+  slider: number;
+
+  text: string;
+  number: number;
+  select: string | number | boolean;
+  radio: string | number | boolean | null;
+  switch: boolean;
+  textarea: string;
+
+  // containers / special
+  object: object;
+  array: unknown[];
+  divider: never; // (or unknown, if you prefer)
+  hidden: unknown;
+  slot: Slot;
+  unit: UnitFieldValue;
+};
+
 export type FieldDefinition = {
   custom: { type: 'custom' };
   switch: { type: 'switch' };
@@ -180,9 +178,8 @@ export type FieldDefinition = {
   service: { type: 'service' };
   color: { type: 'color' };
   imageUpload: { type: 'imageUpload' };
-  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue };
+  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };
-  grid: { type: 'grid'; step?: number; min?: number; max?: number };
   code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
   divider: { type: 'divider' };
   entity: {

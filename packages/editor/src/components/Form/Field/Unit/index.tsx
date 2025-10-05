@@ -5,39 +5,33 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { Column, Row } from '@components/Layout';
 import { IconButton } from '@components/Button';
 import { Grid2X2 } from 'lucide-react';
-
+import { getComputedValue, updateCornerValue, createAllCornersValue, createSingleValue } from './computedValue';
 const getClassName = getClassNameFactory('UnitField', styles);
-export type Unit = 'auto' | 'px' | 'em' | 'rem' | 'vh' | 'vw' | '%';
 
-export type UnitFieldValueSingle = {
-  value: number;
-  unit: Unit;
-};
+export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
+export type Unit = (typeof units)[number];
 
-export type UnitFieldValueAllCorners = {
-  top: UnitFieldValueSingle;
-  left: UnitFieldValueSingle;
-  right: UnitFieldValueSingle;
-  bottom: UnitFieldValueSingle;
-};
+export type UnitFieldValueSingle = `${number}${Unit}`;
 
-export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners;
+export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${number}${Unit} ${number}${Unit}`;
+
+export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
 
 export type UnitFieldProps = Omit<InputNumberProps, 'endAdornment' | 'onChange' | 'value' | 'type'> &
   (
     | {
         supportsAllCorners: true;
-        value: UnitFieldValue;
+        value?: UnitFieldValue;
         onChange: (value: UnitFieldValue) => void;
       }
     | {
         supportsAllCorners?: false;
-        value: UnitFieldValueSingle;
+        value?: UnitFieldValueSingle;
         onChange: (value: UnitFieldValueSingle) => void;
       }
   );
 
-const DEFAULT_UNIT = 'px';
+const DEFAULT_UNIT: Unit = 'px';
 
 const unitOptions: { label: Unit; value: Unit }[] = [
   { label: 'auto', value: 'auto' },
@@ -50,12 +44,14 @@ const unitOptions: { label: Unit; value: Unit }[] = [
 ];
 
 export function UnitField({ onChange, value, className, label, supportsAllCorners = false, ...props }: UnitFieldProps) {
+  const computedValue = getComputedValue(value) ?? { value: 0, unit: DEFAULT_UNIT };
+  const _onChange = onChange as (value: UnitFieldValue) => void;
   // if there's no "value" in the value, we're dealing with all corners, but also make sure the value is defined
-  if (value !== undefined && typeof value === 'object' && !('value' in value)) {
+  if (typeof computedValue === 'object' && !('value' in computedValue)) {
     // render the same field below for each corner
     return (
       <Column alignItems='start' justifyContent='start' gap='var(--space-4)'>
-        {Object.entries(value).map(([corner, value], index) => {
+        {Object.entries(computedValue).map(([corner, value], index) => {
           const matchedUnit = unitOptions.find(option => option.value === value.unit);
           return (
             <InputField
@@ -64,7 +60,13 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
               type='number'
               value={value.value}
               label={label + ' (' + corner + ')'}
-              onChange={e => onChange({ ...value, [corner]: { value: e.target.valueAsNumber, unit: matchedUnit?.value || DEFAULT_UNIT } })}
+              onChange={e => {
+                _onChange(
+                  updateCornerValue(computedValue, {
+                    [corner]: { value: e.target.valueAsNumber, unit: matchedUnit?.value || DEFAULT_UNIT },
+                  })
+                );
+              }}
               endAdornment={{
                 variant: 'custom',
                 content: (
@@ -73,7 +75,13 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
                     name={`${props.name}-unit-field-dropdown`}
                     options={unitOptions}
                     value={matchedUnit}
-                    onChange={unit => onChange({ ...value, [corner]: { value: value.value, unit: unit.value } })}
+                    onChange={unit => {
+                      _onChange(
+                        updateCornerValue(computedValue, {
+                          [corner]: { value: value.value, unit: unit.value },
+                        })
+                      );
+                    }}
                   />
                 ),
               }}
@@ -83,7 +91,7 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
                     icon={<Grid2X2 size={16} />}
                     aria-label='Individual corners'
                     // just prioritize one when swapping back
-                    onClick={() => onChange({ value: value.value, unit: value.unit })}
+                    onClick={() => _onChange(createSingleValue(value.value, value.unit))}
                   />
                 )
               }
@@ -95,16 +103,16 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
     );
   }
 
-  const matchedUnit = unitOptions.find(option => option.value === value.unit);
+  const matchedUnit = unitOptions.find(option => option.value === computedValue.unit);
 
   return (
     <Row alignItems='start' justifyContent='start' gap='var(--space-2)' wrap='nowrap'>
       <InputField
         className={getClassName(undefined, className)}
         type='number'
-        value={value.value}
+        value={computedValue.value}
         label={label}
-        onChange={e => onChange({ value: e.target.valueAsNumber, unit: matchedUnit?.value || DEFAULT_UNIT })}
+        onChange={e => _onChange(createSingleValue(e.target.valueAsNumber, matchedUnit?.value || DEFAULT_UNIT))}
         endAdornment={{
           variant: 'custom',
           content: (
@@ -113,7 +121,7 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
               name={`${props.name}-unit-field-dropdown`}
               options={unitOptions}
               value={matchedUnit}
-              onChange={unit => onChange({ value: value.value, unit: unit.value })}
+              onChange={unit => _onChange(createSingleValue(computedValue.value, unit.value))}
             />
           ),
         }}
@@ -122,15 +130,16 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
             <IconButton
               icon={<Grid2X2 size={16} />}
               aria-label='All sides'
-              onClick={() =>
-                onChange({
-                  top: { value: value.value, unit: matchedUnit?.value || DEFAULT_UNIT },
-                  left: { value: value.value, unit: matchedUnit?.value || DEFAULT_UNIT },
-                  right: { value: value.value, unit: matchedUnit?.value || DEFAULT_UNIT },
-                  bottom: { value: value.value, unit: matchedUnit?.value || DEFAULT_UNIT },
-                  // dodgey, but works
-                } as unknown as UnitFieldValueSingle)
-              }
+              onClick={() => {
+                _onChange(
+                  createAllCornersValue(
+                    { value: computedValue.value, unit: matchedUnit?.value || DEFAULT_UNIT },
+                    { value: computedValue.value, unit: matchedUnit?.value || DEFAULT_UNIT },
+                    { value: computedValue.value, unit: matchedUnit?.value || DEFAULT_UNIT },
+                    { value: computedValue.value, unit: matchedUnit?.value || DEFAULT_UNIT }
+                  )
+                );
+              }}
             />
           )
         }

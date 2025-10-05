@@ -317,7 +317,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
           type: 'unit',
           label: 'Base Font Size',
           description: 'Base font size to apply to the dashboard',
-          default: { value: 16, unit: 'px' },
+          default: '16px',
           min: 12,
           max: 24,
           step: 1,
