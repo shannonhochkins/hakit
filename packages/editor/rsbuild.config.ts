@@ -21,7 +21,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       context: '/api',
-      target: 'http://localhost:5000',
+      target: 'http://localhost:3002',
       changeOrigin: true,
     },
   },
@@ -50,7 +50,17 @@ export default defineConfig({
     swc: {
       jsc: {
         experimental: {
-          plugins: [['@swc/plugin-emotion', {}]],
+          plugins: [
+            [
+              '@swc/plugin-emotion',
+              {
+                sourceMap: true,
+                autoLabel: 'dev-only',
+                labelFormat: '[local]',
+                cssPropOptimization: true,
+              },
+            ],
+          ],
         },
       },
     },

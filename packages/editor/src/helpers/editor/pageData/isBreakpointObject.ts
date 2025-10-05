@@ -1,4 +1,4 @@
-import { BreakPoint } from '@hakit/components';
+import type { BreakPoint } from '@hakit/components';
 import { BREAKPOINT_ORDER } from './constants';
 
 /**

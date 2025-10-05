@@ -1,6 +1,7 @@
-import { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
+import { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import { ComponentData, DefaultComponentProps } from '@measured/puck';
-import { CustomField, CustomFields, CustomFieldsWithDefinition, SlotField } from '@typings/fields';
+import { FieldConfiguration } from '@typings/fields';
+import { merge } from 'ts-deepmerge';
 
 /**
  * Trims PuckPageData to only include fields that are defined in the userConfig.
@@ -27,9 +28,9 @@ import { CustomField, CustomFields, CustomFieldsWithDefinition, SlotField } from
  * ```
  * // TODO - figure out how to trim zones that have information that no longer are valid
  */
-export function trimPuckDataToConfig(
+export function trimPuckDataToConfig<T extends CustomPuckConfig = CustomPuckConfig>(
   data: PuckPageData | null,
-  userConfig?: CustomConfigWithDefinition<DefaultComponentProps, DefaultComponentProps>
+  userConfig?: T
 ): PuckPageData | null {
   if (!data || !userConfig) return data;
 
@@ -43,8 +44,7 @@ export function trimPuckDataToConfig(
   // Helper function to trim object fields recursively
   const trimObjectFields = (
     obj: Record<string, unknown>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    objectFields: Record<string, CustomFields<any, object, any> | SlotField | CustomField<any, CustomFieldsWithDefinition<any, any>>>
+    objectFields: Record<string, FieldConfiguration[string]>
   ): Record<string, unknown> => {
     const result: Record<string, unknown> = {};
 
@@ -54,14 +54,14 @@ export function trimPuckDataToConfig(
       if (value === undefined) return;
       if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
       // Check if this is an object field that has nested objectFields
-      if ('_field' in fieldConfig && fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
-        const nestedObjectFields = fieldConfig._field.objectFields;
+      if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+        const nestedObjectFields = fieldConfig.objectFields;
         // Recursively trim nested object fields
         if (typeof value === 'object' && value !== null) {
           result[fieldKey] = trimObjectFields(value as Record<string, unknown>, nestedObjectFields);
         }
-      } else if ('_field' in fieldConfig && fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-        const arrayFields = fieldConfig._field.arrayFields;
+      } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+        const arrayFields = fieldConfig.arrayFields;
         // Recursively trim array fields
         if (Array.isArray(value)) {
           result[fieldKey] = value.map(item => {
@@ -106,13 +106,13 @@ export function trimPuckDataToConfig(
           if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
           // Note: We don't skip 'id' here because it might be a valid nested field in objectFields/arrayFields
           // Check if this is an object field that has nested objectFields
-          if ('_field' in fieldConfig && fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
+          if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
             // Recursively trim object fields
             if (typeof value === 'object' && value !== null) {
-              trimmedProps[fieldKey] = trimObjectFields(value as Record<string, unknown>, fieldConfig._field.objectFields);
+              trimmedProps[fieldKey] = trimObjectFields(value, fieldConfig.objectFields);
             }
-          } else if ('_field' in fieldConfig && fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-            const arrayFields = fieldConfig._field.arrayFields;
+          } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+            const arrayFields = fieldConfig.arrayFields;
             // Recursively trim array fields
             if (Array.isArray(value)) {
               trimmedProps[fieldKey] = value.map(item => {
@@ -149,14 +149,14 @@ export function trimPuckDataToConfig(
         if (value === undefined) return;
         if (fieldConfig.type === 'slot') return; // Skip slot types
         // Check if this is an object field that has nested objectFields
-        if (fieldConfig._field.type === 'object' && fieldConfig._field.objectFields) {
-          const objectFields = fieldConfig._field.objectFields;
+        if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+          const objectFields = fieldConfig.objectFields;
           // Recursively trim object fields
           if (typeof value === 'object' && value !== null) {
             trimmedRootProps[fieldKey] = trimObjectFields(value as Record<string, unknown>, objectFields);
           }
-        } else if (fieldConfig._field.type === 'array' && fieldConfig._field.arrayFields) {
-          const arrayFields = fieldConfig._field.arrayFields;
+        } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
+          const arrayFields = fieldConfig.arrayFields;
           // Recursively trim array fields
           if (Array.isArray(value)) {
             trimmedRootProps[fieldKey] = value.map(item => {
@@ -180,4 +180,58 @@ export function trimPuckDataToConfig(
   }
 
   return trimmedData;
+}
+
+/**
+ * Extends PuckPageData with missing default properties from userConfig.defaultProps.
+ * This should be called AFTER dbValueToPuck since that removes breakpoint keys.
+ * Uses deepmerge to merge defaults (base) with existing data (overlay).
+ *
+ * @param data - The PuckPageData to extend (after dbValueToPuck processing)
+ * @param userConfig - The user configuration containing defaultProps
+ * @returns Extended PuckPageData with missing default properties added
+ */
+export function extendPuckDataWithDefaults(data: PuckPageData, userConfig: CustomPuckConfig<DefaultComponentProps>): PuckPageData {
+  const defaultProps = userConfig.root?.defaultProps;
+  if (!defaultProps) return data;
+
+  // Deep clone to avoid mutations
+  const extendedData: PuckPageData = {
+    root: data.root ? { ...data.root, props: { ...data.root.props } } : { props: {} },
+    content: data.content ? [...data.content] : [],
+    zones: { ...data.zones },
+  };
+
+  // Extend root props with defaults
+  if (defaultProps && extendedData.root.props) {
+    // Extend each remote's props with their defaults
+    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps)) {
+      // only merge top level objects
+      if (remoteId in extendedData.root.props && typeof extendedData.root.props[remoteId] === 'object') {
+        // Remote exists, deep merge defaults (base) with existing data (overlay)
+        extendedData.root.props[remoteId] = merge(remoteDefaults, extendedData.root.props[remoteId]);
+      } else {
+        // Remote doesn't exist, use defaults as-is
+        extendedData.root.props[remoteId] = remoteDefaults;
+      }
+    }
+  }
+
+  // Extend component props with defaults
+  if (extendedData.content) {
+    extendedData.content = extendedData.content.map(item => {
+      const componentConfig = userConfig.components?.[item.type];
+      if (!componentConfig?.defaultProps) return item;
+
+      // Deep merge defaults (base) with existing component props (overlay)
+      const extendedProps = merge(componentConfig.defaultProps, item.props || {});
+
+      return {
+        ...item,
+        props: extendedProps,
+      };
+    });
+  }
+
+  return extendedData;
 }

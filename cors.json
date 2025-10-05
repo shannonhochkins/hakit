@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["http://localhost:5000", "http://localhost:3000"],
+    "origin": ["http://localhost:3002", "http://localhost:3000"],
     "method": ["GET"],
     "responseHeader": ["Content-Type", "Authorization"],
     "maxAgeSeconds": 3600

@@ -1,19 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Column, Row } from '@hakit/components';
+import { Column, Row } from '@components/Layout';
 import { Preview } from './Preview';
 import { Header } from './Header';
 import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
 import { Toolbar } from './Toolbar';
-import styled from '@emotion/styled';
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { ResizeHandleIcon } from './ResizeHandle';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
+import { useGlobalStore } from '@hooks/useGlobalStore';
+import styles from './PuckLayout.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-const StyledPanelResizeHandle = styled(PanelResizeHandle)`
-  position: relative;
-`;
+const getClassName = getClassNameFactory('PuckLayout', styles);
 
 export function PuckLayout() {
   const emotionCache = useGlobalStore(state => state.emotionCache);
@@ -98,9 +97,10 @@ export function PuckLayout() {
           opacity: emotionCache ? 1 : 0,
         }}
       >
-        <PanelGroup autoSaveId='hakit-panels' direction='horizontal'>
+        <PanelGroup autoSaveId='hakit-panels' direction='horizontal' id='hakit-panels'>
           <Panel
             ref={leftPanelRef}
+            id='hakit-left-panel'
             defaultSize={15}
             collapsible
             // get 50px as a percentage of the viewport width
@@ -112,20 +112,21 @@ export function PuckLayout() {
           >
             <LeftSidebar onToggle={onLeftSidebarToggle} />
           </Panel>
-          <StyledPanelResizeHandle>
+          <PanelResizeHandle className={getClassName('resizeHandle')}>
             <ResizeHandleIcon direction='horizontal' />
-          </StyledPanelResizeHandle>
-          <Panel minSize={60}>
+          </PanelResizeHandle>
+          <Panel minSize={60} id='hakit-preview-panel'>
             <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
               <Toolbar />
               <Preview />
             </Column>
           </Panel>
-          <StyledPanelResizeHandle>
-            <ResizeHandleIcon direction='horizontal' />
-          </StyledPanelResizeHandle>
+          <PanelResizeHandle className={getClassName('resizeHandle')}>
+            <ResizeHandleIcon direction='horizontal' id='hakit-preview-resize-handle' />
+          </PanelResizeHandle>
           <Panel
             ref={rightPanelRef}
+            id='hakit-right-panel'
             defaultSize={25}
             collapsedSize={rightSidebarCollapsedSize}
             collapsible

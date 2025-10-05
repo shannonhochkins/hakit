@@ -1,9 +1,12 @@
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
-import { Row } from '@hakit/components';
-import { SelectField } from '@components/Form/Fields/Select';
+import { SelectField } from '@components/Form/Field/Select';
 import { Layers } from 'lucide-react';
 import { useDashboard } from '@hooks/queeries/useDashboard';
+import styles from './PageSelector.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('PageSelector', styles);
 
 export function PageSelector() {
   const params = useParams({
@@ -28,31 +31,34 @@ export function PageSelector() {
   }
 
   return (
-    <Row
-      style={{
-        maxWidth: '100%',
-      }}
-    >
+    <div className={getClassName()}>
       <SelectField
-        value={value}
-        options={pages}
+        id='page-selector'
+        value={{
+          label: value.title,
+          value: value.id,
+        }}
+        options={pages.map(page => ({
+          label: page.title,
+          value: page.id,
+        }))}
         size='small'
         startAdornment={<Layers size={36} />}
-        getOptionLabel={option => option.title}
-        onChange={event => {
-          const value = event?.target.value;
-          if (typeof value === 'string') return;
+        renderOption={option => option.label}
+        onChange={option => {
+          const page = data?.pages.find(page => page.id === option.value);
+          if (typeof page === 'undefined') return;
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',
             // quickest pathway forward to load new data
             reloadDocument: true,
             params: {
               dashboardPath: params.dashboardPath,
-              pagePath: value.path,
+              pagePath: page.path,
             },
           });
         }}
       />
-    </Row>
+    </div>
   );
 }

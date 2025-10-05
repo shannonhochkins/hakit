@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import type { CustomConfigWithDefinition, PuckPageData } from '@typings/puck';
+import type { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import type { HassServices } from 'home-assistant-js-websocket';
 import type { DashboardWithPageData, Dashboard } from '@typings/hono';
 import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
-import { BreakPoint } from '@hakit/components';
+import { type BreakPoint } from '@hakit/components';
 import { DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
@@ -79,8 +79,8 @@ type PuckConfigurationStore = {
   setEditorIframeDocument: (document: Document | null) => void;
   emotionCache: EmotionCache | null;
   setEmotionCache: (emotionCache: EmotionCache | null) => void;
-  userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null;
-  setUserConfig: (userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null) => void;
+  userConfig: CustomPuckConfig<DefaultComponentProps> | null;
+  setUserConfig: (userConfig: CustomPuckConfig<DefaultComponentProps> | null) => void;
   services: HassServices | null;
   setServices: (services: HassServices | null) => void;
   dashboard: DashboardWithPageData | null;
@@ -140,7 +140,7 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     emotionCache: null,
     setEmotionCache: (emotionCache: EmotionCache | null) => set(state => ({ ...state, emotionCache })),
     userConfig: null,
-    setUserConfig: (userConfig: CustomConfigWithDefinition<DefaultComponentProps> | null) => set(state => ({ ...state, userConfig })),
+    setUserConfig: (userConfig: CustomPuckConfig<DefaultComponentProps> | null) => set(state => ({ ...state, userConfig })),
     services: null,
     setServices: (services: HassServices | null) => set(state => ({ ...state, services })),
     dashboardWithoutData: null,

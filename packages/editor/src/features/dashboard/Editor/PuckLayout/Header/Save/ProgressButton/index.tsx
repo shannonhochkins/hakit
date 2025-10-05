@@ -1,8 +1,8 @@
 import React, { ReactNode, useCallback, useState } from 'react';
-import styled from '@emotion/styled';
 import { Check, AlertOctagon, Loader2 } from 'lucide-react';
 import { PrimaryButton, PrimaryButtonProps } from '@components/Button';
-import { Row } from '@hakit/components';
+import styles from './ProgressButton.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
 interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
   /** Disables the button, preventing clicks. */
@@ -16,44 +16,7 @@ interface ProgressButtonProps extends React.ComponentPropsWithRef<'div'> {
   children?: ReactNode;
   variant: PrimaryButtonProps['variant'];
 }
-
-const Container = styled.div`
-  display: inline-block;
-  position: relative;
-  outline: none;
-  .hidden {
-    opacity: 0;
-  }
-`;
-
-const ProgressOverlay = styled.div`
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  width: 100%;
-  text-align: center;
-  pointer-events: none; /* don't block clicks over the overlay */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 1.25em;
-    height: 1.25em;
-    color: #fff;
-  }
-
-  /* Spinner animation for Loader2 icon */
-  .spinner {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
+const getClassName = getClassNameFactory('ProgressButton', styles);
 
 export function ProgressButton({ disabled = false, onClick, children, title, variant, ...rest }: ProgressButtonProps) {
   const [progress, setProgress] = useState(false);
@@ -86,7 +49,7 @@ export function ProgressButton({ disabled = false, onClick, children, title, var
   const overlay = Boolean(result) || progress;
 
   return (
-    <Container {...rest}>
+    <div className={getClassName({ contentHidden: overlay }, getClassName('ProgressButton'))} {...rest}>
       <PrimaryButton
         aria-label={title || ''}
         disabled={disabled || progress}
@@ -96,24 +59,16 @@ export function ProgressButton({ disabled = false, onClick, children, title, var
         }}
         variant={result === 'success' ? 'success' : result === 'error' ? 'error' : variant}
       >
-        <Row
-          className={result ? 'hidden' : ''}
-          gap='var(--space-2)'
-          style={{
-            opacity: overlay ? 0 : 1,
-          }}
-        >
-          {children}
-        </Row>
+        <div className={getClassName('ProgressButton-Content')}>{children}</div>
       </PrimaryButton>
 
       {overlay && (
-        <ProgressOverlay>
+        <div className={getClassName('ProgressButton-Overlay')}>
           {result === 'success' && <Check />}
           {result === 'error' && <AlertOctagon />}
-          {progress && <Loader2 className='spinner' />}
-        </ProgressOverlay>
+          {progress && <Loader2 className={getClassName('ProgressButton-spinner')} />}
+        </div>
       )}
-    </Container>
+    </div>
   );
 }

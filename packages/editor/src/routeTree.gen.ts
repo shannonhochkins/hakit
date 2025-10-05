@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedMeIndexRouteImport } from './routes/_authenticated/me/index'
+import { Route as AuthenticatedMeStyleguideIndexRouteImport } from './routes/_authenticated/me/styleguide/index'
 import { Route as AuthenticatedMeSettingsIndexRouteImport } from './routes/_authenticated/me/settings/index'
 import { Route as AuthenticatedMeRepositoriesIndexRouteImport } from './routes/_authenticated/me/repositories/index'
 import { Route as AuthenticatedMeLogoutIndexRouteImport } from './routes/_authenticated/me/logout/index'
@@ -45,6 +46,12 @@ const AuthenticatedMeIndexRoute = AuthenticatedMeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedMeRoute,
 } as any)
+const AuthenticatedMeStyleguideIndexRoute =
+  AuthenticatedMeStyleguideIndexRouteImport.update({
+    id: '/styleguide/',
+    path: '/styleguide/',
+    getParentRoute: () => AuthenticatedMeRoute,
+  } as any)
 const AuthenticatedMeSettingsIndexRoute =
   AuthenticatedMeSettingsIndexRouteImport.update({
     id: '/settings/',
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/repositories': typeof AuthenticatedMeRepositoriesIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
+  '/me/styleguide': typeof AuthenticatedMeStyleguideIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
   '/me/issues/$issue': typeof AuthenticatedMeIssuesIssueIndexRoute
   '/me/repositories/explore': typeof AuthenticatedMeRepositoriesExploreIndexRoute
@@ -144,6 +152,7 @@ export interface FileRoutesByTo {
   '/me/logout': typeof AuthenticatedMeLogoutIndexRoute
   '/me/repositories': typeof AuthenticatedMeRepositoriesIndexRoute
   '/me/settings': typeof AuthenticatedMeSettingsIndexRoute
+  '/me/styleguide': typeof AuthenticatedMeStyleguideIndexRoute
   '/dashboard/$dashboardPath/$pagePath': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
   '/me/issues/$issue': typeof AuthenticatedMeIssuesIssueIndexRoute
   '/me/repositories/explore': typeof AuthenticatedMeRepositoriesExploreIndexRoute
@@ -163,6 +172,7 @@ export interface FileRoutesById {
   '/_authenticated/me/logout/': typeof AuthenticatedMeLogoutIndexRoute
   '/_authenticated/me/repositories/': typeof AuthenticatedMeRepositoriesIndexRoute
   '/_authenticated/me/settings/': typeof AuthenticatedMeSettingsIndexRoute
+  '/_authenticated/me/styleguide/': typeof AuthenticatedMeStyleguideIndexRoute
   '/_authenticated/dashboard/$dashboardPath/$pagePath/': typeof AuthenticatedDashboardDashboardPathPagePathIndexRoute
   '/_authenticated/me/issues/$issue/': typeof AuthenticatedMeIssuesIssueIndexRoute
   '/_authenticated/me/repositories/explore/': typeof AuthenticatedMeRepositoriesExploreIndexRoute
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/me/logout'
     | '/me/repositories'
     | '/me/settings'
+    | '/me/styleguide'
     | '/dashboard/$dashboardPath/$pagePath'
     | '/me/issues/$issue'
     | '/me/repositories/explore'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/me/logout'
     | '/me/repositories'
     | '/me/settings'
+    | '/me/styleguide'
     | '/dashboard/$dashboardPath/$pagePath'
     | '/me/issues/$issue'
     | '/me/repositories/explore'
@@ -216,6 +228,7 @@ export interface FileRouteTypes {
     | '/_authenticated/me/logout/'
     | '/_authenticated/me/repositories/'
     | '/_authenticated/me/settings/'
+    | '/_authenticated/me/styleguide/'
     | '/_authenticated/dashboard/$dashboardPath/$pagePath/'
     | '/_authenticated/me/issues/$issue/'
     | '/_authenticated/me/repositories/explore/'
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/me/'
       preLoaderRoute: typeof AuthenticatedMeIndexRouteImport
+      parentRoute: typeof AuthenticatedMeRoute
+    }
+    '/_authenticated/me/styleguide/': {
+      id: '/_authenticated/me/styleguide/'
+      path: '/styleguide'
+      fullPath: '/me/styleguide'
+      preLoaderRoute: typeof AuthenticatedMeStyleguideIndexRouteImport
       parentRoute: typeof AuthenticatedMeRoute
     }
     '/_authenticated/me/settings/': {
@@ -354,6 +374,7 @@ interface AuthenticatedMeRouteChildren {
   AuthenticatedMeLogoutIndexRoute: typeof AuthenticatedMeLogoutIndexRoute
   AuthenticatedMeRepositoriesIndexRoute: typeof AuthenticatedMeRepositoriesIndexRoute
   AuthenticatedMeSettingsIndexRoute: typeof AuthenticatedMeSettingsIndexRoute
+  AuthenticatedMeStyleguideIndexRoute: typeof AuthenticatedMeStyleguideIndexRoute
   AuthenticatedMeIssuesIssueIndexRoute: typeof AuthenticatedMeIssuesIssueIndexRoute
   AuthenticatedMeRepositoriesExploreIndexRoute: typeof AuthenticatedMeRepositoriesExploreIndexRoute
   AuthenticatedMeRepositoriesInstallIndexRoute: typeof AuthenticatedMeRepositoriesInstallIndexRoute
@@ -368,6 +389,7 @@ const AuthenticatedMeRouteChildren: AuthenticatedMeRouteChildren = {
   AuthenticatedMeLogoutIndexRoute: AuthenticatedMeLogoutIndexRoute,
   AuthenticatedMeRepositoriesIndexRoute: AuthenticatedMeRepositoriesIndexRoute,
   AuthenticatedMeSettingsIndexRoute: AuthenticatedMeSettingsIndexRoute,
+  AuthenticatedMeStyleguideIndexRoute: AuthenticatedMeStyleguideIndexRoute,
   AuthenticatedMeIssuesIssueIndexRoute: AuthenticatedMeIssuesIssueIndexRoute,
   AuthenticatedMeRepositoriesExploreIndexRoute:
     AuthenticatedMeRepositoriesExploreIndexRoute,

@@ -1,0 +1,60 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import styles from './MenuItem.module.css';
+
+export interface MenuItemProps extends React.ComponentPropsWithoutRef<'button'> {
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+  startIcon?: React.ReactNode;
+}
+
+export function MenuItem({ onClick, disabled = false, startIcon, children, className, ...rest }: MenuItemProps) {
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const [highlighted, setHighlighted] = useState(false);
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (disabled) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      onClick?.(e);
+    },
+    [onClick, disabled]
+  );
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    };
+    el.addEventListener('keydown', onKeyDown);
+    return () => el.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  return (
+    <button
+      ref={ref}
+      role='menuitem'
+      aria-disabled={disabled}
+      data-highlighted={highlighted ? 'true' : 'false'}
+      className={`${styles.menuItem} ${className ?? ''}`}
+      onMouseEnter={() => setHighlighted(true)}
+      onMouseLeave={() => setHighlighted(false)}
+      onFocus={() => setHighlighted(true)}
+      onBlur={() => setHighlighted(false)}
+      onClick={handleClick}
+      disabled={disabled}
+      {...rest}
+    >
+      {startIcon ? <span className={styles.menuItemIcon}>{startIcon}</span> : null}
+      <span className={styles.menuItemLabel}>{children}</span>
+    </button>
+  );
+}
+
+MenuItem.displayName = 'MenuItem';

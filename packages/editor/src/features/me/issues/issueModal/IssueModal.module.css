@@ -1,0 +1,59 @@
+/* IssueModal CSS Module */
+
+.IssueModal-resultItem {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2);
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-inset);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+
+.IssueModal-loadingRow {
+  padding: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.IssueModal-alertWarning {
+  margin-bottom: var(--space-2);
+}
+
+.IssueModal-alertSuccess {
+  margin-bottom: var(--space-3);
+}
+
+.IssueModal-resultTitle {
+  font-weight: 600;
+}
+
+.IssueModal-resultBody {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.IssueModal-descriptionLabel {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.IssueModal-descriptionHelper {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
+}
+
+.IssueModal-descriptionContainer {
+  opacity: 1;
+  pointer-events: auto;
+  width: 100%;
+}
+
+.IssueModal-descriptionContainer--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}

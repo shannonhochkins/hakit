@@ -49,7 +49,7 @@ export const apiRoutes = app
         },
         servers: [
           { url: 'http://localhost:3000', description: 'Local proxy' },
-          { url: 'http://localhost:5000', description: 'Direct' },
+          { url: 'http://localhost:3002', description: 'Direct' },
         ],
       },
     })

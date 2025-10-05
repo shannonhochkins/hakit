@@ -172,3 +172,5 @@ export const useKeyboardShortcuts = (shortcuts: Shortcut[], active = true, event
     return removeEventListener;
   }, [active, addEventListener, removeEventListener]);
 };
+
+// TODO - swap this out for react-hotkeys-hook

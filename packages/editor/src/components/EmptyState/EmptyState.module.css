@@ -1,0 +1,39 @@
+/* EmptyState Container */
+.EmptyState {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+}
+
+/* Icon Container */
+.EmptyState-icon {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+  display: flex;
+  justify-content: center;
+}
+
+/* Title */
+.EmptyState-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Description */
+.EmptyState-description {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-6) 0;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Actions */
+.EmptyState-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}

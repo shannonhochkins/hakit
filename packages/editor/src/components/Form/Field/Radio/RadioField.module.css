@@ -1,0 +1,115 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.optionsContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
+  gap: var(--space-6);
+}
+.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-3);
+  gap: var(--space-3);
+}
+.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.radioOption {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.horizontal .radioOption {
+  margin-right: 0;
+}
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.radioLabel {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  width: 100%;
+}
+.radioButton {
+  position: relative;
+  display: inline-block;
+  width: var(--radio-size, 1.125rem); /* 18px */
+  height: var(--radio-size, 1.125rem); /* 18px */
+  margin-right: var(--space-2);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+.radioButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--radio-size, 1.125rem) - 0.5rem); /* Size - padding */
+  height: calc(var(--radio-size, 1.125rem) - 0.5rem); /* Size - padding */
+  border-radius: 50%;
+  background-color: var(--color-primary-500);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform var(--transition-normal);
+}
+.radioInput:checked + .radioLabel .radioButton {
+  border-color: var(--color-primary-500);
+}
+.radioInput:checked + .radioLabel .radioButton::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Read-only mode - show selected state based on data attribute */
+.radioButton[data-selected="true"]::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+.radioInput:focus + .radioLabel .radioButton {
+  box-shadow: var(--shadow-primary-focus-sm);
+}
+.helperText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+/* Disabled state */
+.disabled .radioLabel {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.disabled .radioButton {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-muted);
+  opacity: 0.7;
+}
+.disabled .radioInput:checked + .radioLabel .radioButton::after {
+  background-color: var(--color-primary-300);
+}
+
+/* Size-specific spacing */
+.container.small .horizontal {
+  gap: var(--space-4);
+}
+
+.container.large .horizontal {
+  gap: var(--space-8);
+}

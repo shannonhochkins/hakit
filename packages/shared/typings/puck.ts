@@ -2,16 +2,13 @@ import {
   type DefaultComponentProps,
   type PuckComponent,
   type ComponentConfig,
-  type ComponentData,
   type Data,
-  type Config,
   type Slot as InternalSlot,
-  AsFieldProps,
-  RootData,
+  Config,
 } from '@measured/puck';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { Dashboard } from './hono';
-import type { FieldConfiguration, FieldConfigurationWithDefinition, InternalComponentFields } from './fields';
+import type { FieldConfiguration, FieldDefinition, InternalComponentFields } from './fields';
 
 export type DefaultPropsCallbackData = {
   entities: HassEntities;
@@ -52,34 +49,24 @@ export type IgnorePuckConfigurableOptions =
  * This type will also be used for external component definitions for users when defining custom components
  * NOTE: Any time this type or related types are updated, the `@hakit/addon` package should be updated to ensure compatibility
  */
-export type CustomComponentConfig<
-  Props extends DefaultComponentProps = DefaultComponentProps,
-  FieldProps extends DefaultComponentProps = Props,
-  DataShape = Omit<ComponentData<FieldProps>, 'type'>,
-> = Omit<ComponentConfig<Props, FieldProps, DataShape>, IgnorePuckConfigurableOptions | 'fields' | 'render' | 'label'> & {
+export type CustomComponentConfig<Props extends DefaultComponentProps = DefaultComponentProps> = Omit<
+  ComponentConfig<{
+    props: Props;
+    fields: FieldDefinition;
+  }>,
+  IgnorePuckConfigurableOptions | 'render' | 'label' | 'fields'
+> & {
   // Label is required
   label: string;
-  // Custom fields configuration instead of Puck's Fields
-  fields: FieldConfiguration<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
+  fields: FieldConfiguration<Props>;
   render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling
   styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 
-export type CustomComponentConfigWithDefinition<
-  Props extends DefaultComponentProps = DefaultComponentProps,
-  FieldProps extends DefaultComponentProps = Props,
-  DataShape = Omit<ComponentData<FieldProps>, 'type'>,
-> = Omit<ComponentConfig<Props, FieldProps, DataShape>, IgnorePuckConfigurableOptions | 'fields' | 'render' | 'label'> & {
-  // Label is required
-  label: string;
-  // Custom fields configuration instead of Puck's Fields
-  fields: FieldConfigurationWithDefinition<Props, Omit<ComponentData<FieldProps>, 'type'>['props']>;
-  render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
-  // Optional styles function that returns CSS string for component-scoped styling
-  styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
-  // defaultProps is intentionally omitted, we handle this on individual field definitions
+export type CustomPuckComponentConfig<Props extends DefaultComponentProps = DefaultComponentProps> = CustomComponentConfig<Props> & {
+  defaultProps: Props;
 };
 
 export type ComponentFactoryData = {
@@ -89,24 +76,33 @@ export type ComponentFactoryData = {
 
 export type PuckPageData = Data<DefaultComponentProps, DefaultComponentProps>;
 
-export type CustomRootConfig<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
-  CustomComponentConfig<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
->;
-
-export type CustomRootConfigWithDefinition<RootProps extends DefaultComponentProps = DefaultComponentProps> = Partial<
-  CustomComponentConfigWithDefinition<RootProps, AsFieldProps<RootProps>, RootData<AsFieldProps<RootProps>>>
->;
-
-export type CustomConfigWithDefinition<
+export type CustomConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
-  CategoryName extends string = string,
-> = Omit<Config<Props, RootProps, CategoryName>, 'components' | 'root' | 'fields'> & {
+> = Omit<
+  Config<{
+    components: Props;
+    fields: FieldDefinition;
+  }>,
+  'components' | 'root' | 'fields'
+> & {
   components: {
-    [ComponentName in keyof Props]: Omit<CustomComponentConfigWithDefinition<Props[ComponentName], Props[ComponentName]>, 'type'>;
+    [ComponentName in keyof Props]: Omit<CustomComponentConfig<Props[ComponentName]>, 'type'>;
   };
-  fields?: FieldConfigurationWithDefinition<Props, true>;
-  root?: CustomRootConfigWithDefinition<RootProps>;
+  fields?: FieldConfiguration<Props>;
+  root?: Partial<CustomComponentConfig<RootProps>>;
+};
+
+export type CustomPuckConfig<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+> = Omit<CustomConfig<Props, RootProps>, 'root' | 'components'> & {
+  components: {
+    [ComponentName in keyof Props]: Omit<CustomPuckComponentConfig<Props[ComponentName]>, 'type'>;
+  };
+  root: Partial<CustomPuckComponentConfig<RootProps>> & {
+    defaultProps: RootProps;
+  };
 };
 
 export type Slot = InternalSlot;

@@ -1,0 +1,31 @@
+.DrawerItem {
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background-color: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.DrawerItem:hover {
+  background-color: var(--color-border);
+}
+
+.DrawerItem-Icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
+}
+
+.DrawerItem:hover .DrawerItem-Icon {
+  color: var(--color-text-primary);
+}
+
+.DrawerItem-Name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+

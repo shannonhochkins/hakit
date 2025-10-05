@@ -1,0 +1,20 @@
+
+
+.Toolbar {
+  height: var(--header-height);
+  background-color: var(--color-gray-900);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  gap: var(--space-3);
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.Toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

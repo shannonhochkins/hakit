@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeftIcon, PlusIcon } from 'lucide-react';
-import styled from '@emotion/styled';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { Undo } from './Undo';
 import { Redo } from './Redo';
@@ -9,48 +8,13 @@ import { Revert } from './Revert';
 import { IconButton } from '@components/Button/IconButton';
 import { PageSelector } from './PageSelector';
 import { FeatureText } from '@components/FeatureText';
-import { Divider } from '@mui/material';
 import { PageForm } from '../../../../../components/Modal/PageForm';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDashboard } from '@hooks/queeries/useDashboard';
+import styles from './Header.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
-// Styled Components
-const StyledHeader = styled.header<{ $hidden?: boolean }>`
-  background-color: var(--color-gray-900);
-  border-bottom: 1px solid var(--color-border);
-  padding: 0 var(--space-4);
-  display: ${props => (props.$hidden ? 'none' : 'flex')};
-  align-items: center;
-  justify-content: space-between;
-  height: var(--header-height);
-  flex-shrink: 0;
-  flex-grow: 0;
-`;
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-`;
-
-const PageControls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-`;
-
-const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-`;
-
-const UndoRedoGroup = styled.div`
-  display: flex;
-  align-items: center;
-  border-radius: var(--radius-md);
-  gap: var(--space-1);
-`;
+const getClassName = getClassNameFactory('Header', styles);
 
 export function Header() {
   const navigate = useNavigate();
@@ -68,9 +32,13 @@ export function Header() {
     });
   }
 
+  const onClose = useCallback(() => {
+    setOpenNewPage(false);
+  }, []);
+
   return (
-    <StyledHeader $hidden={isFullscreen}>
-      <HeaderLeft>
+    <header className={getClassName({ hidden: isFullscreen }, getClassName('Header'))}>
+      <div className={getClassName('Header-Left')}>
         <IconButton
           variant='transparent'
           icon={<ArrowLeftIcon size={18} />}
@@ -81,8 +49,8 @@ export function Header() {
         <div>
           <FeatureText primary='@HAKIT' secondary='/EDITOR' />
         </div>
-        <Divider orientation='vertical' flexItem />
-        <PageControls>
+        <div className={getClassName('Divider')} aria-hidden='true' />
+        <div className={getClassName('PageControls')}>
           <PageSelector />
           <IconButton
             variant='transparent'
@@ -95,25 +63,23 @@ export function Header() {
             }}
             aria-label='Add new page'
           />
-        </PageControls>
-      </HeaderLeft>
+        </div>
+      </div>
 
-      <HeaderRight>
-        <UndoRedoGroup>
+      <div className={getClassName('Right')}>
+        <div className={getClassName('UndoRedoGroup')}>
           <Undo />
           <Redo />
           <Revert />
-        </UndoRedoGroup>
+        </div>
 
         <Save />
-      </HeaderRight>
+      </div>
       <PageForm
         mode='new'
         dashboardId={data?.id}
         isOpen={newPageOpen}
-        onClose={() => {
-          setOpenNewPage(false);
-        }}
+        onClose={onClose}
         onSuccess={newPage => {
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',
@@ -127,6 +93,6 @@ export function Header() {
           setOpenNewPage(false);
         }}
       />
-    </StyledHeader>
+    </header>
   );
 }

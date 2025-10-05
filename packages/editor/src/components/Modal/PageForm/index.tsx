@@ -1,37 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from '@emotion/styled';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardsQueryOptions, createDashboardPage, updateDashboardPageForUser, duplicateDashboardPage } from '@services/dashboard';
 import { nameToPath } from '@helpers/editor/routes/nameToPath';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
-import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
-import { InputField } from '@components/Form/Fields/Input';
-import { ImageUpload } from '@components/Form/Fields/Image';
+import { InputField } from '@components/Form/Field/Input';
+import { ImageField } from '@components/Form/Field/Image';
 import { Modal } from '@components/Modal';
-import { InputAdornment } from '@mui/material';
 import { DashboardPageWithoutData } from '@typings/hono';
-
-// Styled Components
-const FormActions = styled.div`
-  display: flex;
-  gap: var(--space-3);
-  justify-content: flex-end;
-  margin-top: var(--space-6);
-`;
-
-const CompactInputAdornment = styled(InputAdornment)`
-  .MuiInputAdornment-root {
-    margin-right: 0;
-  }
-
-  /* Reduce spacing between adornment and input */
-  &.MuiInputAdornment-positionStart {
-    margin-right: 0;
-  }
-`;
+import styles from './PageForm.module.css';
 
 interface PageFormProps {
   mode: 'new' | 'edit' | 'duplicate';
@@ -214,15 +192,18 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
     }
   };
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!isSubmitting) {
       onClose();
     }
-  };
+  }, [isSubmitting, onClose]);
 
   const formTitle = mode === 'new' ? 'Create New Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Edit Page';
 
   const isInvalid = !name.trim() || !path.trim() || !!nameError || !!pathError;
+
+  const isTouchedAndEmpty = pathTouched && path.trim() === '';
+  const errorHelperText = isTouchedAndEmpty ? 'Page path is required' : pathError;
 
   return (
     <Modal
@@ -244,55 +225,44 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
           gap: 'var(--space-4)',
         }}
       >
-        <FieldGroup>
-          <FieldLabel htmlFor='page-name' label='Page Name' description='The name of the page.' />
-          <InputField
-            id='page-name'
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder='Enter page name'
-            error={!!nameError}
-            helperText={nameError}
-            required
-            disabled={isSubmitting}
-            autoFocus
-          />
-        </FieldGroup>
+        <InputField
+          label='Page Name *'
+          id='page-name'
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder='Enter page name'
+          error={!!nameError}
+          helperText={nameError || 'The name of the page.'}
+          required
+          disabled={isSubmitting}
+          autoFocus
+        />
 
-        <FieldGroup>
-          <FieldLabel htmlFor='page-path' label='Page Path' description='The path of the page underneath the dashboard.' />
-          <InputField
-            id='page-path'
-            value={path}
-            onChange={e => {
-              setPath(e.target.value);
-              setPathTouched(true);
-            }}
-            required
-            placeholder='page-name'
-            error={!!pathError}
-            helperText={pathError || 'The path is automatically generated from the page name'}
-            disabled={isSubmitting}
-            slotProps={{
-              htmlInput: {
-                style: {
-                  paddingLeft: 0,
-                  color: 'var(--color-primary)',
-                },
-              },
-              input: {
-                startAdornment: dashboard && <CompactInputAdornment position='start'>{dashboard.path}/</CompactInputAdornment>,
-              },
-            }}
-          />
-        </FieldGroup>
+        <InputField
+          id='page-path'
+          value={path}
+          onChange={e => {
+            setPath(e.target.value);
+            setPathTouched(true);
+          }}
+          label='Page Path *'
+          required
+          placeholder='page-name'
+          error={!!pathError || isTouchedAndEmpty}
+          helperText={errorHelperText || 'The path is automatically generated from the page name'}
+          disabled={isSubmitting}
+          valuePrefix={dashboard && <>{dashboard.path}/</>}
+        />
 
-        <FieldGroup>
-          <FieldLabel htmlFor='page-thumbnail' label='Thumbnail (optional)' description='Upload an image thumbnail for this page.' />
-          <ImageUpload id='page-thumbnail' value={thumbnail} onChange={setThumbnail} />
-        </FieldGroup>
+        <ImageField
+          id='page-thumbnail'
+          label='Thumbnail (optional)'
+          helperText='Upload an image thumbnail for this page.'
+          value={thumbnail}
+          onChange={setThumbnail}
+        />
 
-        <FormActions>
+        <div className={styles.formActions}>
           <SecondaryButton aria-label='' type='button' onClick={handleClose} disabled={isSubmitting}>
             <XIcon size={16} />
             Cancel
@@ -301,7 +271,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
             {!isInvalid && <CheckIcon size={16} />}
             {mode === 'new' ? 'Create Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Save Changes'}
           </PrimaryButton>
-        </FormActions>
+        </div>
       </form>
     </Modal>
   );

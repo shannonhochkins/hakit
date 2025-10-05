@@ -1,37 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import styled from '@emotion/styled';
 import { Column, Row } from '@hakit/components';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './IssueModal.module.css';
+
+const getClassName = getClassNameFactory('IssueModal', styles);
 import { Modal } from '@components/Modal/Modal';
-import { InputField } from '@components/Form/Fields/Input';
-import { SelectField } from '@components/Form/Fields/Select';
+import { InputField } from '@components/Form/Field/Input';
+import { SelectField } from '@components/Form/Field/Select';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Loader2, Search } from 'lucide-react';
 import { listIssues } from '@services/issues';
-import type { IssueType, IssueSummary } from '@typings/issues';
+import { type IssueType, type IssueSummary, ISSUE_TYPES_OPTIONS } from '@typings/issues';
 import { Alert } from '@components/Alert';
-import { ISSUE_TYPES, getIssueTypeLabel } from '@typings/issues';
 import bugTemplate from './templates/bug.md?raw';
 import enhancementTemplate from './templates/enhancement.md?raw';
 import documentationTemplate from './templates/documentation.md?raw';
 import featureTemplate from './templates/feature.md?raw';
 import questionTemplate from './templates/question.md?raw';
 import { MarkdownEditor } from '@components/Markdown/MarkdownEditor';
-
-const ResultItem = styled.button`
-  width: 100%;
-  text-align: left;
-  padding: var(--space-2);
-  display: flex;
-  gap: var(--space-2);
-  align-items: flex-start;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-inset);
-  border: 1px solid var(--color-border);
-  cursor: pointer;
-  color: var(--color-text-primary);
-`;
-
-// type icon helper omitted in this dialog layout
 
 function SimilarIssues({ query, onSelect }: { query: string; onSelect: (issue: IssueSummary) => void }) {
   const [loading, setLoading] = useState(false);
@@ -83,39 +69,29 @@ function SimilarIssues({ query, onSelect }: { query: string; onSelect: (issue: I
   return (
     <>
       {loading && !all ? (
-        <Row
-          alignItems='flex-start'
-          justifyContent='flex-start'
-          gap='0.5rem'
-          style={{ padding: 'var(--space-2)', color: 'var(--color-text-muted)' }}
-        >
+        <Row alignItems='flex-start' justifyContent='flex-start' gap='0.5rem' className={getClassName('loadingRow')}>
           <Loader2 className='spin' size={16} /> Searching for similar issues…
         </Row>
       ) : results.length > 0 ? (
         <Column gap='0.5rem' alignItems='flex-start' justifyContent='flex-start' fullWidth>
-          <Alert
-            severity='warning'
-            style={{
-              marginBottom: `var(--space-2)`,
-            }}
-          >
+          <Alert severity='warning' className={getClassName('alertWarning')}>
             Similar issues found. Please check if your issue has already been reported:
           </Alert>
           {results.map(item => (
-            <ResultItem key={item.number} onClick={() => onSelect(item)}>
+            <button key={item.number} onClick={() => onSelect(item)} className={getClassName('resultItem')}>
               <Search size={14} style={{ marginTop: 2 }} />
               <Column alignItems='flex-start' justifyContent='flex-start' gap='0.25rem'>
-                <div style={{ fontWeight: 600 }}>{item.title}</div>
-                <div style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
+                <div className={getClassName('resultTitle')}>{item.title}</div>
+                <div className={getClassName('resultBody')}>
                   {(item.body || '').slice(0, 100)}
                   {(item.body || '').length > 100 ? '…' : ''}
                 </div>
               </Column>
-            </ResultItem>
+            </button>
           ))}
         </Column>
       ) : (
-        <Alert severity='success' style={{ marginBottom: `var(--space-3)` }}>
+        <Alert severity='success' className={getClassName('alertSuccess')}>
           No similar issues found. You can proceed with creating a new issue.
         </Alert>
       )}
@@ -123,8 +99,30 @@ function SimilarIssues({ query, onSelect }: { query: string; onSelect: (issue: I
   );
 }
 
-const AREAS = ['@hakit/core', '@hakit/components', '@hakit/editor', '@hakit/addon', '@hakit/website'] as const;
-type AreaType = (typeof AREAS)[number];
+const AREAS_OPTIONS = [
+  {
+    label: '@hakit/core',
+    value: '@hakit/core',
+  },
+  {
+    label: '@hakit/components',
+    value: '@hakit/components',
+  },
+  {
+    label: '@hakit/editor',
+    value: '@hakit/editor',
+  },
+  {
+    label: '@hakit/addon',
+    value: '@hakit/addon',
+  },
+  {
+    label: '@hakit/website',
+    value: '@hakit/website',
+  },
+] as const;
+
+type AreaType = (typeof AREAS_OPTIONS)[number]['value'];
 
 export function IssueModal({
   open,
@@ -190,43 +188,63 @@ export function IssueModal({
     <Modal open={open} onClose={onClose} title={modalTitle} fullscreen={fullscreen}>
       <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Type</div>
-          <SelectField<IssueType | ''>
-            value={type}
-            onChange={e => setType(e.target.value || '')}
-            options={['', ...ISSUE_TYPES]}
-            getOptionLabel={opt => (opt === '' ? 'Please select' : getIssueTypeLabel(opt))}
+          <SelectField
+            id='type'
+            label='Type'
+            value={
+              type
+                ? {
+                    label: type,
+                    value: type,
+                  }
+                : undefined
+            }
+            onChange={option => setType(option.value as IssueType | '')}
+            options={[...ISSUE_TYPES_OPTIONS]}
+            placeholder='Select a type'
             size='small'
             style={{ minWidth: 220 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Package / Area</div>
-          <SelectField<AreaType | ''>
-            value={area}
-            onChange={e => setArea(e.target.value || '')}
-            options={['', ...AREAS]}
-            getOptionLabel={opt => (opt ? String(opt) : 'Please select')}
+          <SelectField
+            id='area'
+            label='Package / Area'
+            value={
+              area
+                ? {
+                    label: area,
+                    value: area,
+                  }
+                : undefined
+            }
+            onChange={option => setArea(option.value as AreaType | '')}
+            options={[...AREAS_OPTIONS]}
+            placeholder='Select a package / area'
             size='small'
             style={{ minWidth: 260 }}
           />
         </Column>
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Title</div>
           <InputField
             value={title}
+            id='title'
+            name='title'
+            label='Title'
+            helperText={type === 'feature' ? 'Brief description of the feature' : 'Brief description of the issue'}
             onChange={e => setTitle(e.target.value)}
-            placeholder={type === 'feature' ? 'Brief description of the feature' : 'Brief description of the issue'}
-            fullWidth
+            placeholder={'Enter a title...'}
           />
         </Column>
-        <SimilarIssues query={title} onSelect={() => onClose()} />
+        <SimilarIssues query={title} onSelect={onClose} />
         <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
-          <div style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Description</div>
-          <div style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', marginBottom: 'var(--space-2)' }}>
-            Markdown supported *
-          </div>
-          <div style={{ opacity: type ? 1 : 0.6, pointerEvents: type ? 'auto' : 'none', width: '100%' }}>
+          <div className={getClassName('descriptionLabel')}>Description</div>
+          <div className={getClassName('descriptionHelper')}>Markdown supported *</div>
+          <div
+            className={getClassName({
+              descriptionContainer: true,
+            })}
+          >
             <MarkdownEditor
               value={description}
               onChange={e => e !== undefined && setDescription(e)}

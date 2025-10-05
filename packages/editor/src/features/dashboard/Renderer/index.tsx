@@ -1,6 +1,6 @@
 import { Config, Render } from '@measured/puck';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { RendererShortcuts } from './RendererShortcuts';
 
 export function Renderer() {

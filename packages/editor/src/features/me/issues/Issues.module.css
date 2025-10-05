@@ -1,0 +1,137 @@
+
+.Issues {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.Issues-pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.mq-md .Issues-pageHeader {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.Issues-headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.Issues-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.Issues-pageSubtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.Issues-searchAndFilter {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-4);
+}
+
+.Issues-list {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.Issues-rowGrid {
+  display: flex;
+  width: 100%;
+  gap: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.Issues-rowGrid:first-of-type {
+  border-top: 0;
+}
+
+.Issues-statusCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--color-success-500);;
+}
+.Issues-statusCell--open {
+  background: transparent
+}
+
+.Issues-detailsCell {
+  padding: var(--space-4);  
+  width: 100%;
+  cursor: pointer;
+}
+.Issues-detailsCell:hover {
+  background: var(--color-surface-elevated);
+}
+
+.Issues-titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.Issues-titleLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.Issues-titleText-type-bug {
+  color: var(--color-error-500);
+}
+.Issues-titleText-type-feature {
+  color: var(--color-primary-500);
+}
+.Issues-titleText-type-enhancement {
+  color: var(--color-success-500);
+}
+.Issues-titleText-type-doc {
+  color: var(--color-warning-500);
+}
+
+.Issues-titleText {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.Issues-snippet {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.Issues-labelsRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.Issues-moreText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+/* label chip handled by IssueLabel component */
+
+.Issues-footerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}

@@ -1,8 +1,11 @@
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { Modal } from './Modal';
-import styled from '@emotion/styled';
 import { useState } from 'react';
+import styles from './confirm.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('Confirm', styles);
 
 interface ConfirmProps {
   open: boolean;
@@ -12,15 +15,10 @@ interface ConfirmProps {
   onCancel: () => void;
 }
 
-const StyledModal = styled(Modal)`
-  --modal-width: 500px;
-  z-index: var(--z-modal);
-`;
-
 export function Confirm({ open, title, children, onConfirm, onCancel }: ConfirmProps) {
   const [loading, setLoading] = useState(false);
   return (
-    <StyledModal title={title} open={open} onClose={onCancel}>
+    <Modal title={title} open={open} onClose={onCancel} className={getClassName()}>
       {children}
       <Row
         fullWidth
@@ -56,6 +54,6 @@ export function Confirm({ open, title, children, onConfirm, onCancel }: ConfirmP
           Confirm
         </PrimaryButton>
       </Row>
-    </StyledModal>
+    </Modal>
   );
 }

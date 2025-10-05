@@ -1,0 +1,28 @@
+
+.ResizeHandle {
+  inset: 0;
+  padding: 0;
+  position: absolute;
+  z-index: var(--z-modal, 500);
+  overflow: visible;
+  cursor: ew-resize;
+}
+
+.ResizeHandle-defaultHandle {
+  position: absolute;
+  opacity: 0.5;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: background-color var(--transition-normal);
+}
+
+/* Group hover and active states */
+.ResizeHandle-defaultHandle:hover {
+  color: var(--color-primary-500);
+}
+
+.ResizeHandle-defaultHandle:active {
+  color: var(--color-secondary-400);
+}

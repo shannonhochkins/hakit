@@ -1,9 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { useDashboardWithData } from '@hooks/queeries/useDashboardWithData';
-import { trimPuckDataToConfig } from '@helpers/editor/pageData/trimPuckDataToConfig';
-import { dbValueToPuck } from '../../../helpers/editor/pageData/dbValueToPuck';
+import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 
 interface DashboardProps {
   dashboardPath?: string;
@@ -26,10 +25,9 @@ export function AssignPuckData({ dashboardPath, pagePath, children }: DashboardP
     const { setPuckPageData, puckPageData, userConfig, activeBreakpoint } = useGlobalStore.getState();
 
     if (matchedPage && !puckPageData && userConfig) {
-      const updated = trimPuckDataToConfig(matchedPage.data, userConfig);
-      if (updated) {
-        const puckValue = dbValueToPuck(updated, activeBreakpoint);
-        setPuckPageData(puckValue);
+      const sanitizedData = sanitizePuckData(matchedPage.data, userConfig, activeBreakpoint);
+      if (sanitizedData) {
+        setPuckPageData(sanitizedData);
       }
     }
   }, [dashboard, matchedPage]);

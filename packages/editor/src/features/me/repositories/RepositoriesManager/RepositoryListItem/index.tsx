@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import styled from '@emotion/styled';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { PackageIcon, DownloadIcon, GitBranchIcon, RefreshCw, GithubIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { ComponentTags } from '../ComponentTags';
 import { formatNumber } from '@helpers/number';
 import { timeAgo } from '@hakit/core';
 import { RepositoryWithLatestVersion } from '@typings/hono';
 import { Tooltip } from '@components/Tooltip';
+import { AutoHeight } from '@components/AutoHeight';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './RepositoryListItem.module.css';
+
+const getClassName = getClassNameFactory('RepositoryListItem', styles);
 
 interface RepositoryListItemProps {
   repository: RepositoryWithLatestVersion;
@@ -15,146 +19,6 @@ interface RepositoryListItemProps {
   defaultExpanded?: boolean;
   onClick?: (event: React.MouseEvent) => void;
 }
-
-// Styled Components
-const Card = styled.div<{ isClickable: boolean; hasChildren: boolean }>`
-  width: 100%;
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: var(--transition-normal);
-  cursor: ${props => (props.isClickable ? 'pointer' : 'default')};
-
-  &:hover {
-    border-color: var(--color-border-hover);
-    background: ${props => (props.isClickable ? 'var(--color-surface-muted)' : 'var(--color-surface-elevated)')};
-  }
-`;
-
-const CardHeader = styled.div<{ hasChildren: boolean }>`
-  padding: var(--space-4);
-  ${props => props.hasChildren && 'border-bottom: 1px solid var(--color-border);'}
-`;
-
-const HeaderContent = styled(Row)`
-  gap: var(--space-3);
-`;
-
-const ThumbnailContainer = styled.div`
-  width: 80px;
-  height: 80px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--color-surface);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ThumbnailPlaceholder = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-`;
-
-const RepositoryInfo = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-
-const RepositoryHeader = styled(Row)`
-  margin-bottom: var(--space-2);
-`;
-
-const RepositoryTitle = styled.div`
-  flex: 1;
-  min-width: 0;
-`;
-
-const RepositoryName = styled.h3`
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-1) 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const RepositoryAuthor = styled.span`
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-`;
-
-const ActionsContainer = styled.div`
-  flex-shrink: 0;
-  margin-left: var(--space-3);
-`;
-
-const RepositoryDescription = styled.p`
-  color: var(--color-text-secondary);
-  margin: var(--space-2) 0 var(--space-3) 0;
-  line-height: var(--line-height-relaxed);
-  font-size: var(--font-size-sm);
-`;
-
-const MetaGrid = styled.div`
-  display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-3);
-`;
-
-const MetaItem = styled(Row)`
-  gap: var(--space-1);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
-`;
-
-const MetaValue = styled.span`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const ExpandButton = styled.button`
-  padding: var(--space-1);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  flex-shrink: 0;
-  margin-left: var(--space-2);
-
-  &:hover {
-    color: var(--color-text-primary);
-    background: var(--color-surface-overlay);
-  }
-`;
-
-const ExpandableContent = styled.div<{ isExpanded: boolean }>`
-  max-height: ${props => (props.isExpanded ? '1000px' : '0')};
-  opacity: ${props => (props.isExpanded ? '1' : '0')};
-  overflow: hidden;
-  transition: all var(--transition-normal);
-`;
-
-const ChildrenContainer = styled.div`
-  padding: var(--space-4);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-`;
 
 export function RepositoryListItem({ repository, actions, children, defaultExpanded, onClick }: RepositoryListItemProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded ?? false);
@@ -182,72 +46,99 @@ export function RepositoryListItem({ repository, actions, children, defaultExpan
   };
 
   return (
-    <Card isClickable={isClickable} hasChildren={hasChildren} onClick={handleCardClick}>
-      <CardHeader hasChildren={hasChildren}>
-        <HeaderContent fullWidth alignItems='flex-start'>
-          <ThumbnailContainer>
-            <ThumbnailPlaceholder>
+    <div
+      className={getClassName({
+        RepositoryListItem: true,
+        isClickable: isClickable,
+        hasChildren: hasChildren,
+      })}
+      onClick={handleCardClick}
+    >
+      <div
+        className={getClassName(
+          'cardHeader',
+          getClassName({
+            hasChildren: hasChildren,
+          })
+        )}
+      >
+        <Row className={getClassName('headerContent')} fullWidth alignItems='flex-start'>
+          <div className={getClassName('thumbnailContainer')}>
+            <div className={getClassName('thumbnailPlaceholder')}>
               <PackageIcon size={32} />
-            </ThumbnailPlaceholder>
-          </ThumbnailContainer>
+            </div>
+          </div>
 
-          <RepositoryInfo>
-            <RepositoryHeader fullWidth alignItems='center'>
-              <RepositoryTitle>
-                <RepositoryName>{repository.repository.name}</RepositoryName>
-                <RepositoryAuthor>by {repository.repository.author}</RepositoryAuthor>
-              </RepositoryTitle>
+          <div className={getClassName('repositoryInfo')}>
+            <Row className={getClassName('repositoryHeader')} fullWidth alignItems='center'>
+              <div className={getClassName('repositoryTitle')}>
+                <h3 className={getClassName('repositoryName')}>{repository.repository.name}</h3>
+                <span className={getClassName('repositoryAuthor')}>by {repository.repository.author}</span>
+              </div>
 
               <Row alignItems='center' gap='var(--space-2)'>
-                {actions && <ActionsContainer data-actions>{actions}</ActionsContainer>}
+                {actions && (
+                  <div className={getClassName('actionsContainer')} data-actions>
+                    {actions}
+                  </div>
+                )}
                 {hasChildren && (
-                  <ExpandButton data-expand-button onClick={handleExpandClick} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
+                  <button
+                    className={getClassName('expandButton')}
+                    data-expand-button
+                    onClick={handleExpandClick}
+                    aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                  >
                     {isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
-                  </ExpandButton>
+                  </button>
                 )}
               </Row>
-            </RepositoryHeader>
+            </Row>
 
-            {repository.repository.description && <RepositoryDescription>{repository.repository.description}</RepositoryDescription>}
+            {repository.repository.description && (
+              <p className={getClassName('repositoryDescription')}>{repository.repository.description}</p>
+            )}
 
             <ComponentTags components={repository.version.components || []} />
 
-            <MetaGrid>
-              <MetaItem>
+            <div className={getClassName('metaGrid')}>
+              <Row className={getClassName('metaItem')}>
                 <DownloadIcon size={14} />
                 <Tooltip title={`Version downloads: ${formatNumber(repository.version.downloadCount)}`}>
-                  <MetaValue>{formatNumber(repository.repository.totalDownloads)} Downloads</MetaValue>
+                  <span className={getClassName('metaValue')}>{formatNumber(repository.repository.totalDownloads)} Downloads</span>
                 </Tooltip>
-              </MetaItem>
+              </Row>
 
-              <MetaItem>
+              <Row className={getClassName('metaItem')}>
                 <GithubIcon size={14} />
-                <MetaValue>{repository.repository.author}</MetaValue>
-              </MetaItem>
+                <span className={getClassName('metaValue')}>{repository.repository.author}</span>
+              </Row>
 
               {repository.version.version && (
-                <MetaItem>
+                <Row className={getClassName('metaItem')}>
                   <GitBranchIcon size={14} />
-                  <MetaValue>v{repository.version.version}</MetaValue>
-                </MetaItem>
+                  <span className={getClassName('metaValue')}>v{repository.version.version}</span>
+                </Row>
               )}
 
-              <MetaItem>
+              <Row className={getClassName('metaItem')}>
                 <RefreshCw size={14} />
-                <MetaValue>
+                <span className={getClassName('metaValue')}>
                   Updated {repository.repository.lastUpdated ? timeAgo(new Date(repository.repository.lastUpdated)) : 'Unknown'}
-                </MetaValue>
-              </MetaItem>
-            </MetaGrid>
-          </RepositoryInfo>
-        </HeaderContent>
-      </CardHeader>
+                </span>
+              </Row>
+            </div>
+          </div>
+        </Row>
+      </div>
 
       {hasChildren && (
-        <ExpandableContent isExpanded={isExpanded}>
-          <ChildrenContainer>{children}</ChildrenContainer>
-        </ExpandableContent>
+        <AutoHeight isOpen={isExpanded} duration={300}>
+          <div className={getClassName('childrenContainer')} onClick={e => e.stopPropagation()}>
+            {children}
+          </div>
+        </AutoHeight>
       )}
-    </Card>
+    </div>
   );
 }

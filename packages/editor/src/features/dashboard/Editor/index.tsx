@@ -2,16 +2,16 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { Config, Puck } from '@measured/puck';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { PuckPageData } from '@typings/puck';
 import { PuckLayout } from './PuckLayout';
 import { puckToDBValue } from '@helpers/editor/pageData/puckToDBValue';
-import { trimPuckDataToConfig } from '../../../helpers/editor/pageData/trimPuckDataToConfig';
 import { useRef, useEffect } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import { EditorShortcuts } from './EditorShortcuts';
+import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
@@ -35,6 +35,7 @@ export function Editor() {
   }, []);
 
   const handlePuckChange = (newData: PuckPageData) => {
+    console.log('handlePuckChange', newData);
     // we've just received a new update for the entire puck page data
     // we should now take the current data, merge with the original data
     // sort out any new breakpoint values based on flags set in the store
@@ -76,14 +77,15 @@ export function Editor() {
         return;
       }
       const updated = puckToDBValue(currentPage.data, newData, activeBreakpoint, userConfig, componentBreakpointMap);
-      const trimmed = trimPuckDataToConfig(updated, userConfig);
-
-      if (trimmed && !deepEqual(currentPage.data, trimmed)) {
-        console.log('Updating data for db', {
-          updated: trimmed,
-          originalData: currentPage.data,
-        });
-        setUnsavedPuckPageData(trimmed);
+      if (updated) {
+        const sanitizedData = sanitizePuckData(updated, userConfig, activeBreakpoint);
+        if (sanitizedData && !deepEqual(currentPage.data, sanitizedData)) {
+          console.log('Updating data for db', {
+            updated: sanitizedData,
+            originalData: currentPage.data,
+          });
+          setUnsavedPuckPageData(sanitizedData);
+        }
       }
     }, 250);
   };

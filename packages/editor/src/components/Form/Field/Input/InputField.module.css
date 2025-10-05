@@ -1,0 +1,297 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.inputWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.5rem; /* Ensure minimum height for 1:1 adornments */
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  box-sizing: border-box;
+}
+
+.inputWrapper:focus-within {
+  border-color: var(--color-primary-500);
+  box-shadow: var(--shadow-primary-focus-sm);
+}
+.inputWrapper.error {
+  border-color: var(--color-error-500);
+}
+.inputWrapper.error:focus-within {
+  border-color: var(--color-error-500);
+  box-shadow: var(--shadow-error-focus-sm);
+}
+.inputWrapper.success {
+  border-color: var(--color-success-500);
+}
+.inputWrapper.success:focus-within {
+  border-color: var(--color-success-500);
+  box-shadow: var(--shadow-success-focus-sm);
+}
+.inputWrapper.disabled {
+  background-color: var(--color-surface-muted);
+  cursor: not-allowed;
+  min-height: 2.5rem; /* Ensure consistent height even when disabled */
+}
+.withPrefix .input::placeholder {
+  color: var(--color-text-primary);
+}
+.input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  min-width: 0; /* Allow the input to shrink */
+}
+
+/* Ensure no focus outline or box shadow on inner input when wrapper handles focus */
+.input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Override any browser defaults that might cause issues */
+.input:focus,
+.input:active,
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Fix browser autocomplete styling issues */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure autocomplete styling works with different input states */
+.inputWrapper:focus-within .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.error .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.success .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+}
+
+.inputWrapper.disabled .input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px var(--color-surface-muted) inset !important;
+}
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+.startAdornment, .endAdornment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0; /* Prevent adornments from shrinking */
+  z-index: 1; /* Ensure adornments appear above input */
+}
+
+.valuePrefix, .valueSuffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-1);
+}
+.valuePrefix {
+  margin-left: var(--space-2);
+}
+.valueSuffix {
+  margin-right: var(--space-2);
+}
+
+/* Default adornment styling for 1:1 boxes */
+.startAdornment.default, .endAdornment.default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem; /* Fixed height matching input visual height */
+  width: 2.5rem; /* 1:1 ratio */
+  padding: var(--space-2);
+  background-color: var(--color-surface-elevated);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-border);
+  box-sizing: border-box; /* Include border in size calculation */
+}
+
+.startAdornment.default {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-right: 1px solid var(--color-border); /* Only right border */
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+}
+
+.endAdornment.default {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: 1px solid var(--color-border); /* Only left border */
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+}
+
+/* Icon-specific styling for lucide-react icons */
+.startAdornment.icon, .endAdornment.icon {
+  padding: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+/* Custom adornment styling - no default background/border */
+.startAdornment.custom, .endAdornment.custom {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  min-height: auto;
+  min-width: auto;
+}
+
+.startAdornment.custom {
+  margin-right: var(--space-1);
+}
+
+.endAdornment.custom {
+  margin-left: var(--space-1);
+}
+
+.inputWrapper .errorIcon, .inputWrapper .successIcon {
+  position: absolute;
+  right: var(--space-3);
+  color: var(--color-error-500);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.inputWrapper.success .successIcon {
+  color: var(--color-success-500);
+}
+
+/* Hide status icons when there's an end adornment */
+.inputWrapper:has(.endAdornment) .errorIcon,
+.inputWrapper:has(.endAdornment) .successIcon {
+  display: none;
+}
+
+/* Add padding when status icons are present */
+.inputWrapper:not(:has(.endAdornment)) .input {
+  padding-right: calc(var(--space-3) + 18px + var(--space-2));
+}
+
+.textarea {
+  min-height: var(--space-20);
+  resize: vertical;
+  width: 100%;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.charCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.disabled .input {
+  background-color: var(--color-surface-muted);
+  cursor: not-allowed;
+}
+/* Size Variants */
+.container.small {
+  margin-bottom: var(--space-3);
+}
+
+.container.small .label {
+  font-size: var(--font-size-xs);
+  margin-bottom: var(--space-1);
+}
+
+.container.small .input {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.container.small .inputWrapper {
+  min-height: 2rem; /* Smaller height for small size */
+}
+
+.container.small .startAdornment.default, .container.small .endAdornment.default {
+  height: 2rem; /* Match small size */
+  width: 2rem;
+}
+
+.container.medium .input {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.container.large {
+  margin-bottom: var(--space-5);
+}
+
+.container.large .label {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-2);
+}
+
+.container.large .input {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-md);
+}
+
+.container.large .inputWrapper {
+  min-height: 3rem; /* Larger height for large size */
+}
+
+.container.large .startAdornment.default, .container.large .endAdornment.default {
+  height: 3rem; /* Match large size */
+  width: 3rem;
+}
+
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/* Mobile responsive - prevent zoom on iOS */
+.mq-xs .input {
+  font-size: 16px;
+}
+
+/* ClassNameFactory BEM aliases for reuse */
+.InputField { composes: container; }
+.InputField-inputWrapper { composes: inputWrapper; }
+.InputField-input { composes: input; }
+.InputField-textarea { composes: textarea; }
+.InputField-rightControls { composes: footer; }

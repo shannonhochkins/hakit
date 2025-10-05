@@ -4,7 +4,7 @@ import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@helpers/editor/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { useIsPageEditMode } from '@hooks/useIsPageEditMode';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { useDashboardWithData } from '@hooks/queeries/useDashboardWithData';
 import { useStore } from '@hakit/core';
 import { getServices as _getServices } from 'home-assistant-js-websocket';

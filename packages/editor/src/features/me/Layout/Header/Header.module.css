@@ -1,0 +1,47 @@
+/* Header CSS Module */
+
+.Header {
+  background-color: var(--color-gray-900);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.Header-headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.Header-menuButton {
+  display: block;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.Header-menuButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .Header-menuButton {
+    display: none;
+  }
+}
+
+.Header-brandContainer {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}

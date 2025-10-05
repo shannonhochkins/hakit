@@ -1,0 +1,52 @@
+.Header {
+  background-color: var(--color-gray-900);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.Header--hidden {
+  display: none;
+}
+
+.Header-Left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.Header-PageControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.Header-Right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.Header-UndoRedoGroup {
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  gap: var(--space-1);
+}
+
+.Header-Divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--color-border);
+  margin: 0 var(--space-2);
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+

@@ -1,56 +1,9 @@
 import { MenuIcon } from 'lucide-react';
-import styled from '@emotion/styled';
 import { useUser } from '@hakit/core';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './Header.module.css';
 
-// Styled Components
-const StyledHeader = styled.header`
-  background-color: var(--color-gray-900);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: var(--header-height);
-  flex-shrink: 0;
-  flex-grow: 0;
-`;
-
-const HeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-`;
-
-const MenuButton = styled.button`
-  display: block;
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-border);
-  }
-
-  @media (min-width: 768px) {
-    display: none;
-  }
-`;
-
-const BrandContainer = styled.div`
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-`;
-
-// const HeaderRight = styled.div`
-//   display: flex;
-//   align-items: center;
-// `;
+const getClassName = getClassNameFactory('Header', styles);
 
 // React Component
 interface HeaderProps {
@@ -61,16 +14,16 @@ export function Header({ onMenuClick }: HeaderProps) {
   const user = useUser();
   const name = user?.name || '';
   return (
-    <StyledHeader>
-      <HeaderLeft>
-        <MenuButton onClick={onMenuClick} aria-label='Toggle sidebar'>
+    <header className={getClassName()}>
+      <div className={getClassName('headerLeft')}>
+        <button className={getClassName('menuButton')} onClick={onMenuClick} aria-label='Toggle sidebar'>
           <MenuIcon size={20} />
-        </MenuButton>
-        <BrandContainer>Hi{name ? ` ${name}` : ''}</BrandContainer>
-      </HeaderLeft>
-      {/* <HeaderRight>
+        </button>
+        <div className={getClassName('brandContainer')}>Hi{name ? ` ${name}` : ''}</div>
+      </div>
+      {/* <div className={getClassName('headerRight')}>
         
-      </HeaderRight> */}
-    </StyledHeader>
+      </div> */}
+    </header>
   );
 }

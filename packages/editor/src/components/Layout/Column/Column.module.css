@@ -1,0 +1,82 @@
+.Column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Width/Height */
+.Column--fullWidth {
+  width: 100%;
+}
+
+.Column--fullHeight {
+  height: 100%;
+}
+
+/* Wrap */
+.Column--wrapWrap {
+  flex-wrap: wrap;
+}
+
+.Column--wrapNoWrap {
+  flex-wrap: nowrap;
+}
+
+/* Justify Content */
+.Column--justifyCenter {
+  justify-content: center;
+  --stretch: false;
+}
+
+.Column--justifyFlexStart {
+  justify-content: flex-start;
+  --stretch: false;
+}
+
+.Column--justifyFlexEnd {
+  justify-content: flex-end;
+  --stretch: false;
+}
+
+.Column--justifySpaceBetween {
+  justify-content: space-between;
+  --stretch: false;
+}
+
+.Column--justifySpaceAround {
+  justify-content: space-around;
+  --stretch: false;
+}
+
+.Column--justifySpaceEvenly {
+  justify-content: space-evenly;
+  --stretch: false;
+}
+
+.Column--justifyStretch {
+  justify-content: stretch;
+  --stretch: 100%;
+}
+
+/* Align Items */
+.Column--alignCenter {
+  align-items: center;
+}
+
+.Column--alignFlexStart {
+  align-items: flex-start;
+}
+
+.Column--alignFlexEnd {
+  align-items: flex-end;
+}
+
+.Column--alignStretch {
+  align-items: stretch;
+  --stretch: 100%;
+}
+
+.Column--alignBaseline {
+  align-items: baseline;
+}
+
+

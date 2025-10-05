@@ -1,37 +1,11 @@
 import { Puck } from '@measured/puck';
-import { BreakPoint, Column, Row } from '@hakit/components';
-import styled from '@emotion/styled';
+import { type BreakPoint } from '@hakit/components';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useCallback, useEffect, useRef } from 'react';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-
-const CanvasWrapper = styled(Column)`
-  width: 100%;
-  max-width: 100%;
-  padding: var(--space-4);
-  border-radius: 4px;
-  overflow: hidden;
-
-  --dot-bg: var(--color-gray-950);
-  --dot-color: var(--color-gray-600);
-  --dot-size: 1px;
-  --dot-space: 22px;
-  background:
-    linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space)
-      var(--dot-space),
-    linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-    var(--dot-color);
-`;
-
-const PreviewContainer = styled.div`
-  transform-origin: center center;
-  transition: transform 0.2s ease-in-out;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+import styles from './Preview.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+const getClassName = getClassNameFactory('Preview', styles);
 
 /**
  * Preview Component
@@ -179,32 +153,16 @@ export function Preview() {
   ]);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <CanvasWrapper fullHeight alignItems='center' justifyContent='stretch' wrap='nowrap' gap='0px'>
-        <Row
-          style={{
-            width: '100%',
-            height: '100%',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            overflow: 'visible', // Always visible since we're always using auto-scaling
-          }}
-        >
-          <PreviewContainer ref={previewContainerRef} className='preview-container'>
-            <div
-              className='preview-content'
-              ref={contentRef}
-              style={{
-                // Initial values - will be updated via refs
-                height: '100%',
-                width: '100%',
-              }}
-            >
+    <div ref={containerRef} className={getClassName('Preview-Container')}>
+      <div className={getClassName('Preview-CanvasWrapper')}>
+        <div className={getClassName('Preview-Row')}>
+          <div ref={previewContainerRef} className={getClassName('Preview-PreviewContainer')}>
+            <div className={getClassName('Preview-Content')} ref={contentRef}>
               {previewCanvasWidth > 0 && <Puck.Preview />}
             </div>
-          </PreviewContainer>
-        </Row>
-      </CanvasWrapper>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
