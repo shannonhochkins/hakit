@@ -15,6 +15,7 @@
 }
 .CollapsibleFieldWrapper {
   border-left: 1px solid transparent;
+  border-bottom: 1px solid var(--color-gray-800);
   transition: 0.2s ease-in-out;
   transition-property: padding, border-left-color;
 }
@@ -23,15 +24,14 @@
 }
 .CollapsibleFieldWrapper--collapsed {
   padding: 0;
-  
 }
 .CollapsibleFieldWrapper--expanded {
-  padding: var(--space-3) 0 0 0;
+  border-bottom: 0;
 }
 
 .CollapsibleFieldWrapper-FieldLabel {
-  padding-top: var(--space-3);
-  padding-bottom: var(--space-3);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
   padding-left: var(--space-2);
   padding-right: var(--space-2);
 }
@@ -50,6 +50,12 @@
 }
 .CollapsibleFieldWrapper-FieldLabel--collapsible {
   cursor: pointer;
+}
+.CollapsibleFieldWrapper :global(.field-label.field-array), .CollapsibleFieldWrapper :global(.field-label.field-pages) {
+  padding-left:0;
+  padding-top:0;
+  padding-right: 0;
+  color: var(--color-gray-300)
 }
 .collapsible:hover > :global(.field-label) {
   background-color: rgba(0, 0, 0, 0);
@@ -80,10 +86,21 @@
   width: 100%;
   flex-wrap: nowrap;
 }
+.fieldWrapper :global([class*='_InputWrapper_']) {
+  margin: var(--space-4) 0;
+}
+
+.fieldWrapper :global([class*='_InputWrapper_']):first-of-type {
+  margin-top: 0;
+}
+.fieldWrapper :global([class*='_InputWrapper_']):last-of-type {
+  margin-bottom: 0;
+}
 
 .fieldWrapper :global([class*='_InputWrapper_']:has( > fieldset[style*="display: none"])) {
   margin: 0;
   padding: 0;
+  display: none;
 }
 
 .fieldWrapper :global([class*='_Input-input_']) {
@@ -124,12 +141,8 @@
   position: relative;
 }
 .fieldWrapper :global([class*='_ArrayField-addButton_']) {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 2rem;
+  width: 100%;
   height: 2rem;
-  transform: translateY(calc(-100% - var(--space-3)));
   background-color: var(--color-primary-950);
   color: var(--color-primary-50);
   padding: 0;
@@ -177,3 +190,7 @@
   width: 100%;
 }
 
+.bp-mode-enabled {
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-primary-500);
+}

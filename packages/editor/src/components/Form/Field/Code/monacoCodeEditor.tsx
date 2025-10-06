@@ -60,9 +60,13 @@ export const MonacoCodeEditor = ({ value, language = 'css', onChange, onValidate
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    loadMonaco().then(Editor => {
-      setEditor(Editor);
-    });
+    loadMonaco()
+      .then(Editor => {
+        setEditor(Editor);
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }, []);
 
   useEffect(() => {

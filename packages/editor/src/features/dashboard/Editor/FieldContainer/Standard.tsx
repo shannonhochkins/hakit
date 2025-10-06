@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import { UiState, useGetPuck, type DefaultComponentProps } from '@measured/puck';
-import { MoreVertical } from 'lucide-react';
+import { Settings } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
@@ -107,6 +107,28 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     });
   }, [onChange]);
 
+  const fieldOptions = (
+    <IconButton
+      aria-label='Field options'
+      icon={<Settings size={16} />}
+      onClick={() => {
+        setFieldOptionsOpen(true);
+      }}
+      variant='transparent'
+      size='xs'
+      tooltipProps={{
+        placement: 'left',
+      }}
+    />
+  );
+
+  const fieldLabel = (
+    <Row fullWidth alignItems='center' justifyContent='space-between' gap='0.5rem'>
+      <span>{field.label ?? ''}</span>
+      {fieldOptions}
+    </Row>
+  );
+
   return (
     <Fieldset
       style={{
@@ -114,7 +136,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       }}
       id={id}
       className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${
-        breakpointMode && responsiveMode ? 'bp-mode-enabled' : ''
+        breakpointMode && responsiveMode ? styles.bpModeEnabled : ''
       }`}
     >
       {/* <FieldLabel
@@ -144,24 +166,9 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
           {allowTemplates && templateMode ? (
             <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} id={id} name={name} />
           ) : (
-            <CustomAutoField field={field} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
+            <CustomAutoField field={field} fieldLabel={fieldLabel} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
           )}
         </div>
-        <IconButton
-          aria-label='Field options'
-          icon={<MoreVertical size={16} />}
-          onClick={() => {
-            setFieldOptionsOpen(true);
-          }}
-          variant='transparent'
-          size='xs'
-          tooltipProps={{
-            style: {
-              marginTop: '1.9rem',
-            },
-            placement: 'left',
-          }}
-        />
 
         {/* {responsiveMode && (
           <IconButton

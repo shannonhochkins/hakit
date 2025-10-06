@@ -198,6 +198,11 @@
 .inputWrapper:has(.endAdornment) .successIcon {
   display: none;
 }
+.inputWrapper:has(textarea) .endAdornment, .inputWrapper:has(textarea) .startAdornment {
+  height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+}
 
 /* Add padding when status icons are present */
 .inputWrapper:not(:has(.endAdornment)) .input {

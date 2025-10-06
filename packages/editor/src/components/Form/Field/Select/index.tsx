@@ -263,6 +263,7 @@ export function SelectField<T extends FieldOption = FieldOption>({
       {name && !multiple && selectedValues[0] !== undefined && (
         <input
           type='hidden'
+          id={id}
           name={name}
           value={typeof selectedValues[0] === 'string' ? selectedValues[0] : JSON.stringify(selectedValues[0])}
         />

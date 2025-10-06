@@ -73,15 +73,19 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     toggleExpanded(prev => !prev);
   }, []);
 
-  const onFieldsetClick = useCallback(() => {
-    if (typeof field.collapseOptions === 'object') {
-      onToggleExpand();
-    }
-  }, [field.collapseOptions, onToggleExpand]);
+  const onFieldsetClick = useCallback(
+    (e: React.MouseEvent<HTMLFieldSetElement | HTMLButtonElement>) => {
+      e.stopPropagation();
+      if (field.type === 'object') {
+        onToggleExpand();
+      }
+    },
+    [field.type, onToggleExpand]
+  );
 
   const className = getClassName(
     {
-      CollapsibleFieldWrapper: true,
+      CollapsibleFieldWrapper: field.type === 'object',
       collapsed: !isExpanded,
       expanded: isExpanded,
     },
@@ -93,9 +97,9 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     {
       collapsed: !isExpanded,
       expanded: isExpanded,
-      collapsible: !!field.collapseOptions,
+      collapsible: field.type === 'object',
     },
-    'field-label'
+    `field-label ${field.type ? `field-${field.type}` : ''}`
   );
 
   const fieldLabelLabelClassName = getClassName(
@@ -103,7 +107,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     {
       color: true,
     },
-    'field-label'
+    `field-label ${field.type ? `field-${field.type}` : ''}`
   );
 
   return (
@@ -122,12 +126,15 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
         className={fieldLabelClassName}
         labelClassName={fieldLabelLabelClassName}
         iconClassName={fieldLabelLabelClassName}
+        style={{
+          padding: 0,
+        }}
         endAdornment={
           <>
-            {field.collapseOptions && (
+            {field.type === 'object' && (
               <IconButton
                 icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                onClick={onToggleExpand}
+                onClick={onFieldsetClick}
                 variant='transparent'
                 size='xs'
                 tooltipProps={{
@@ -142,7 +149,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
       <AutoHeight isOpen={isExpanded} duration={300} renderChildren>
         <FieldWrapper className='hakit-field-wrapper'>
           <div className={styles.fieldInput}>
-            <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} />
+            <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} fieldLabel={field.label} />
           </div>
         </FieldWrapper>
       </AutoHeight>

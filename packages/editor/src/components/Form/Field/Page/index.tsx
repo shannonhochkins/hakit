@@ -1,5 +1,5 @@
 import { AutoField } from '@measured/puck';
-import { useMemo, memo } from 'react';
+import { useMemo, memo, ReactNode } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';
 import { useDashboard } from '@hooks/queeries/useDashboard';
@@ -10,7 +10,7 @@ type CommonProps = {
   id?: string;
   name?: string;
   helperText?: string;
-  label?: string;
+  label?: ReactNode;
   min?: number;
   max?: number;
 };

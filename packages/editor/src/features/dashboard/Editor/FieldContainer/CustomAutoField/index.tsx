@@ -23,12 +23,14 @@ type CustomAutoFieldProps<Props> = {
 
 type CommonProps = {
   name: string;
+  fieldLabel: React.ReactNode;
   icon?: React.ReactNode;
   id: string;
 };
 
 export function CustomAutoField<Props extends DefaultComponentProps>({
   field,
+  fieldLabel,
   value,
   onChange,
   name,
@@ -42,6 +44,7 @@ export function CustomAutoField<Props extends DefaultComponentProps>({
     value: value as never,
     onChange: onChange as never,
     name,
+    fieldLabel,
     icon,
     id,
   });
@@ -63,8 +66,8 @@ type RenderFieldProps = {
 }[FieldKind];
 
 export function renderField(props: RenderFieldProps) {
-  // split on weird » character, replace any underscores/whitespace and periods with nothing
-  const [, id] = props.id.replace(/[_ .]/g, '').split('»');
+  // keep only a-z, replace all other chars with nothing
+  const id = props.id.replace(/[^a-zA-Z]/g, '').toLowerCase();
 
   switch (props.type) {
     case 'slot':
@@ -92,7 +95,7 @@ export function renderField(props: RenderFieldProps) {
           step={props.field.step}
           value={validateString(props.value, undefined)}
           onChange={props.onChange}
-          label={props.field.label}
+          label={props.fieldLabel}
           icon={props.icon}
           helperText={props.field.description}
           readOnly={props.field.readOnly}
@@ -103,7 +106,7 @@ export function renderField(props: RenderFieldProps) {
     case 'imageUpload':
       return (
         <ImageField
-          label={props.field.label}
+          label={props.fieldLabel}
           icon={props.icon}
           helperText={props.field.description}
           readOnly={props.field.readOnly}
@@ -116,7 +119,7 @@ export function renderField(props: RenderFieldProps) {
     case 'color':
       return (
         <ColorField
-          label={props.field.label}
+          label={props.fieldLabel}
           icon={props.icon}
           helperText={props.field.description}
           readOnly={props.field.readOnly}
@@ -129,7 +132,7 @@ export function renderField(props: RenderFieldProps) {
     case 'code':
       return (
         <CodeField
-          label={props.field.label}
+          label={props.fieldLabel}
           icon={props.icon}
           helperText={props.field.description}
           readOnly={props.field.readOnly}
@@ -145,7 +148,7 @@ export function renderField(props: RenderFieldProps) {
       return (
         <PageField
           value={validateString(props.value, '')}
-          label={props.field.label ?? 'Page'}
+          label={props.fieldLabel}
           icon={props.icon}
           multiple={false}
           onChange={e => props.onChange(e.id)}
@@ -159,7 +162,7 @@ export function renderField(props: RenderFieldProps) {
       return (
         <PageField
           value={validateStringArray(props.value, [])}
-          label={props.field.label ?? 'Pages'}
+          label={props.fieldLabel}
           icon={props.icon}
           multiple={true}
           onChange={e => props.onChange(e.map(page => page.id))}
@@ -174,7 +177,7 @@ export function renderField(props: RenderFieldProps) {
         <Entity
           filterOptions={props.field.filterOptions}
           value={validateString(props.value, undefined)}
-          label={props.field.label ?? 'Unknown'}
+          label={props.fieldLabel}
           icon={props.icon}
           onChange={props.onChange}
           id={id}
@@ -188,7 +191,7 @@ export function renderField(props: RenderFieldProps) {
         <ServiceField
           value={validateString(props.value, undefined)}
           onChange={props.onChange}
-          label={props.field.label ?? 'Service'}
+          label={props.fieldLabel}
           icon={props.icon}
           id={id}
           name={props.name}
@@ -201,7 +204,7 @@ export function renderField(props: RenderFieldProps) {
         <SliderField
           value={validateNumber(props.value, undefined)}
           id={id}
-          label={props.field.label ?? 'Slider'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           name={props.name}
@@ -215,7 +218,7 @@ export function renderField(props: RenderFieldProps) {
     case 'text':
       return (
         <InputField
-          label={props.field.label ?? 'Text'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           value={validateString(props.value, undefined)}
@@ -229,7 +232,7 @@ export function renderField(props: RenderFieldProps) {
       return (
         <InputField
           type='number'
-          label={props.field.label ?? 'Number'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           value={validateNumber(props.value, undefined)}
@@ -245,7 +248,7 @@ export function renderField(props: RenderFieldProps) {
     case 'select':
       return (
         <SelectField
-          label={props.field.label ?? 'Select'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           renderOption={props.field.renderOption}
@@ -277,11 +280,11 @@ export function renderField(props: RenderFieldProps) {
           }
           options={[...props.field.options.map(option => ({ value: option.value, label: option.label }) satisfies RadioOption)]}
           onChange={e => {
-            if (e && (typeof e === 'string' || typeof e === 'number' || typeof e === 'boolean')) {
+            if (typeof e === 'string' || typeof e === 'number' || typeof e === 'boolean' || e === null) {
               props.onChange(e);
             }
           }}
-          label={props.field.label ?? 'Radio'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           horizontal
@@ -295,7 +298,7 @@ export function renderField(props: RenderFieldProps) {
         <SwitchField
           checked={validateBoolean(props.value, false)}
           name={props.name}
-          label={props.field.label ?? 'Switch'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           helperText={props.field.description}
@@ -311,7 +314,7 @@ export function renderField(props: RenderFieldProps) {
         <InputField
           id={id}
           name={props.name}
-          label={props.field.label ?? 'Textarea'}
+          label={props.fieldLabel}
           icon={props.icon}
           readOnly={props.field.readOnly}
           type='multiline'
@@ -330,7 +333,7 @@ export function renderField(props: RenderFieldProps) {
             type: 'object',
             objectFields: props.field.objectFields,
             readOnly: props.field.readOnly,
-            label: props.field.label ?? 'Object',
+            label: props.fieldLabel,
             icon: props.icon,
             name: props.name,
             id,
@@ -348,7 +351,7 @@ export function renderField(props: RenderFieldProps) {
         <AutoField
           field={{
             type: props.field.type,
-            label: props.field.label ?? 'Array',
+            label: props.fieldLabel,
             icon: props.icon,
             readOnly: props.field.readOnly,
             getItemSummary: (item: DefaultComponentProps[0], i: number) => {

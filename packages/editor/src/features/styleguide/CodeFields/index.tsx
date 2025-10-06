@@ -8,14 +8,28 @@ export function StyleguideCodeFields() {
   "name": "Example",
   "enabled": true
 }`);
+  const [value2, setValue2] = useState<string>(`{
+    "name": "Example",
+    "enabled": true
+  }`);
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Code Field - Preview Only'>
-        <CodeField value='' language='json' onChange={() => {}} id='code-field-preview-only' name='code-field-preview-only' />
+        <CodeField
+          helperText='Click "Edit" to open the code editor...'
+          value={value2}
+          label='Code Field - Preview Only'
+          language='json'
+          onChange={setValue2}
+          id='code-field-preview-only'
+          name='code-field-preview-only'
+        />
       </Group>
       <Group title='Code Field - With Value (Preview)'>
         <CodeField
           value={value}
+          helperText='Click "Edit" to open the code editor...'
+          label='Code Field - With Value (Preview)'
           language='json'
           onChange={setValue}
           id='code-field-with-value-preview'
@@ -28,6 +42,8 @@ export function StyleguideCodeFields() {
       </Group>
       <Group title='Code Field - Different Languages'>
         <CodeField
+          label='Code Field - Different Languages (CSS)'
+          helperText='Click "Edit" to open the code editor...'
           value={'body { color: red; }'}
           language='css'
           onChange={() => {}}

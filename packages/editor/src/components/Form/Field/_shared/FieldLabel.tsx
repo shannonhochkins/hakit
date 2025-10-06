@@ -12,6 +12,7 @@ export function FieldLabel({
   labelClassName,
   iconClassName,
   style,
+  onClick,
 }: {
   label?: ReactNode;
   readOnly?: boolean;
@@ -22,11 +23,12 @@ export function FieldLabel({
   labelClassName?: string;
   iconClassName?: string;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }) {
   if (!label) return null;
   return (
-    <div className={`${styles.labelRow} ${className}`} style={style}>
-      <div className={styles.simpleRow}>
+    <div className={`${styles.labelRow} ${className}`} style={style} onClick={onClick}>
+      <div className={styles.simpleRow + ' ' + styles.firstRow}>
         {icon && <div className={`${styles.labelIcon} ${iconClassName}`}>{icon}</div>}
         {htmlFor ? (
           <label className={`${styles.labelText} ${labelClassName}`} htmlFor={htmlFor}>
@@ -36,14 +38,16 @@ export function FieldLabel({
           <span className={`${styles.labelText} ${labelClassName}`}>{label}</span>
         )}
       </div>
-      <div className={styles.simpleRow}>
-        {readOnly && (
-          <div className={styles.disabledIcon} title='Read-only'>
-            <Lock size='12' />
-          </div>
-        )}
-        {endAdornment}
-      </div>
+      {(endAdornment || readOnly) && (
+        <div className={styles.simpleRow}>
+          {readOnly && (
+            <div className={styles.disabledIcon} title='Read-only'>
+              <Lock size='12' />
+            </div>
+          )}
+          {endAdornment}
+        </div>
+      )}
     </div>
   );
 }
