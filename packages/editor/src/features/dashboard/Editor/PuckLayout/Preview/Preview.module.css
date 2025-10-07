@@ -1,0 +1,57 @@
+.Preview-Container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.Preview-CanvasWrapper {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  padding: var(--space-4);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: stretch;
+  flex-wrap: nowrap;
+  gap: 0px;
+
+  --dot-bg: var(--color-gray-950);
+  --dot-color: var(--color-gray-600);
+  --dot-size: 1px;
+  --dot-space: 22px;
+  background:
+    linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space)
+      var(--dot-space),
+    linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+    var(--dot-color);
+}
+
+.Preview-Row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.Preview-PreviewContainer {
+  transform-origin: center center;
+  transition: transform 0.2s ease-in-out;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Preview-Content {
+  height: 100%;
+  width: 100%;
+}
+
+

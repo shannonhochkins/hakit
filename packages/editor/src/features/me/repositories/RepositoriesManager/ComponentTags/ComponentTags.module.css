@@ -1,0 +1,10 @@
+
+
+.ComponentTags {
+  background: var(--color-primary-900);
+  color: var(--color-primary-300);
+  font-size: var(--font-size-xs);
+  padding: calc(var(--space-1) / 2) var(--space-1);
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+}

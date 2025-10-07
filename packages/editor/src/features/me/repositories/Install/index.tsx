@@ -1,7 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 
 import { useState, useEffect, useRef } from 'react';
-import styled from '@emotion/styled';
 import {
   GitBranchIcon,
   CheckCircleIcon,
@@ -13,14 +12,16 @@ import {
   RefreshCcwDot,
 } from 'lucide-react';
 import { PrimaryButton } from '@components/Button/Primary';
-import { InputField } from '@components/Form/Fields/Input';
-import { FieldGroup } from '@components/Form/FieldWrapper/FieldGroup';
-import { FieldLabel } from '@components/Form/FieldWrapper/FieldLabel';
+import { InputField } from '@components/Form/Field/Input';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { installRepositoryFromGithub, userRepositoriesQueryOptions } from '@services/repositories';
-import { Row } from '@hakit/components';
+import { Row } from '@components/Layout';
 import { SecondaryButton } from '@components/Button';
 import { Alert } from '@components/Alert';
+import styles from './Install.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+
+const getClassName = getClassNameFactory('Install', styles);
 
 interface InstallationStatus {
   status: 'idle' | 'installing' | 'complete' | 'error' | 'already-installed';
@@ -28,150 +29,7 @@ interface InstallationStatus {
   logs: Array<{ id: string; message: string; status: 'success' | 'warning' | 'error'; timestamp: Date }>;
 }
 
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-`;
-
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-`;
-
-const PageTitle = styled.h1`
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const PageSubtitle = styled.p`
-  color: var(--color-text-muted);
-  margin: 0;
-`;
-
-const Description = styled.p`
-  width: 100%;
-  font-size: var(--font-size-sm);
-  text-align: left;
-  color: var(--color-text-primary);
-  margin: 0;
-  line-height: var(--line-height-relaxed);
-`;
-
-const InstallationLogContainer = styled.div`
-  width: 100%;
-`;
-
-const InstallationLogTitle = styled.div`
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-2);
-`;
-
-const InstallationLogScrollArea = styled.div`
-  background: var(--color-surface);
-  border: 1px solid #30363d;
-  border-radius: var(--radius-md);
-  height: 40vh;
-  overflow-y: auto;
-  padding: var(--space-2);
-`;
-
-const InstallationLogContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-`;
-
-const InstallationLogEntry = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  font-size: var(--font-size-sm);
-  border-bottom: 1px solid #21262d;
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const InstallationLogIcon = styled.div`
-  flex-shrink: 0;
-  margin-top: 2px;
-`;
-
-const InstallationLogDetails = styled.div`
-  flex: 1;
-`;
-
-const InstallationLogMessage = styled.div<{ status: 'success' | 'warning' | 'error' }>`
-  color: ${props => {
-    switch (props.status) {
-      case 'error':
-        return '#f85149';
-      case 'warning':
-        return '#f0883e';
-      default:
-        return 'white';
-    }
-  }};
-`;
-
-const InstallationLogTimestamp = styled.div`
-  font-size: var(--font-size-xs);
-  color: #6e7681;
-`;
-
-const InstallationLogEmpty = styled.div`
-  text-align: center;
-  color: #6e7681;
-  padding: var(--space-4) 0;
-`;
-
-const Important = styled.div`
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-`;
-
-const ImportantTitle = styled.div`
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  gap: var(--space-2);
-  display: flex;
-  align-items: center;
-`;
-
-const ImportantBlock = styled.code`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  background: transparent;
-`;
+// CSS Modules equivalents handled via getClassName
 
 // Helper function to get the icon for a individual log entry
 const getLogStatusIcon = (status: 'success' | 'warning' | 'error') => {
@@ -312,13 +170,13 @@ export function Install() {
   };
 
   return (
-    <Container>
-      <PageHeader>
+    <div className={getClassName()}>
+      <div className={getClassName('pageHeader')}>
         <Row fullWidth justifyContent='space-between' alignItems='center'>
-          <HeaderContent>
-            <PageTitle>{'Install Repositories'}</PageTitle>
-            <PageSubtitle>Install new Repositories & component(s) from GitHub</PageSubtitle>
-          </HeaderContent>
+          <div className={getClassName('headerContent')}>
+            <h1 className={getClassName('pageTitle')}>{'Install Repositories'}</h1>
+            <p className={getClassName('pageSubtitle')}>Install new Repositories & component(s) from GitHub</p>
+          </div>
           <PrimaryButton
             aria-label={url.trim() ? 'Install repository' : 'Provide repository URL'}
             disabled={!url.trim()}
@@ -328,78 +186,69 @@ export function Install() {
             Install Addon
           </PrimaryButton>
         </Row>
-      </PageHeader>
+      </div>
       {installationStatus.status === 'idle' ? (
         <>
-          <FieldGroup className='full-width'>
-            <FieldLabel htmlFor='repo-url' label='Repository URL' />
-            <InputField
-              id='repo-url'
-              type='url'
-              placeholder='https://github.com/username/repository'
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-              variant='outlined'
-              size='small'
-              fullWidth
-              helperText='Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.'
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <GitBranchIcon
-                      size={16}
-                      style={{
-                        marginRight: 'var(--space-2)',
-                      }}
-                    />
-                  ),
-                },
-              }}
-            />
-            <Important>
-              <ImportantTitle>
-                <AlertCircleIcon
-                  size={16}
-                  style={{
-                    color: 'var(--color-warning-500)',
-                  }}
-                />
-                Important Information
-              </ImportantTitle>
-              <ImportantBlock>
+          <InputField
+            id='repo-url'
+            type='text'
+            name='repo-url'
+            label='Repository URL'
+            placeholder='https://github.com/username/repository'
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            size='small'
+            helperText='Enter the URL of a compatible HAKIT component repository. The system will validate and install the components.'
+            startAdornment={<GitBranchIcon size={16} />}
+          />
+
+          <Alert title='Important Information' severity='warning'>
+            <div className={getClassName('important')}>
+              <code className={getClassName('importantBlock')}>
                 <ArrowRightIcon size={16} />
                 Only install repositories from trusted sources.
-              </ImportantBlock>
-              <ImportantBlock>
+              </code>
+              <code className={getClassName('importantBlock')}>
                 <ArrowRightIcon size={16} />
                 Custom repositories must follow the HAKIT component structure.
-              </ImportantBlock>
-              <ImportantBlock>
+              </code>
+              <code className={getClassName('importantBlock')}>
                 <ArrowRightIcon size={16} />
                 Installation may take several minutes to complete.
-              </ImportantBlock>
-            </Important>
-          </FieldGroup>
+              </code>
+            </div>
+          </Alert>
         </>
       ) : (
         <>
-          <InstallationLogContainer>
-            <InstallationLogTitle>Installation Log</InstallationLogTitle>
-            <InstallationLogScrollArea ref={logsScrollAreaRef}>
-              <InstallationLogContent>
+          <div className={getClassName('logContainer')}>
+            <div className={getClassName('logTitle')}>Installation Log</div>
+            <div className={getClassName('logScrollArea')} ref={logsScrollAreaRef}>
+              <div className={getClassName('logContent')}>
                 {installationStatus.logs.map(log => (
-                  <InstallationLogEntry key={log.id}>
-                    <InstallationLogIcon>{getLogStatusIcon(log.status)}</InstallationLogIcon>
-                    <InstallationLogDetails>
-                      <InstallationLogMessage status={log.status}>{log.message}</InstallationLogMessage>
-                      <InstallationLogTimestamp>{log.timestamp.toLocaleTimeString()}</InstallationLogTimestamp>
-                    </InstallationLogDetails>
-                  </InstallationLogEntry>
+                  <div className={getClassName('logEntry')} key={log.id}>
+                    <div className={getClassName('logIcon')}>{getLogStatusIcon(log.status)}</div>
+                    <div className={getClassName('logDetails')}>
+                      <div
+                        className={getClassName(
+                          {
+                            ['statusError']: log.status === 'error',
+                            ['statusWarning']: log.status === 'warning',
+                            ['statusSuccess']: log.status === 'success',
+                          },
+                          getClassName('logMessage')
+                        )}
+                      >
+                        {log.message}
+                      </div>
+                      <div className={getClassName('logTimestamp')}>{log.timestamp.toLocaleTimeString()}</div>
+                    </div>
+                  </div>
                 ))}
-                {installationStatus.logs.length === 0 && <InstallationLogEmpty>No logs available</InstallationLogEmpty>}
-              </InstallationLogContent>
-            </InstallationLogScrollArea>
-          </InstallationLogContainer>
+                {installationStatus.logs.length === 0 && <div className={getClassName('logEmpty')}>No logs available</div>}
+              </div>
+            </div>
+          </div>
 
           {showAlert && (
             <Alert
@@ -409,16 +258,24 @@ export function Install() {
               }
             >
               {installationStatus.status === 'installing' && (
-                <Description>Please wait while the repository is being installed. This may take a few moments.</Description>
+                <p className={getClassName('description')}>
+                  Please wait while the repository is being installed. This may take a few moments.
+                </p>
               )}
               {installationStatus.status === 'error' && (
-                <Description>An error occurred during installation. Please check the logs below for details.</Description>
+                <p className={getClassName('description')}>
+                  An error occurred during installation. Please check the logs below for details.
+                </p>
               )}
               {installationStatus.status === 'complete' && (
-                <Description>The repository has been successfully installed. You can now use the components in your dashboard.</Description>
+                <p className={getClassName('description')}>
+                  The repository has been successfully installed. You can now use the components in your dashboard.
+                </p>
               )}
               {installationStatus.status === 'already-installed' && (
-                <Description>This repository is already installed with the latest version. No further action is needed.</Description>
+                <p className={getClassName('description')}>
+                  This repository is already installed with the latest version. No further action is needed.
+                </p>
               )}
             </Alert>
           )}
@@ -485,6 +342,6 @@ export function Install() {
           )}
         </>
       )}
-    </Container>
+    </div>
   );
 }

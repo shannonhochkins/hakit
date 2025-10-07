@@ -70,6 +70,15 @@ KINDE_LOGOUT_REDIRECT_URI=http://localhost:3000
 ### Kinde Redirect URLs
 May need to update the redirect URLs in the application settings within the Kinde dashboard if new domains are added. The redirect URLs are used to redirect the user back to the application after authentication.
 
+## API Documentation
+
+The API includes OpenAPI 3.0 documentation with interactive Swagger UI:
+
+### How to Access:
+- **Interactive Documentation:** `http://localhost:3000/api/docs` - Scaler interface, will inherit authentication once logged in via the main application. Only works in development mode.
+
+All protected endpoints require authentication through the main application first.
+
 ## Project Structure
 
 ```
@@ -77,7 +86,6 @@ May need to update the redirect URLs in the application settings within the Kind
 │   ├── editor/          # React frontend application
 │   │   ├── src/
 │   │   │   ├── routes/  # TanStack Router pages
-│   │   │   ├── lib/     # Shared utilities and components
 │   │   │   └── ...
 │   │   └── ...
 │   └── server/          # Hono backend API
@@ -94,7 +102,7 @@ May need to update the redirect URLs in the application settings within the Kind
 - `bun run dev` - Start both server and editor in development mode
 - `bun run dev:server` - Start only the backend server
 - `bun run dev:editor` - Start only the frontend editor
-- `bun run build` - Build the editor for production
+- `bun run build` - Build the editor for production, will run lint, tests, typescript checks, and format code
 - `bun run test` - Run tests
 - `bun run lint` - Lint the codebase
 - `bun run format` - Format code with Prettier
@@ -102,6 +110,6 @@ May need to update the redirect URLs in the application settings within the Kind
 ## Contributing
 
 1. Follow the existing code style and patterns
-2. Run `bun run lint` and `bun run format` before committing
+2. Run `bun run build` before committing
 3. Add tests for new features when applicable
 4. Update documentation as needed

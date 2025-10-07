@@ -1,0 +1,14 @@
+{
+  "name": "default-project-name",
+  "version": "0.0.0",
+  "description": "Default project description",
+  "type": "module",
+  "scripts": {
+    "dev": "npx --package=@hakit/addon hakit-dev",
+    "type-check": "tsc --noEmit",
+    "build": "npm run type-check && npx --package=@hakit/addon hakit-bundle",
+    "create-component": "npx --package=@hakit/addon hakit-create-component"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

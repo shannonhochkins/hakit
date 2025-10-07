@@ -1,15 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { PrimaryButton } from '@components/Button/Primary';
 import { DownloadIcon, TrashIcon, RefreshCwIcon } from 'lucide-react';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { userRepositoriesQueryOptions, connectRepository, disconnectRepository, getRepositoryVersions } from '@services/repositories';
 import { toast } from 'react-toastify';
-import { RepositoryWithLatestVersionAPI } from '@typings/db';
+import { RepositoryWithLatestVersion } from '@typings/hono';
 import { UpdateRepositoryModal } from './UpdateRepositoryModal';
 import { IconButton } from '@components/Button/IconButton';
 
 interface RepositoryInstallButtonProps {
-  repository: RepositoryWithLatestVersionAPI;
+  repository: RepositoryWithLatestVersion;
   size?: 'sm' | 'md' | 'lg';
   onClick?: (event: React.MouseEvent) => void;
 }
@@ -29,7 +29,9 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
       const latestVersion = versions.find(v => v.version === repository.repository.latestVersion) || versions[0];
 
       if (!latestVersion) {
-        toast.error('No versions available for this repository');
+        toast.error('No versions available for this repository', {
+          theme: 'dark',
+        });
         return;
       }
       return connectRepository(repository.repository.id, latestVersion.id, {
@@ -115,7 +117,9 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
     if (userRepoId) {
       disconnectRepoMutation.mutate(userRepoId);
     } else {
-      toast.error('Repository not found for uninstallation');
+      toast.error('Repository not found for uninstallation', {
+        theme: 'dark',
+      });
     }
   };
 
@@ -149,6 +153,10 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
   // Find the user repository for the update modal
   const userRepository = userRepositoriesQuery.data?.find(ur => ur.repositoryId === repository.repository.id);
 
+  const onClose = useCallback(() => {
+    setShowUpdateModal(false);
+  }, []);
+
   return (
     <>
       <PrimaryButton
@@ -164,7 +172,7 @@ export function RepositoryInstallButton({ repository, size = 'sm', onClick }: Re
       {hasUpdate && <IconButton onClick={uninstallRepository} aria-label='Uninstall' icon={<TrashIcon size={16} />} variant='error' />}
 
       {showUpdateModal && userRepository && (
-        <UpdateRepositoryModal open={showUpdateModal} onClose={() => setShowUpdateModal(false)} repositories={userRepository} />
+        <UpdateRepositoryModal open={showUpdateModal} onClose={onClose} userRepository={userRepository} />
       )}
     </>
   );

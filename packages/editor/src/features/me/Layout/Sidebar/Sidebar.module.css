@@ -1,0 +1,215 @@
+/* Sidebar CSS Module */
+
+.Sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 20;
+  display: none;
+}
+
+.Sidebar-overlay--open {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .Sidebar-overlay {
+    display: none;
+  }
+}
+
+.Sidebar-container {
+  position: fixed;
+  z-index: 30;
+  height: 100%;
+  width: 256px;
+  background-color: var(--color-gray-900);
+  border-right: 1px solid var(--color-border);
+  transform: translateX(-100%);
+  transition: transform 200ms ease-in-out;
+}
+
+.Sidebar-container--open {
+  transform: translateX(0);
+}
+
+@media (min-width: 768px) {
+  .Sidebar-container {
+    position: relative;
+    z-index: 0;
+    transform: translateX(0);
+  }
+}
+
+.Sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  height: var(--header-height);
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.Sidebar-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  cursor: pointer;
+}
+
+.Sidebar-closeButton {
+  display: block;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.Sidebar-closeButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border);
+}
+
+@media (min-width: 768px) {
+  .Sidebar-closeButton {
+    display: none;
+  }
+}
+
+.Sidebar-navigation {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.Sidebar-navDivider {
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+.Sidebar-navItemLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+}
+
+.Sidebar-navItemLink span {
+  margin-left: var(--space-2);
+}
+
+.Sidebar-navItemLink:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border);
+}
+
+.Sidebar-navItemLink[data-status='active'] {
+  color: var(--color-text-primary);
+  background-color: var(--color-primary-600);
+}
+
+.Sidebar-navItemLink[data-status='active']:hover {
+  background-color: var(--color-primary-600);
+}
+
+.Sidebar-chevronIcon {
+  transition: transform var(--transition-normal);
+  transform: rotate(90deg);
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Sidebar-chevronIcon--isExpanded {
+  transform: rotate(-90deg);
+}
+
+.Sidebar-chevronButton {
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  margin: -var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-normal);
+}
+
+.Sidebar-chevronButton:hover {
+  background-color: var(--color-border);
+}
+
+.Sidebar-subNavContainer {
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  max-height: 0;
+  opacity: 0;
+}
+
+.Sidebar-subNavContainer--isExpanded {
+  max-height: 200px;
+  opacity: 1;
+}
+
+.Sidebar-subNavItem {
+  position: relative;
+  margin-left: var(--space-6);
+}
+
+.Sidebar-treeSpace {
+  position: absolute;
+  left: calc(var(--space-3) * -1);
+  top: calc(var(--space-1) * -1);
+  bottom: var(--space-4);
+  width: var(--space-3);
+  border-left: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  border-bottom-left-radius: var(--radius-md);
+  background-color: transparent;
+}
+
+.Sidebar-subNavItemLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  margin: var(--space-2) 0;
+  margin-left: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  font-size: var(--font-size-sm);
+}
+
+.Sidebar-subNavItemLink:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border);
+}
+
+.Sidebar-subNavItemLink[data-status='active'] {
+  color: var(--color-text-primary);
+  background-color: var(--color-primary-900);
+}
+
+.Sidebar-subNavItemLink[data-status='active']:hover {
+  background-color: var(--color-primary-600);
+}

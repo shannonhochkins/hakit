@@ -1,0 +1,286 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Column, Row } from '@hakit/components';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './IssueModal.module.css';
+
+const getClassName = getClassNameFactory('IssueModal', styles);
+import { Modal } from '@components/Modal/Modal';
+import { InputField } from '@components/Form/Field/Input';
+import { SelectField } from '@components/Form/Field/Select';
+import { PrimaryButton, SecondaryButton } from '@components/Button';
+import { Loader2, Search } from 'lucide-react';
+import { listIssues } from '@services/issues';
+import { type IssueType, type IssueSummary, ISSUE_TYPES_OPTIONS } from '@typings/issues';
+import { Alert } from '@components/Alert';
+import bugTemplate from './templates/bug.md?raw';
+import enhancementTemplate from './templates/enhancement.md?raw';
+import documentationTemplate from './templates/documentation.md?raw';
+import featureTemplate from './templates/feature.md?raw';
+import questionTemplate from './templates/question.md?raw';
+import { MarkdownEditor } from '@components/Markdown/MarkdownEditor';
+
+function SimilarIssues({ query, onSelect }: { query: string; onSelect: (issue: IssueSummary) => void }) {
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<IssueSummary[]>([]);
+  const [all, setAll] = useState<IssueSummary[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function ensureAllLoaded() {
+      if (all) return;
+      setLoading(true);
+      try {
+        const res = await listIssues({ state: 'all', page: 1, per_page: 100 });
+        if (!cancelled) setAll(res.items);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    if (query && query.trim().length >= 3 && !all) {
+      void ensureAllLoaded();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [query, all]);
+
+  useEffect(() => {
+    if (!query || query.trim().length < 3) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(() => {
+      const q = query.trim().toLowerCase();
+      const tokens = q.split(/\s+/).filter(Boolean);
+      const pool = all || [];
+      const filtered = pool.filter(item => {
+        const title = (item.title || '').toLowerCase();
+        const body = (item.body || '').toLowerCase();
+        const labels = (item.labels || []).join(' ').toLowerCase();
+        // every token must appear in either title, body or labels
+        return tokens.every(tok => title.includes(tok) || body.includes(tok) || labels.includes(tok));
+      });
+      setResults(filtered.slice(0, 5));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [query, all]);
+
+  if (query.trim().length < 3) return null;
+  return (
+    <>
+      {loading && !all ? (
+        <Row alignItems='flex-start' justifyContent='flex-start' gap='0.5rem' className={getClassName('loadingRow')}>
+          <Loader2 className='spin' size={16} /> Searching for similar issues…
+        </Row>
+      ) : results.length > 0 ? (
+        <Column gap='0.5rem' alignItems='flex-start' justifyContent='flex-start' fullWidth>
+          <Alert severity='warning' className={getClassName('alertWarning')}>
+            Similar issues found. Please check if your issue has already been reported:
+          </Alert>
+          {results.map(item => (
+            <button key={item.number} onClick={() => onSelect(item)} className={getClassName('resultItem')}>
+              <Search size={14} style={{ marginTop: 2 }} />
+              <Column alignItems='flex-start' justifyContent='flex-start' gap='0.25rem'>
+                <div className={getClassName('resultTitle')}>{item.title}</div>
+                <div className={getClassName('resultBody')}>
+                  {(item.body || '').slice(0, 100)}
+                  {(item.body || '').length > 100 ? '…' : ''}
+                </div>
+              </Column>
+            </button>
+          ))}
+        </Column>
+      ) : (
+        <Alert severity='success' className={getClassName('alertSuccess')}>
+          No similar issues found. You can proceed with creating a new issue.
+        </Alert>
+      )}
+    </>
+  );
+}
+
+const AREAS_OPTIONS = [
+  {
+    label: '@hakit/core',
+    value: '@hakit/core',
+  },
+  {
+    label: '@hakit/components',
+    value: '@hakit/components',
+  },
+  {
+    label: '@hakit/editor',
+    value: '@hakit/editor',
+  },
+  {
+    label: '@hakit/addon',
+    value: '@hakit/addon',
+  },
+  {
+    label: '@hakit/website',
+    value: '@hakit/website',
+  },
+] as const;
+
+type AreaType = (typeof AREAS_OPTIONS)[number]['value'];
+
+export function IssueModal({
+  open,
+  onClose,
+  onCreate,
+  loading,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (d: { title: string; description: string; labels: string[]; area?: string }) => void;
+  loading: boolean;
+}) {
+  const [type, setType] = useState<IssueType | ''>('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [area, setArea] = useState<AreaType | ''>('');
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const reset = useCallback(() => {
+    setType('');
+    setTitle('');
+    setDescription('');
+    setArea('');
+    setFullscreen(false);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      setFullscreen(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!type) {
+      setDescription('');
+      return;
+    }
+    switch (type) {
+      case 'bug':
+        setDescription(bugTemplate);
+        break;
+      case 'enhancement':
+        setDescription(enhancementTemplate);
+        break;
+      case 'feature':
+        setDescription(featureTemplate);
+        break;
+      case 'documentation':
+        setDescription(documentationTemplate);
+        break;
+      case 'question':
+      default:
+        setDescription(questionTemplate);
+        break;
+    }
+  }, [type]);
+
+  const modalTitle = useMemo(() => (type === 'feature' ? 'Request a Feature' : 'Report an Issue'), [type]);
+
+  const canSubmit = Boolean(title && description && area && type);
+
+  return (
+    <Modal open={open} onClose={onClose} title={modalTitle} fullscreen={fullscreen}>
+      <Column gap='1rem' style={{ width: '100%', maxWidth: 900 }}>
+        <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
+          <SelectField
+            id='type'
+            label='Type'
+            value={
+              type
+                ? {
+                    label: type,
+                    value: type,
+                  }
+                : undefined
+            }
+            onChange={option => setType(option.value as IssueType | '')}
+            options={[...ISSUE_TYPES_OPTIONS]}
+            placeholder='Select a type'
+            size='small'
+            style={{ minWidth: 220 }}
+          />
+        </Column>
+        <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
+          <SelectField
+            id='area'
+            label='Package / Area'
+            value={
+              area
+                ? {
+                    label: area,
+                    value: area,
+                  }
+                : undefined
+            }
+            onChange={option => setArea(option.value as AreaType | '')}
+            options={[...AREAS_OPTIONS]}
+            placeholder='Select a package / area'
+            size='small'
+            style={{ minWidth: 260 }}
+          />
+        </Column>
+        <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
+          <InputField
+            value={title}
+            id='title'
+            name='title'
+            label='Title'
+            helperText={type === 'feature' ? 'Brief description of the feature' : 'Brief description of the issue'}
+            onChange={e => setTitle(e.target.value)}
+            placeholder={'Enter a title...'}
+          />
+        </Column>
+        <SimilarIssues query={title} onSelect={onClose} />
+        <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
+          <div className={getClassName('descriptionLabel')}>Description</div>
+          <div className={getClassName('descriptionHelper')}>Markdown supported *</div>
+          <div
+            className={getClassName({
+              descriptionContainer: true,
+            })}
+          >
+            <MarkdownEditor
+              value={description}
+              onChange={e => e !== undefined && setDescription(e)}
+              onFullscreenToggle={fullscreen => {
+                setFullscreen(fullscreen);
+              }}
+              textareaProps={!type ? { disabled: true, placeholder: 'Select a type to start…' } : undefined}
+            />
+          </div>
+        </Column>
+        <Row gap='0.5rem' justifyContent='flex-end' alignItems='flex-end' fullWidth>
+          <SecondaryButton aria-label='Cancel' onClick={onClose}>
+            Cancel
+          </SecondaryButton>
+          <PrimaryButton
+            aria-label={
+              !title
+                ? 'Please enter a title'
+                : !description
+                  ? 'Please enter a description'
+                  : !area
+                    ? 'Please select an area'
+                    : !type
+                      ? 'Please select a type'
+                      : 'Create Issue'
+            }
+            onClick={() => {
+              onCreate({ title, description, labels: [type], area: area || undefined });
+              reset();
+            }}
+            disabled={loading || !canSubmit}
+          >
+            {loading ? <Loader2 className='spin' size={16} /> : 'Submit'}
+          </PrimaryButton>
+        </Row>
+      </Column>
+    </Modal>
+  );
+}

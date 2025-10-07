@@ -1,6 +1,6 @@
 import { Fab, type FabProps } from './Fab';
 
-interface IconButtonProps extends Omit<FabProps, 'children'> {
+export interface IconButtonProps extends Omit<FabProps, 'children'> {
   active?: boolean;
 }
 

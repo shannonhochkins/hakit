@@ -1,27 +1,20 @@
 import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { dashboardTable, pagesTable } from './db';
 
 export const puckObjectZodSchema = z.object({
   type: z.string(),
-  props: z
-    .object({})
-    .passthrough()
-    .transform(
-      ({
-        // we are intentionally omitting the `breakpoint` property from the props
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        breakpoint,
-        ...rest
-      }) => rest
-    ), // omit `breakpoint`,
+  props: z.looseObject({}),
+  readOnly: z.record(z.string(), z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
 });
 
 export const puckDataZodSchema = z.object({
-  zones: z.record(z.array(puckObjectZodSchema)),
+  zones: z.record(z.string(), z.array(puckObjectZodSchema)).optional(), // Make zones optional
   content: z.array(puckObjectZodSchema),
-  root: puckObjectZodSchema.omit({
-    type: true,
+  root: z.object({
+    props: z.looseObject({}).optional(), // Make props optional
+    content: z.array(puckObjectZodSchema).optional(),
+    readOnly: z.record(z.string(), z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
   }),
 });
 
@@ -62,7 +55,7 @@ export const insertDashboardPageSchema = dashboardPageSchema
     thumbnail: true,
   })
   .extend({
-    data: dashboardPageSchema.shape.data.optional(),
+    data: puckDataZodSchema.optional(),
     thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
   });
 
@@ -74,6 +67,6 @@ export const updateDashboardPageSchema = createUpdateSchema(pagesTable)
     thumbnail: true,
   })
   .extend({
-    data: dashboardPageSchema.shape.data.optional(),
+    data: puckDataZodSchema.optional(), // Accept either string (serialized) or object
     thumbnail: dashboardPageSchema.shape.thumbnail.optional(),
   });

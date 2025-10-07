@@ -1,11 +1,9 @@
 import { useMemo } from 'react';
-import styled from '@emotion/styled';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
-import ReactMarkdown from 'react-markdown';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
-import { Spinner } from '@components/Spinner';
-import { Row, Column } from '@hakit/components';
+import { Spinner } from '@components/Loaders/Spinner';
+import { Row, Column } from '@components/Layout';
 import {
   ArrowLeftIcon,
   GithubIcon,
@@ -30,261 +28,14 @@ import {
 import { formatNumber } from '@helpers/number';
 import { timeAgo } from '@hakit/core';
 import { Octokit } from '@octokit/rest';
+import { MarkdownRenderer } from '@components/Markdown/MarkdownRenderer';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './RepositoryDetail.module.css';
+
+const getClassName = getClassNameFactory('RepositoryDetail', styles);
 
 // Create Octokit instance (no auth needed for public repos)
 const octokit = new Octokit();
-
-// Styled Components
-const Container = styled(Column)`
-  gap: var(--space-6);
-`;
-
-const BackButtonContainer = styled(Row)`
-  gap: var(--space-4);
-`;
-
-const BackButton = styled.button`
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-surface-overlay);
-  }
-`;
-
-const PageTitle = styled.h1`
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const RepositoryOverview = styled.div`
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  width: 100%;
-`;
-
-const OverviewContent = styled.div`
-  padding: var(--space-6);
-  width: 100%;
-`;
-
-const RepositoryLayout = styled(Row)`
-  gap: var(--space-6);
-  align-items: flex-start;
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-`;
-
-const ThumbnailContainer = styled(Row)`
-  height: 128px;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-surface-elevated);
-  flex-shrink: 0;
-`;
-
-const ThumbnailPlaceholder = styled(Row)`
-  height: 100%;
-  width: 100%;
-  color: var(--color-text-muted);
-`;
-
-const RepositoryInfo = styled.div`
-  flex: 1;
-`;
-
-const Description = styled.p`
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--space-4) 0;
-  line-height: var(--line-height-relaxed);
-`;
-
-const MetaGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: var(--space-4);
-`;
-
-const MetaItem = styled(Row)`
-  gap: var(--space-2);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const MetaLabel = styled.span`
-  color: var(--color-text-muted);
-`;
-
-const MetaValue = styled.span`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-`;
-
-const MetaLink = styled(Row)`
-  gap: var(--space-2);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  text-decoration: none;
-  transition: color var(--transition-normal);
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  &:hover {
-    color: var(--color-text-primary);
-  }
-`.withComponent('a');
-
-const ActionsContainer = styled(Column)`
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const ReadmeSection = styled.div`
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  width: 100%;
-`;
-
-const ReadmeHeader = styled.div`
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-4) var(--space-6);
-`;
-
-const ReadmeTitle = styled.h2`
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0;
-  cursor: pointer;
-`.withComponent('a');
-
-const ReadmeContent = styled.div`
-  padding: var(--space-6);
-`;
-
-const LoadingContainer = styled(Row)`
-  padding: var(--space-8) var(--space-4);
-  color: var(--color-text-muted);
-`;
-
-const ErrorContainer = styled(Column)`
-  padding: var(--space-8) var(--space-4);
-  text-align: center;
-`;
-
-const ErrorTitle = styled.h2`
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-2) 0;
-`;
-
-const ErrorDescription = styled.p`
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-4) 0;
-`;
-
-const MarkdownContent = styled.div`
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: var(--color-text-primary);
-    margin-top: var(--space-6);
-    margin-bottom: var(--space-3);
-    font-weight: var(--font-weight-semibold);
-  }
-
-  h1 {
-    font-size: var(--font-size-2xl);
-  }
-  h2 {
-    font-size: var(--font-size-xl);
-  }
-  h3 {
-    font-size: var(--font-size-lg);
-  }
-
-  p {
-    margin-bottom: var(--space-4);
-  }
-
-  ul,
-  ol {
-    margin-bottom: var(--space-4);
-    padding-left: var(--space-6);
-  }
-
-  li {
-    margin-bottom: var(--space-1);
-  }
-
-  code {
-    background: var(--color-surface-elevated);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-primary);
-  }
-
-  pre {
-    background: var(--color-surface-elevated);
-    padding: var(--space-4);
-    border-radius: var(--radius-md);
-    overflow-x: auto;
-    margin-bottom: var(--space-4);
-
-    code {
-      background: none;
-      padding: 0;
-      font-size: var(--font-size-sm);
-    }
-  }
-
-  blockquote {
-    border-left: 4px solid var(--color-border);
-    padding-left: var(--space-4);
-    margin-left: 0;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-muted);
-  }
-
-  a {
-    color: var(--color-primary-400);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-`;
 
 // GitHub API functions
 async function fetchGitHubStats(githubUrl: string) {
@@ -458,24 +209,26 @@ export function RepositoryDetail({ repositoryId }: { repositoryId: string }) {
   // Loading state
   if (repositoryQuery.isLoading) {
     return (
-      <LoadingContainer>
-        <Spinner size='24px' />
+      <Row className={getClassName('loadingContainer')}>
+        <Spinner />
         <span style={{ marginLeft: 'var(--space-2)' }}>Loading repository details...</span>
-      </LoadingContainer>
+      </Row>
     );
   }
 
   // Error state
   if (repositoryQuery.error || !repository) {
     return (
-      <ErrorContainer>
+      <Column className={getClassName('errorContainer')}>
         <AlertCircleIcon size={48} style={{ color: 'var(--color-error-500)', marginBottom: 'var(--space-4)' }} />
-        <ErrorTitle>Repository Not Found</ErrorTitle>
-        <ErrorDescription>{repositoryQuery.error?.message || 'The requested repository could not be found.'}</ErrorDescription>
+        <h2 className={getClassName('errorTitle')}>Repository Not Found</h2>
+        <p className={getClassName('errorDescription')}>
+          {repositoryQuery.error?.message || 'The requested repository could not be found.'}
+        </p>
         <SecondaryButton onClick={handleBack} startIcon={<ArrowLeftIcon size={16} />} aria-label='Back to explore components'>
           Back to Explore
         </SecondaryButton>
-      </ErrorContainer>
+      </Column>
     );
   }
 
@@ -506,27 +259,27 @@ export function RepositoryDetail({ repositoryId }: { repositoryId: string }) {
   };
 
   return (
-    <Container fullWidth alignItems='flex-start'>
+    <Column className={getClassName()} fullWidth alignItems='flex-start'>
       {/* Header with back button */}
-      <BackButtonContainer fullWidth justifyContent='flex-start' alignItems='center'>
-        <BackButton onClick={handleBack} aria-label='Back to explore'>
+      <Row className={getClassName('backButtonContainer')} fullWidth justifyContent='flex-start' alignItems='center'>
+        <button className={getClassName('backButton')} onClick={handleBack} aria-label='Back to explore'>
           <ArrowLeftIcon size={18} />
-        </BackButton>
-        <PageTitle>{repository.name}</PageTitle>
-      </BackButtonContainer>
+        </button>
+        <h1 className={getClassName('pageTitle')}>{repository.name}</h1>
+      </Row>
 
       {/* Repository overview */}
-      <RepositoryOverview>
-        <OverviewContent>
-          <RepositoryLayout fullWidth>
+      <div className={getClassName('repositoryOverview')}>
+        <div className={getClassName('overviewContent')}>
+          <Row className={getClassName('repositoryLayout')} fullWidth>
             {/* Repository thumbnail/icon */}
             <Column gap='var(--space-4)'>
-              <ThumbnailContainer>
-                <ThumbnailPlaceholder>
+              <Row className={getClassName('thumbnailContainer')}>
+                <Row className={getClassName('thumbnailPlaceholder')}>
                   <PackageIcon size={48} />
-                </ThumbnailPlaceholder>
-              </ThumbnailContainer>
-              <ActionsContainer fullWidth>
+                </Row>
+              </Row>
+              <Column className={getClassName('actionsContainer')} fullWidth>
                 <SecondaryButton
                   onClick={() => window.open(repository.githubUrl, '_blank', 'noopener,noreferrer')}
                   startIcon={<GithubIcon size={16} />}
@@ -544,85 +297,85 @@ export function RepositoryDetail({ repositoryId }: { repositoryId: string }) {
                   {...getInstallButtonProps()}
                   aria-label={hasUpdate ? 'Update repository' : isInstalled ? 'Uninstall repository' : 'Install repository'}
                 />
-              </ActionsContainer>
+              </Column>
             </Column>
 
             {/* Repository info */}
-            <RepositoryInfo>
-              <Description>{repository.description}</Description>
+            <div className={getClassName('repositoryInfo')}>
+              <p className={getClassName('description')}>{repository.description}</p>
 
-              <MetaGrid>
-                <MetaItem>
+              <div className={getClassName('metaGrid')}>
+                <Row className={getClassName('metaItem')}>
                   <UserIcon size={16} />
-                  <MetaLabel>Author:</MetaLabel>
-                  <MetaValue>{repository.author}</MetaValue>
-                </MetaItem>
+                  <span className={getClassName('metaLabel')}>Author:</span>
+                  <span className={getClassName('metaValue')}>{repository.author}</span>
+                </Row>
 
                 {githubStats && (
-                  <MetaLink href={githubStats.repoUrl} target='_blank' rel='noopener noreferrer'>
+                  <a className={getClassName('metaLink')} href={githubStats.repoUrl} target='_blank' rel='noopener noreferrer'>
                     <StarIcon size={16} />
-                    <MetaLabel>Stars:</MetaLabel>
-                    <MetaValue>{formatNumber(githubStats.stars)}</MetaValue>
-                  </MetaLink>
+                    <span className={getClassName('metaLabel')}>Stars:</span>
+                    <span className={getClassName('metaValue')}>{formatNumber(githubStats.stars)}</span>
+                  </a>
                 )}
 
                 {githubStats && (
-                  <MetaLink href={githubStats.issuesUrl} target='_blank' rel='noopener noreferrer'>
+                  <a className={getClassName('metaLink')} href={githubStats.issuesUrl} target='_blank' rel='noopener noreferrer'>
                     <AlertCircleIcon size={16} />
-                    <MetaLabel>Open Issues:</MetaLabel>
-                    <MetaValue>{githubStats.openIssues}</MetaValue>
-                  </MetaLink>
+                    <span className={getClassName('metaLabel')}>Open Issues:</span>
+                    <span className={getClassName('metaValue')}>{githubStats.openIssues}</span>
+                  </a>
                 )}
 
-                <MetaItem>
+                <Row className={getClassName('metaItem')}>
                   <DownloadIcon size={16} />
-                  <MetaLabel>Downloads:</MetaLabel>
-                  <MetaValue>{formatNumber(repository.totalDownloads)}</MetaValue>
-                </MetaItem>
+                  <span className={getClassName('metaLabel')}>Downloads:</span>
+                  <span className={getClassName('metaValue')}>{formatNumber(repository.totalDownloads)}</span>
+                </Row>
 
-                <MetaItem>
+                <Row className={getClassName('metaItem')}>
                   <CodeIcon size={16} />
-                  <MetaLabel>Components:</MetaLabel>
-                  <MetaValue>N/A</MetaValue>
-                </MetaItem>
+                  <span className={getClassName('metaLabel')}>Components:</span>
+                  <span className={getClassName('metaValue')}>N/A</span>
+                </Row>
 
-                <MetaItem>
+                <Row className={getClassName('metaItem')}>
                   <TagIcon size={16} />
-                  <MetaLabel>Version:</MetaLabel>
-                  <MetaValue>v{repository.latestVersion}</MetaValue>
-                </MetaItem>
+                  <span className={getClassName('metaLabel')}>Version:</span>
+                  <span className={getClassName('metaValue')}>v{repository.latestVersion}</span>
+                </Row>
 
-                <MetaItem>
+                <Row className={getClassName('metaItem')}>
                   <CalendarIcon size={16} />
-                  <MetaLabel>Last Updated:</MetaLabel>
-                  <MetaValue>{repository.lastUpdated ? timeAgo(new Date(repository.lastUpdated)) : 'Unknown'}</MetaValue>
-                </MetaItem>
-              </MetaGrid>
-            </RepositoryInfo>
-          </RepositoryLayout>
-        </OverviewContent>
-      </RepositoryOverview>
+                  <span className={getClassName('metaLabel')}>Last Updated:</span>
+                  <span className={getClassName('metaValue')}>
+                    {repository.lastUpdated ? timeAgo(new Date(repository.lastUpdated)) : 'Unknown'}
+                  </span>
+                </Row>
+              </div>
+            </div>
+          </Row>
+        </div>
+      </div>
 
       {/* README section */}
-      <ReadmeSection>
-        <ReadmeHeader>
-          <ReadmeTitle href={`${repository.githubUrl}#readme`} target='_blank' rel='noopener noreferrer'>
+      <div className={getClassName('readmeSection')}>
+        <div className={getClassName('readmeHeader')}>
+          <a className={getClassName('readmeTitle')} href={`${repository.githubUrl}#readme`} target='_blank' rel='noopener noreferrer'>
             README.md
-          </ReadmeTitle>
-        </ReadmeHeader>
-        <ReadmeContent>
+          </a>
+        </div>
+        <div className={getClassName('readmeContent')}>
           {readmeQuery.isLoading ? (
-            <LoadingContainer>
-              <Spinner size='20px' />
+            <Row className={getClassName('loadingContainer')}>
+              <Spinner />
               <span style={{ marginLeft: 'var(--space-2)' }}>Loading README...</span>
-            </LoadingContainer>
+            </Row>
           ) : (
-            <MarkdownContent>
-              <ReactMarkdown>{readme || '# README\n\nNo README available for this repository.'}</ReactMarkdown>
-            </MarkdownContent>
+            <MarkdownRenderer>{readme || '# README\n\nNo README available for this repository.'}</MarkdownRenderer>
           )}
-        </ReadmeContent>
-      </ReadmeSection>
-    </Container>
+        </div>
+      </div>
+    </Column>
   );
 }

@@ -4,7 +4,7 @@ import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@helpers/editor/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { useIsPageEditMode } from '@hooks/useIsPageEditMode';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
 import { useDashboardWithData } from '@hooks/queeries/useDashboardWithData';
 import { useStore } from '@hakit/core';
 import { getServices as _getServices } from 'home-assistant-js-websocket';
@@ -38,7 +38,10 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
 
     if (connection && dashboard && dashboard.pages.length && !userConfig) {
       // if there's breakpoints set, use them, else use the default breakpoints
-      const breakpoints = dashboard.breakpoints && Array.isArray(dashboard.breakpoints) ? dashboard.breakpoints : DEFAULT_BREAKPOINTS;
+      const breakpoints =
+        dashboard.breakpoints && Array.isArray(dashboard.breakpoints) && dashboard.breakpoints.length > 0
+          ? dashboard.breakpoints
+          : DEFAULT_BREAKPOINTS;
       useThemeStore.getState().setBreakpoints(breakpointItemToBreakPoints(breakpoints));
       setBreakPointItems(breakpoints);
       const getAllEntities = () => entities;

@@ -24,10 +24,9 @@
 
     // Path aliases for shared typings
     "paths": {
-      "@typings/*": ["./typings/*"]
+      "@shared/*": ["./packages/shared/*"]
     }
   },
-  "include": ["typings/**/*"],
   "exclude": [
     "node_modules/**",
     "**/node_modules/**",

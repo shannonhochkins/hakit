@@ -1,0 +1,196 @@
+
+.fieldLabelCollapsed {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-gray-800);
+}
+
+.fieldset {
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  transition: padding 0.2s ease-in-out;
+}
+.CollapsibleFieldWrapper {
+  border-left: 1px solid transparent;
+  border-bottom: 1px solid var(--color-gray-800);
+  transition: 0.2s ease-in-out;
+  transition-property: padding, border-left-color;
+}
+.CollapsibleFieldWrapper:hover {
+  border-left-color: var(--color-primary-300);
+}
+.CollapsibleFieldWrapper--collapsed {
+  padding: 0;
+}
+.CollapsibleFieldWrapper--expanded {
+  border-bottom: 0;
+}
+
+.CollapsibleFieldWrapper-FieldLabel {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+.CollapsibleFieldWrapper-FieldLabel--color {
+  color: currentColor;
+}
+
+.CollapsibleFieldWrapper-FieldLabel--expanded {
+  border-bottom: 0;
+  color: var(--color-text-primary);
+}
+
+.CollapsibleFieldWrapper-FieldLabel--collapsed {
+  border-bottom: 0;
+  color: var(--color-text-muted);
+}
+.CollapsibleFieldWrapper-FieldLabel--collapsible {
+  cursor: pointer;
+}
+.CollapsibleFieldWrapper :global(.field-label.field-array), .CollapsibleFieldWrapper :global(.field-label.field-pages) {
+  padding-left:0;
+  padding-top:0;
+  padding-right: 0;
+  color: var(--color-gray-300)
+}
+.collapsible:hover > :global(.field-label) {
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 0.2s ease-in-out;
+}
+.collapsible:hover > :global(.field-label) {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.bpModeEnabled {
+  position: relative;
+  padding-left: var(--space-3);
+}
+.bpModeEnabled::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 4px;
+  height: 100%;
+  background-color: var(--color-primary-500);
+}
+.fieldWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+.fieldWrapper :global([class*='_InputWrapper_']) {
+  margin: var(--space-4) 0;
+}
+
+.fieldWrapper :global([class*='_InputWrapper_']):first-of-type {
+  margin-top: 0;
+}
+.fieldWrapper :global([class*='_InputWrapper_']):last-of-type {
+  margin-bottom: 0;
+}
+
+.fieldWrapper :global([class*='_InputWrapper_']:has( > fieldset[style*="display: none"])) {
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.fieldWrapper :global([class*='_Input-input_']) {
+  background-color: var(--color-gray-950) !important;
+}
+.fieldWrapper :global([class*='_ObjectField_']),
+.fieldWrapper :global([class*='_ArrayField_']),
+.fieldWrapper :global([class*='_ArrayFieldItem-summary']) {
+  background-color: transparent;
+}
+.fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_'])) {
+  border: 0;
+}
+.fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_']) > fieldset) {
+  padding: 0;
+  border-top: 0;
+}
+.fieldWrapper :global([class*='_ObjectField_'] > fieldset) {
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+  margin-left: var(--space-3);
+  border-left: 1px solid var(--color-gray-800);
+  border-top: 1px solid var(--color-gray-800);
+  border-bottom: 1px solid var(--color-gray-800);
+  transition: border-left-color 0.2s ease;
+}
+
+.fieldWrapper :global([class*='_ObjectField_'] [class*='_ObjectField_']) {
+  border: 0;
+}
+.fieldWrapper :global(.field-object:has([class*='_ObjectField_'])) {
+  border-top: 1px solid var(--color-gray-800);
+}
+.fieldWrapper :global([class*='_ArrayFieldItem_']) {
+  margin-top: 1px;
+}
+.fieldWrapper :global([class*='_ArrayField_']) {
+  position: relative;
+}
+.fieldWrapper :global([class*='_ArrayField-addButton_']) {
+  width: 100%;
+  height: 2rem;
+  background-color: var(--color-primary-950);
+  color: var(--color-primary-50);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fieldWrapper :global([class*='_ArrayField-addButton_']):hover {
+  background-color: var(--color-primary-800) !important;
+  color: var(--color-primary-50) !important;
+}
+.fieldWrapper :global([class*='_ArrayFieldItem--isExpanded'] > [class*='_ArrayFieldItem-summary']) {
+  color: var(--color-gray-50);
+}
+.fieldWrapper :global([class*='_ArrayFieldItem-body_']) {
+  background-color: var(--color-gray-800);
+}
+.fieldWrapper :global([class*='_Input-labelIcon_']) {
+  color: currentColor;
+}
+.fieldWrapper > * {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.description {
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 400;
+}
+.mark {
+  color: var(--color-gray-300);
+  background-color: var(--color-gray-950);
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+.fieldInput {
+  width: 100%;
+}
+.fieldInput > * {
+  width: 100%;
+}
+
+.bp-mode-enabled {
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-primary-500);
+}

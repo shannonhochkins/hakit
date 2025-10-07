@@ -1,0 +1,16 @@
+/* FeatureText Gradient Text */
+.FeatureText {
+  font-size: inherit;
+  font-weight: var(--font-weight-bold);
+  background: var(--gradient-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Secondary gradient variant */
+.FeatureText--secondary {
+  background: var(--gradient-text-secondary);
+  background-clip: text;
+  -webkit-background-clip: text;
+}

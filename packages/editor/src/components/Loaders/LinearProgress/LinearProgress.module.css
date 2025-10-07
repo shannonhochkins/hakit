@@ -1,0 +1,75 @@
+.LinearProgress {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-surface-elevated);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.LinearProgress--thick { height: 8px; }
+.LinearProgress--thin { height: 2px; }
+.LinearProgress--rounded { border-radius: var(--radius-full); }
+
+.bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--progress, 0%);
+  background: var(--gradient-primary);
+  transition: width var(--transition-normal);
+}
+
+.LinearProgress--colorSecondary .bar { background: var(--color-surface-accent); }
+.LinearProgress--colorError .bar { background: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%); }
+.LinearProgress--colorSuccess .bar { background: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%); }
+
+.buffer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-image: linear-gradient(
+    to right,
+    rgba(255,255,255,0.06) 0,
+    rgba(255,255,255,0.06) var(--progress, 0%),
+    transparent var(--progress, 0%),
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Indeterminate animation (MUI-inspired) */
+.LinearProgress--indeterminate .bar {
+  width: auto;
+  left: -35%;
+  right: auto;
+  animation: linear-progress-indeterminate 1.8s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+.LinearProgress--indeterminate .bar2 {
+  position: absolute;
+  background: var(--gradient-primary);
+  top: 0;
+  height: 100%;
+  left: -200%;
+  animation: linear-progress-indeterminate2 1.8s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+}
+
+.LinearProgress--indeterminate .buffer { display: none; }
+
+@keyframes linear-progress-indeterminate {
+  0% { left: -35%; right: 100%; }
+  60% { left: 100%; right: -90%; }
+  100% { left: 100%; right: -90%; }
+}
+
+@keyframes linear-progress-indeterminate2 {
+  0% { left: -200%; right: 100%; }
+  60% { left: 107%; right: -8%; }
+  100% { left: 107%; right: -8%; }
+}
+
+

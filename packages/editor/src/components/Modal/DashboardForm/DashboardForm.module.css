@@ -1,0 +1,7 @@
+/* Dashboard Form Actions */
+.DashboardForm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}

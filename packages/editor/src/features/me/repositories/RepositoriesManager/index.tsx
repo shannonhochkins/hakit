@@ -1,25 +1,24 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
-import styled from '@emotion/styled';
 import { PrimaryButton } from '@components/Button/Primary';
 import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
 import { RepositoryListItem } from '@features/me/repositories/RepositoriesManager/RepositoryListItem';
-import { Row } from '@hakit/components';
-import { InputField } from '@components/Form/Fields/Input';
-import { InputAdornment, Menu, MenuItem } from '@mui/material';
+import { Row } from '@components/Layout';
+import { InputField } from '@components/Form/Field/Input';
+import { Menu, MenuItem } from '@components/Menu';
 import { Confirm } from '@components/Modal/confirm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  userRepositoriesQueryOptions,
-  disconnectRepository,
-  toggleComponentStatus,
-  UserRepositoryWithDetails,
-} from '@services/repositories';
-import { SwitchField } from '@components/Form/Fields/Switch';
+import { userRepositoriesQueryOptions, disconnectRepository, toggleComponentStatus } from '@services/repositories';
+import { UserRepository } from '@typings/hono';
+import { SwitchField } from '@components/Form/Field/Switch';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from '@components/Table';
 import { SecondaryButton } from '@components/Button';
 import { RepositoryInstallButton } from '@features/me/repositories/RepositoriesManager/RepositoryInstallButton';
 import { EmptyState } from '@components/EmptyState';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './RepositoriesManager.module.css';
+
+const getClassName = getClassNameFactory('RepositoriesManager', styles);
 
 interface Component {
   id: string;
@@ -29,94 +28,6 @@ interface Component {
   repoId: string;
   userRepoId: string;
 }
-
-// Styled Components
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-`;
-
-const PageHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-`;
-
-const PageTitle = styled.h1`
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const PageSubtitle = styled.p`
-  color: var(--color-text-muted);
-  margin: 0;
-`;
-
-const SearchAndFilter = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  .mq-md & {
-    flex-direction: row;
-    align-items: center;
-  }
-`;
-
-const RepositoriesContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-`;
-
-const ComponentInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-`;
-
-const ComponentIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--color-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-`;
-
-const ComponentName = styled.span`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-`;
-
-const StatusContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-`;
-
-const StatusText = styled.span`
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-`;
 
 export function RepositoriesManager() {
   const navigate = useNavigate();
@@ -142,7 +53,7 @@ export function RepositoriesManager() {
       await queryClient.cancelQueries({ queryKey: userRepositoriesQueryOptions.queryKey });
       const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
 
-      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepository[] | undefined) => {
         if (!old) return old;
 
         return old.map(repo => {
@@ -306,41 +217,35 @@ export function RepositoriesManager() {
   };
 
   return (
-    <Container>
-      <PageHeader>
+    <div className={getClassName()}>
+      <div className={getClassName('pageHeader')}>
         <Row fullWidth justifyContent='space-between' alignItems='center'>
-          <HeaderContent>
-            <PageTitle>Installed Repositories</PageTitle>
-            <PageSubtitle>Manage your dashboard repositories & components</PageSubtitle>
-          </HeaderContent>
+          <div className={getClassName('headerContent')}>
+            <h1 className={getClassName('pageTitle')}>Installed Repositories</h1>
+            <p className={getClassName('pageSubtitle')}>Manage your dashboard repositories & components</p>
+          </div>
           <PrimaryButton aria-label='Explore Repositories' onClick={onExploreComponents} startIcon={<DownloadCloudIcon size={16} />}>
             Explore Repositories
           </PrimaryButton>
         </Row>
-      </PageHeader>
+      </div>
 
-      <SearchAndFilter>
+      <div className={getClassName('searchAndFilter')}>
         <InputField
           size='medium'
           type='text'
+          id='search-components'
+          name='search-components'
+          label=''
+          helperText='Search for installed components'
           placeholder='Search components...'
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          variant='outlined'
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon size={18} />
-                </InputAdornment>
-              ),
-            },
-          }}
+          startAdornment={<SearchIcon size={18} />}
         />
-      </SearchAndFilter>
+      </div>
 
-      <RepositoriesContainer>
+      <div className={getClassName('repositoriesContainer')}>
         {userRepositoriesQuery.isLoading ? (
           <div>Loading repositories...</div>
         ) : userRepositoriesQuery.error ? (
@@ -415,28 +320,24 @@ export function RepositoriesManager() {
                           return (
                             <TableRow key={`${component.name}-${index}`}>
                               <TableCell>
-                                <ComponentInfo>
-                                  <ComponentIcon>
+                                <div className={getClassName('componentInfo')}>
+                                  <div className={getClassName('componentIcon')}>
                                     <PackageIcon size={16} />
-                                  </ComponentIcon>
-                                  <ComponentName>{component.name}</ComponentName>
-                                </ComponentInfo>
-                              </TableCell>
-                              <TableCell hiddenBelow='md'>
-                                <span>{repository.version}</span>
+                                  </div>
+                                  <span className={getClassName('componentName')}>{component.name}</span>
+                                </div>
                               </TableCell>
                               <TableCell>
-                                <StatusContainer>
+                                <div className={getClassName('statusContainer')}>
                                   <SwitchField
+                                    isolated={false}
+                                    id={`${component.name}-${index}`}
+                                    name={`${component.name}-${index}`}
                                     checked={component.enabled ?? true}
                                     onChange={() => handleToggleComponent(repo.id, component.name)}
                                     disabled={isToggling}
-                                    label=''
                                   />
-                                  <StatusText>
-                                    {isToggling ? 'Updating...' : (component.enabled ?? true) ? 'Enabled' : 'Disabled'}
-                                  </StatusText>
-                                </StatusContainer>
+                                </div>
                               </TableCell>
                             </TableRow>
                           );
@@ -449,7 +350,7 @@ export function RepositoriesManager() {
             );
           })
         )}
-      </RepositoriesContainer>
+      </div>
 
       <Menu
         anchorEl={menuAnchorEl}
@@ -476,6 +377,6 @@ export function RepositoriesManager() {
           remove all associated components.
         </p>
       </Confirm>
-    </Container>
+    </div>
   );
 }

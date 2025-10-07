@@ -1,139 +1,14 @@
 import { useState } from 'react';
 import { MenuIcon, XIcon } from 'lucide-react';
-import styled from '@emotion/styled';
+import styles from './HomeHeader.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+const getClassName = getClassNameFactory('HomeHeader', styles);
 import { PrimaryButton } from '@components/Button/Primary';
 import { useAuthButtonState } from '@hooks/useAuthButtonState';
 import { FeatureText } from '@components/FeatureText';
 import { useNavigate } from '@tanstack/react-router';
 
-const StyledHeader = styled.header`
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  background-color: var(--color-surface-overlay);
-  backdrop-filter: blur(var(--blur-lg));
-  border-bottom: 1px solid var(--color-border);
-`;
-
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const LogoContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const LogoWrapper = styled.div`
-  position: relative;
-  font-size: var(--font-size-2xl);
-  @media (max-width: 768px) {
-    font-size: var(--font-size-1xl);
-  }
-`;
-
-const LogoGlow = styled.div`
-  position: absolute;
-  inset: -4px;
-  background-color: rgba(59, 130, 246, 0.2);
-  border-radius: var(--radius-full);
-  filter: blur(var(--blur-lg));
-  z-index: -10;
-`;
-
-const Nav = styled.nav`
-  display: none;
-  @media (min-width: 768px) {
-    display: block;
-  }
-`;
-
-const NavList = styled.ul`
-  display: flex;
-  gap: var(--space-8);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`;
-
-const NavItem = styled.li``;
-
-const NavLink = styled.a`
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--transition-normal);
-  &:hover {
-    color: var(--color-primary-400);
-  }
-`;
-
-const GetStartedContainer = styled.div`
-  display: none;
-  @media (min-width: 768px) {
-    display: block;
-  }
-`;
-
-const MobileMenuButton = styled.button`
-  display: block;
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: color var(--transition-normal);
-
-  &:hover {
-    color: var(--color-text-primary);
-  }
-
-  @media (min-width: 768px) {
-    display: none;
-  }
-`;
-
-const MobileMenu = styled.div`
-  display: block;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-
-  @media (min-width: 768px) {
-    display: none;
-  }
-`;
-
-const MobileMenuContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-4);
-`;
-
-const MobileNavList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`;
-
-const MobileNavItem = styled.li``;
-
-const MobileNavLink = styled.a`
-  display: block;
-  padding: var(--space-2) 0;
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--transition-normal);
-
-  &:hover {
-    color: var(--color-primary-400);
-  }
-`;
+// using css modules
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -153,68 +28,84 @@ export const Header = () => {
   };
 
   return (
-    <StyledHeader>
-      <Container>
-        <LogoContainer>
-          <LogoWrapper>
+    <header className={getClassName('styledHeader')}>
+      <div className={getClassName('container')}>
+        <div className={getClassName('logoContainer')}>
+          <div className={getClassName('logoWrapper')}>
             <FeatureText primary='@HAKIT' secondary='/EDITOR' />
-            <LogoGlow />
-          </LogoWrapper>
-        </LogoContainer>
+            <div className={getClassName('logoGlow')} />
+          </div>
+        </div>
 
-        <Nav>
-          <NavList>
-            <NavItem>
-              <NavLink href='#features'>Features</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href='#demo'>Demo</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href='#benefits'>Benefits</NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href='#pricing'>Pricing</NavLink>
-            </NavItem>
-          </NavList>
-        </Nav>
+        <nav className={getClassName('nav')}>
+          <ul className={getClassName('navList')}>
+            <li className={getClassName('navItem')}>
+              <a className={getClassName('navLink')} href='#features'>
+                Features
+              </a>
+            </li>
+            <li className={getClassName('navItem')}>
+              <a className={getClassName('navLink')} href='#demo'>
+                Demo
+              </a>
+            </li>
+            <li className={getClassName('navItem')}>
+              <a className={getClassName('navLink')} href='#benefits'>
+                Benefits
+              </a>
+            </li>
+            <li className={getClassName('navItem')}>
+              <a className={getClassName('navLink')} href='#pricing'>
+                Pricing
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-        <GetStartedContainer>
+        <div className={getClassName('getStartedContainer')}>
           <PrimaryButton aria-label='' size='sm' onClick={handleAuthButtonClick} loading={isLoading} disabled={isLoading}>
             {isLoading ? 'Loading...' : buttonState.label}
           </PrimaryButton>
-        </GetStartedContainer>
+        </div>
 
-        <MobileMenuButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className={getClassName('mobileMenuButton')} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
-        </MobileMenuButton>
-      </Container>
+        </button>
+      </div>
 
       {isMenuOpen && (
-        <MobileMenu>
-          <MobileMenuContainer>
-            <MobileNavList>
-              <MobileNavItem>
-                <MobileNavLink href='#features'>Features</MobileNavLink>
-              </MobileNavItem>
-              <MobileNavItem>
-                <MobileNavLink href='#demo'>Demo</MobileNavLink>
-              </MobileNavItem>
-              <MobileNavItem>
-                <MobileNavLink href='#benefits'>Benefits</MobileNavLink>
-              </MobileNavItem>
-              <MobileNavItem>
-                <MobileNavLink href='#pricing'>Pricing</MobileNavLink>
-              </MobileNavItem>
-              <MobileNavItem>
+        <div className={getClassName('mobileMenu')}>
+          <div className={getClassName('mobileMenuContainer')}>
+            <ul className={getClassName('mobileNavList')}>
+              <li className={getClassName('mobileNavItem')}>
+                <a className={getClassName('mobileNavLink')} href='#features'>
+                  Features
+                </a>
+              </li>
+              <li className={getClassName('mobileNavItem')}>
+                <a className={getClassName('mobileNavLink')} href='#demo'>
+                  Demo
+                </a>
+              </li>
+              <li className={getClassName('mobileNavItem')}>
+                <a className={getClassName('mobileNavLink')} href='#benefits'>
+                  Benefits
+                </a>
+              </li>
+              <li className={getClassName('mobileNavItem')}>
+                <a className={getClassName('mobileNavLink')} href='#pricing'>
+                  Pricing
+                </a>
+              </li>
+              <li className={getClassName('mobileNavItem')}>
                 <PrimaryButton aria-label='' size='sm' fullWidth onClick={handleAuthButtonClick} disabled={isLoading}>
                   {isLoading ? 'Loading...' : buttonState.label}
                 </PrimaryButton>
-              </MobileNavItem>
-            </MobileNavList>
-          </MobileMenuContainer>
-        </MobileMenu>
+              </li>
+            </ul>
+          </div>
+        </div>
       )}
-    </StyledHeader>
+    </header>
   );
 };

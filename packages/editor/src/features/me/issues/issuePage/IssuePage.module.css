@@ -1,0 +1,62 @@
+.IssuePage-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.IssuePage-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+}
+
+.IssuePage-section {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.IssuePage-section:first-of-type {
+  border-top: 0;
+}
+
+.IssuePage-backButtonContainer {
+  gap: var(--space-4);
+}
+
+.IssuePage-backButton {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.IssuePage-backButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-overlay);
+}
+
+.IssuePage-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.IssuePage-comment {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-inset);
+}
+
+.IssuePage-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-2);
+}
+
+

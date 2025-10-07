@@ -1,0 +1,34 @@
+/* Secondary button overrides (explicit variables for clarity) */
+.secondary {
+  --button-bg: var(--color-surface-elevated);
+  --button-bg-hover: var(--color-border-subtle);
+  --button-bg-active: var(--color-gray-700);
+  --button-bg-disabled: var(--color-gray-800);
+
+  --button-color: var(--color-text-primary);
+  --button-color-hover: var(--color-text-primary);
+  --button-color-active: var(--color-text-primary);
+  --button-color-disabled: var(--color-text-primary);
+
+  --button-border: 1px solid var(--color-border);
+  --button-border-hover: 1px solid var(--color-gray-600);
+  --button-border-active: 1px solid var(--color-gray-600);
+  --button-border-disabled: 1px solid var(--color-gray-700);
+
+  --button-shadow: none;
+  --button-shadow-hover: none;
+  --button-shadow-active: none;
+  --button-shadow-focus: var(--shadow-primary-focus);
+
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: transparent;
+  --button-overlay-bg-active: transparent;
+
+  --button-transform-hover: translateY(-1px);
+  --button-transform-active: translateY(0);
+}
+
+/* ClassNameFactory compatibility */
+.SecondaryButton { composes: secondary; }
+
+

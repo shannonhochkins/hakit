@@ -1,0 +1,77 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sanitizePuckData it should sanitize and retain all expected data and fields 1`] = `
+{
+  "content": [],
+  "root": {
+    "props": {
+      "@hakit/default-root": {
+        "background": {
+          "backgroundImage": {},
+          "backgroundPosition": "center center",
+          "backgroundRepeat": "no-repeat",
+          "backgroundSize": "cover",
+          "backgroundSizeCustom": "",
+          "blur": 25,
+          "filterBrightness": 1,
+          "filterContrast": 1,
+          "filterGrayscale": 0,
+          "filterSaturate": 1,
+          "overlayBlendMode": "multiply",
+          "overlayColor": "#4254c5",
+          "overlayOpacity": 0.9,
+          "test": {
+            "foo": "",
+          },
+          "useAdvancedFilters": false,
+          "useBackgroundImage": true,
+        },
+        "typography": {
+          "baseFontSize": "16px",
+          "bodyWeight": 400,
+          "fontColor": "#ffffff",
+          "fontFamily": "roboto",
+          "headingWeight": 600,
+          "letterSpacing": 0,
+          "lineHeight": 1.5,
+          "useAdvancedTypography": true,
+        },
+      },
+      "_activeBreakpoint": "xlg",
+      "content": [
+        {
+          "props": {
+            "clockOptions": {
+              "dateEntity": "sensor.date",
+              "dateFormat": "dddd, MMMM DD YYYY",
+              "hideDate": true,
+              "hideIcon": true,
+              "hideTime": false,
+              "icon": "mdi:calendar",
+              "throttleTime": 1000,
+              "timeEntity": "sensor.time",
+              "timeFormat": "hh:mm a",
+              "useDateEntity": true,
+              "useTimeEntity": true,
+            },
+            "content": [],
+            "id": "Navigation-5aecb899-5732-428a-99a2-4cbc62ebf68c",
+            "options": {
+              "hideClock": false,
+              "pages": [],
+            },
+            "styles": {
+              "css": "",
+            },
+          },
+          "type": "Navigation",
+        },
+      ],
+      "styles": {
+        "css": "",
+      },
+    },
+  },
+  "zones": {},
+}
+`;

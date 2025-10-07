@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { ExternalLink, Save as SaveIcon } from 'lucide-react';
 import { ProgressButton } from './ProgressButton';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { updateDashboardPageForUser, updateDashboardForUser } from '@services/dashboard';
 import { useParams } from '@tanstack/react-router';
 import { useUnsavedChanges } from '@hooks/useUnsavedChanges';
 
@@ -11,32 +10,11 @@ export function Save() {
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
   const { hasUnsavedChanges, removeStoredData } = useUnsavedChanges();
+  const { actions } = useGlobalStore();
 
   const save = useCallback(async () => {
-    const { unsavedPuckPageData, setUnsavedPuckPageData, dashboard, breakpointItems } = useGlobalStore.getState();
-    if (!unsavedPuckPageData) return;
-    if (!dashboard) {
-      return Promise.reject('No dashboard found');
-    }
-    const page = dashboard.pages.find(page => page.path === params.pagePath);
-    if (!page) {
-      return Promise.reject(`No page found with path ${params.pagePath}`);
-    }
-
-    // Perform the save
-    await updateDashboardPageForUser(dashboard.id, {
-      id: page.id,
-      data: unsavedPuckPageData,
-    });
-    await updateDashboardForUser({
-      ...dashboard,
-      breakpoints: breakpointItems,
-    });
-    // reset so we can determine and track unsaved changes
-    setUnsavedPuckPageData(null);
-    // Clear local storage after successful save
-    removeStoredData();
-  }, [params.pagePath, removeStoredData]);
+    await actions.save(params.pagePath, removeStoredData);
+  }, [actions, params.pagePath, removeStoredData]);
 
   return (
     <>

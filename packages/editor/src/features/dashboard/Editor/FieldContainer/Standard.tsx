@@ -1,0 +1,205 @@
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import { UiState, useGetPuck, type DefaultComponentProps } from '@measured/puck';
+import { Settings } from 'lucide-react';
+
+import type { FieldConfiguration } from '@typings/fields';
+import { Fieldset } from './Fieldset';
+import { IconButton } from '@components/Button/IconButton';
+import { FieldWrapper } from './FieldWrapper';
+import { Row } from '@components/Layout';
+import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
+import { CodeField } from '@components/Form/Field/Code';
+import { useTemplateMode } from './useTemplateMode';
+import { ICON_MAP } from './constants';
+import { CustomAutoField } from './CustomAutoField';
+import styles from './FieldContainer.module.css';
+import { FieldOptions } from './FieldOptions';
+
+const RESPONSIVE_MODE_DEFAULT = true;
+
+/**
+ * Helper function to create custom fields (cf - custom field)
+ */
+
+export type StandardFieldComponentProps<Props extends DefaultComponentProps = DefaultComponentProps> = {
+  // these excluded field types render differently and don't need all these fancy changes
+  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'divider' | 'hidden' }>;
+  name: string;
+  onChange: (value: Props) => void;
+  value: Props;
+  id: string;
+};
+
+export function StandardFieldWrapper<Props extends DefaultComponentProps>({
+  field,
+  name,
+  onChange: puckOnChange,
+  value,
+  id,
+}: StandardFieldComponentProps<Props>) {
+  const responsiveMode = useMemo(() => {
+    if ('responsiveMode' in field) {
+      return field.responsiveMode ?? RESPONSIVE_MODE_DEFAULT;
+    }
+    return RESPONSIVE_MODE_DEFAULT;
+  }, [field]);
+
+  // const field = deepCopy(field) as CustomFieldsWithDefinition<Props>['_field'];
+  const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
+
+  const [breakpointMode, setBreakpointMode] = useState(false);
+  const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
+  const activeBreakpoint = useActiveBreakpoint();
+  const getPuck = useGetPuck();
+  const { selectedItem, appState } = getPuck();
+  const itemOrRoot = selectedItem ?? appState.data.root;
+  const [fieldOptionsOpen, setFieldOptionsOpen] = useState(false);
+  const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
+
+  const onChange = useCallback(
+    (value: unknown, uiState?: Partial<UiState>) => {
+      if (typeof value === 'undefined') return;
+      // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
+      puckOnChange(value, uiState);
+    },
+    [puckOnChange]
+  );
+
+  const componentIdForMap = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
+  const { allowTemplates, templateMode, handleTemplateToggle, templateInputValue, onTemplateInputChange } = useTemplateMode({
+    field,
+    name,
+    value,
+    repositoryId,
+    onChange,
+    componentIdForMap,
+  });
+
+  const valueRef = useRef(value);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  const isVisible = useMemo(() => {
+    if (typeof field.visible === 'function') {
+      const { appState } = getPuck();
+      // If there's no expected selectedItem, we can assume the root options should be shown
+      const visibleData = selectedItemOrRootProps ? selectedItemOrRootProps : appState.data.root?.props;
+      if (!visibleData) return;
+      // when a repositoryId is available, we're a root component field and we need to only send a subset of data
+      const data = repositoryId ? visibleData[repositoryId] : visibleData;
+      return field.visible(data);
+    }
+    return field.visible ?? true;
+  }, [selectedItemOrRootProps, getPuck, field, repositoryId]);
+
+  const onToggleBreakpointMode = useCallback(() => {
+    // TODO - Can't be achieved until https://github.com/puckeditor/puck/pull/1131 is merged and released
+    // we need the nested name value to work properly with custom fields and currently it doesn't
+    // once we have the name field populated, we can extract or update from the breakpoint map below
+    // const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
+    setBreakpointMode(prev => {
+      const isBreakpointModeEnabled = !prev;
+      if (!isBreakpointModeEnabled) {
+        onChange(valueRef.current);
+      }
+      return isBreakpointModeEnabled;
+    });
+  }, [onChange]);
+
+  const fieldOptions = (
+    <IconButton
+      aria-label='Field options'
+      icon={<Settings size={16} />}
+      onClick={() => {
+        setFieldOptionsOpen(true);
+      }}
+      variant='transparent'
+      size='xs'
+      tooltipProps={{
+        placement: 'left',
+      }}
+    />
+  );
+
+  const fieldLabel = (
+    <Row fullWidth alignItems='center' justifyContent='space-between' gap='0.5rem'>
+      <span>{field.label ?? ''}</span>
+      {fieldOptions}
+    </Row>
+  );
+
+  return (
+    <Fieldset
+      style={{
+        display: isVisible ? 'block' : 'none',
+      }}
+      id={id}
+      className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${
+        breakpointMode && responsiveMode ? styles.bpModeEnabled : ''
+      }`}
+    >
+      {/* <FieldLabel
+        label={field.label}
+        description={field.description}
+        icon={_icon}
+        readOnly={field.readOnly}
+        className={`hakit-field-label`}
+        endAdornment={
+          <>
+            {allowTemplates && (
+              <SwitchField
+                name={`${id}-template-toggle`}
+                label='Template'
+                checked={templateMode}
+                onChange={e => {
+                  e.stopPropagation();
+                  handleTemplateToggle((e.target as HTMLInputElement).checked);
+                }}
+              />
+            )}
+          </>
+        }
+      /> */}
+      <FieldWrapper className={`hakit-field-wrapper`}>
+        <div className={styles.fieldInput}>
+          {allowTemplates && templateMode ? (
+            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} id={id} name={name} />
+          ) : (
+            <CustomAutoField field={field} fieldLabel={fieldLabel} name={name} onChange={puckOnChange} value={value} id={id} icon={_icon} />
+          )}
+        </div>
+
+        {/* {responsiveMode && (
+          <IconButton
+            icon={breakpointMode ? <Touchpad size={16} /> : <TouchpadOff size={16} />}
+            onClick={onToggleBreakpointMode}
+            active={breakpointMode}
+            variant='transparent'
+            size='xs'
+            tooltipProps={{
+              placement: 'left',
+            }}
+            aria-label={breakpointMode ? 'Responsive Values Enabled' : 'Responsive Values Disabled'}
+          />
+        )} */}
+      </FieldWrapper>
+      {breakpointMode && responsiveMode && (
+        <div className={`${styles.description} hakit-field-responsive-description`}>
+          <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>
+            <Row justifyContent='flex-start' gap='0.25rem'>
+              Active <span className={styles.mark}>{activeBreakpoint}</span>
+            </Row>
+          </Row>
+        </div>
+      )}
+      <FieldOptions
+        open={fieldOptionsOpen}
+        field={field}
+        onClose={() => {
+          setFieldOptionsOpen(false);
+        }}
+      />
+    </Fieldset>
+  );
+}

@@ -1,9 +1,9 @@
-import { BreakPoint } from '@hakit/components';
+import type { BreakPoint } from '@hakit/components';
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { CustomConfig, PuckPageData } from '@typings/puck';
 import { merge } from 'ts-deepmerge';
-import { ComponentData } from '@measured/puck';
-import type { CustomFieldsConfiguration } from '@typings/fields';
+import { ComponentData, DefaultComponentProps } from '@measured/puck';
+import type { FieldConfiguration } from '@typings/fields';
 import { EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES } from './constants';
 
 /**
@@ -54,26 +54,29 @@ export function puckToDBValue(
   originalData: PuckPageData | null, // this contains breakpoint values stored in the db
   changedData: PuckPageData | null, // this does not contain breakpoint values, just the current data from puck
   currentBreakpoint: BreakPoint, // the current breakpoint that the puck data is for
-  userConfig?: CustomConfig, // this is the user config that contains field definitions and component definitions for puck
+  userConfig?: CustomConfig<DefaultComponentProps>, // this is the user config that contains field definitions and component definitions for puck
   breakpointModeMap: ComponentBreakpointModeMap = {} // this is the map of component instances to their field breakpoint states
 ): PuckPageData | null {
   if (!changedData || !userConfig) return originalData;
 
-  // Deep clone the changed data to avoid mutations
-  const newDataWithBp: PuckPageData = JSON.parse(JSON.stringify(changedData));
+  // Deep clone the changed data to avoid mutations - structuredClone preserves undefined values
+  const newDataWithBp = structuredClone<PuckPageData>(changedData);
 
   // Helper function to check if field type should disable breakpoints
-  const shouldDisableBreakpoints = (fieldConfig: CustomFieldsConfiguration[string]): boolean => {
-    // Check if responsiveMode is explicitly set on the field
+  const shouldDisableBreakpoints = (fieldConfig: FieldConfiguration[string]): boolean => {
+    if (fieldConfig.type === 'slot') return true; // Slots do not support breakpoints
     if ('responsiveMode' in fieldConfig && fieldConfig.responsiveMode === false) return true;
+    return false;
+  };
+
+  const isFieldExcludedFromBreakpoints = (fieldConfig: FieldConfiguration[string]): boolean => {
     const type = fieldConfig?.type;
     return EXCLUDE_FIELD_TYPES_FROM_RESPONSIVE_VALUES.includes(type);
   };
-
   // Helper function to process a field value based on its configuration
   const processFieldValue = (
     fieldPath: string,
-    fieldConfig: CustomFieldsConfiguration[string],
+    fieldConfig: FieldConfiguration[string],
     currentValue: unknown,
     originalValue: unknown,
     componentId?: string
@@ -88,6 +91,10 @@ export function puckToDBValue(
       return {
         [`$xlg`]: currentValue,
       };
+    }
+
+    if (isFieldExcludedFromBreakpoints(fieldConfig)) {
+      return currentValue;
     }
 
     // If breakpoints are enabled, update current breakpoint and ensure $xlg fallback
@@ -109,7 +116,7 @@ export function puckToDBValue(
 
   // Helper function to traverse object fields recursively
   const traverseObjectFields = (
-    objectFields: Record<string, CustomFieldsConfiguration[string]>,
+    objectFields: Record<string, FieldConfiguration[string]>,
     currentObj: Record<string, unknown>,
     originalObj: Record<string, unknown> | undefined,
     basePath: string,
@@ -124,8 +131,9 @@ export function puckToDBValue(
       const fieldPath = basePath ? `${basePath}.${fieldKey}` : fieldKey;
       const currentValue = currentObj[fieldKey];
       const originalValue = originalObj?.[fieldKey];
-
-      if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+      if (fieldConfig.type === 'slot') {
+        result[fieldKey] = currentValue; // Slots are handled differently, just return as-is
+      } else if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
         // Recursively process nested object fields
         result[fieldKey] = traverseObjectFields(
           fieldConfig.objectFields,
@@ -167,28 +175,17 @@ export function puckToDBValue(
         const fieldConfig = componentFields[fieldKey];
         const currentValue = item.props[fieldKey];
         const originalValue = originalItem?.props?.[fieldKey];
-
-        if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
-          newProps[fieldKey] = traverseObjectFields(
-            fieldConfig.objectFields as Record<string, CustomFieldsConfiguration[string]>,
-            currentValue as Record<string, unknown>,
-            originalValue as Record<string, unknown> | undefined,
-            fieldKey,
-            componentId
-          );
+        if (fieldConfig.type === 'slot') {
+          newProps[fieldKey] = currentValue; // Slots are handled differently, just return as-is
+        } else if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+          newProps[fieldKey] = traverseObjectFields(fieldConfig.objectFields, currentValue, originalValue, fieldKey, componentId);
         } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
           // Arrays are completely replaced and stored under $xlg
           newProps[fieldKey] = {
             [`$xlg`]: currentValue,
           };
         } else {
-          newProps[fieldKey] = processFieldValue(
-            fieldKey,
-            fieldConfig as CustomFieldsConfiguration[string],
-            currentValue,
-            originalValue,
-            componentId
-          );
+          newProps[fieldKey] = processFieldValue(fieldKey, fieldConfig, currentValue, originalValue, componentId);
         }
       });
 
@@ -215,12 +212,13 @@ export function puckToDBValue(
       const originalValue = originalRootProps[fieldKey];
 
       if (!fieldConfig) return; // Skip if no field config found
-
-      if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
+      if (fieldConfig.type === 'slot') {
+        newRootProps[fieldKey] = currentValue; // Slots are handled differently, just return as-is
+      } else if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
         newRootProps[fieldKey] = traverseObjectFields(
-          fieldConfig.objectFields as Record<string, CustomFieldsConfiguration[string]>,
-          currentValue as Record<string, unknown>,
-          originalValue as Record<string, unknown> | undefined,
+          fieldConfig.objectFields,
+          currentValue,
+          originalValue,
           fieldKey,
           'root' // Use 'root' as componentId for root fields
         );
@@ -232,7 +230,7 @@ export function puckToDBValue(
       } else {
         newRootProps[fieldKey] = processFieldValue(
           fieldKey,
-          fieldConfig as CustomFieldsConfiguration[string],
+          fieldConfig,
           currentValue,
           originalValue,
           'root' // Use 'root' as componentId for root fields

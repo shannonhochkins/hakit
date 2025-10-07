@@ -1,0 +1,23 @@
+/* Markdown Renderer */
+.MarkdownRenderer {
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.MarkdownRenderer :global(a) {
+  color: var(--color-primary-400);
+}
+
+.MarkdownRenderer :global(.markdown-image-wrapper) {
+  display: inline-block;
+  max-width: 400px;
+  max-height: 400px;
+  cursor: pointer;
+}
+
+.MarkdownRenderer :global(.markdown-image-wrapper img) {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  max-height: 400px;
+}

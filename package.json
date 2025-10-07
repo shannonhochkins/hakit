@@ -19,23 +19,24 @@
     "url": "https://github.com/your-username/hakit.git"
   },
   "workspaces": [
-    "packages/editor"
+    "packages/editor",
+    "packages/addon"
   ],
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
-    "prebuild": "bun run type-check && npm run lint && npm run format",
-    "build": "bun --filter 'hakit-editor' build",
-    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit",
+    "prebuild": "bun run test && bun run type-check && bun run lint && bun run format",
+    "build": "NODE_ENV=production bun --filter 'hakit-editor' build",
+    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit && cd ../addon && tsc --noEmit && cd ../shared && tsc --noEmit",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
-    "start": "bun ./packages/server/index.ts",
+    "start": "NODE_ENV=production bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
     "dev:server": "bun --watch ./packages/server/index.ts",
-    "dbml": "bun run ./packages/server/db/schema/dbml.ts",
-    "test": "bun test --verbose",
+    "test": "NODE_ENV=test bun test --verbose",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "clean": "rm -rf node_modules && rm -rf packages/editor/node_modules && rm -rf packages/addon/node_modules"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -45,9 +46,9 @@
     "@types/deep-equal": "^1.0.4",
     "@types/jszip": "^3.4.1",
     "@types/pg": "^8.11.11",
+    "@types/react": "^19.1.10",
     "@types/react-window": "^1.8.8",
     "concurrently": "^9.1.2",
-    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.30.5",
     "eslint": "^9.26.0",
     "eslint-plugin-react": "^7.37.5",
@@ -62,33 +63,22 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@babel/parser": "^7.26.9",
-    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/traverse": "^7.26.9",
-    "@google-cloud/storage": "^7.15.2",
-    "@hakit/components": "^5.1.1-canary.0",
-    "@hakit/core": "^5.1.1-canary.0",
-    "@hono/zod-validator": "^0.4.3",
+    "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@octokit/rest": "^22.0.0",
+    "@scalar/hono-api-reference": "^0.9.13",
     "@supabase/supabase-js": "^2.49.3",
-    "deep-copy-ts": "^0.5.4",
-    "deep-equal": "^2.2.3",
-    "dotenv": "^16.4.7",
+    "classnames": "^2.5.1",
     "drizzle-orm": "^0.40.0",
     "drizzle-zod": "^0.7.0",
     "hono": "^4.7.2",
+    "hono-openapi": "^0.4.8",
     "jszip": "^3.10.1",
-    "pg": "^8.13.3",
     "postgres": "^3.4.5",
-    "react-best-gradient-color-picker": "^3.0.14",
-    "react-scan": "^0.3.3",
-    "react-toastify": "^11.0.5",
-    "react-use": "^17.6.0",
-    "ts-deepmerge": "^7.0.2",
+    "type-fest": "^4.41.0",
+    "typescript-plugin-css-modules": "^5.2.0",
     "uuid": "^11.1.0",
-    "zod": "^3.24.2",
-    "zod-validation-error": "^3.4.0"
+    "zod": "^4.0.16",
+    "zod-validation-error": "^4.0.1"
   }
 }

@@ -6,8 +6,8 @@ import type { SSEStreamingApi } from 'hono/streaming';
 // Create Supabase client
 const supabase = createClient(process.env.SUPABASE_PROJECT_URL!, process.env.SUPABASE_ANON_KEY!);
 
-function dashboardContentPrefix(userId: string, filename: string) {
-  return join('dashboard-content', userId, filename);
+function userContentPrefix(userId: string, filename: string) {
+  return join('user-content', userId, filename);
 }
 
 function getPublicUrl(suffix: string): string {
@@ -64,7 +64,7 @@ export async function uploadImage(userId: string, file: File) {
   const fileExtension = fileName[fileName.length - 1];
   const filename = Date.now() + '.' + fileExtension;
   const filePath = `images/${filename}`;
-  const response = await uploadFile(file, dashboardContentPrefix(userId, filePath));
+  const response = await uploadFile(file, userContentPrefix(userId, filePath));
   return getPublicUrl(response.fullPath);
 }
 
@@ -130,10 +130,12 @@ export async function uploadRepositoryZipContents(
     }
 
     // Process each file in the zip
-    for (const [index, [filename, zipObject]] of files.entries()) {
+    for (const [index, fileEntry] of files.entries()) {
+      const [filename, zipObject] = fileEntry;
+      const filenameStr = filename as string; // filename from Object.entries is always string, but TS infers string | number
       if (stream && writeSSEMessage) {
         await writeSSEMessage(stream, {
-          message: `Uploading ${filename} (${index + 1}/${files.length})...`,
+          message: `Uploading ${filenameStr} (${index + 1}/${files.length})...`,
           status: 'success',
         });
       }
@@ -142,7 +144,7 @@ export async function uploadRepositoryZipContents(
       let fileContent = await zipObject.async('arraybuffer');
 
       // Determine MIME type based on file extension
-      const mimeType = getMimeType(filename);
+      const mimeType = getMimeType(filenameStr);
 
       // For text-based files, replace the asset prefix placeholder
       if (isTextBasedFile(mimeType)) {
@@ -159,22 +161,22 @@ export async function uploadRepositoryZipContents(
           // save converted content back to buffer, ArrayBufferLike is similar to ArrayBuffer enough for us to cast it here.
           fileContent = new TextEncoder().encode(updatedContent).buffer as ArrayBuffer;
         } catch (error) {
-          console.warn(`Failed to process text replacement for ${filename}:`, error);
+          console.warn(`Failed to process text replacement for ${filenameStr}:`, error);
           // Continue with original content if replacement fails
         }
       }
 
       // Upload the file
-      const uploadResult = await uploadRepositoryFile(repositoryId, version, fileContent, filename, mimeType);
+      const uploadResult = await uploadRepositoryFile(repositoryId, version, fileContent, filenameStr, mimeType);
 
       uploadedFiles.push({
-        filename,
+        filename: filenameStr,
         publicUrl: uploadResult.publicUrl,
         path: uploadResult.data.fullPath,
       });
 
       // Check if this is the manifest file
-      if (filename === 'mf-manifest.json') {
+      if (filenameStr === 'mf-manifest.json') {
         manifestUrl = uploadResult.publicUrl;
       }
     }

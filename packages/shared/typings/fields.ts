@@ -1,0 +1,208 @@
+import type {
+  DefaultComponentProps,
+  ComponentData,
+  SlotField as PuckSlotField,
+  CustomField as PuckCustomField,
+  NumberField,
+  ArrayField,
+  TextareaField,
+  RadioField,
+  ObjectField,
+  TextField,
+  SelectField as PuckSelectField,
+} from '@measured/puck';
+import type { ReactNode } from 'react';
+import type { Slot } from './puck';
+import type { HassEntity } from 'home-assistant-js-websocket';
+import { AvailableQueries } from '@hakit/components';
+import type { OnValidate } from '@monaco-editor/react';
+import type { EntityName } from '@hakit/core';
+import { UnitFieldValue } from '@components/Form/Field/Unit';
+
+export type SlotField = PuckSlotField;
+
+export type FieldOption = {
+  label: string;
+  value: string | number | boolean | undefined | null | object;
+};
+// some puck types can clash with our own custom ones, so we need to exclude them
+type ExcludedPuckKeys = 'visible';
+
+// Omit Puck's BaseField.visible for all field variants to avoid clash with our ExtendedFieldTypes.visible
+type WithoutPuckFields<F> = F extends unknown ? Omit<F, ExcludedPuckKeys> : never;
+
+type Kind = keyof FieldDefinition;
+type LeafKinds = Exclude<Kind, 'object' | 'array' | 'slot'>;
+
+type ExtKeysForKind<K extends Kind> = K extends keyof FieldTypeOmitMap ? FieldTypeOmitMap[K] : never;
+
+type BaseForKind<K extends Kind> = WithoutPuckFields<FieldDefinition[K]>;
+type ExtrasForKind<K extends Kind, Value> = K extends 'custom' ? { render: PuckCustomField<Value>['render'] } : unknown;
+type WithExtended<K extends Kind, Value, DataShape> = Omit<ExtendedFieldTypes<DataShape, Value>, ExtKeysForKind<K>>;
+
+type FieldNode<K extends Kind, Value, DataShape> = BaseForKind<K> & WithExtended<K, Value, DataShape> & ExtrasForKind<K, Value>;
+
+// Narrowing helper: ignore optionality when checking compatibility
+type BaseV<V> = Exclude<V, undefined | null>;
+
+// BROAD compatibility (boolean prop can use 'switch' OR 'select'/'radio', etc.)
+type CompatibleLeafKinds<V> = {
+  [K in LeafKinds]: BaseV<V> extends FieldValueByKind[K] ? K : never;
+}[LeafKinds];
+
+type LeafField<Value, DataShape> = {
+  [K in CompatibleLeafKinds<Value>]: FieldNode<K, Value, DataShape>;
+}[CompatibleLeafKinds<Value>];
+
+// Containers stay as before
+type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
+  objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
+};
+
+type ArrayFieldNode<Value, DataShape> = Value extends (infer Item)[]
+  ? Omit<FieldNode<'array', Value, DataShape>, 'arrayFields'> & {
+      arrayFields: { [K in keyof Item]: FieldFor<Item[K], DataShape> };
+    }
+  : never;
+
+// Final recursive shape
+type FieldFor<Value, DataShape> =
+  | (Value extends Slot ? SlotField : never)
+  | LeafField<Value, DataShape>
+  | ObjectFieldNode<Value, DataShape>
+  | ArrayFieldNode<Value, DataShape>;
+
+export type FieldConfiguration<
+  ComponentProps extends DefaultComponentProps = DefaultComponentProps,
+  DataShape = Omit<ComponentData<ComponentProps>, 'type'>['props'],
+> = {
+  [PropName in keyof Omit<ComponentProps, 'editMode'>]: FieldFor<ComponentProps[PropName], DataShape>;
+};
+
+export interface InternalComponentFields {
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}
+
+export interface InternalRootComponentFields {
+  content: Slot;
+  _activeBreakpoint: keyof AvailableQueries;
+  styles: {
+    css: string;
+  };
+}
+
+export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
+  description?: string;
+  icon?: ReactNode;
+  readOnly?: boolean;
+  className?: string;
+  id?: string;
+  /** If the field is required or not TODO - Test this */
+  required?: boolean;
+  /** The default value of the field if no value is saved or present */
+  default: Props;
+  /** if enabled, this field will be able to configure different values at different breakpoints @default true */
+  responsiveMode?: boolean;
+  /** The id of the repository that the field belongs to */
+  repositoryId?: string;
+  /** The label of the field */
+  label: string;
+  /** used to determine if we want to show the current field based on the current data */
+  visible?: (data: Omit<DataShape, 'id'>) => boolean;
+  /** Optional template configuration per field */
+  templates?: {
+    /** Whether templates are enabled for this field. Defaults to true when omitted. */
+    enabled?: boolean;
+  };
+};
+
+// Per-field-type overrides: omit certain ExtendedFieldTypes keys
+// Extend this map as needed (example below shows how to omit templates on divider)
+// if you omit something here, and add the same key to FieldDefinition, it'll use the type inside FieldDefinition
+type FieldTypeOmitMap = {
+  slot: keyof ExtendedFieldTypes;
+  hidden: Exclude<keyof ExtendedFieldTypes, 'default' | 'visible'>;
+  object: 'default';
+  entity: 'default';
+  unit: 'default';
+};
+
+// What each field actually stores/returns
+export type FieldValueByKind = {
+  custom: unknown;
+
+  imageUpload: string;
+  color: string;
+  code: string;
+
+  page: string;
+  pages: string[];
+
+  entity: EntityName;
+  service: string;
+
+  slider: number;
+
+  text: string;
+  number: number;
+  select: string | number | boolean;
+  radio: string | number | boolean | null;
+  switch: boolean;
+  textarea: string;
+
+  // containers / special
+  object: object;
+  array: unknown[];
+  divider: never; // (or unknown, if you prefer)
+  hidden: unknown;
+  slot: Slot;
+  unit: UnitFieldValue;
+};
+
+export type FieldDefinition = {
+  custom: { type: 'custom' };
+  switch: { type: 'switch' };
+  text: TextField;
+  number: NumberField;
+  textarea: TextareaField;
+  select: PuckSelectField & {
+    renderOption?: (option: FieldOption) => string;
+    renderValue?: (option: FieldOption) => string;
+  };
+  radio: RadioField;
+  page: { type: 'page' };
+  pages: { type: 'pages' };
+  service: { type: 'service' };
+  color: { type: 'color' };
+  imageUpload: { type: 'imageUpload' };
+  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
+  slider: { type: 'slider'; min?: number; max?: number; step?: number };
+  code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
+  divider: { type: 'divider' };
+  entity: {
+    type: 'entity';
+    filterOptions?: (entities: HassEntity[]) => HassEntity[];
+    default: (options: HassEntity[]) => Promise<EntityName | undefined | string> | EntityName | undefined | string;
+  };
+  hidden: { type: 'hidden' };
+  slot: PuckSlotField;
+  object: ObjectField & {
+    /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
+    collapseOptions?: {
+      /** Should the collapsable area start expanded @default true */
+      startExpanded?: boolean;
+    };
+  };
+  array: ArrayField & {
+    /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
+    collapseOptions?: {
+      /** Should the collapsable area start expanded @default true */
+      startExpanded?: boolean;
+    };
+  };
+};
+
+export type FieldTypes = keyof FieldDefinition;

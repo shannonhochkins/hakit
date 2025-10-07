@@ -1,14 +1,12 @@
 import { Config, Render } from '@measured/puck';
-import { useEffect } from 'react';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Spinner } from '@components/Spinner';
+import { Spinner } from '@components/Loaders/Spinner';
+import { RendererShortcuts } from './RendererShortcuts';
 
 export function Renderer() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const userConfig = useGlobalStore(state => state.userConfig);
-  useEffect(() => {
-    document.body.classList.remove('edit-mode');
-  }, []);
+
   if (!userConfig) {
     return <Spinner absolute text='Loading user data' />;
   }
@@ -17,6 +15,7 @@ export function Renderer() {
   }
   return (
     <>
+      <RendererShortcuts />
       <Render config={userConfig as Config} data={puckPageData} />
     </>
   );

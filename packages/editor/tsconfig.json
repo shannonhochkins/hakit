@@ -19,8 +19,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
+    "plugins": [{ "name": "typescript-plugin-css-modules" }],
+
     "paths": {
-      "@typings/*": ["../../typings/*"],
+      "@typings/*": ["../shared/typings/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@services/*": ["./src/services/*"],
       "@routes/*": ["./src/routes/*"],
@@ -29,9 +31,11 @@
       "@constants/*": ["./src/constants/*"],
       "@constants": ["./src/constants/index.ts"],
       "@components/*": ["./src/components/*"],
-      "@server/*": ["../server/*"]
+      "@server/*": ["../server/*"],
+      "@shared/*": ["../shared/*"],
+      "@test-utils/*": ["./src/test-utils/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "./.d.ts"],
   "exclude": ["node_modules/**", "**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.tanstack/**", "**/@mf-types/**"]
 }

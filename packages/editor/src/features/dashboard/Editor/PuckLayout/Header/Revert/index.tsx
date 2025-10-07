@@ -4,19 +4,17 @@ import { IconButton } from '@components/Button/IconButton';
 import { useUnsavedChanges } from '@hooks/useUnsavedChanges';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
-import styled from '@emotion/styled';
 import { Modal, ModalActions } from '@components/Modal';
 import { createUsePuck } from '@measured/puck';
+import styles from './Revert.module.css';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const usePuck = createUsePuck();
-
-const RevertContent = styled.div`
-  color: var(--color-text-primary);
-  line-height: var(--line-height-relaxed);
-`;
+const getClassName = getClassNameFactory('Revert', styles);
 
 export function Revert() {
   const { hasUnsavedChanges, revertChanges } = useUnsavedChanges();
   const [showConfirm, setShowConfirm] = useState(false);
+
   const dispatch = usePuck(state => state.dispatch);
   const setHistories = usePuck(state => state.history.setHistories);
 
@@ -25,6 +23,10 @@ export function Revert() {
     setHistories([]);
     setShowConfirm(false);
   }, [revertChanges, setHistories, dispatch]);
+
+  const onClose = useCallback(() => {
+    setShowConfirm(false);
+  }, []);
 
   if (!hasUnsavedChanges) {
     return null;
@@ -43,13 +45,13 @@ export function Revert() {
         aria-label='Revert changes'
       />
 
-      <Modal open={showConfirm} title='Revert All Changes?' onClose={() => setShowConfirm(false)}>
-        <RevertContent>
+      <Modal open={showConfirm} title='Revert All Changes?' onClose={onClose}>
+        <div className={getClassName('RevertContent')}>
           This will discard all unsaved changes and restore the page to its last saved state. This action cannot be undone.
-        </RevertContent>
+        </div>
 
         <ModalActions style={{ padding: 'var(--space-4)' }}>
-          <SecondaryButton aria-label='' onClick={() => setShowConfirm(false)}>
+          <SecondaryButton aria-label='' onClick={onClose}>
             Cancel
           </SecondaryButton>
           <PrimaryButton aria-label='' onClick={handleRevert} autoFocus>

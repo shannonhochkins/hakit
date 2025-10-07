@@ -1,7 +1,9 @@
 import { queryOptions } from '@tanstack/react-query';
 import { Json } from '@kinde-oss/kinde-typescript-sdk';
-import { api, callApi, ToastMessages } from './callApi';
-import { DashboardWithPageData, DashboardPageWithData, DashboardWithoutPageData } from '@typings/dashboard';
+import { callApi, ToastMessages } from './callApi';
+import { Dashboard, DashboardPage, DashboardWithPageData } from '@typings/hono';
+import { api } from './client';
+import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
 
 type CreateDashboardPayload = {
   name: string;
@@ -9,10 +11,7 @@ type CreateDashboardPayload = {
   data?: Json;
   thumbnail?: string | null;
 };
-export async function createDashboard(
-  { name, path, data, thumbnail }: CreateDashboardPayload,
-  toastMessage?: ToastMessages
-): Promise<DashboardWithPageData> {
+export async function createDashboard({ name, path, data, thumbnail }: CreateDashboardPayload, toastMessage?: ToastMessages) {
   // Adjust path if you named it differently in your Hono routes
   return await callApi(
     api.dashboard.$post({
@@ -31,7 +30,7 @@ export async function createDashboardPage(
   { id, name, path, data, thumbnail }: { id: DashboardWithPageData['id']; name: string; path: string; data?: Json; thumbnail?: string },
   toastMessage?: ToastMessages
 ) {
-  return await callApi(
+  const result = await callApi(
     api.dashboard[':id'].page.$post({
       param: {
         id,
@@ -45,13 +44,18 @@ export async function createDashboardPage(
     }),
     toastMessage
   );
+  // now update the page data to deserialize it
+  if (result.page.data) {
+    result.page.data = deserializePageData(JSON.stringify(result.page.data), true); // Deserialize to restore undefined values
+  }
+  return result.page;
 }
 
 export async function duplicateDashboard(
   { id, name, path, thumbnail }: { id: DashboardWithPageData['id']; name: string; path: string; thumbnail?: string | null },
   toastMessage?: ToastMessages
 ): Promise<DashboardWithPageData> {
-  return await callApi(
+  const result = await callApi(
     api.dashboard[':id'].duplicate.$post({
       param: {
         id,
@@ -64,6 +68,14 @@ export async function duplicateDashboard(
     }),
     toastMessage
   );
+  // now update each page data to deserialize it
+  result.dashboard.pages.forEach(page => {
+    if (page.data) {
+      page.data = deserializePageData(JSON.stringify(page.data), true); // Deserialize to restore undefined values
+    }
+  });
+  // return the dashboard with pages and data
+  return result.dashboard;
 }
 
 export async function duplicateDashboardPage(
@@ -73,10 +85,10 @@ export async function duplicateDashboardPage(
     name,
     path,
     thumbnail,
-  }: { id: DashboardWithPageData['id']; pageId: DashboardPageWithData['id']; name: string; path: string; thumbnail?: string | null },
+  }: { id: DashboardWithPageData['id']; pageId: DashboardPage['id']; name: string; path: string; thumbnail?: string | null },
   toastMessage?: ToastMessages
 ) {
-  return await callApi(
+  const result = await callApi(
     api.dashboard[':id'].page[':pageId'].duplicate.$post({
       param: {
         id,
@@ -90,10 +102,15 @@ export async function duplicateDashboardPage(
     }),
     toastMessage
   );
+  // now update the page data to deserialize it
+  if (result.page.data) {
+    result.page.data = deserializePageData(JSON.stringify(result.page.data), true); // Deserialize to restore undefined values
+  }
+  return result.page;
 }
 
 export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] }, toastMessage?: ToastMessages) {
-  return await callApi(
+  const response = await callApi(
     api.dashboard[':id'].$delete({
       param: {
         id,
@@ -101,13 +118,14 @@ export async function deleteDashboard({ id }: { id: DashboardWithPageData['id'] 
     }),
     toastMessage
   );
+  return response.message;
 }
 
 export async function deleteDashboardPage(
-  { id, pageId }: { id: DashboardWithPageData['id']; pageId: DashboardPageWithData['id'] },
+  { id, pageId }: { id: DashboardWithPageData['id']; pageId: DashboardPage['id'] },
   toastMessage?: ToastMessages
 ) {
-  return await callApi(
+  const response = await callApi(
     api.dashboard[':id'].page[':pageId'].$delete({
       param: {
         id,
@@ -116,10 +134,11 @@ export async function deleteDashboardPage(
     }),
     toastMessage
   );
+  return response.message;
 }
 // dashboard paths are unique between dashboards, so this is a safe request
 export async function getDashboardByPath(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
-  return await callApi(
+  const response = await callApi(
     api.dashboard[':dashboardPath'].$get({
       param: {
         dashboardPath,
@@ -127,10 +146,14 @@ export async function getDashboardByPath(dashboardPath: DashboardWithPageData['p
     }),
     toastMessage
   );
+  return response.dashboard;
 }
 // dashboard paths are unique between dashboards, so this is a safe request
-export async function getDashboardByPathWithData(dashboardPath: DashboardWithPageData['path'], toastMessage?: ToastMessages) {
-  return await callApi(
+export async function getDashboardByPathWithData(
+  dashboardPath: DashboardWithPageData['path'],
+  toastMessage?: ToastMessages
+): Promise<DashboardWithPageData> {
+  const response = await callApi(
     api.dashboard[':dashboardPath'].data.$get({
       param: {
         dashboardPath,
@@ -138,14 +161,17 @@ export async function getDashboardByPathWithData(dashboardPath: DashboardWithPag
     }),
     toastMessage
   );
+  // now update each page data to deserialize it
+  response.dashboard.pages.forEach(page => {
+    if (page.data) {
+      page.data = deserializePageData(JSON.stringify(page.data), true); // Deserialize to restore undefined values
+    }
+  });
+  return response.dashboard;
 }
 
-export async function getDashboardPageForUser(
-  id: DashboardWithPageData['id'],
-  pageId: DashboardPageWithData['id'],
-  toastMessage?: ToastMessages
-) {
-  return await callApi(
+export async function getDashboardPageForUser(id: DashboardWithPageData['id'], pageId: DashboardPage['id'], toastMessage?: ToastMessages) {
+  const response = await callApi(
     api.dashboard[':id'].page[':pageId'].$get({
       param: {
         id,
@@ -154,19 +180,24 @@ export async function getDashboardPageForUser(
     }),
     toastMessage
   );
+  if (response.page.data) {
+    response.page.data = deserializePageData(JSON.stringify(response.page.data), true); // Deserialize to restore undefined values
+  }
+  return response.page;
 }
 export async function updateDashboardPageForUser(
   id: DashboardWithPageData['id'],
-  page: Partial<DashboardPageWithData> & {
-    id: DashboardPageWithData['id'];
+  page: Partial<DashboardPage> & {
+    id: DashboardPage['id'];
   },
   toastMessage?: ToastMessages
 ) {
+  const data = serializeWithUndefined(page.data);
   const req = api.dashboard[':id'].page[':pageId'].$put({
     json: {
       path: page.path,
       name: page.name,
-      data: page.data,
+      data: deserializePageData(data, false), // Serialize to string to preserve undefined as a string and convert back
       thumbnail: page.thumbnail,
     },
     param: {
@@ -175,7 +206,11 @@ export async function updateDashboardPageForUser(
     },
   });
   const res = await callApi(req, toastMessage);
-  return res;
+  // now update the page data to deserialize it
+  if (res.page.data) {
+    res.page.data = deserializePageData(JSON.stringify(res.page.data), true); // Deserialize to restore undefined values
+  }
+  return res.page;
 }
 
 type DashboardUpdateInput = { id: DashboardWithPageData['id'] } & Partial<Omit<DashboardWithPageData, 'pages' | 'id'>>;
@@ -194,13 +229,13 @@ export async function updateDashboardForUser(dashboard: DashboardUpdateInput, to
     },
   });
   const res = await callApi(req, toastMessage);
-  return res;
+  return res.dashboard;
 }
 
-export async function getDashboardsForUser(): Promise<DashboardWithoutPageData[]> {
+export async function getDashboardsForUser(): Promise<Dashboard[]> {
   const req = api.dashboard.$get();
   const res = await callApi(req);
-  return res;
+  return res.dashboards;
 }
 
 // get a dashboard by path with pages, pages don't have data
@@ -221,7 +256,7 @@ export const dashboardByPathWithPageDataQueryOptions = (dashboardPath?: Dashboar
     experimental_prefetchInRender: true,
   });
 // get a dashboard page with data
-export const dashboardPageQueryOptions = (dashboardId: DashboardWithPageData['id'], pageId: DashboardPageWithData['id']) =>
+export const dashboardPageQueryOptions = (dashboardId: DashboardWithPageData['id'], pageId: DashboardPage['id']) =>
   queryOptions({
     queryKey: ['get-dashboard-page-for-user', dashboardId, pageId],
     queryFn: () => getDashboardPageForUser(dashboardId, pageId),

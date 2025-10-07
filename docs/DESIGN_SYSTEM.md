@@ -53,7 +53,22 @@ This document outlines the design system and CSS variables used throughout the H
 - `--shadow-primary-base`: Default button shadow
 - `--shadow-primary-hover`: Hover state shadow
 - `--shadow-primary-active`: Active state shadow
-- `--shadow-primary-focus`: Focus ring shadow
+- `--shadow-primary-focus`: Focus ring shadow (3px)
+- `--shadow-primary-focus-sm`: Small focus ring shadow (2px)
+
+### Error Button Shadows
+- `--shadow-error-base`: Default error button shadow
+- `--shadow-error-hover`: Error hover state shadow
+- `--shadow-error-active`: Error active state shadow
+- `--shadow-error-focus`: Error focus ring shadow (3px)
+- `--shadow-error-focus-sm`: Small error focus ring shadow (2px)
+
+### Success Button Shadows
+- `--shadow-success-base`: Default success button shadow
+- `--shadow-success-hover`: Success hover state shadow
+- `--shadow-success-active`: Success active state shadow
+- `--shadow-success-focus`: Success focus ring shadow (3px)
+- `--shadow-success-focus-sm`: Small success focus ring shadow (2px)
 
 ## 📝 Typography
 
@@ -253,7 +268,7 @@ import { SecondaryButton } from '@lib/page/shared/Button';
 import { Fab } from '@lib/page/shared/Button';
 
 // Fixed position FAB
-<Fab 
+<Fab
   icon={<PlusIcon />}
   position="bottom-right"
   pulse
@@ -262,7 +277,7 @@ import { Fab } from '@lib/page/shared/Button';
 />
 
 // Inline FAB
-<Fab 
+<Fab
   icon={<EditIcon />}
   position="relative"
   variant="secondary"
@@ -279,6 +294,21 @@ import { Fab } from '@lib/page/shared/Button';
 - **Icon Support**: Start and end icon props
 - **Performance Optimized**: GPU acceleration and optimized transitions
 
+#### Form Field Features
+- **Size Variants**: small, medium, large sizes with consistent spacing
+- **Integrated Design**: Adornments appear as part of the input field itself for seamless appearance
+- **Smart Adornment Detection**: Automatically detects icons vs custom content for optimal styling
+- **Adornment Variants**: Support for default (1:1 boxes), icon, and custom styling variants
+- **1:1 Ratio Adornments**: Default adornments fill full height with perfect square proportions
+- **Custom Adornment Control**: Explicit variant and className props for fine-grained control
+- **Controlled Components**: Full support for controlled state with onChange handlers
+- **State Management**: Built-in error and success states with appropriate styling
+- **Accessibility**: Full ARIA support and keyboard navigation
+- **Design System Integration**: Uses all design system variables for consistent styling
+- **Type Safety**: Full TypeScript support with proper type inference
+- **Focus States**: Consistent focus ring styling using design system shadow variables
+- **Text Enhancement**: Subtle text-indent for improved readability
+
 ## 🔧 Customization
 
 To modify the design system:
@@ -287,6 +317,20 @@ To modify the design system:
 2. Ensure all components use the updated variables
 3. Test across all breakpoints and states
 4. Update this documentation
+
+#### AutocompleteField Features
+- **Size Variants**: small, medium, large sizes with proportional dimensions
+- **Generic Type Support**: Full TypeScript generics for type-safe options and values
+- **Multiple Selection**: Optional multiple prop with array-based value handling
+- **Start/End Adornments**: Icon and custom adornment support with smart detection
+- **Virtualization**: react-window integration for large datasets (1000+ items)
+- **Search/Filtering**: Real-time filtering of options as user types
+- **Keyboard Navigation**: Arrow keys, Enter, Escape, and Tab support
+- **Visual States**: Focus, error, success, disabled, and readOnly states
+- **Controlled Components**: Full support for controlled state with onChange handlers
+- **Accessibility**: ARIA attributes, screen reader support, and keyboard navigation
+- **Performance**: Optimized rendering and event handling for large datasets
+- **Design System Integration**: Consistent styling with all design system variables
 
 ## 🎨 Color Accessibility
 

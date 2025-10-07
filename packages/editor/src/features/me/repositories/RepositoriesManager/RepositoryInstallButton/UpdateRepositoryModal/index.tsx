@@ -1,191 +1,28 @@
 import { useState } from 'react';
-import styled from '@emotion/styled';
 import { RefreshCwIcon, PackageIcon, ChevronRightIcon, GithubIcon } from 'lucide-react';
 import { Modal, ModalActions } from '@components/Modal';
 import { PrimaryButton } from '@components/Button';
 import { SecondaryButton } from '@components/Button/Secondary';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  UserRepositoryWithDetails,
-  userRepositoriesQueryOptions,
-  updateUserRepositoryVersion,
-  repositoryVersionQueryOptions,
-} from '@services/repositories';
+import { userRepositoriesQueryOptions, updateUserRepositoryVersion, repositoryVersionQueryOptions } from '@services/repositories';
+import { UserRepository } from '@typings/hono';
+import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import styles from './UpdateRepositoryModal.module.css';
+
+const getClassName = getClassNameFactory('UpdateRepositoryModal', styles);
 
 interface UpdateRepositoryModalProps {
   open: boolean;
   onClose: () => void;
-  repositories: UserRepositoryWithDetails;
+  userRepository: UserRepository;
 }
 
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-`;
-
-const RepositoryIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-`;
-
-const RepositoryInfo = styled.div`
-  flex: 1;
-`;
-
-const RepositoryName = styled.h3`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-1) 0;
-`;
-
-const RepositoryUrl = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-`;
-
-const VersionUpdateSection = styled.div`
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
-  width: 100%;
-`;
-
-const VersionUpdateHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-3);
-`;
-
-const VersionUpdateTitle = styled.h4`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0;
-`;
-
-const VersionComparison = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-`;
-
-const VersionBadge = styled.div<{ type: 'current' | 'new' }>`
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-
-  ${props =>
-    props.type === 'current'
-      ? `
-    background: var(--color-surface-elevated);
-    color: var(--color-text-secondary);
-  `
-      : `
-    background: var(--color-primary-100);
-    color: var(--color-primary-700);
-  `}
-`;
-
-const ReleaseNotesSection = styled.div`
-  margin-bottom: var(--space-4);
-  width: 100%;
-`;
-
-const ReleaseNotesTitle = styled.h4`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-2) 0;
-`;
-
-const ReleaseNotesContent = styled.div`
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  white-space: pre-wrap;
-`;
-
-const ReleaseNotesLink = styled.a`
-  color: var(--color-primary-400);
-  text-decoration: none;
-  transition: color var(--transition-normal);
-
-  &:hover {
-    color: var(--color-primary-300);
-    text-decoration: underline;
-  }
-`;
-
-const ComponentChangesSection = styled.div`
-  margin-bottom: var(--space-4);
-  width: 100%;
-`;
-
-const ComponentChangesTitle = styled.h4`
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-2) 0;
-`;
-
-const ComponentList = styled.div`
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-`;
-
-const ComponentItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-`;
-
-const ComponentIcon = styled.div`
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-`;
-
-const GitHubLink = styled.a`
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  transition: color var(--transition-normal);
-  margin-bottom: var(--space-4);
-
-  &:hover {
-    color: var(--color-primary-400);
-  }
-`;
-
-export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRepositoryModalProps) {
+export function UpdateRepositoryModal({ open, onClose, userRepository }: UpdateRepositoryModalProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const updatedRepositoryQuery = useQuery(repositoryVersionQueryOptions(repositories.repository.id, repositories.repository.latestVersion));
+  const updatedRepositoryQuery = useQuery(
+    repositoryVersionQueryOptions(userRepository.repository.id, userRepository.repository.latestVersion)
+  );
   const updateRepository = updatedRepositoryQuery.data ?? null;
   const queryClient = useQueryClient();
 
@@ -194,7 +31,7 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
       if (!updateRepository) {
         throw new Error('Update repository data not available');
       }
-      return updateUserRepositoryVersion(repositories.id, updateRepository.id, {
+      return updateUserRepositoryVersion(userRepository.id, updateRepository.id, {
         success: 'Repository updated successfully',
         error: 'Failed to update repository',
       });
@@ -209,11 +46,11 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
       const previousData = queryClient.getQueryData(userRepositoriesQueryOptions.queryKey);
 
       // Optimistically update the cache
-      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepositoryWithDetails[] | undefined) => {
+      queryClient.setQueryData(userRepositoriesQueryOptions.queryKey, (old: UserRepository[] | undefined) => {
         if (!old || !updateRepository) return old;
 
         return old.map(repo => {
-          if (repo.id === repositories.id) {
+          if (repo.id === userRepository.id) {
             return {
               ...repo,
               versionId: updateRepository.id,
@@ -259,12 +96,12 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
   // Release notes content with proper link rendering
   const releaseNotesContent = updateRepository?.releaseNotesUrl ? (
     <>
-      What&apos;s new in version {repositories.repository.latestVersion}:
+      What&apos;s new in version {userRepository.repository.latestVersion}:
       <br />
       <br />
-      <ReleaseNotesLink href={updateRepository.releaseNotesUrl} target='_blank' rel='noopener noreferrer'>
+      <a className={getClassName('releaseNotesLink')} href={updateRepository.releaseNotesUrl} target='_blank' rel='noopener noreferrer'>
         View Release Notes →
-      </ReleaseNotesLink>
+      </a>
     </>
   ) : (
     'No release notes available.'
@@ -272,51 +109,51 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
 
   return (
     <Modal open={open} onClose={onClose} title='Update Repository'>
-      <Header>
-        <RepositoryIcon>
+      <div className={getClassName('header')}>
+        <div className={getClassName('repositoryIcon')}>
           <PackageIcon size={24} />
-        </RepositoryIcon>
-        <RepositoryInfo>
-          <RepositoryName>{repositories.repository.name}</RepositoryName>
-          <RepositoryUrl>
-            <GitHubLink href={repositories.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
+        </div>
+        <div className={getClassName('repositoryInfo')}>
+          <h3 className={getClassName('repositoryName')}>{userRepository.repository.name}</h3>
+          <div className={getClassName('repositoryUrl')}>
+            <a className={getClassName('githubLink')} href={userRepository.repository.githubUrl} target='_blank' rel='noopener noreferrer'>
               <GithubIcon size={14} />
-              <span>{repositories.repository.githubUrl}</span>
-            </GitHubLink>
-          </RepositoryUrl>
-        </RepositoryInfo>
-      </Header>
+              <span>{userRepository.repository.githubUrl}</span>
+            </a>
+          </div>
+        </div>
+      </div>
 
-      <VersionUpdateSection>
-        <VersionUpdateHeader>
-          <VersionUpdateTitle>Version Update</VersionUpdateTitle>
-        </VersionUpdateHeader>
+      <div className={getClassName('versionUpdateSection')}>
+        <div className={getClassName('versionUpdateHeader')}>
+          <h4 className={getClassName('versionUpdateTitle')}>Version Update</h4>
+        </div>
 
-        <VersionComparison>
-          <VersionBadge type='current'>Current: {repositories.version.version}</VersionBadge>
+        <div className={getClassName('versionComparison')}>
+          <div className={getClassName('versionBadge', getClassName({ current: true }))}>Current: {userRepository.version.version}</div>
           <ChevronRightIcon size={16} color='var(--color-text-muted)' />
-          <VersionBadge type='new'>New: {repositories.repository.latestVersion}</VersionBadge>
-        </VersionComparison>
-      </VersionUpdateSection>
+          <div className={getClassName('versionBadge', getClassName({ new: true }))}>New: {userRepository.repository.latestVersion}</div>
+        </div>
+      </div>
 
-      <ReleaseNotesSection>
-        <ReleaseNotesTitle>Release Notes</ReleaseNotesTitle>
-        <ReleaseNotesContent>{releaseNotesContent}</ReleaseNotesContent>
-      </ReleaseNotesSection>
+      <div className={getClassName('releaseNotesSection')}>
+        <h4 className={getClassName('releaseNotesTitle')}>Release Notes</h4>
+        <div className={getClassName('releaseNotesContent')}>{releaseNotesContent}</div>
+      </div>
 
-      <ComponentChangesSection>
-        <ComponentChangesTitle>Components ({updateRepository?.components?.length})</ComponentChangesTitle>
-        <ComponentList>
+      <div className={getClassName('componentChangesSection')}>
+        <h4 className={getClassName('componentChangesTitle')}>Components ({updateRepository?.components?.length})</h4>
+        <div className={getClassName('componentList')}>
           {updateRepository?.components?.map((component: { name: string }, index: number) => (
-            <ComponentItem key={`${component.name}-${index}`}>
-              <ComponentIcon>
+            <div key={`${component.name}-${index}`} className={getClassName('componentItem')}>
+              <div className={getClassName('componentIcon')}>
                 <PackageIcon size={12} />
-              </ComponentIcon>
+              </div>
               <span>{component.name}</span>
-            </ComponentItem>
+            </div>
           ))}
-        </ComponentList>
-      </ComponentChangesSection>
+        </div>
+      </div>
 
       <ModalActions>
         <SecondaryButton onClick={onClose} disabled={isUpdating} aria-label='Cancel update'>
@@ -327,9 +164,9 @@ export function UpdateRepositoryModal({ open, onClose, repositories }: UpdateRep
           loading={isUpdating}
           disabled={isUpdating}
           startIcon={<RefreshCwIcon size={16} />}
-          aria-label={`Update to ${repositories.repository.latestVersion}`}
+          aria-label={`Update to ${userRepository.repository.latestVersion}`}
         >
-          {isUpdating ? 'Updating...' : `Update to ${repositories.repository.latestVersion}`}
+          {isUpdating ? 'Updating...' : `Update to ${userRepository.repository.latestVersion}`}
         </PrimaryButton>
       </ModalActions>
     </Modal>

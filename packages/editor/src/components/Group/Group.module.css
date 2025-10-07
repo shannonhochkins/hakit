@@ -1,0 +1,81 @@
+/* Group Container */
+.Group {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  padding: 0 2rem;
+  transition: var(--transition-normal);
+  transition-property: height, padding, background-color;
+  width: 100%;
+}
+
+/* Collapsed state */
+.Group--collapsed {
+  padding: 0 2rem;
+  height: calc-size(fit-content, size);
+}
+
+/* Expanded state */
+.Group--expanded {
+  padding: 0 2rem 2rem;
+  height: auto;
+  height: calc-size(fit-content, size);
+}
+
+/* Header styling */
+.Group-header {
+  cursor: pointer;
+  padding: 2rem 0;
+  transition: padding var(--transition-normal);
+}
+
+.Group--headerCollapsed {
+  padding: 1.5rem 0;
+}
+
+/* Title styling */
+.Group-title {
+  color: var(--color-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  transition: padding var(--transition-normal);
+}
+
+/* Collapsible indicator */
+.Group--titleCollapsible::before {
+  content: "-";
+  display: inline-block;
+  color: var(--color-primary-400);
+  width: 1rem;
+}
+
+.Group--titleCollapsible.Group--titleCollapsed::before {
+  content: "+";
+}
+
+/* Description styling */
+.Group-description {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+  width: 100%;
+  display: block;
+  padding-left: 1rem;
+}
+
+/* Content wrapper - AutoHeight component will handle the content styling */
+
+/* Ensure content is completely hidden when collapsed */
+.Group--collapsed .Group-content {
+  height: 0;
+  overflow: hidden;
+}
+
+/* Remove any potential spacing from child elements when collapsed */
+.Group--collapsed .Group-content .row,
+.Group--collapsed .Group-content .column {
+  margin: 0;
+  padding: 0;
+}
