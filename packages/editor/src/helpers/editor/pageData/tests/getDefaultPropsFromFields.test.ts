@@ -370,9 +370,9 @@ describe('getDefaultPropsFromFields', () => {
     });
   });
 
-  describe('REGRESSION: defaultRoot.tsx background config reproduction', () => {
-    test('EXACT REPRODUCTION: defaultRoot background configuration', async () => {
-      // This is the EXACT configuration from defaultRoot.tsx
+  describe('defaultRoot.tsx background config reproduction', () => {
+    test('should set background image to undefined when useBackgroundImage is false', async () => {
+      // This is the mock configuration of defaultRoot.tsx
       const fields: FieldConfiguration = {
         background: {
           type: 'object',
@@ -439,12 +439,6 @@ describe('getDefaultPropsFromFields', () => {
 
       // THE CRITICAL ASSERTION: Is backgroundImage becoming an empty object?
       expect(result.background.backgroundImage).toBe(undefined);
-
-      // If this fails, we found the source of the bug!
-      if (JSON.stringify(result.background.backgroundImage) === '{}') {
-        console.error('🚨 BUG FOUND: backgroundImage is being set to empty object {} instead of undefined!');
-        console.error('This is likely the source of the {"$xlg": {}} issue in the database.');
-      }
 
       expect(result.background.backgroundImage).not.toEqual({});
     });

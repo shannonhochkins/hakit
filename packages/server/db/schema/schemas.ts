@@ -13,6 +13,7 @@ export const puckDataZodSchema = z.object({
   content: z.array(puckObjectZodSchema),
   root: z.object({
     props: z.looseObject({}).optional(), // Make props optional
+    content: z.array(puckObjectZodSchema).optional(),
     readOnly: z.record(z.string(), z.union([z.boolean(), z.undefined()])).optional(), // Allow boolean | undefined
   }),
 });

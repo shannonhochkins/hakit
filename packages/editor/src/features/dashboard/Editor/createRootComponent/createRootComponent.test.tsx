@@ -887,7 +887,7 @@ describe('createRootComponent', () => {
     const typographyDefaults = result.defaultProps['@hakit/default-root'].typography;
 
     // Verify ALL background field defaults match defaultRootConfig exactly
-    expect(backgroundDefaults).toHaveProperty('test', { foo: '' });
+    expect(backgroundDefaults).not.toHaveProperty('test');
     expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
     expect(backgroundDefaults).toHaveProperty('backgroundImage', undefined);
     expect(backgroundDefaults).toHaveProperty('backgroundSize', 'cover');
@@ -960,7 +960,7 @@ describe('createRootComponent', () => {
 
     // Verify background structure matches BackgroundProps interface
     const background = defaultProps.background;
-    expect(background).toHaveProperty('test');
+    expect(background).not.toHaveProperty('test');
     expect(background).toHaveProperty('useBackgroundImage');
     expect(background).toHaveProperty('backgroundImage');
     expect(background).toHaveProperty('backgroundSize');

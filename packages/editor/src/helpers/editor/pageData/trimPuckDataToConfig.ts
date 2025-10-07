@@ -28,10 +28,10 @@ import { merge } from 'ts-deepmerge';
  * ```
  * // TODO - figure out how to trim zones that have information that no longer are valid
  */
-export function trimPuckDataToConfig<T extends CustomPuckConfig = CustomPuckConfig>(
-  data: PuckPageData | null,
-  userConfig?: T
-): PuckPageData | null {
+export function trimPuckDataToConfig<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+>(data: PuckPageData | null, userConfig?: CustomPuckConfig<Props, RootProps>): PuckPageData | null {
   if (!data || !userConfig) return data;
 
   // Deep clone to avoid mutations
@@ -41,138 +41,106 @@ export function trimPuckDataToConfig<T extends CustomPuckConfig = CustomPuckConf
     zones: { ...data.zones },
   };
 
-  // Helper function to trim object fields recursively
-  const trimObjectFields = (
+  // Helper: test if a value looks like a component item
+  const isComponent = (val: unknown): val is ComponentData => {
+    return !!val && typeof val === 'object' && 'type' in (val as Record<string, unknown>) && 'props' in (val as Record<string, unknown>);
+  };
+
+  // Helper: trim a content array (slot) according to userConfig.components
+  const trimContentArray = (arr: unknown): ComponentData[] => {
+    if (!Array.isArray(arr)) return [];
+    const out: ComponentData[] = [];
+    for (const item of arr) {
+      if (!isComponent(item)) continue;
+      const componentConfig = userConfig.components?.[item.type as keyof typeof userConfig.components];
+      if (!componentConfig?.fields) continue; // Exclude components with no config
+
+      const trimmedProps: Record<string, unknown> = {};
+
+      // Preserve top-level id
+      if (item.props?.id !== undefined) trimmedProps.id = item.props.id;
+
+      // Trim props by component field config
+      const byConfig = trimPropsByFields(item.props || {}, componentConfig.fields as unknown as Record<string, FieldConfiguration[string]>);
+      Object.assign(trimmedProps, byConfig);
+
+      // Retain styles even if not in config
+      if (item.props && 'styles' in item.props && trimmedProps.styles === undefined) {
+        trimmedProps.styles = (item.props as Record<string, unknown>).styles;
+      }
+
+      out.push({ ...item, props: trimmedProps } as ComponentData);
+    }
+    return out;
+  };
+
+  // Helper: trim an object of props based on a fields map (recursive)
+  type AnyFieldConfig = FieldConfiguration[string];
+  const trimPropsByFields = <F extends Record<string, AnyFieldConfig>>(
     obj: Record<string, unknown>,
-    objectFields: Record<string, FieldConfiguration[string]>
+    fields: F
   ): Record<string, unknown> => {
     const result: Record<string, unknown> = {};
 
-    Object.keys(objectFields).forEach(fieldKey => {
-      const fieldConfig = objectFields[fieldKey];
+    for (const fieldKey in fields) {
+      if (fieldKey === '_activeBreakpoint') continue; // Skip _activeBreakpoint so we don't store in db
+      const fieldConfig = fields[fieldKey as keyof F] as AnyFieldConfig;
       const value = obj[fieldKey];
-      if (value === undefined) return;
-      if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
-      // Check if this is an object field that has nested objectFields
-      if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
-        const nestedObjectFields = fieldConfig.objectFields;
-        // Recursively trim nested object fields
-        if (typeof value === 'object' && value !== null) {
-          result[fieldKey] = trimObjectFields(value as Record<string, unknown>, nestedObjectFields);
+      if (value === undefined) continue;
+
+      switch (fieldConfig.type) {
+        case 'object': {
+          if (fieldConfig.objectFields && typeof value === 'object' && value !== null) {
+            result[fieldKey] = trimPropsByFields(value as Record<string, unknown>, fieldConfig.objectFields);
+          }
+          break;
         }
-      } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
-        const arrayFields = fieldConfig.arrayFields;
-        // Recursively trim array fields
-        if (Array.isArray(value)) {
-          result[fieldKey] = value.map(item => {
-            if (typeof item === 'object' && item !== null) {
-              return trimObjectFields(item as Record<string, unknown>, arrayFields);
-            }
-            return item;
-          });
+        case 'array': {
+          if (fieldConfig.arrayFields && Array.isArray(value)) {
+            result[fieldKey] = value.map(item =>
+              typeof item === 'object' && item !== null ? trimPropsByFields(item as Record<string, unknown>, fieldConfig.arrayFields) : item
+            );
+          }
+          break;
         }
-      } else {
-        // Keep the field as-is for any other field type
-        result[fieldKey] = value;
+        case 'slot': {
+          // Slots are arrays of components; trim using component configs
+          result[fieldKey] = trimContentArray(value);
+          break;
+        }
+        default: {
+          // Keep primitive or non-nested fields as-is
+          result[fieldKey] = value;
+        }
       }
-    });
+    }
+
+    // Always retain styles if present on source, even if not defined in config
+    if ('styles' in obj && result.styles === undefined) {
+      result.styles = (obj as Record<string, unknown>).styles;
+    }
 
     return result;
   };
 
   // Process content array (components)
   if (data.content) {
-    trimmedData.content = data.content
-      .map((item: ComponentData) => {
-        const componentConfig = userConfig.components?.[item.type];
-        if (!componentConfig?.fields) {
-          // If no config found for this component type, exclude it entirely
-          return null;
-        }
-
-        // Trim props to only include fields defined in the component config
-        const trimmedProps: Record<string, unknown> = {};
-
-        // Always preserve the top-level id field if it exists (system field for components)
-        if (item.props?.id !== undefined) {
-          trimmedProps.id = item.props.id;
-        }
-
-        Object.keys(componentConfig.fields).forEach(fieldKey => {
-          const fieldConfig = componentConfig.fields![fieldKey];
-          const value = item.props?.[fieldKey];
-
-          if (value === undefined) return;
-          if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
-          // Note: We don't skip 'id' here because it might be a valid nested field in objectFields/arrayFields
-          // Check if this is an object field that has nested objectFields
-          if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
-            // Recursively trim object fields
-            if (typeof value === 'object' && value !== null) {
-              trimmedProps[fieldKey] = trimObjectFields(value, fieldConfig.objectFields);
-            }
-          } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
-            const arrayFields = fieldConfig.arrayFields;
-            // Recursively trim array fields
-            if (Array.isArray(value)) {
-              trimmedProps[fieldKey] = value.map(item => {
-                if (typeof item === 'object' && item !== null) {
-                  return trimObjectFields(item as Record<string, unknown>, arrayFields);
-                }
-                return item;
-              });
-            }
-          } else {
-            // Keep the field as-is for any other field type
-            trimmedProps[fieldKey] = value;
-          }
-        });
-
-        return {
-          ...item,
-          props: trimmedProps,
-        };
-      })
-      .filter((item): item is ComponentData => item !== null);
+    trimmedData.content = trimContentArray(data.content);
   }
 
   // Process root fields
   if (data.root?.props) {
     if (userConfig.root?.fields) {
       // If root fields are configured, trim to only include configured fields
-      const trimmedRootProps: Record<string, unknown> = {};
-
-      Object.keys(userConfig.root.fields).forEach(fieldKey => {
-        const fieldConfig = userConfig.root!.fields![fieldKey];
-        const value = data.root!.props![fieldKey];
-        if (fieldKey === '_activeBreakpoint') return; // Skip _activeBreakpoint so we don't store in db
-        if (value === undefined) return;
-        if (fieldConfig.type === 'slot') return; // Skip slot types
-        // Check if this is an object field that has nested objectFields
-        if (fieldConfig.type === 'object' && fieldConfig.objectFields) {
-          const objectFields = fieldConfig.objectFields;
-          // Recursively trim object fields
-          if (typeof value === 'object' && value !== null) {
-            trimmedRootProps[fieldKey] = trimObjectFields(value as Record<string, unknown>, objectFields);
-          }
-        } else if (fieldConfig.type === 'array' && fieldConfig.arrayFields) {
-          const arrayFields = fieldConfig.arrayFields;
-          // Recursively trim array fields
-          if (Array.isArray(value)) {
-            trimmedRootProps[fieldKey] = value.map(item => {
-              if (typeof item === 'object' && item !== null) {
-                return trimObjectFields(item as Record<string, unknown>, arrayFields);
-              }
-              return item;
-            });
-          }
-        } else {
-          // Keep the field as-is for any other field type
-          trimmedRootProps[fieldKey] = value;
-        }
-      });
-
+      const trimmedRootProps = trimPropsByFields(
+        data.root.props,
+        userConfig.root.fields as unknown as Record<string, FieldConfiguration[string]>
+      );
       trimmedData.root.props = trimmedRootProps;
+      // Ensure styles at root-level are retained even if not present in config
+      if (data.root.props && 'styles' in data.root.props && trimmedData.root.props.styles === undefined) {
+        trimmedData.root.props.styles = data.root.props.styles;
+      }
     } else {
       // If no root fields are configured, empty the root props
       trimmedData.root.props = {};
@@ -191,7 +159,10 @@ export function trimPuckDataToConfig<T extends CustomPuckConfig = CustomPuckConf
  * @param userConfig - The user configuration containing defaultProps
  * @returns Extended PuckPageData with missing default properties added
  */
-export function extendPuckDataWithDefaults(data: PuckPageData, userConfig: CustomPuckConfig<DefaultComponentProps>): PuckPageData {
+export function extendPuckDataWithDefaults<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+>(data: PuckPageData, userConfig: CustomPuckConfig<Props, RootProps>): PuckPageData {
   const defaultProps = userConfig.root?.defaultProps;
   if (!defaultProps) return data;
 
@@ -205,14 +176,17 @@ export function extendPuckDataWithDefaults(data: PuckPageData, userConfig: Custo
   // Extend root props with defaults
   if (defaultProps && extendedData.root.props) {
     // Extend each remote's props with their defaults
-    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps)) {
+    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps as Record<string, unknown>)) {
       // only merge top level objects
-      if (remoteId in extendedData.root.props && typeof extendedData.root.props[remoteId] === 'object') {
+      if (remoteId in extendedData.root.props && typeof (extendedData.root.props as Record<string, unknown>)[remoteId] === 'object') {
         // Remote exists, deep merge defaults (base) with existing data (overlay)
-        extendedData.root.props[remoteId] = merge(remoteDefaults, extendedData.root.props[remoteId]);
+        (extendedData.root.props as Record<string, unknown>)[remoteId] = merge(
+          remoteDefaults as Record<string, unknown>,
+          (extendedData.root.props as Record<string, unknown>)[remoteId] as Record<string, unknown>
+        );
       } else {
         // Remote doesn't exist, use defaults as-is
-        extendedData.root.props[remoteId] = remoteDefaults;
+        (extendedData.root.props as Record<string, unknown>)[remoteId] = remoteDefaults as Record<string, unknown>;
       }
     }
   }

@@ -184,7 +184,7 @@ export type FieldDefinition = {
   divider: { type: 'divider' };
   entity: {
     type: 'entity';
-    filterOptions: (entities: HassEntity[]) => HassEntity[];
+    filterOptions?: (entities: HassEntity[]) => HassEntity[];
     default: (options: HassEntity[]) => Promise<EntityName | undefined | string> | EntityName | undefined | string;
   };
   hidden: { type: 'hidden' };

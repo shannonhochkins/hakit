@@ -4,11 +4,10 @@ import type { AvailableQueries } from '@hakit/components';
 import { dbValueToPuck } from './dbValueToPuck';
 import { extendPuckDataWithDefaults, trimPuckDataToConfig } from './trimPuckDataToConfig';
 
-export function sanitizePuckData(
-  data: PuckPageData,
-  userConfig: CustomPuckConfig<DefaultComponentProps>,
-  activeBreakpoint: keyof AvailableQueries
-) {
+export function sanitizePuckData<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+>(data: PuckPageData, userConfig: CustomPuckConfig<Props, RootProps>, activeBreakpoint: keyof AvailableQueries) {
   // First trim to only include valid fields
   const trimmedData = trimPuckDataToConfig(data, userConfig);
   if (trimmedData) {
