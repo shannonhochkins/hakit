@@ -7,12 +7,31 @@ function deepClone<T>(v: T): T {
 }
 
 describe('sanitizePuckData', () => {
-  test('it should sanitize and retain all expected data and fields', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
+  test('it should sanitize and retain all expected data and fields and not remove breakpoints', () => {
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: false,
+    });
+    expect(result).toMatchSnapshot();
+  });
+  test('it should sanitize and retain all expected data and fields and remove breakpoints', () => {
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
     expect(result).toMatchSnapshot();
   });
   test('should trim root to configured fields, resolve breakpoint values for xlg, and merge defaults', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
 
     expect(result).not.toBeNull();
     if (!result) return;
@@ -51,7 +70,7 @@ describe('sanitizePuckData', () => {
     expect(background).not.toHaveProperty('fake');
 
     // Custom field under background should survive and be resolved
-    expect((background as Record<string, unknown>).test).toEqual({ foo: '' });
+    expect(background?.test).toEqual('foo');
 
     // Typography values should be flattened to xlg values
     expect(typography).toMatchObject({
@@ -70,7 +89,12 @@ describe('sanitizePuckData', () => {
   });
 
   test('should retain root content', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -89,7 +113,12 @@ describe('sanitizePuckData', () => {
       }
     ).background['unknownNested'] = { $xlg: 'x' } as unknown as Record<string, unknown>;
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -118,7 +147,12 @@ describe('sanitizePuckData', () => {
       }
     ).typography.fontFamily;
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -151,7 +185,12 @@ describe('sanitizePuckData', () => {
       },
     ];
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+      activeBreakpoint: 'xlg',
+      removeBreakpoints: true,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 

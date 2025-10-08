@@ -75,6 +75,7 @@ export function PuckLayout() {
     setRightSidebarCollapsed(false);
   }, [setRightSidebarCollapsed]);
 
+  // get pixel size as a percentage of the viewport width
   const leftSidebarCollapsedSize = useMemo(() => (50 / window.innerWidth) * 100, []);
   const leftSidebarMinSize = useMemo(() => (200 / window.innerWidth) * 100, []);
   const rightSidebarCollapsedSize = useMemo(() => (50 / window.innerWidth) * 100, []);
@@ -103,7 +104,6 @@ export function PuckLayout() {
             id='hakit-left-panel'
             defaultSize={15}
             collapsible
-            // get 50px as a percentage of the viewport width
             collapsedSize={leftSidebarCollapsedSize}
             minSize={leftSidebarMinSize}
             maxSize={40}
@@ -115,7 +115,7 @@ export function PuckLayout() {
           <PanelResizeHandle className={getClassName('resizeHandle')}>
             <ResizeHandleIcon direction='horizontal' />
           </PanelResizeHandle>
-          <Panel minSize={60} id='hakit-preview-panel'>
+          <Panel id='hakit-preview-panel' minSize={20}>
             <Column fullWidth fullHeight alignItems='stretch' justifyContent='stretch' wrap='nowrap' gap='0px'>
               <Toolbar />
               <Preview />
@@ -131,7 +131,6 @@ export function PuckLayout() {
             collapsedSize={rightSidebarCollapsedSize}
             collapsible
             minSize={rightSidebarMinSize}
-            maxSize={40}
             onCollapse={onRightSidebarCollapse}
             onExpand={onRightSidebarExpand}
           >

@@ -21,13 +21,8 @@ await moduleMocker.mock('leaflet', () => ({
 }));
 
 // Mock functions for testing
-const mockUseActiveBreakpoint = mock(() => 'desktop');
 const mockUseGlobalStore = mock(() => ({ dashboardWithoutData: { id: 'test-dashboard' } }));
 const mockUsePuckIframeElements = mock(() => ({ iframe: null, document: null }));
-
-await moduleMocker.mock('@hooks/useActiveBreakpoint', () => ({
-  useActiveBreakpoint: mockUseActiveBreakpoint,
-}));
 
 await moduleMocker.mock('@hooks/useGlobalStore', () => ({
   useGlobalStore: mockUseGlobalStore,
@@ -65,7 +60,6 @@ function SimpleComponent({ text, count }: SimpleProps) {
 describe('createComponent', () => {
   beforeEach(() => {
     // Reset all mocks
-    mockUseActiveBreakpoint.mockClear();
     mockUseGlobalStore.mockClear();
     mockUsePuckIframeElements.mockClear();
   });

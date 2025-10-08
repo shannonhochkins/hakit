@@ -10,9 +10,7 @@ export const pageData: PuckPageData = {
       '@hakit/default-root': {
         background: {
           test: {
-            $xlg: {
-              foo: '',
-            },
+            $xlg: 'foo',
           },
           useBackgroundImage: {
             $xlg: true,

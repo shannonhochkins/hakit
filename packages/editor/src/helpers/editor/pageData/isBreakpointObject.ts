@@ -27,10 +27,33 @@ import { BREAKPOINT_ORDER } from './constants';
  * isBreakpointObject(null)
  * ```
  */
-export function isBreakpointObject(value: unknown): value is Record<string, unknown> {
+export function isBreakpointObject(value: unknown): value is Partial<Record<`$${BreakPoint}`, unknown>> {
   if (typeof value !== 'object' || value == null) return false;
 
   // Check if it has at least one known breakpoint key that starts with $ and matches a valid breakpoint:
   const keys = Object.keys(value);
   return keys.some(k => k.startsWith('$') && BREAKPOINT_ORDER.includes(k.slice(1) as BreakPoint));
+}
+
+/**
+ * Determines if a value is a breakpoint object and has an $xlg key.
+ *
+ * This function checks if a value is a breakpoint object (contains $ prefixed breakpoint keys)
+ * and has an $xlg key, indicating that the value has a breakpoint configuration.
+ *
+ * @param value - The value to check
+ * @returns True if the value is a breakpoint object with an $xlg key, false otherwise
+ *
+ * @example
+ * ```typescript
+ * // Returns true - has $xlg key
+ * hasXlgBreakpoint({ $xlg: 'value' })
+ * // Returns false - no $xlg key
+ * hasXlgBreakpoint({ $lg: 'value' })
+ * ```
+ */
+export function hasXlgBreakpoint(value: unknown): boolean {
+  const isBpObj = isBreakpointObject(value);
+  if (!isBpObj) return false;
+  return Object.keys(value).some(k => k.startsWith('$') && k.slice(1) === 'xlg');
 }

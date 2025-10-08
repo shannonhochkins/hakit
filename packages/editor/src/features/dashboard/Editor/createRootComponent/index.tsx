@@ -12,6 +12,7 @@ import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBound
 import { useTemplates } from '@hooks/useTemplates';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { attachRepositoryReference } from '@helpers/editor/pageData/attachRepositoryReference';
+import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
@@ -84,6 +85,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       // @ts-expect-error - this will never match the root data as it's dynamically created above
       fields: mergedFields,
       defaultProps,
+      // this is updated later with our custom render function
       render() {
         return <></>;
       },
@@ -99,9 +101,14 @@ export async function createRootComponent<P extends DefaultComponentProps>(
     fields: updatedRootConfig.fields,
     // Create a render function that calls all root render functions
     render(renderProps: RenderProps<InternalRootData & InternalRootComponentFields>) {
+      const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
+      console.log('activeBreakpoint', activeBreakpoint);
+      // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
+      // this will flatten the breakpoint data to only contain the active breakpoint data
+      const flattenedData = dbValueToPuck(renderProps, activeBreakpoint);
       return (
         <RenderErrorBoundary prefix='Root'>
-          <Render {...renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
+          <Render {...flattenedData} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
         </RenderErrorBoundary>
       );
     },

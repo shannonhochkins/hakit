@@ -80,7 +80,6 @@ export type FieldConfiguration<
 };
 
 export interface InternalComponentFields {
-  _activeBreakpoint: keyof AvailableQueries;
   styles: {
     css: string;
   };
@@ -88,7 +87,6 @@ export interface InternalComponentFields {
 
 export interface InternalRootComponentFields {
   content: Slot;
-  _activeBreakpoint: keyof AvailableQueries;
   styles: {
     css: string;
   };

@@ -41,7 +41,7 @@
 
 .Preview-PreviewContainer {
   transform-origin: center center;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.1s ease-out;
   height: 100%;
   width: 100%;
   display: flex;

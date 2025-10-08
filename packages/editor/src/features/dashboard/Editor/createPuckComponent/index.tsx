@@ -14,6 +14,7 @@ import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
+import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
@@ -74,10 +75,18 @@ export function createComponent<P extends object>(
 }
 
 function Render<P extends object>(
-  renderProps: RenderProps<P & InternalComponentFields> & {
+  originalProps: RenderProps<P & InternalComponentFields> & {
     internalComponentConfig: CustomComponentConfig<P>;
   }
 ) {
+  const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
+
+  // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
+  // this will flatten the breakpoint data to only contain the active breakpoint data
+  const renderProps = useMemo(() => {
+    return dbValueToPuck(originalProps, activeBreakpoint ?? 'xlg') as typeof originalProps;
+  }, [originalProps, activeBreakpoint]);
+
   const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = renderProps;
   const editorElements = usePuckIframeElements();
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
@@ -122,7 +131,7 @@ function Render<P extends object>(
   // Generate the rendered element outside the error boundary to ensure proper error catching
   const renderedElement = useMemo(() => {
     try {
-      // @ts-expect-error - this is okay, we can't type at this level
+      // @ts-expect-error - Puck's complex WithDeepSlots type is difficult to satisfy with generics
       return config.render(fullProps);
     } catch (error) {
       console.error('HAKIT: Error in config.render for component:', config.label, error);

@@ -6,12 +6,16 @@ import { RendererShortcuts } from './RendererShortcuts';
 export function Renderer() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const userConfig = useGlobalStore(state => state.userConfig);
+  const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
 
   if (!userConfig) {
     return <Spinner absolute text='Loading user data' />;
   }
   if (!puckPageData) {
     return <Spinner absolute text='Loading page data' />;
+  }
+  if (!activeBreakpoint) {
+    return <Spinner absolute text='Loading responsive data' />;
   }
   return (
     <>

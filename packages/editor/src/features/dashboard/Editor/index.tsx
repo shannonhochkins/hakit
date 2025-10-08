@@ -5,7 +5,6 @@ import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 import { Spinner } from '@components/Loaders/Spinner';
 import { PuckPageData } from '@typings/puck';
 import { PuckLayout } from './PuckLayout';
-import { puckToDBValue } from '@helpers/editor/pageData/puckToDBValue';
 import { useRef, useEffect } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
@@ -19,6 +18,7 @@ const overridesPlugin = createPuckOverridesPlugin();
 export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
   const userConfig = useGlobalStore(state => state.userConfig);
+  const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
@@ -35,7 +35,6 @@ export function Editor() {
   }, []);
 
   const handlePuckChange = (newData: PuckPageData) => {
-    console.log('handlePuckChange', newData);
     // we've just received a new update for the entire puck page data
     // we should now take the current data, merge with the original data
     // sort out any new breakpoint values based on flags set in the store
@@ -58,7 +57,7 @@ export function Editor() {
 
     // Debounce the expensive operations
     debounceTimeoutRef.current = setTimeout(() => {
-      const { dashboard, activeBreakpoint, componentBreakpointMap, setUnsavedPuckPageData } = useGlobalStore.getState();
+      const { dashboard, activeBreakpoint, setUnsavedPuckPageData } = useGlobalStore.getState();
 
       if (!dashboard) {
         toast('No dashboard data available', {
@@ -76,11 +75,17 @@ export function Editor() {
         });
         return;
       }
-      const updated = puckToDBValue(currentPage.data, newData, activeBreakpoint, userConfig, componentBreakpointMap);
-      if (updated) {
-        const sanitizedData = sanitizePuckData(updated, userConfig, activeBreakpoint);
+      // const updated = puckToDBValue(currentPage.data, newData, activeBreakpoint, userConfig, componentBreakpointMap);
+      if (newData) {
+        const sanitizedData = sanitizePuckData({
+          data: newData,
+          userConfig,
+          activeBreakpoint,
+          removeBreakpoints: false,
+        });
         if (sanitizedData && !deepEqual(currentPage.data, sanitizedData)) {
           console.log('Updating data for db', {
+            // updatedOriginal: updated,
             updated: sanitizedData,
             originalData: currentPage.data,
           });
@@ -95,6 +100,9 @@ export function Editor() {
   }
   if (!puckPageData) {
     return <Spinner absolute text='Loading page data' />;
+  }
+  if (!activeBreakpoint) {
+    return <Spinner absolute text='Loading responsive data' />;
   }
 
   console.log('puckPageData', puckPageData);

@@ -3,6 +3,7 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { Spinner } from '@components/Loaders/Spinner';
 import { useDashboardWithData } from '@hooks/queeries/useDashboardWithData';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
+import { generateComponentBreakpointMap } from '@helpers/editor/pageData/generateComponentBreakpointMap';
 
 interface DashboardProps {
   dashboardPath?: string;
@@ -22,12 +23,20 @@ export function AssignPuckData({ dashboardPath, pagePath, children }: DashboardP
   const userConfig = useGlobalStore(store => store.userConfig);
 
   useEffect(() => {
-    const { setPuckPageData, puckPageData, userConfig, activeBreakpoint } = useGlobalStore.getState();
+    const { setPuckPageData, puckPageData, userConfig, activeBreakpoint, setComponentBreakpointMap } = useGlobalStore.getState();
 
     if (matchedPage && !puckPageData && userConfig) {
-      const sanitizedData = sanitizePuckData(matchedPage.data, userConfig, activeBreakpoint);
+      const sanitizedData = sanitizePuckData({
+        data: matchedPage.data,
+        userConfig,
+        activeBreakpoint,
+        removeBreakpoints: true,
+      });
       if (sanitizedData) {
         setPuckPageData(sanitizedData);
+        // Initialize the componentBreakpointMap from the database data
+        const breakpointMap = generateComponentBreakpointMap(matchedPage.data);
+        setComponentBreakpointMap(breakpointMap);
       }
     }
   }, [dashboard, matchedPage]);

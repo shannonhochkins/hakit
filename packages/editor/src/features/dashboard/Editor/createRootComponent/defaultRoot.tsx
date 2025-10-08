@@ -368,10 +368,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       merriweather: '"Merriweather", system-ui, serif',
     };
 
-    // Debug: Log font family mapping
-    console.log('Font family mapping:', fontFamilyMap);
-    console.log('Selected font family in styles:', typography?.fontFamily ?? 'roboto');
-
     const selectedFontFamily = typography?.fontFamily ?? 'roboto';
     const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
 
@@ -437,6 +433,38 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         opacity: var(--background-overlay-opacity, 0);
         mix-blend-mode: var(--background-overlay-blend-mode, normal);
       }
+
+      /* ============================================
+         CSS Reset & Normalization
+         ============================================ */
+      
+      /* Box-sizing reset - makes width/height calculations intuitive */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      /* Remove default margins on common elements */
+      html, body, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      dl, dd, ol, ul, figure, hr, fieldset, legend {
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        /* Prevent horizontal scroll */
+        overflow-x: hidden;
+        overflow-y: auto;
+        
+        /* Better font rendering on macOS/iOS */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        
+        /* Prevent iOS text size adjust after orientation change */
+        -webkit-text-size-adjust: 100%;
+        
+        /* Enable smooth scrolling for anchor links */
+        scroll-behavior: smooth;
+      }
       
       /* Global Typography Styles */
       body {
@@ -445,18 +473,126 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         line-height: var(--typography-line-height);
         letter-spacing: var(--typography-letter-spacing);
         color: var(--typography-font-color);
+        
+        /* Better text rendering */
+        text-rendering: optimizeLegibility;
+        
+        /* Minimum height for full viewport coverage */
+        min-height: 100vh;
       }
       
       h1, h2, h3, h4, h5, h6 {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-heading-weight);
         color: var(--typography-font-color);
+        
+        /* Better line-height for headings */
+        line-height: 1.2;
+        
+        /* Prevent orphans in headings */
+        text-wrap: balance;
       }
       
       p, span, div, a, button, input, textarea, select {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-body-weight);
         color: var(--typography-font-color);
+      }
+
+      /* Better paragraph spacing */
+      p {
+        line-height: var(--typography-line-height);
+      }
+
+      /* Remove list styles by default (opt-in styling is more flexible) */
+      ul, ol {
+        list-style: none;
+      }
+
+      /* Better link defaults */
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* Make images easier to work with */
+      img, picture, video, canvas, svg {
+        display: block;
+        max-width: 100%;
+      }
+
+      /* Remove built-in form element styling */
+      input, button, textarea, select {
+        background-color: transparent;
+        border: none;
+        outline: none;
+      }
+
+      /* Better focus styles for accessibility */
+      :focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+      }
+
+      /* Remove spinners from number inputs */
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+      }
+
+      /* Remove search input decorations */
+      input[type="search"]::-webkit-search-decoration,
+      input[type="search"]::-webkit-search-cancel-button,
+      input[type="search"]::-webkit-search-results-button,
+      input[type="search"]::-webkit-search-results-decoration {
+        -webkit-appearance: none;
+      }
+
+      /* Better table defaults */
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+
+      /* Improve consistency of monospace fonts */
+      pre, code, kbd, samp {
+        font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+        font-size: 1em;
+      }
+
+      /* Prevent text overflow */
+      h1, h2, h3, h4, h5, h6, p {
+        overflow-wrap: break-word;
+      }
+
+      /* Better hr element */
+      hr {
+        height: 0;
+        border: 0;
+        border-top: 1px solid currentColor;
+        opacity: 0.25;
+      }
+
+      /* Improve media defaults */
+      img, svg, video {
+        height: auto;
+      }
+
+      /* Remove animations for users who prefer reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
     `;
   },

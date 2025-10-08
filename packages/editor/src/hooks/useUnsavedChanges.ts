@@ -172,7 +172,12 @@ export function useUnsavedChanges(): UnsavedChangesState {
       });
       return;
     }
-    const sanitizedData = sanitizePuckData(stored.data, userConfig, activeBreakpoint);
+    const sanitizedData = sanitizePuckData({
+      data: stored.data,
+      userConfig,
+      activeBreakpoint,
+      removeBreakpoints: false,
+    });
     if (!sanitizedData) {
       toast('Failed to sanitize stored data, unable to restore', {
         type: 'error',

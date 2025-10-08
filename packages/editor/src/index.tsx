@@ -14,7 +14,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { ToastContainer } from 'react-toastify';
-import { MediaQueries } from '@components/MediaQueries';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
@@ -44,7 +43,6 @@ declare module '@tanstack/react-router' {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <MediaQueries />
       <RouterProvider router={router} />
     </QueryClientProvider>
     <ToastContainer stacked />

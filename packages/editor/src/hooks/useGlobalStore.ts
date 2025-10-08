@@ -10,6 +10,7 @@ import { DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import type { ComponentData } from '@measured/puck';
+import { setLocalStorageItem } from './useLocalStorage';
 
 type ComponentId = string;
 type FieldDotNotatedKey = string;
@@ -125,8 +126,13 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setPreviewFitToWidth: (fitToWidth: boolean) => {
       return set(state => ({ ...state, previewFitToWidth: fitToWidth }));
     },
-    activeBreakpoint: 'sm', // Default to 'sm' to trigger smart initialization
+    // intentionally set to undefined, this value is set as the very first thing before the page loads
+    // so to avoid typescript BS, we just assume everything else within the page already has the value set
+    activeBreakpoint: undefined as unknown as BreakPoint,
     setActiveBreakpoint: (activeBreakpoint: BreakPoint) => {
+      // sync the new value with the local storage
+      setLocalStorageItem<BreakPoint>('selectedBreakpoint', activeBreakpoint);
+
       return set(state => ({ ...state, activeBreakpoint }));
     },
     componentBreakpointMap: {},
@@ -183,7 +189,6 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         const { updateDashboardPageForUser, updateDashboardForUser } = await import('@services/dashboard');
         const state = get();
         const { unsavedPuckPageData, setUnsavedPuckPageData, dashboard, breakpointItems } = state;
-
         if (!unsavedPuckPageData) return;
         if (!dashboard) {
           toast('Dashboard not found', {

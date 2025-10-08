@@ -50,10 +50,15 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height */
+  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height with description */
   justify-content: flex-start;
   align-items: stretch;
   width: 100%;
+}
+
+/* Reduce spacing when there's no description */
+.Modal--no-description .Modal-overflow {
+  margin-top: calc(var(--space-12) + var(--space-4)); /* Reduced header height without description */
 }
 
 /* Modal Header */

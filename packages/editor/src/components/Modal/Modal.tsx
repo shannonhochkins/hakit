@@ -151,6 +151,7 @@ export function Modal({
             {
               Modal: true,
               fullscreen: fullscreen,
+              'no-description': !description,
             },
             className
           )}

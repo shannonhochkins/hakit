@@ -65,10 +65,30 @@ describe('trimPuckDataToConfig', () => {
       const data: PuckPageData = {
         root: {
           props: {
-            _activeBreakpoint: {
-              $xlg: 'xlg',
-            },
+            _activeBreakpoint: 'xlg',
           },
+          content: [
+            {
+              type: componentName,
+              props: {
+                id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
+                pages: [],
+                hideClock: {
+                  $xlg: true,
+                },
+                options: {
+                  $xlg: {
+                    pages: [],
+                    hideClock: false,
+                  },
+                },
+                _activeBreakpoint: 'xlg',
+                validField: {
+                  $xlg: 'valid value',
+                },
+              },
+            },
+          ],
         },
         content: [
           {
@@ -99,9 +119,7 @@ describe('trimPuckDataToConfig', () => {
                 },
               },
               id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
-              _activeBreakpoint: {
-                $xlg: 'xlg',
-              },
+              _activeBreakpoint: 'xlg',
             },
           },
         ],
@@ -112,19 +130,35 @@ describe('trimPuckDataToConfig', () => {
         {
           [componentName]: {
             validField: string;
-            _activeBreakpoint: string;
             anotherValidField: string;
           };
         },
-        DefaultComponentProps
+        {
+          validField: string;
+          hideClock: boolean;
+        }
       > = {
         root: {
-          defaultProps: {},
+          defaultProps: {
+            validField: '',
+            hideClock: false,
+          },
+          fields: {
+            validField: {
+              type: 'text',
+              label: 'Valid Field',
+              default: '',
+            },
+            hideClock: {
+              type: 'switch',
+              label: 'Hide Clock',
+              default: false,
+            },
+          },
         },
         components: {
           [componentName]: {
             defaultProps: {
-              _activeBreakpoint: '',
               validField: '',
               anotherValidField: '',
             },
@@ -133,11 +167,6 @@ describe('trimPuckDataToConfig', () => {
             },
             label: componentName,
             fields: {
-              _activeBreakpoint: {
-                type: 'text',
-                label: '_activeBreakpoint',
-                default: '',
-              },
               validField: {
                 type: 'text',
                 label: 'Valid Field',
@@ -154,7 +183,15 @@ describe('trimPuckDataToConfig', () => {
       };
 
       const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
+      // should strip out _activeBreakpoint from all props recursively
       expect(result?.content[0].props).toEqual({
+        id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
+        validField: {
+          $xlg: 'valid value',
+        },
+      });
+      expect(result?.root.props).toEqual({});
+      expect(result?.root?.content[0].props).toEqual({
         id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
         validField: {
           $xlg: 'valid value',
@@ -475,6 +512,102 @@ describe('trimPuckDataToConfig', () => {
             name: 'Item 1',
             validField: 'keep this',
             // nested id should be removed
+          },
+        ],
+      });
+    });
+
+    test('should process content arrays recursively on component props', () => {
+      const parentComponent = 'ParentComponent' as const;
+      const childComponent = 'ChildComponent' as const;
+
+      const data: PuckPageData = {
+        root: { props: {} },
+        content: [
+          {
+            type: parentComponent,
+            props: {
+              id: 'parent-123',
+              title: 'Parent Title',
+              content: [
+                {
+                  type: childComponent,
+                  props: {
+                    id: 'child-456',
+                    text: 'Child Text',
+                    invalidField: 'should be removed',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        zones: {},
+      };
+
+      const userConfig: CustomPuckConfig<{
+        [parentComponent]: {
+          title: string;
+        };
+        [childComponent]: {
+          text: string;
+        };
+      }> = {
+        root: {
+          defaultProps: {},
+        },
+        components: {
+          [parentComponent]: {
+            defaultProps: {
+              title: '',
+            },
+            render() {
+              return <></>;
+            },
+            label: parentComponent,
+            fields: {
+              title: {
+                type: 'text',
+                label: 'Title',
+                default: '',
+              },
+              // Note: content is NOT defined as a field, but should still be processed recursively
+            },
+          },
+          [childComponent]: {
+            defaultProps: {
+              text: '',
+            },
+            render() {
+              return <></>;
+            },
+            label: childComponent,
+            fields: {
+              text: {
+                type: 'text',
+                label: 'Text',
+                default: '',
+              },
+            },
+          },
+        },
+      };
+
+      const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
+
+      expect(result?.content).toHaveLength(1);
+      expect(result?.content[0].type).toBe(parentComponent);
+      expect(result?.content[0].props).toEqual({
+        id: 'parent-123',
+        title: 'Parent Title',
+        content: [
+          {
+            type: childComponent,
+            props: {
+              id: 'child-456',
+              text: 'Child Text',
+              // invalidField should be removed
+            },
           },
         ],
       });
@@ -1813,5 +1946,133 @@ describe('extendPuckDataWithDefaults', () => {
 
     const result = extendPuckDataWithDefaults(mockData, mockUserConfig);
     expect(result).toEqual(mockData);
+  });
+
+  test('should not mutate frozen input data (definitive immutability proof)', () => {
+    // Create a complex nested structure
+    const mockData: PuckPageData = {
+      zones: {
+        main: [
+          {
+            type: 'TestComponent',
+            props: {
+              id: 'test-1',
+              title: 'Zone Component',
+            },
+          },
+        ],
+      },
+      content: [
+        {
+          type: 'TestComponent',
+          props: {
+            id: 'test-2',
+            title: 'Content Component',
+            nested: {
+              value: 'deep',
+            },
+          },
+        },
+      ],
+      root: {
+        props: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#ff0000',
+            },
+          },
+          styles: {
+            css: 'body { color: red; }',
+          },
+        },
+      },
+    };
+
+    const mockUserConfig: CustomPuckConfig<{
+      TestComponent: {
+        title: string;
+        newProp: string;
+      };
+    }> = {
+      components: {
+        TestComponent: {
+          fields: {
+            title: {
+              type: 'text',
+              label: 'Title',
+              default: '',
+            },
+            newProp: {
+              type: 'text',
+              label: 'New Prop',
+              default: '',
+            },
+          },
+          render() {
+            return <></>;
+          },
+          label: 'TestComponent',
+          defaultProps: {
+            title: 'Default Title',
+            newProp: 'This is new',
+          },
+        },
+      },
+      root: {
+        defaultProps: {
+          '@hakit/default-root': {
+            background: {
+              useBackgroundImage: true,
+              overlayColor: '#4254c5',
+              blur: 25,
+              overlayOpacity: 0.9,
+            },
+            typography: {
+              fontFamily: 'roboto',
+              fontColor: '#ffffff',
+            },
+          },
+        },
+      },
+    };
+
+    // Deep freeze the entire object - any mutation attempt will throw an error
+    const deepFreeze = <T extends object>(obj: T): T => {
+      Object.freeze(obj);
+      Object.getOwnPropertyNames(obj).forEach(prop => {
+        const val = obj[prop as keyof object];
+        if (val !== null && (typeof val === 'object' || typeof val === 'function') && !Object.isFrozen(val)) {
+          deepFreeze(val);
+        }
+      });
+      return obj;
+    };
+
+    const frozenData = deepFreeze(mockData);
+
+    // If the function tries to mutate, this will throw an error
+    expect(() => {
+      const result = extendPuckDataWithDefaults(frozenData, mockUserConfig);
+
+      // Verify the result is correct
+      expect(result).toBeDefined();
+
+      // Check that defaults were merged
+      const root = result?.root?.props?.['@hakit/default-root'];
+      expect(root?.background?.overlayColor).toBe('#ff0000'); // Existing value preserved
+      expect(root?.background?.blur).toBe(25); // Default added
+      expect(root?.typography?.fontFamily).toBe('roboto'); // Default added
+
+      // Check that component defaults were merged
+      expect(result.content?.[0]?.props?.title).toBe('Content Component'); // Existing preserved
+      expect(result.content?.[0]?.props.newProp).toBe('This is new'); // Default added
+    }).not.toThrow();
+
+    // Original frozen data is still intact
+    expect(frozenData.root.props?.['@hakit/default-root'].background.overlayColor).toBe('#ff0000');
+    expect(frozenData.root.props?.['@hakit/default-root'].background).not.toHaveProperty('blur');
+    expect(frozenData.content[0].props.title).toBe('Content Component');
+    expect(frozenData.content[0].props).not.toHaveProperty('newProp');
   });
 });

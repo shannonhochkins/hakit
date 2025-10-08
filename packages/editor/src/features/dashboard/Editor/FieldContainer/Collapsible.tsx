@@ -30,11 +30,11 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   field,
   name,
   onChange: puckOnChange,
+  // NOTE: Important we don't transform the value here for objects/arrays, each field type handles this via the Standard field type
   value,
   id,
 }: CollapsibleFieldComponentProps<Props>) {
   const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
-
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const getPuck = useGetPuck();
@@ -45,6 +45,8 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
       if (typeof value === 'undefined') return;
+      // we don't need to transform the value here for objects/arrays, each field type handles this via the Standard field type
+      // object/array fields don't support responsive values, we we just send back the value here
       // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
       puckOnChange(value, uiState);
     },

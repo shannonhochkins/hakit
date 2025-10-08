@@ -1,5 +1,6 @@
 import { expect, test, describe } from 'bun:test';
 import { dbValueToPuck } from '../dbValueToPuck';
+import { createElement } from 'react';
 
 describe('dbValueToPuck', () => {
   describe('simple breakpoint objects', () => {
@@ -77,27 +78,34 @@ describe('dbValueToPuck', () => {
     });
   });
 
-  describe('excluded properties', () => {
-    test('should not transform excluded properties', () => {
+  describe('children property transformation', () => {
+    test('should transform children with breakpoint values', () => {
       const input = {
-        id: { $xlg: 'desktop-id', $md: 'tablet-id' },
-        key: { $xlg: 'desktop-key', $md: 'tablet-key' },
-        puck: { $xlg: 'desktop-puck', $md: 'tablet-puck' },
-        editMode: { $xlg: true, $md: false },
-        children: { $xlg: 'desktop-children', $md: 'tablet-children' },
         title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+        children: { $xlg: 'Desktop Children', $md: 'Tablet Children' },
+        content: { $xlg: 'Desktop Content', $md: 'Tablet Content' },
       };
 
       const result = dbValueToPuck(input, 'md');
 
       expect(result).toEqual({
-        id: { $xlg: 'desktop-id', $md: 'tablet-id' },
-        key: { $xlg: 'desktop-key', $md: 'tablet-key' },
-        puck: { $xlg: 'desktop-puck', $md: 'tablet-puck' },
-        editMode: { $xlg: true, $md: false },
-        children: { $xlg: 'desktop-children', $md: 'tablet-children' },
-        title: 'Tablet Title', // Only this should be transformed
+        title: 'Tablet Title',
+        children: 'Tablet Children', // Now transformed
+        content: 'Tablet Content',
       });
+    });
+
+    test('should preserve JSX children via isValidElement (not via key exclusion)', () => {
+      const jsxChild = createElement('div', null, 'Child Component');
+      const input = {
+        title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+        children: jsxChild, // JSX element
+      };
+
+      const result = dbValueToPuck(input, 'md');
+
+      expect(result.title).toBe('Tablet Title');
+      expect(result.children).toBe(jsxChild); // Preserved because it's JSX, not because of key name
     });
   });
 
@@ -152,7 +160,7 @@ describe('dbValueToPuck', () => {
       });
     });
 
-    test('should handle nested objects with excluded properties', () => {
+    test('should handle nested objects and transform all properties', () => {
       const input = {
         component: {
           id: { $xlg: 'desktop-id', $md: 'tablet-id' },
@@ -165,10 +173,10 @@ describe('dbValueToPuck', () => {
 
       expect(dbValueToPuck(input, 'md')).toEqual({
         component: {
-          id: { $xlg: 'desktop-id', $md: 'tablet-id' }, // Not transformed
+          id: 'tablet-id', // Now transformed
           props: {
             title: 'Tablet Title',
-            puck: { $xlg: 'desktop-puck', $md: 'tablet-puck' }, // Not transformed
+            puck: 'tablet-puck', // Now transformed
           },
         },
       });
@@ -285,7 +293,7 @@ describe('dbValueToPuck', () => {
           42,
           { staticProp: 'no breakpoints here' },
           null,
-          { id: { $xlg: 'excluded-id', $md: 'tablet-id' } }, // Excluded from transformation
+          { id: 'tablet-id' }, // Now transformed
         ],
       });
     });
@@ -460,7 +468,7 @@ describe('dbValueToPuck', () => {
           {
             type: 'HeadingBlock',
             props: {
-              id: 'HeadingBlock-59619f25-0704-4507-9e84-787500239d3b', // Excluded
+              id: 'HeadingBlock-59619f25-0704-4507-9e84-787500239d3b',
               title: 'Dashboard',
               subtitle: 'Dashboard page',
               style: {
@@ -472,7 +480,7 @@ describe('dbValueToPuck', () => {
           {
             type: 'ContentBlock',
             props: {
-              id: 'ContentBlock-abc123', // Excluded
+              id: 'ContentBlock-abc123',
               content: 'Full content here', // Falls back to xlg
               items: [
                 {
@@ -492,7 +500,7 @@ describe('dbValueToPuck', () => {
             {
               type: 'NavigationBlock',
               props: {
-                id: 'nav-123', // Excluded
+                id: 'nav-123',
                 links: {
                   home: 'Home Page', // Falls back to xlg
                   about: 'About',
@@ -551,7 +559,7 @@ describe('dbValueToPuck', () => {
               {
                 type: 'Logo',
                 props: {
-                  id: 'logo-1', // Excluded
+                  id: 'logo-1',
                   src: '/logo-tablet.png',
                   alt: 'Company Logo', // Falls back to xlg
                   dimensions: {
@@ -644,7 +652,7 @@ describe('dbValueToPuck', () => {
 
       expect(result.items).toHaveLength(100);
       expect(result.items[0]).toEqual({
-        id: 'item-0', // Excluded
+        id: 'item-0',
         title: 'Item 0 Tablet',
         nested: {
           deep: {
@@ -653,7 +661,7 @@ describe('dbValueToPuck', () => {
         },
       });
       expect(result.items[99]).toEqual({
-        id: 'item-99', // Excluded
+        id: 'item-99',
         title: 'Item 99 Tablet',
         nested: {
           deep: {
@@ -662,5 +670,526 @@ describe('dbValueToPuck', () => {
         },
       });
     });
+  });
+
+  describe('immutability guarantees', () => {
+    test('should not mutate the original object with simple breakpoint values', () => {
+      const original = {
+        title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+        subtitle: { $xlg: 'Desktop Subtitle' },
+        count: 42,
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+    });
+
+    test('should not mutate nested objects', () => {
+      const original = {
+        header: {
+          title: { $xlg: 'Desktop Header', $md: 'Tablet Header' },
+          navigation: {
+            links: {
+              home: { $xlg: 'Home Page', $sm: 'Home' },
+            },
+          },
+        },
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.header.navigation.links.home).toEqual({
+        $xlg: 'Home Page',
+        $sm: 'Home',
+      });
+    });
+
+    test('should not mutate arrays', () => {
+      const original = {
+        items: [{ title: { $xlg: 'Item 1', $md: 'I1' } }, { title: { $xlg: 'Item 2', $md: 'I2' } }],
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.items).toHaveLength(2);
+      expect(original.items[0].title).toEqual({ $xlg: 'Item 1', $md: 'I1' });
+    });
+
+    test('should not mutate nested arrays', () => {
+      const original = {
+        sections: [
+          {
+            title: { $xlg: 'Section 1' },
+            items: [{ name: { $xlg: 'Item A', $sm: 'A' } }, { name: { $xlg: 'Item B' } }],
+          },
+        ],
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.sections[0].items[0].name).toEqual({ $xlg: 'Item A', $sm: 'A' });
+    });
+
+    test('should not mutate properties with breakpoint objects', () => {
+      const idObject = { $xlg: 'desktop-id', $md: 'tablet-id' };
+      const original = {
+        id: idObject,
+        title: { $xlg: 'Title', $md: 'T' },
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.id).toEqual({ $xlg: 'desktop-id', $md: 'tablet-id' });
+    });
+
+    test('should not mutate nested properties with breakpoint objects', () => {
+      const original = {
+        component: {
+          id: { $xlg: 'desktop-id', $md: 'tablet-id' },
+          props: {
+            title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+            puck: { someData: 'preserved' },
+          },
+        },
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.component.id).toEqual({ $xlg: 'desktop-id', $md: 'tablet-id' });
+      expect(original.component.props.puck).toEqual({ someData: 'preserved' });
+    });
+
+    test('should create completely new object instances', () => {
+      const nestedObj = { value: { $xlg: 'test' } };
+      const original = {
+        nested: nestedObj,
+        items: [{ data: { $xlg: 'item' } }],
+      };
+
+      const result = dbValueToPuck(original, 'xlg');
+
+      // Check that result is a new object
+      expect(result).not.toBe(original);
+      expect(result.nested).not.toBe(original.nested);
+      expect(result.items).not.toBe(original.items);
+      expect(result.items[0]).not.toBe(original.items[0]);
+    });
+
+    test('should not share references between original and result', () => {
+      const original = {
+        metadata: {
+          author: { $xlg: 'John Doe' },
+          tags: [{ name: { $xlg: 'tag1' } }],
+        },
+      };
+
+      const result = dbValueToPuck(original, 'xlg');
+
+      // Modify result
+      (result.metadata as { author: string; tags: { name: string }[] }).author = 'Jane Doe';
+      (result.metadata as { author: string; tags: { name: string }[] }).tags[0].name = 'modified';
+
+      // Original should remain unchanged
+      expect((original.metadata.author as { $xlg: string }).$xlg).toBe('John Doe');
+      expect((original.metadata.tags[0].name as { $xlg: string }).$xlg).toBe('tag1');
+    });
+
+    test('should handle primitives without creating unnecessary copies', () => {
+      const original = {
+        string: 'test',
+        number: 42,
+        boolean: true,
+        nullValue: null,
+        undefinedValue: undefined,
+      };
+
+      const result = dbValueToPuck(original, 'xlg');
+
+      expect(result).toEqual(original);
+      // Primitives should have same values
+      expect(result.string).toBe('test');
+      expect(result.number).toBe(42);
+      expect(result.boolean).toBe(true);
+      expect(result.nullValue).toBe(null);
+      expect(result.undefinedValue).toBe(undefined);
+    });
+
+    test('should not mutate complex real-world structures', () => {
+      const original = {
+        root: {
+          props: {
+            backgroundColor: { $xlg: '#ffffff', $md: '#f5f5f5' },
+            padding: { $xlg: 24, $sm: 16 },
+          },
+        },
+        content: [
+          {
+            type: 'HeadingBlock',
+            props: {
+              id: 'heading-1',
+              title: { $xlg: 'Dashboard', $md: 'Dash' },
+              style: {
+                fontSize: { $xlg: '2rem', $md: '1.5rem' },
+              },
+            },
+          },
+        ],
+      };
+
+      const originalCopy = JSON.parse(JSON.stringify(original)) as typeof original;
+
+      dbValueToPuck(original, 'md');
+
+      expect(original).toEqual(originalCopy);
+      expect(original.root.props.backgroundColor).toEqual({ $xlg: '#ffffff', $md: '#f5f5f5' });
+      expect(original.content[0].props.title).toEqual({ $xlg: 'Dashboard', $md: 'Dash' });
+    });
+
+    test('should not mutate frozen objects (definitive immutability proof)', () => {
+      // Create a deeply nested structure with breakpoints
+      const original = {
+        title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+        metadata: {
+          author: { $xlg: 'John Doe', $sm: 'J. Doe' },
+          tags: [{ name: { $xlg: 'JavaScript', $md: 'JS' } }, { name: { $xlg: 'TypeScript', $sm: 'TS' } }],
+        },
+        sections: [
+          {
+            header: { $xlg: 'Section 1', $md: 'Sec 1' },
+            items: [{ value: { $xlg: 100, $md: 75 } }, { value: { $xlg: 200 } }],
+          },
+        ],
+      };
+
+      // Deep freeze the entire object - any mutation attempt will throw an error
+      const deepFreeze = <T extends object>(obj: T): T => {
+        Object.freeze(obj);
+        Object.getOwnPropertyNames(obj).forEach(prop => {
+          const val = obj[prop as keyof object];
+          if (val !== null && (typeof val === 'object' || typeof val === 'function') && !Object.isFrozen(val)) {
+            deepFreeze(val);
+          }
+        });
+        return obj;
+      };
+
+      const frozenOriginal = deepFreeze(original);
+
+      // If the function tries to mutate, this will throw an error
+      expect(() => {
+        const result = dbValueToPuck(frozenOriginal, 'md');
+
+        // Verify the result is correct
+        expect(result.title).toBe('Tablet Title');
+        expect(result.metadata.author).toBe('John Doe');
+        expect(result.metadata.tags[0].name).toBe('JS');
+        expect(result.sections[0].header).toBe('Sec 1');
+        expect(result.sections[0].items[0].value).toBe(75);
+      }).not.toThrow();
+
+      // Original frozen object is still intact
+      expect(frozenOriginal.title).toEqual({ $xlg: 'Desktop Title', $md: 'Tablet Title' });
+      expect(frozenOriginal.metadata.author).toEqual({ $xlg: 'John Doe', $sm: 'J. Doe' });
+      expect(frozenOriginal.metadata.tags[0].name).toEqual({ $xlg: 'JavaScript', $md: 'JS' });
+    });
+  });
+
+  describe('JSX/React element handling', () => {
+    test('should preserve JSX elements as-is without transformation', () => {
+      const jsxElement = createElement('div', { className: 'test' }, 'Hello');
+      const original = {
+        title: { $xlg: 'Desktop Title', $md: 'Tablet Title' },
+        component: jsxElement,
+      };
+
+      const result = dbValueToPuck(original, 'md');
+
+      expect(result.title).toBe('Tablet Title');
+      expect(result.component).toBe(jsxElement); // Same reference
+    });
+
+    test('should preserve JSX elements in arrays', () => {
+      const jsx1 = createElement('div', { key: '1' }, 'First');
+      const jsx2 = createElement('span', { key: '2' }, 'Second');
+
+      const original = {
+        components: [jsx1, { title: { $xlg: 'Desktop', $md: 'Tablet' } }, jsx2],
+      };
+
+      const result = dbValueToPuck(original, 'md');
+
+      expect((result.components as unknown[])[0]).toBe(jsx1);
+      expect((result.components as { title: string }[])[1].title).toBe('Tablet');
+      expect((result.components as unknown[])[2]).toBe(jsx2);
+    });
+
+    test('should preserve JSX elements in nested structures', () => {
+      const jsxElement = createElement('button', { type: 'button' }, 'Click me');
+
+      const original = {
+        layout: {
+          header: {
+            title: { $xlg: 'Desktop Header', $md: 'Header' },
+            actions: [jsxElement, { label: { $xlg: 'Desktop Label' } }],
+          },
+        },
+      };
+
+      const result = dbValueToPuck(original, 'md');
+
+      expect((result.layout as { header: { title: string; actions: unknown[] } }).header.title).toBe('Header');
+      expect((result.layout as { header: { title: string; actions: unknown[] } }).header.actions[0]).toBe(jsxElement);
+    });
+
+    test('should preserve JSX even when wrapped in breakpoint objects', () => {
+      const desktopJsx = createElement('div', null, 'Desktop Component');
+      const tabletJsx = createElement('div', null, 'Tablet Component');
+
+      const original = {
+        dynamicComponent: {
+          $xlg: desktopJsx,
+          $md: tabletJsx,
+        },
+      };
+
+      const xlgResult = dbValueToPuck(original, 'xlg');
+      const mdResult = dbValueToPuck(original, 'md');
+
+      expect(xlgResult.dynamicComponent).toBe(desktopJsx);
+      expect(mdResult.dynamicComponent).toBe(tabletJsx);
+    });
+
+    test('should not mutate JSX elements', () => {
+      const jsxElement = createElement('div', { className: 'original' }, 'Content');
+      const original = {
+        component: jsxElement,
+        title: { $xlg: 'Title' },
+      };
+
+      const result = dbValueToPuck(original, 'xlg');
+
+      // JSX element should be the exact same reference
+      expect(result.component).toBe(jsxElement);
+      expect(original.component).toBe(jsxElement);
+    });
+
+    test('should handle mixed JSX and regular objects', () => {
+      const jsx = createElement('div', null, 'JSX Content');
+
+      const original = {
+        staticJsx: jsx,
+        breakpointText: { $xlg: 'Desktop Text', $md: 'Tablet Text' },
+        nested: {
+          dynamicJsx: jsx,
+          value: { $xlg: 100, $md: 50 },
+        },
+        components: [jsx, { type: 'text', props: { content: { $xlg: 'Desktop' } } }, jsx],
+      };
+
+      const result = dbValueToPuck(original, 'md');
+
+      expect(result.staticJsx).toBe(jsx);
+      expect(result.breakpointText).toBe('Tablet Text');
+      expect((result.nested as { dynamicJsx: unknown; value: number }).dynamicJsx).toBe(jsx);
+      expect((result.nested as { dynamicJsx: unknown; value: number }).value).toBe(50);
+      expect((result.components as unknown[])[0]).toBe(jsx);
+      expect((result.components as unknown[])[2]).toBe(jsx);
+    });
+
+    test('should handle JSX in any property (including children)', () => {
+      const jsxElement = createElement('div', null, 'Child Content');
+
+      const original = {
+        id: 'component-123',
+        children: jsxElement, // JSX element
+        title: { $xlg: 'Title' },
+      };
+
+      const result = dbValueToPuck(original, 'xlg');
+
+      expect(result.id).toBe('component-123');
+      expect(result.children).toBe(jsxElement);
+      expect(result.title).toBe('Title');
+    });
+
+    test('should handle complex JSX with props', () => {
+      const complexJsx = createElement(
+        'div',
+        { className: 'container', style: { padding: 20 } },
+        createElement('span', null, 'Nested content')
+      );
+
+      const original = {
+        header: { $xlg: 'Desktop Header', $md: 'Tablet Header' },
+        content: complexJsx,
+      };
+
+      const result = dbValueToPuck(original, 'md');
+
+      expect(result.header).toBe('Tablet Header');
+      expect(result.content).toBe(complexJsx);
+    });
+  });
+
+  test('should transform top level breakpoint objects too', () => {
+    const value = {
+      $xlg: 'Desktop Value',
+      $md: 'Tablet Value',
+    };
+
+    const result = dbValueToPuck(value, 'md');
+
+    expect(result).toBe('Tablet Value');
+  });
+
+  test('should transform top level breakpoint objects that resolve to objects', () => {
+    const value = {
+      $xlg: { title: 'Desktop', count: 100 },
+      $md: { title: 'Tablet', count: 50 },
+    };
+
+    const result = dbValueToPuck(value, 'md');
+
+    expect(result).toEqual({ title: 'Tablet', count: 50 });
+  });
+
+  test('should transform top level breakpoint objects that resolve to nested breakpoint objects', () => {
+    const value = {
+      $xlg: {
+        title: { $xlg: 'Desktop Title', $sm: 'Mobile Title' },
+        count: 100,
+      },
+      $md: {
+        title: { $xlg: 'Tablet Title', $sm: 'Small Tablet' },
+        count: 50,
+      },
+    };
+
+    const result = dbValueToPuck(value, 'md');
+
+    // The outer breakpoint resolves to $md value
+    // Then the inner breakpoint (title) also gets resolved for $md, which falls back to $xlg
+    expect(result).toEqual({
+      title: 'Tablet Title',
+      count: 50,
+    });
+  });
+
+  test('should handle top level breakpoint objects with fallback', () => {
+    const value = {
+      $xlg: 'Desktop Value',
+      $sm: 'Mobile Value',
+    };
+
+    // $md not available, should fall back to $xlg
+    const result = dbValueToPuck(value, 'md');
+
+    expect(result).toBe('Desktop Value');
+  });
+
+  test('should not mutate top level breakpoint object', () => {
+    const value = {
+      $xlg: 'Desktop Value',
+      $md: 'Tablet Value',
+    };
+
+    const originalCopy = JSON.parse(JSON.stringify(value)) as typeof value;
+
+    dbValueToPuck(value, 'md');
+
+    expect(value).toEqual(originalCopy);
+  });
+
+  test('should handle deeply nested breakpoint objects (3+ levels)', () => {
+    const value = {
+      // Level 1: Top-level breakpoint
+      $xlg: {
+        header: {
+          // Level 2: Nested breakpoint in header
+          title: { $xlg: 'Desktop Header', $md: 'Tablet Header' },
+          metadata: {
+            // Level 3: Deeply nested breakpoint
+            author: { $xlg: 'John Doe', $sm: 'J. Doe' },
+            published: {
+              // Level 4: Even deeper nesting
+              date: { $xlg: '2025-01-01', $xs: '01/01' },
+            },
+          },
+        },
+        content: { $xlg: 'Desktop Content' },
+      },
+      $md: {
+        header: {
+          title: { $xlg: 'Tablet Header Main', $sm: 'Tablet Small' },
+          metadata: {
+            author: { $xlg: 'Jane Doe', $sm: 'J. D.' },
+            published: {
+              date: { $xlg: '2025-02-01', $xs: '02/01' },
+            },
+          },
+        },
+        content: { $xlg: 'Tablet Content' },
+      },
+    };
+
+    const result = dbValueToPuck(value, 'md');
+
+    // Verify all nested breakpoints are resolved correctly
+    expect(result).toEqual({
+      header: {
+        title: 'Tablet Header Main', // Resolved from $md > header > title > $xlg
+        metadata: {
+          author: 'Jane Doe', // Resolved from $md > metadata > author > $xlg
+          published: {
+            date: '2025-02-01', // Resolved from $md > published > date > $xlg
+          },
+        },
+      },
+      content: 'Tablet Content', // Resolved from $md > content > $xlg
+    });
+
+    // Test with smaller breakpoint to verify cascading fallback through multiple levels
+    const smallResult = dbValueToPuck(value, 'sm');
+
+    expect(smallResult).toEqual({
+      header: {
+        title: 'Tablet Small', // Falls back through: $sm not in top level -> uses $xlg, then resolves title to $sm
+        metadata: {
+          author: 'J. D.', // Uses $sm from author
+          published: {
+            date: '2025-02-01', // Falls back to $xlg
+          },
+        },
+      },
+      content: 'Tablet Content', // Falls back through multiple levels
+    });
+  });
+
+  test('should preserve unknown fields and typings', () => {
+    const value = {
+      puck: {
+        something: 'something',
+      },
+    };
+    const result = dbValueToPuck(value, 'xlg');
+    expect(result.puck.something).toBe('something');
   });
 });

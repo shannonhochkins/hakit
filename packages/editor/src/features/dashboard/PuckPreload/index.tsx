@@ -34,7 +34,7 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
 
   useEffect(() => {
     const { connection, entities } = useStore.getState();
-    const { setUserConfig, setBreakPointItems, userConfig } = useGlobalStore.getState();
+    const { setUserConfig, setBreakPointItems, activeBreakpoint, userConfig, setActiveBreakpoint } = useGlobalStore.getState();
 
     if (connection && dashboard && dashboard.pages.length && !userConfig) {
       // if there's breakpoints set, use them, else use the default breakpoints
@@ -42,8 +42,25 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
         dashboard.breakpoints && Array.isArray(dashboard.breakpoints) && dashboard.breakpoints.length > 0
           ? dashboard.breakpoints
           : DEFAULT_BREAKPOINTS;
+
       useThemeStore.getState().setBreakpoints(breakpointItemToBreakPoints(breakpoints));
       setBreakPointItems(breakpoints);
+
+      // if the current active breakpoint doesn't exist on the breakpoint items as an enabled item
+      // set to the next highest enabled breakpoint
+      // this is to avoid local storage values going out of sync with the data
+      if (activeBreakpoint && !breakpoints.find(bp => bp.id === activeBreakpoint && !bp.disabled)) {
+        const currentBreakpoint = breakpoints.find(bp => bp.id === activeBreakpoint);
+        const nextHighestBreakpoint = currentBreakpoint
+          ? breakpoints.find(bp => !bp.disabled && bp.width > currentBreakpoint?.width)
+          : undefined;
+
+        const fallbackBreakpoint = nextHighestBreakpoint?.id ?? 'xlg';
+
+        // Use store method which will sync to localStorage
+        setActiveBreakpoint(fallbackBreakpoint);
+      }
+
       const getAllEntities = () => entities;
       const getServices = () => _getServices(connection);
       getPuckConfiguration({
