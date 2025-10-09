@@ -19,12 +19,19 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
   const childRef = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const hideTimeoutRef = useRef<number | null>(null);
 
   const calculatePosition = useCallback(() => {
     const childRect = childRef.current?.getBoundingClientRect();
-    if (typeof childRect === 'undefined' || !tooltipRef.current) return;
+    const tooltip = tooltipRef.current;
+
+    if (!childRect || !tooltip) {
+      return;
+    }
+
     let top = 0;
     let left = 0;
+
     switch (placement) {
       case 'top':
         top = childRect.top;
@@ -43,34 +50,66 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
         left = childRect.left;
         break;
     }
-    tooltipRef.current.style.top = `${top}px`;
-    tooltipRef.current.style.left = `${left}px`;
+
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
   }, [placement]);
 
+  // Ref callback to calculate position when tooltip element is mounted
+  const tooltipRefCallback = useCallback(
+    (node: HTMLSpanElement | null) => {
+      tooltipRef.current = node;
+      if (node) {
+        // Calculate position immediately when element is attached to DOM
+        // Use double RAF to ensure layout has been calculated
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            calculatePosition();
+          });
+        });
+      }
+    },
+    [calculatePosition]
+  );
+
+  // Recalculate position when shouldRender becomes true (tooltip is mounted)
   useEffect(() => {
-    calculatePosition();
-    window.addEventListener('resize', calculatePosition);
-    return () => {
-      window.removeEventListener('resize', calculatePosition);
-    };
-  }, [calculatePosition]);
+    if (shouldRender) {
+      // Add resize listener while tooltip is shown
+      window.addEventListener('resize', calculatePosition);
+
+      return () => {
+        window.removeEventListener('resize', calculatePosition);
+      };
+    }
+  }, [shouldRender, calculatePosition]);
 
   const handleMouseEnter = useCallback(() => {
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current !== null) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+
     setShouldRender(true);
-    // Use requestAnimationFrame to ensure the element is rendered before animating
+    // Set visible in next frame after portal renders
     requestAnimationFrame(() => {
       setIsVisible(true);
-      calculatePosition();
     });
-  }, [calculatePosition]);
+  }, []);
 
   const handleHide = useCallback(() => {
     setIsVisible(false);
-    // Remove from DOM after animation completes
-    setTimeout(() => {
-      setShouldRender(false);
-    }, 300); // Match CSS transition duration (--transition-normal: 0.3s)
+    // Don't unmount immediately - let CSS transition complete
+    // The transition will trigger transitionend event
   }, []);
+
+  // Handle transitionend to unmount after fade out
+  const handleTransitionEnd = useCallback(() => {
+    if (!isVisible) {
+      setShouldRender(false);
+    }
+  }, [isVisible]);
 
   if (title === null || title === '') {
     return children;
@@ -101,7 +140,8 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
               noWrap: typeof title === 'string' && title.length < 20,
               visible: isVisible,
             })}
-            ref={tooltipRef}
+            ref={tooltipRefCallback}
+            onTransitionEnd={handleTransitionEnd}
             style={{
               opacity: isVisible ? 1 : 0,
               visibility: isVisible ? 'visible' : 'hidden',

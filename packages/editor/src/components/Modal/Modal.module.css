@@ -42,6 +42,7 @@
   padding: var(--space-4);
   align-items: flex-start;
   flex-direction: column;
+  padding-top: var(--space-4);
 }
 
 /* Modal Overflow */
@@ -50,15 +51,9 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  margin-top: calc(var(--space-16) + var(--space-4)); /* Account for header height with description */
   justify-content: flex-start;
   align-items: stretch;
   width: 100%;
-}
-
-/* Reduce spacing when there's no description */
-.Modal--no-description .Modal-overflow {
-  margin-top: calc(var(--space-12) + var(--space-4)); /* Reduced header height without description */
 }
 
 /* Modal Header */
@@ -68,10 +63,6 @@
   justify-content: space-between;
   padding: var(--space-4);
   flex-wrap: nowrap;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }

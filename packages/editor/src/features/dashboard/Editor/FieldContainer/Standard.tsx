@@ -17,6 +17,7 @@ import { useFieldBreakpointConfig } from '@hooks/useFieldBreakpointConfig';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { isBreakpointObject, hasXlgBreakpoint } from '@helpers/editor/pageData/isBreakpointObject';
 import { useGlobalStore } from '@hooks/useGlobalStore';
+import { BreakpointIndicators } from './BreakpointIndicators';
 
 /**
  * Helper function to create custom fields (cf - custom field)
@@ -47,10 +48,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const itemOrRoot = selectedItem ?? appState.data.root;
   const [fieldOptionsOpen, setFieldOptionsOpen] = useState(false);
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
-
-  if (name?.includes('useBackgroundImage')) {
-    console.log('value', puckValue, value, 'activeBreakpoint', activeBreakpoint);
-  }
 
   // Use the shared hook for breakpoint configuration
   const { responsiveMode, isBreakpointModeEnabled } = useFieldBreakpointConfig(field, name);
@@ -115,27 +112,50 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     return field.visible ?? true;
   }, [selectedItemOrRootProps, getPuck, field, repositoryId]);
 
-  const fieldOptions = (
-    <IconButton
-      aria-label='Field options'
-      icon={<Settings size={16} />}
-      onClick={() => {
-        setFieldOptionsOpen(true);
-      }}
-      variant='transparent'
-      size='xs'
-      tooltipProps={{
-        placement: 'left',
-      }}
-    />
+  const fieldOptions = useMemo(
+    () => (
+      <IconButton
+        aria-label='Field options'
+        icon={<Settings size={16} />}
+        onClick={() => {
+          setFieldOptionsOpen(true);
+        }}
+        variant='transparent'
+        size='xs'
+        tooltipProps={{
+          placement: 'left',
+        }}
+      />
+    ),
+    []
   );
 
-  const fieldLabel = (
-    <Row fullWidth alignItems='center' justifyContent='space-between' gap='0.5rem'>
-      <span>{field.label ?? ''}</span>
-      {fieldOptions}
-    </Row>
+  const fieldLabel = useMemo(
+    () => (
+      <Row fullWidth alignItems='center' justifyContent='space-between' gap='0.5rem'>
+        <span>{field.label ?? ''}</span>
+        {fieldOptions}
+      </Row>
+    ),
+    [field.label, fieldOptions]
   );
+
+  const onRemoveBreakpoint = useCallback(
+    (newValue: unknown) => {
+      const uiState = getPuck().appState.ui;
+      onChange(newValue, uiState);
+    },
+    [getPuck, onChange]
+  );
+
+  const onResponsiveToggleChange = useCallback(() => {
+    const uiState = getPuck().appState.ui;
+    onChange(value, uiState);
+  }, [getPuck, onChange, value]);
+
+  const onCloseFieldOptions = useCallback(() => {
+    setFieldOptionsOpen(false);
+  }, []);
 
   return (
     <Fieldset
@@ -178,26 +198,18 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
           )}
         </div>
       </FieldWrapper>
-      {isBreakpointModeEnabled && responsiveMode && (
-        <div className={`${styles.description} hakit-field-responsive-description`}>
-          <Row fullWidth alignItems='center' justifyContent='flex-start' gap='0.5rem'>
-            <Row justifyContent='flex-start' gap='0.25rem'>
-              Active <span className={styles.mark}>{activeBreakpoint}</span>
-            </Row>
-          </Row>
-        </div>
-      )}
+      <BreakpointIndicators
+        puckValue={puckValue}
+        isBreakpointModeEnabled={isBreakpointModeEnabled}
+        responsiveMode={responsiveMode}
+        onRemoveBreakpoint={onRemoveBreakpoint}
+      />
       <FieldOptions
         open={fieldOptionsOpen}
         field={field}
         name={name}
-        onResponsiveToggleChange={() => {
-          const uiState = getPuck().appState.ui;
-          onChange(value, uiState);
-        }}
-        onClose={() => {
-          setFieldOptionsOpen(false);
-        }}
+        onResponsiveToggleChange={onResponsiveToggleChange}
+        onClose={onCloseFieldOptions}
       />
     </Fieldset>
   );

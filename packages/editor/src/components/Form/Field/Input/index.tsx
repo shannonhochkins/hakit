@@ -89,6 +89,7 @@ export function InputField(props: InputFieldProps) {
     value,
     valuePrefix,
     valueSuffix,
+    ...rest
   } = props;
   const [charCount, setCharCount] = useState(0);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -120,7 +121,7 @@ export function InputField(props: InputFieldProps) {
   // Only show footer if there's content to display
   const shouldShowFooter = helperText || (props.type === 'multiline' && props.showCharCount && props.maxLength);
   return (
-    <div className={containerClasses} onClick={onClick}>
+    <div className={containerClasses} onClick={onClick} {...rest}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
       <Row alignItems='start' justifyContent='start' gap='var(--space-2)' wrap='nowrap'>
         <div className={inputWrapperClasses}>

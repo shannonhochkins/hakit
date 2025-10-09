@@ -261,11 +261,12 @@ const ViewportControlsComponent = () => {
           {Math.round(previewZoom * 100)}% (auto)
         </span>
       </Row>
-      <Modal open={editingBreakpoints} title='Breakpoints' onClose={onClose}>
-        <p>
-          Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one
-          before it.
-        </p>
+      <Modal
+        open={editingBreakpoints}
+        title='Breakpoints'
+        onClose={onClose}
+        description='Breakpoints let you customize the layout/options for different screen sizes. Each enabled breakpoint must be larger than the one before it.'
+      >
         <Column gap='1rem' fullWidth>
           {controlledBreakpointItems.map((item, index) => {
             // find the previous non-disabled breakpoint
@@ -312,7 +313,7 @@ const ViewportControlsComponent = () => {
                   options={Object.keys(BREAKPOINT_ICONS).map(key => ({ label: BREAKPOINT_ICONS[key as IconKey].label, value: key }))}
                   renderOption={option =>
                     option && BREAKPOINT_ICONS[option.value as IconKey] ? (
-                      <Row gap='0.5rem' alignItems='center' justifyContent='flex-start'>
+                      <Row gap='0.5rem' alignItems='center' justifyContent='flex-start' wrap='nowrap'>
                         {React.createElement(BREAKPOINT_ICONS[option.value as IconKey].component, { size: 18 })}
                         {BREAKPOINT_ICONS[option.value as IconKey].label}
                       </Row>
@@ -350,6 +351,7 @@ const ViewportControlsComponent = () => {
                   required
                   value={item.title}
                   type='text'
+                  size='small'
                   disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
                   onChange={event => {
                     const val = event.target.value;
@@ -368,12 +370,15 @@ const ViewportControlsComponent = () => {
                 />
 
                 <InputField
+                  label='Size *'
                   readOnly={item.disabled}
                   id={`size-${item.id}`}
                   style={{
                     width: '100%',
+                    maxWidth: '10rem',
                     opacity: item.disabled ? '0.3' : '1',
                   }}
+                  size='small'
                   value={item.width}
                   error={!isWidthValue}
                   helperText={
@@ -423,7 +428,8 @@ const ViewportControlsComponent = () => {
                     id={`toggle-${item.id}`}
                     name={`toggle-${item.id}`}
                     label='Status'
-                    helperText='Toggle this breakpoint on/off'
+                    size='small'
+                    isolated={false}
                     checked={!item.disabled}
                     onChange={event => {
                       const val = (event.target as HTMLInputElement).checked;

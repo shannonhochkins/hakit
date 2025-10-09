@@ -111,11 +111,6 @@ export function generateComponentBreakpointMap(databaseValue: PuckPageData): Com
 
     // This is a regular object - traverse its properties
     for (const [key, value] of Object.entries(objectRecord)) {
-      // Skip excluded keys (like 'id', 'type', etc.)
-      if (key === 'id' || key === 'type' || key === 'puck' || key === 'editMode' || key === 'children') {
-        continue;
-      }
-
       const fieldPath = basePath ? `${basePath}.${key}` : key;
 
       if (value && typeof value === 'object') {

@@ -154,7 +154,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
   const acceptRecovery = useCallback(() => {
     const stored = getStoredData();
     if (!stored?.data) return;
-    const { dashboard, setPuckPageData, userConfig, activeBreakpoint } = useGlobalStore.getState();
+    const { dashboard, setPuckPageData, userConfig } = useGlobalStore.getState();
     // remove local storage data always
     removeStoredData();
     const page = dashboard?.pages.find(page => page.path === params?.pagePath);
@@ -175,8 +175,6 @@ export function useUnsavedChanges(): UnsavedChangesState {
     const sanitizedData = sanitizePuckData({
       data: stored.data,
       userConfig,
-      activeBreakpoint,
-      removeBreakpoints: false,
     });
     if (!sanitizedData) {
       toast('Failed to sanitize stored data, unable to restore', {

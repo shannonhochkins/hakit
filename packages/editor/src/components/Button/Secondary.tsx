@@ -15,5 +15,5 @@ export const SecondaryButton = (props: SecondaryButtonProps) => {
     },
     props.className
   );
-  return <BaseButton {...props} className={computed} />;
+  return <BaseButton {...props} className={computed} variant='secondary' />;
 };

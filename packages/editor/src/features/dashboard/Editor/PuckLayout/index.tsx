@@ -8,14 +8,12 @@ import { Toolbar } from './Toolbar';
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { ResizeHandleIcon } from './ResizeHandle';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
-import { useGlobalStore } from '@hooks/useGlobalStore';
 import styles from './PuckLayout.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
 const getClassName = getClassNameFactory('PuckLayout', styles);
 
 export function PuckLayout() {
-  const emotionCache = useGlobalStore(state => state.emotionCache);
   const { setLeftSidebarCollapsed, setRightSidebarCollapsed, leftSidebar, rightSidebar } = useEditorUIStore();
   const leftPanelRef = useRef<ImperativePanelHandle>(null);
   const rightPanelRef = useRef<ImperativePanelHandle>(null); // Simple onChange handler - just update unsavedPuckPageData
@@ -95,7 +93,6 @@ export function PuckLayout() {
           flex: '1 1 0',
           maxHeight: 'calc(100% - var(--header-height))',
           minWidth: 0,
-          opacity: emotionCache ? 1 : 0,
         }}
       >
         <PanelGroup autoSaveId='hakit-panels' direction='horizontal' id='hakit-panels'>

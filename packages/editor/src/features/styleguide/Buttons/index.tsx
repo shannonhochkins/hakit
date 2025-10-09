@@ -1,7 +1,7 @@
 import { Group } from '@components/Group';
 import { Column } from '@components/Layout';
 import { PrimaryButton, SecondaryButton, Fab, IconButton } from '@components/Button';
-import { MailIcon, PlusIcon, Trash2Icon, CheckIcon } from 'lucide-react';
+import { MailIcon, PlusIcon, Trash2Icon, CheckIcon, BellIcon, XIcon } from 'lucide-react';
 
 export function StyleguideButtons() {
   return (
@@ -110,6 +110,103 @@ export function StyleguideButtons() {
         <Fab aria-label='Fab active' active icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab with pulse' pulse icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab with custom radius' borderRadius='12px' icon={<PlusIcon size={18} />} />
+      </Group>
+
+      <Group title='Buttons with Badges'>
+        <PrimaryButton
+          aria-label='Primary with badge'
+          badge={<BellIcon size={10} />}
+          badge-aria-label='Notification badge'
+          badgeProps={{
+            onClick: e => {
+              console.debug('Primary button badge clicked', e);
+            },
+          }}
+        >
+          Notifications
+        </PrimaryButton>
+        <SecondaryButton
+          aria-label='Secondary with badge'
+          badge={<XIcon size={10} />}
+          badge-aria-label='Close badge'
+          badgeProps={{
+            onClick: e => {
+              console.debug('Secondary button badge clicked', e);
+            },
+          }}
+        >
+          With Badge
+        </SecondaryButton>
+        <IconButton
+          aria-label='Icon button with badge'
+          icon={<MailIcon size={16} />}
+          badge={<span>3</span>}
+          badge-aria-label='3 unread messages'
+          badgeProps={{
+            onClick: e => {
+              console.debug('Icon button badge clicked', e);
+            },
+          }}
+        />
+        <IconButton
+          aria-label='Icon button with badge'
+          icon={<MailIcon size={16} />}
+          badge={<span>3</span>}
+          badge-aria-label='3 unread messages'
+          variant='error'
+          badgeProps={{
+            onClick: e => {
+              console.debug('Icon button badge clicked', e);
+            },
+          }}
+        />
+        <IconButton
+          aria-label='Icon button with badge'
+          icon={<MailIcon size={16} />}
+          badge={<span>3</span>}
+          badge-aria-label='3 unread messages'
+          variant='success'
+          badgeProps={{
+            onClick: e => {
+              console.debug('Icon button badge clicked', e);
+            },
+          }}
+        />
+        <Fab
+          aria-label='FAB with badge'
+          icon={<PlusIcon size={18} />}
+          badge={<span>!</span>}
+          badge-aria-label='Important notification'
+          badgeProps={{
+            onClick: e => {
+              console.debug('FAB badge clicked', e);
+            },
+          }}
+        />
+        <Fab
+          aria-label='FAB with badge'
+          icon={<PlusIcon size={18} />}
+          badge={<span>!</span>}
+          size='xs'
+          badge-aria-label='Important notification'
+          variant='success'
+        />
+        <Fab
+          aria-label='FAB with badge'
+          icon={<PlusIcon size={18} />}
+          badge={<span>!</span>}
+          size='xs'
+          badge-aria-label='Important notification'
+          variant='error'
+        />
+        <Fab
+          aria-label='FAB with badge'
+          icon={<PlusIcon size={18} />}
+          badge={<span>!</span>}
+          size='sm'
+          badge-aria-label='Important notification'
+          variant='transparent'
+        />
       </Group>
     </Column>
   );

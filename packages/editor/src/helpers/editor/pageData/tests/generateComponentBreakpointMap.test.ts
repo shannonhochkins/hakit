@@ -15,9 +15,7 @@ export const databaseData: PuckPageData = {
             $xlg: 16,
             $sm: 14,
           },
-          text: {
-            $xlg: '',
-          },
+          text: '',
         },
         id: 'Field Test-d60b055e-d02a-4ff0-b6b5-74c4d6c26a00',
       },
@@ -32,6 +30,7 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(databaseData);
       expect(result).toEqual({
         'Field Test-d60b055e-d02a-4ff0-b6b5-74c4d6c26a00': {
+          id: false,
           'options.number': true,
           'options.text': false,
         },
@@ -49,12 +48,12 @@ describe('generateComponentBreakpointMap', () => {
       expect(result).toEqual({});
     });
 
-    test('should detect multiple breakpoints in root props', () => {
+    test('should detect breakpoint objects in root props (both single and multiple breakpoints)', () => {
       const input: PuckPageData = {
         root: {
           props: {
             backgroundColor: { $xlg: '#ffffff', $md: '#f5f5f5' }, // multiple breakpoints -> true
-            padding: { $xlg: 24 }, // single breakpoint -> false
+            padding: { $xlg: 24 }, // single breakpoint -> true (changed behavior)
             margin: 16, // no breakpoints -> false
           },
         },
@@ -66,13 +65,13 @@ describe('generateComponentBreakpointMap', () => {
       expect(result).toEqual({
         root: {
           backgroundColor: true,
-          padding: false,
+          padding: true,
           margin: false,
         },
       });
     });
 
-    test('should detect multiple breakpoints in component props', () => {
+    test('should detect breakpoint objects in component props (both single and multiple breakpoints)', () => {
       const input: PuckPageData = {
         root: { props: {} },
         content: [
@@ -80,8 +79,8 @@ describe('generateComponentBreakpointMap', () => {
             type: 'HeadingBlock',
             props: {
               id: 'heading-1',
-              title: { $xlg: 'Desktop Title', $sm: 'Mobile Title' }, // multiple -> true
-              subtitle: { $xlg: 'Desktop Subtitle' }, // single -> false
+              title: { $xlg: 'Desktop Title', $sm: 'Mobile Title' }, // multiple breakpoints -> true
+              subtitle: { $xlg: 'Desktop Subtitle' }, // single breakpoint -> true (changed behavior)
               size: 'large', // no breakpoints -> false
             },
           },
@@ -92,8 +91,9 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'heading-1': {
+          id: false,
           title: true,
-          subtitle: false,
+          subtitle: true,
           size: false,
         },
       });
@@ -125,11 +125,13 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'heading-1': {
+          id: false,
           title: true,
         },
         'text-1': {
+          id: false,
           content: true,
-          fontSize: false,
+          fontSize: true,
         },
       });
     });
@@ -146,10 +148,10 @@ describe('generateComponentBreakpointMap', () => {
               id: 'nested-1',
               style: {
                 fontSize: { $xlg: '2rem', $md: '1.5rem' }, // multiple -> true
-                color: { $xlg: '#333' }, // single -> false
+                color: { $xlg: '#333' }, // single -> true
                 margin: {
                   top: { $xlg: 16, $sm: 8 }, // multiple -> true
-                  bottom: { $xlg: 16 }, // single -> false
+                  bottom: { $xlg: 16 }, // single -> true
                 },
               },
               config: {
@@ -167,10 +169,11 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'nested-1': {
+          id: false,
           'style.fontSize': true,
-          'style.color': false,
+          'style.color': true,
           'style.margin.top': true,
-          'style.margin.bottom': false,
+          'style.margin.bottom': true,
           'config.enabled': false,
           'config.options.autoplay': true,
         },
@@ -201,6 +204,7 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'deep-1': {
+          id: false,
           'level1.level2.level3.value': true,
         },
       });
@@ -235,9 +239,10 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'list-1': {
+          id: false,
           items: false, // The array field itself has no breakpoints
           'items.title': true, // Found breakpoint fields within array items
-          'items.description': false,
+          'items.description': true,
           'items.count': false,
         },
       });
@@ -266,10 +271,11 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'nested-array-1': {
+          id: false,
           sections: false, // The array itself
           'sections.title': true, // Breakpoint field within array items
           'sections.items': false, // Nested array
-          'sections.items.name': true, // At least one item has multiple breakpoints for name
+          'sections.items.name': true, // At least one item has breakpoint object for name
         },
       });
     });
@@ -306,10 +312,12 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'sidebar-1': {
+          id: false,
           width: true,
-          visible: false,
+          visible: true,
         },
         'footer-1': {
+          id: false,
           copyright: true,
         },
       });
@@ -317,19 +325,19 @@ describe('generateComponentBreakpointMap', () => {
   });
 
   describe('excluded keys', () => {
-    test('should exclude system keys from breakpoint detection', () => {
+    test('should not exclude system keys from breakpoint detection', () => {
       const input: PuckPageData = {
         root: { props: {} },
         content: [
           {
             type: 'ComponentWithSystemKeys',
             props: {
-              id: 'component-1', // excluded
-              type: 'SomeType', // excluded
-              puck: { $xlg: 'puck-value', $md: 'puck-tablet' }, // excluded
-              editMode: { $xlg: true, $md: false }, // excluded
-              children: { $xlg: 'child-desktop', $sm: 'child-mobile' }, // excluded
-              title: { $xlg: 'Real Title', $md: 'Short Title' }, // should be included
+              id: 'component-1', // included (system field)
+              type: 'SomeType', // included (system field)
+              puck: { $xlg: 'puck-value', $md: 'puck-tablet' }, // included (system field)
+              editMode: { $xlg: true, $md: false }, // included (system field)
+              children: { $xlg: 'child-desktop', $sm: 'child-mobile' }, // included (system field)
+              title: { $xlg: 'Real Title', $md: 'Short Title' }, // included (normal field)
             },
           },
         ],
@@ -339,7 +347,12 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'component-1': {
+          id: false,
+          children: true, // children is now detected (not excluded anymore)
           title: true,
+          type: false,
+          puck: true,
+          editMode: true,
         },
       });
     });
@@ -453,6 +466,7 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         'mixed-1': {
+          id: false,
           mixedArray: false,
           'mixedArray.title': true, // Found breakpoint field in object within array
           'mixedArray.staticProp': false, // Found non-breakpoint field
@@ -548,18 +562,21 @@ describe('generateComponentBreakpointMap', () => {
           padding: true,
         },
         'HeadingBlock-59619f25-0704-4507-9e84-787500239d3b': {
+          id: false,
           title: true,
           subtitle: true,
           'style.fontSize': true,
-          'style.color': false,
+          'style.color': true,
         },
         'ContentBlock-abc123': {
+          id: false,
           content: true,
           items: false,
-          'items.name': true, // Has multiple breakpoints in first item
-          'items.value': true, // Has multiple breakpoints in first item
+          'items.name': true, // Has breakpoint object in array items
+          'items.value': true, // Has breakpoint object in array items
         },
         'nav-123': {
+          id: false,
           'links.home': true,
           'links.about': true,
         },
@@ -585,7 +602,7 @@ describe('generateComponentBreakpointMap', () => {
                         alt: { $xlg: 'Company Logo' },
                         dimensions: {
                           width: { $xlg: 200, $md: 150, $sm: 100 },
-                          height: { $xlg: 60, $md: 45, $sm: 30 },
+                          height: 30,
                         },
                       },
                     },
@@ -620,16 +637,19 @@ describe('generateComponentBreakpointMap', () => {
       expect(result).toEqual({
         'complex-1': {
           // The deeply nested structure reveals actual breakpoint fields
+          id: false,
           'layout.header.components': false,
+          'layout.header.components.type': false,
+          'layout.header.components.props.id': false,
           'layout.header.components.props.src': true,
-          'layout.header.components.props.alt': false,
+          'layout.header.components.props.alt': true,
           'layout.header.components.props.dimensions.width': true,
-          'layout.header.components.props.dimensions.height': true,
+          'layout.header.components.props.dimensions.height': false,
           'main.sections': false,
           'main.sections.title': true,
           'main.sections.blocks': false,
           'main.sections.blocks.content.text': true,
-          'main.sections.blocks.content.metadata.author': false,
+          'main.sections.blocks.content.metadata.author': true,
           'main.sections.blocks.content.metadata.publishDate': true,
         },
       });
@@ -665,10 +685,12 @@ describe('generateComponentBreakpointMap', () => {
       // Verify it processed all components
       expect(Object.keys(result)).toHaveLength(100);
       expect(result['component-0']).toEqual({
+        id: false,
         title: true,
         'nested.deep.value': true,
       });
       expect(result['component-99']).toEqual({
+        id: false,
         title: true,
         'nested.deep.value': true,
       });
@@ -684,6 +706,7 @@ describe('generateComponentBreakpointMap', () => {
                 level2: {
                   level3: {
                     value: { $xlg: 'deep', $md: 'shallow' },
+                    value2: 'test',
                   },
                 },
               },
@@ -698,8 +721,9 @@ describe('generateComponentBreakpointMap', () => {
       const result = generateComponentBreakpointMap(input);
       expect(result).toEqual({
         root: {
-          title: false,
+          title: true,
           'nested.level1.level2.level3.value': true,
+          'nested.level1.level2.level3.value2': false,
         },
       });
     });

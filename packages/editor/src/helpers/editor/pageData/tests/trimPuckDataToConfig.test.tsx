@@ -60,12 +60,12 @@ describe('trimPuckDataToConfig', () => {
   });
 
   describe('component field trimming', () => {
-    test('should strip _activeBreakpoint which is an internal field from the trimmed data even if defined as a field', () => {
+    test('should strip device which does not exist', () => {
       const componentName = 'TestComponent' as const;
       const data: PuckPageData = {
         root: {
           props: {
-            _activeBreakpoint: 'xlg',
+            device: 'xlg',
           },
           content: [
             {
@@ -82,7 +82,7 @@ describe('trimPuckDataToConfig', () => {
                     hideClock: false,
                   },
                 },
-                _activeBreakpoint: 'xlg',
+                device: 'xlg',
                 validField: {
                   $xlg: 'valid value',
                 },
@@ -119,7 +119,7 @@ describe('trimPuckDataToConfig', () => {
                 },
               },
               id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
-              _activeBreakpoint: 'xlg',
+              device: 'xlg',
             },
           },
         ],
@@ -183,7 +183,7 @@ describe('trimPuckDataToConfig', () => {
       };
 
       const result = trimPuckDataToConfig(data, userConfig as CustomPuckConfig);
-      // should strip out _activeBreakpoint from all props recursively
+      // should strip out device from all props recursively
       expect(result?.content[0].props).toEqual({
         id: `${componentName}-61ed4f08-37ce-41d2-90b8-fecd4583bd5a`,
         validField: {
@@ -1934,7 +1934,7 @@ describe('extendPuckDataWithDefaults', () => {
     const mockData: PuckPageData = {
       zones: {},
       content: [],
-      root: { props: {} },
+      root: { props: {}, content: [] },
     };
 
     const mockUserConfig: CustomPuckConfig<DefaultComponentProps> = {

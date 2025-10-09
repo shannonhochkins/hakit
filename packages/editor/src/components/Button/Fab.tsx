@@ -1,19 +1,15 @@
 import React from 'react';
-import { ButtonHTMLAttributes } from 'react';
-import { TooltipProps } from '@components/Tooltip';
-import { BaseButton } from './BaseButton';
+import { BaseButton, type BaseButtonProps } from './BaseButton';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './Fab.module.css';
 
 const getFabClassName = getClassNameFactory('Fab', styles);
 // Props interface for the FAB
-export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface FabProps extends Omit<BaseButtonProps, 'variant'> {
   /** Icon to display in the center of the FAB */
   icon: React.ReactNode;
-  /** Size variant of the FAB */
-  size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Color variant of the FAB */
-  variant?: 'primary' | 'secondary' | 'transparent' | 'error';
+  variant?: BaseButtonProps['variant'] | 'transparent';
   /** Whether the FAB should pulse to draw attention */
   pulse?: boolean;
   /** Custom border radius for the FAB */
@@ -22,10 +18,6 @@ export interface FabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   /** Position variant for floating placement */
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'relative';
-  /** Custom label for accessibility */
-  'aria-label': string;
-  /** override the tooltip props */
-  tooltipProps?: Partial<TooltipProps>;
   /** if the button should appear active */
   active?: boolean;
 }
@@ -58,6 +50,7 @@ export const Fab = ({
       variantTransparent: variant === 'transparent',
       variantError: variant === 'error',
       variantPrimary: !variant || variant === 'primary',
+      variantSuccess: variant === 'success',
       pulse: pulse && !loading,
       loading: !!loading,
       active: !!active,
@@ -84,6 +77,7 @@ export const Fab = ({
       size={size}
       autoWidth
       tooltipProps={tooltipProps}
+      variant={variant}
       style={{
         ...style,
         borderRadius: borderRadius || style?.borderRadius || '50%',

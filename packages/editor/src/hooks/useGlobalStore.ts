@@ -100,8 +100,6 @@ type PuckConfigurationStore = {
   modalStack: number[]; // track modal "depths" by ID or index
   pushModal: () => number;
   popModal: (id: number) => void;
-  editorMode: boolean;
-  setEditorMode: (editorMode: boolean) => void;
   componentBreakpointMap: ComponentBreakpointModeMap;
   setComponentBreakpointMap: (componentBreakpointModeMap: ComponentBreakpointModeMap) => void;
   // Actions object for centralized operations
@@ -180,8 +178,6 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         modalStack: state.modalStack.filter(mid => mid !== id),
       }));
     },
-    setEditorMode: (editorMode: boolean) => set(state => ({ ...state, editorMode })),
-    editorMode: false,
 
     // Actions object for centralized operations
     actions: {
