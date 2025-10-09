@@ -25,7 +25,7 @@ import { BreakpointIndicators } from './BreakpointIndicators';
 
 export type StandardFieldComponentProps<Props extends DefaultComponentProps = DefaultComponentProps> = {
   // these excluded field types render differently and don't need all these fancy changes
-  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'divider' | 'hidden' }>;
+  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'hidden' }>;
   name: string;
   onChange: (value: Props) => void;
   value: Props;
@@ -143,9 +143,13 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const onRemoveBreakpoint = useCallback(
     (newValue: unknown) => {
       const uiState = getPuck().appState.ui;
-      onChange(newValue, uiState);
+      puckOnChange(
+        newValue,
+        // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
+        uiState
+      );
     },
-    [getPuck, onChange]
+    [getPuck, puckOnChange]
   );
 
   const onResponsiveToggleChange = useCallback(() => {
@@ -157,38 +161,20 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     setFieldOptionsOpen(false);
   }, []);
 
+  const fieldsetClassName = useMemo(() => {
+    return `hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${
+      isBreakpointModeEnabled && responsiveMode ? styles.bpModeEnabled : ''
+    }`;
+  }, [field.className, field.type, isBreakpointModeEnabled, responsiveMode]);
+
+  const fieldsetStyles = useMemo(() => {
+    return {
+      display: isVisible ? 'block' : 'none',
+    };
+  }, [isVisible]);
+
   return (
-    <Fieldset
-      style={{
-        display: isVisible ? 'block' : 'none',
-      }}
-      id={id}
-      className={`hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${
-        isBreakpointModeEnabled && responsiveMode ? styles.bpModeEnabled : ''
-      }`}
-    >
-      {/* <FieldLabel
-        label={field.label}
-        description={field.description}
-        icon={_icon}
-        readOnly={field.readOnly}
-        className={`hakit-field-label`}
-        endAdornment={
-          <>
-            {allowTemplates && (
-              <SwitchField
-                name={`${id}-template-toggle`}
-                label='Template'
-                checked={templateMode}
-                onChange={e => {
-                  e.stopPropagation();
-                  handleTemplateToggle((e.target as HTMLInputElement).checked);
-                }}
-              />
-            )}
-          </>
-        }
-      /> */}
+    <Fieldset style={fieldsetStyles} id={id} className={fieldsetClassName}>
       <FieldWrapper className={`hakit-field-wrapper`}>
         <div className={styles.fieldInput}>
           {allowTemplates && templateMode ? (

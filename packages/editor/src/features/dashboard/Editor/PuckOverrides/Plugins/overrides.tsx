@@ -1,4 +1,5 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
+import { memo } from 'react';
 import { DrawerItem } from '../DrawerItem';
 import { FieldDefinition } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
@@ -14,7 +15,35 @@ type AllFieldRenderers = FieldRenderFunctions<
 // Props accepted by any field renderer in fieldTypes (union of all variants)
 type FieldWrapperProps = Parameters<AllFieldRenderers[keyof AllFieldRenderers]>[0];
 
-const FieldWrapper = ({ field, name, onChange, value, id }: FieldWrapperProps) => {
+function areValuesDeepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+  // Arrays
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i += 1) {
+      if (!areValuesDeepEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+
+  // Plain objects
+  const aObj = a as Record<string, unknown>;
+  const bObj = b as Record<string, unknown>;
+  const aKeys = Object.keys(aObj);
+  const bKeys = Object.keys(bObj);
+  if (aKeys.length !== bKeys.length) return false;
+  for (const key of aKeys) {
+    if (!Object.prototype.hasOwnProperty.call(bObj, key)) return false;
+    if (!areValuesDeepEqual(aObj[key], bObj[key])) return false;
+  }
+  return true;
+}
+
+const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperProps) => {
   if (field.type === 'object' || field.type === 'array' || field.type === 'pages') {
     return (
       <CollapsibleFieldWrapper
@@ -36,6 +65,21 @@ const FieldWrapper = ({ field, name, onChange, value, id }: FieldWrapperProps) =
     />
   );
 };
+
+const MemoFieldWrapperInner = memo(FieldWrapperInner, (prevProps, nextProps) => {
+  // Allow re-render if field type changes (ensures correct wrapper)
+  if (prevProps.field.type !== nextProps.field.type) return false;
+  // Re-render when handler identity changes
+  if (prevProps.onChange !== nextProps.onChange) return false;
+  // Re-render when value changes deeply
+  if (!areValuesDeepEqual(prevProps.value, nextProps.value)) return false;
+  // Ignore other prop changes (name, id, etc.) for performance
+  return true;
+});
+MemoFieldWrapperInner.displayName = 'FieldWrapper';
+
+// Preserve function renderer shape expected by Puck
+const FieldWrapper = (props: FieldWrapperProps) => <MemoFieldWrapperInner {...props} />;
 
 export const createPuckOverridesPlugin = (): Plugin<
   Config<{
@@ -83,8 +127,6 @@ export const createPuckOverridesPlugin = (): Plugin<
         },
         hidden: FieldWrapper,
         slot: FieldWrapper,
-        divider: FieldWrapper,
-        // custom: FieldWrapper,
       },
     },
   };

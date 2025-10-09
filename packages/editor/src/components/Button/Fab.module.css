@@ -106,7 +106,7 @@
 .sizeLg { width: 64px; height: 64px; font-size: var(--font-size-xl); }
 
 /* Positions */
-.positionRelative {}
+.positionRelative { position: relative; }
 .positionFixed { position: fixed; z-index: var(--z-fixed); }
 .bottomRight { bottom: var(--space-6); right: var(--space-6); }
 .bottomLeft { bottom: var(--space-6); left: var(--space-6); }
@@ -237,8 +237,14 @@
 .Fab--variantError { composes: variantError; }
 .Fab--variantPrimary { composes: variantPrimary; }
 .Fab--variantSuccess { composes: variantSuccess; }
-/* Use base position classes directly in TS instead of composing here */
 
+/* Use base position classes directly in TS instead of composing here */
+.Fab--positionRelative { composes: positionRelative; }
+.Fab--positionFixed { composes: positionFixed; }
+.Fab--bottomLeft { composes: bottomLeft; }
+.Fab--topRight { composes: topRight; }
+.Fab--topLeft { composes: topLeft; }
+.Fab--bottomRight { composes: bottomRight; }
 @media (prefers-contrast: high) {
   .fab { border: 2px solid currentColor; }
 }

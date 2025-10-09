@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { type BreakPoint } from '@hakit/components';
 import { Row } from '@components/Layout';
-import { IconButton } from '@components/Button/IconButton';
+import { IconButton, IconButtonProps } from '@components/Button/IconButton';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { isBreakpointObject } from '@helpers/editor/pageData/isBreakpointObject';
 import { BREAKPOINT_ICONS } from '@constants';
@@ -89,6 +89,19 @@ export function BreakpointIndicators({
           const tooltipText = `${label}: ${truncateValue(value)}`;
           const IconComponent = getIconComponent(icon);
 
+          const badgeProps: Partial<IconButtonProps> = {
+            badge: <X size={8} />,
+            badgeVariant: 'secondary',
+            'badge-aria-label': `Remove ${label} breakpoint`,
+            badgeProps: {
+              onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                e.stopPropagation();
+                const newValue = removeBreakpointData(puckValue, key);
+                onRemoveBreakpoint(newValue);
+              },
+            },
+          };
+
           return (
             <IconButton
               key={key}
@@ -102,16 +115,7 @@ export function BreakpointIndicators({
                 title: tooltipText,
                 placement: 'top',
               }}
-              badge={<X size={8} />}
-              badgeVariant='secondary'
-              badge-aria-label={`Remove ${label} breakpoint`}
-              badgeProps={{
-                onClick: (e: React.MouseEvent<HTMLDivElement>) => {
-                  e.stopPropagation();
-                  const newValue = removeBreakpointData(puckValue, key);
-                  onRemoveBreakpoint(newValue);
-                },
-              }}
+              {...(key !== 'xlg' ? badgeProps : {})}
             />
           );
         })}

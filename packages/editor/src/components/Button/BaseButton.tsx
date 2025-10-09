@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { ButtonHTMLAttributes } from 'react';
 import { Tooltip, TooltipProps } from '@components/Tooltip';
 import styles from './BaseButton.module.css';
@@ -43,7 +43,7 @@ export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 // React component wrapper with all logic
-export const BaseButton = ({
+const BaseButtonPrivate = ({
   children,
   startIcon,
   endIcon,
@@ -79,18 +79,25 @@ export const BaseButton = ({
     },
     providedClassName
   );
+  const tooltipStyles = useMemo(() => {
+    return {
+      width: fullWidth ? '100%' : undefined,
+      height: fullHeight ? '100%' : undefined,
+      ...tooltipProps?.style,
+    };
+  }, [fullWidth, fullHeight, tooltipProps?.style]);
+
+  const onBadgeClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      badgeProps?.onClick?.(e);
+    },
+    [badgeProps]
+  );
+
   return (
     <div className={getClassName('BaseButton-wrapper')}>
-      <Tooltip
-        title={props['aria-label'] || ''}
-        placement='top'
-        {...tooltipProps}
-        style={{
-          width: fullWidth ? '100%' : undefined,
-          height: fullHeight ? '100%' : undefined,
-          ...tooltipProps?.style,
-        }}
-      >
+      <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps} style={tooltipStyles}>
         <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
           {startIcon && !loading && <>{startIcon}</>}
           {children}
@@ -116,10 +123,7 @@ export const BaseButton = ({
               },
               badgeProps?.className
             )}
-            onClick={e => {
-              e.stopPropagation();
-              badgeProps?.onClick?.(e);
-            }}
+            onClick={onBadgeClick}
           >
             {badge}
           </div>
@@ -128,3 +132,5 @@ export const BaseButton = ({
     </div>
   );
 };
+
+export const BaseButton = memo(BaseButtonPrivate);

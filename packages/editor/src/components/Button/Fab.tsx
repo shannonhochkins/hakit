@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BaseButton, type BaseButtonProps } from './BaseButton';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './Fab.module.css';
@@ -57,31 +57,33 @@ export const Fab = ({
     },
     className
   );
-  const positionClasses =
-    position === 'relative'
-      ? [styles.positionRelative]
-      : [
-          styles.positionFixed,
-          position === 'bottom-left'
-            ? styles.bottomLeft
-            : position === 'top-right'
-              ? styles.topRight
-              : position === 'top-left'
-                ? styles.topLeft
-                : styles.bottomRight,
-        ];
+  const posClasses = getFabClassName({
+    positionRelative: position === 'relative',
+    positionFixed: position === 'bottom-left' || position === 'top-right' || position === 'top-left' || position === 'bottom-right',
+    bottomLeft: position === 'bottom-left',
+    topRight: position === 'top-right',
+    topLeft: position === 'top-left',
+    bottomRight: position === 'bottom-right',
+  });
+
+  const fabClassName = useMemo(() => [computed, ...posClasses].join(' '), [computed, posClasses]);
+
+  const styles = useMemo(() => {
+    return {
+      ...style,
+      borderRadius: borderRadius || style?.borderRadius || '50%',
+    };
+  }, [style, borderRadius]);
+
   return (
     <BaseButton
-      className={[computed, ...positionClasses].join(' ')}
+      className={fabClassName}
       disabled={disabled || loading}
       size={size}
       autoWidth
       tooltipProps={tooltipProps}
       variant={variant}
-      style={{
-        ...style,
-        borderRadius: borderRadius || style?.borderRadius || '50%',
-      }}
+      style={styles}
       {...props}
     >
       {loading ? null : icon}

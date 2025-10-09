@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './ImageField.module.css';
-import { deleteFile, uploadImage } from '@services/upload';
+import { uploadImage } from '@services/upload';
 import { InputField, InputFileProps } from '../Input';
 import { PreloadImage } from '@hakit/components';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
@@ -120,7 +120,6 @@ export const ImageField = ({
         setError('Error uploading image');
       })
       .finally(() => {
-        // TODO - Loading state?
         setLoading(false);
       });
   };
@@ -132,13 +131,9 @@ export const ImageField = ({
         open={confirmDelete}
         onConfirm={() => {
           setConfirmDelete(false);
-          setLoading(true);
-          deleteFile(value).finally(() => {
-            setLoading(false);
-            setFile(null);
-            setError(null);
-            onChange('');
-          });
+          setFile(null);
+          setError(null);
+          onChange('');
         }}
         onCancel={() => {
           setConfirmDelete(false);
@@ -168,12 +163,12 @@ export const ImageField = ({
               {value ? (
                 <PrimaryButton
                   size='xs'
-                  aria-label='Delete image'
+                  aria-label='Remove image'
                   variant='error'
                   onClick={() => setConfirmDelete(true)}
                   className={styles.deleteButton}
                 >
-                  Delete
+                  Remove
                 </PrimaryButton>
               ) : (
                 <SecondaryButton size='xs' aria-label='Choose image'>

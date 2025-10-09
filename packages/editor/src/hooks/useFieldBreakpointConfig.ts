@@ -6,7 +6,7 @@ import { FieldConfiguration } from '@typings/fields';
 const RESPONSIVE_MODE_DEFAULT = true;
 
 export function useFieldBreakpointConfig(
-  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'divider' | 'hidden' }>,
+  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'hidden' }>,
   name: string
 ) {
   // Get componentBreakpointMap from store

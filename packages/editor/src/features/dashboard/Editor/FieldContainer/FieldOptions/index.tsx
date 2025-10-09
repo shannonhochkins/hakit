@@ -14,7 +14,7 @@ export function FieldOptions({
   onResponsiveToggleChange,
 }: {
   open: boolean;
-  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'divider' | 'hidden' }>;
+  field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'hidden' }>;
   onClose: () => void;
   name: string;
   onResponsiveToggleChange: (value: boolean) => void;

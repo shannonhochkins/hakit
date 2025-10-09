@@ -375,34 +375,6 @@ export function renderField(props: RenderFieldProps) {
           value={props.value}
         />
       );
-    case 'divider':
-      return (
-        <div
-          style={{
-            width: '100%',
-            height: '1px',
-            backgroundColor: 'var(--color-border)',
-            margin: 'var(--space-2) 0',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: 'var(--color-surface)',
-              padding: '0 var(--space-2)',
-              fontSize: 'var(--font-size-xs)',
-              color: 'var(--color-text-muted)',
-              fontWeight: 'var(--font-weight-medium)',
-            }}
-          >
-            {props.field.label}
-          </div>
-        </div>
-      );
     default:
       // Helper function for exhaustive type checking for invalid use of field types
       return (
