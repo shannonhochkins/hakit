@@ -41,7 +41,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
 }: StandardFieldComponentProps<Props>) {
   const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
-  const value = dbValueToPuck(puckValue, activeBreakpoint ?? 'xlg');
+  const value = useMemo(() => dbValueToPuck(puckValue, activeBreakpoint ?? 'xlg'), [puckValue, activeBreakpoint]);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const getPuck = useGetPuck();
   const { selectedItem, appState } = getPuck();
@@ -53,8 +53,9 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const { responsiveMode, isBreakpointModeEnabled } = useFieldBreakpointConfig(field, name);
 
   const onChange = useCallback(
-    (value: unknown, uiState?: Partial<UiState>) => {
+    (value: unknown) => {
       if (typeof value === 'undefined') return;
+      const uiState = getPuck().appState.ui;
       const isValueBreakpointObject = isBreakpointObject(puckValue);
       if (responsiveMode && isBreakpointModeEnabled) {
         puckOnChange(
@@ -81,7 +82,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         );
       }
     },
-    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled]
+    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled, getPuck]
   );
 
   const componentIdForMap = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
@@ -143,6 +144,9 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const onRemoveBreakpoint = useCallback(
     (newValue: unknown) => {
       const uiState = getPuck().appState.ui;
+      // intentionally just triggering puckOnChange instead of onChange as we know it's already
+      // a breakpoint object so we just send it
+      // the user has just decided to remove an individual breakpoint value
       puckOnChange(
         newValue,
         // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
@@ -153,9 +157,8 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   );
 
   const onResponsiveToggleChange = useCallback(() => {
-    const uiState = getPuck().appState.ui;
-    onChange(value, uiState);
-  }, [getPuck, onChange, value]);
+    onChange(value);
+  }, [onChange, value]);
 
   const onCloseFieldOptions = useCallback(() => {
     setFieldOptionsOpen(false);
@@ -194,7 +197,9 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         open={fieldOptionsOpen}
         field={field}
         name={name}
+        templateMode={allowTemplates && templateMode}
         onResponsiveToggleChange={onResponsiveToggleChange}
+        onTemplateToggleChange={handleTemplateToggle}
         onClose={onCloseFieldOptions}
       />
     </Fieldset>

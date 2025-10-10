@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 import { IconButton } from '@components/Button/IconButton';
 import styles from './RightSidebar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
 
 const getClassName = getClassNameFactory('RightSidebar', styles);
 
@@ -35,6 +36,8 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
     onToggle(true);
   }, [setRightSidebarCollapsed, onToggle]);
 
+  const breadcrumbs = useBreadcrumbs();
+
   const tabHeading = selectedItem ? `${selectedItem.type} Options` : 'Global Options';
 
   return (
@@ -51,6 +54,14 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
       ) : (
         <div className={getClassName('expandedSidebar')}>
           <div className={getClassName('sidebarHeader')}>
+            {breadcrumbs.map(breadcrumb => (
+              <a
+                key={breadcrumb.label}
+                onClick={() => dispatch({ type: 'setUi', ui: { itemSelector: breadcrumb.selector }, recordHistory: true })}
+              >
+                {breadcrumb.label}
+              </a>
+            ))}
             <IconButton
               variant='transparent'
               onClick={onClickCollapseSidebar}

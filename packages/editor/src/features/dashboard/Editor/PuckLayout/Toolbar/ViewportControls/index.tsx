@@ -114,6 +114,63 @@ const ViewportControlsComponent = () => {
     }
   }, [activeBreakpoint, breakpointItems, setPreviewCanvasWidth]);
 
+  // Helper: return new array with xlg auto-sized to (max enabled + 1) if non-editable
+  const computeAutoXlgWidth = useCallback((items: BreakpointItem[]) => {
+    const enabledOthers = items.filter(bp => !bp.disabled && bp.id !== 'xlg');
+    if (enabledOthers.length === 0) return items;
+    const maxWidth = Math.max(...enabledOthers.map(bp => bp.width));
+    const desiredXlg = maxWidth + 1;
+    const idx = items.findIndex(bp => bp.id === 'xlg' && !bp.editable);
+    if (idx === -1) return items;
+    const current = items[idx];
+    if (current.width === desiredXlg) return items;
+    const next = [...items];
+    next[idx] = { ...current, width: desiredXlg };
+    return next;
+  }, []);
+
+  const onIconChange = useCallback((id: BreakPoint, icon: IconKey) => {
+    setControlledBreakpointItems(prev => {
+      const next = [...prev];
+      const i = next.findIndex(b => b.id === id);
+      if (i !== -1) next[i] = { ...next[i], icon };
+      return next;
+    });
+  }, []);
+
+  const onNameChange = useCallback((id: BreakPoint, title: string) => {
+    setControlledBreakpointItems(prev => {
+      const next = [...prev];
+      const i = next.findIndex(b => b.id === id);
+      if (i !== -1) next[i] = { ...next[i], title };
+      return next;
+    });
+  }, []);
+
+  const onSizeChange = useCallback(
+    (id: BreakPoint, width: number) => {
+      setControlledBreakpointItems(prev => {
+        const next = [...prev];
+        const i = next.findIndex(b => b.id === id);
+        if (i !== -1) next[i] = { ...next[i], width };
+        return computeAutoXlgWidth(next);
+      });
+    },
+    [computeAutoXlgWidth]
+  );
+
+  const onStatusChange = useCallback(
+    (id: BreakPoint, enabled: boolean) => {
+      setControlledBreakpointItems(prev => {
+        const next = [...prev];
+        const i = next.findIndex(b => b.id === id);
+        if (i !== -1) next[i] = { ...next[i], disabled: !enabled };
+        return computeAutoXlgWidth(next);
+      });
+    },
+    [computeAutoXlgWidth]
+  );
+
   const activeViewport = useGlobalStore(state => state.activeBreakpoint);
   // Try to find in enabled options first, but fall back to all breakpoints if needed (for disabled but selected breakpoints)
   const value = useMemo(() => {
@@ -299,12 +356,14 @@ const ViewportControlsComponent = () => {
                 }}
               >
                 <SelectField
-                  label={`Icon ${item.id}`}
+                  label={`Icon`}
                   name={`icon-${item.id}`}
                   readOnly={item.disabled}
                   id={`icon-${item.id}`}
+                  aria-label={`Icon ${item.id}`}
                   style={{
                     width: '100%',
+                    minWidth: '33%',
                     opacity: item.disabled ? '0.3' : '1',
                   }}
                   size='small'
@@ -320,61 +379,39 @@ const ViewportControlsComponent = () => {
                     ) : null
                   }
                   helperText={item.disabled ? '' : 'Icon for this breakpoint'}
-                  onChange={option => {
-                    const val = option.value;
-                    setControlledBreakpointItems(prev => {
-                      const newItems = [...prev];
-                      const index = newItems.findIndex(i => i.id === item.id);
-                      if (index !== -1) {
-                        newItems[index] = {
-                          ...newItems[index],
-                          icon: val as IconKey,
-                        };
-                      }
-                      return newItems;
-                    });
-                  }}
+                  onChange={option => onIconChange(item.id, option.value as IconKey)}
                 />
 
                 <InputField
                   readOnly={item.disabled}
                   id={`name-${item.id}`}
                   name={`name-${item.id}`}
+                  aria-label={`Name ${item.id}`}
                   label='Title *'
                   placeholder='Name of the breakpoint'
                   style={{
                     width: '100%',
+                    minWidth: '33%',
                     opacity: item.disabled ? '0.3' : '1',
                   }}
                   error={!isTitleValid}
-                  helperText={!item.editable ? '' : isTitleValid ? 'Name of the breakpoint' : 'Name is required'}
+                  helperText={isTitleValid ? 'Name of the breakpoint' : 'Name is required'}
                   required
                   value={item.title}
                   type='text'
                   size='small'
                   disabled={(!item.editable || item.disabled) && item.id !== 'xlg'}
-                  onChange={event => {
-                    const val = event.target.value;
-                    setControlledBreakpointItems(prev => {
-                      const newItems = [...prev];
-                      const index = newItems.findIndex(i => i.id === item.id);
-                      if (index !== -1) {
-                        newItems[index] = {
-                          ...newItems[index],
-                          title: val,
-                        };
-                      }
-                      return newItems;
-                    });
-                  }}
+                  onChange={event => onNameChange(item.id, event.target.value)}
                 />
 
                 <InputField
                   label='Size *'
                   readOnly={item.disabled}
                   id={`size-${item.id}`}
+                  aria-label={`Size ${item.id}`}
                   style={{
                     width: '100%',
+                    minWidth: '20%',
                     maxWidth: '10rem',
                     opacity: item.disabled ? '0.3' : '1',
                   }}
@@ -383,7 +420,7 @@ const ViewportControlsComponent = () => {
                   error={!isWidthValue}
                   helperText={
                     !item.editable
-                      ? ''
+                      ? 'Auto computed based on previous enabled breakpoint'
                       : isWidthValue
                         ? 'The max size for the current breakpoint'
                         : `Value should be larger than ${previousWidth}`
@@ -405,20 +442,7 @@ const ViewportControlsComponent = () => {
                       </Tooltip>
                     )
                   }
-                  onChange={event => {
-                    const val = event.target.value;
-                    setControlledBreakpointItems(prev => {
-                      const newItems = [...prev];
-                      const index = newItems.findIndex(i => i.id === item.id);
-                      if (index !== -1) {
-                        newItems[index] = {
-                          ...newItems[index],
-                          width: parseInt(val, 10),
-                        };
-                      }
-                      return newItems;
-                    });
-                  }}
+                  onChange={event => onSizeChange(item.id, parseInt(event.target.value, 10))}
                 />
                 {item.editable ? (
                   <SwitchField
@@ -427,24 +451,12 @@ const ViewportControlsComponent = () => {
                     }}
                     id={`toggle-${item.id}`}
                     name={`toggle-${item.id}`}
+                    aria-label={`Status ${item.id}`}
                     label='Status'
                     size='small'
                     isolated={false}
                     checked={!item.disabled}
-                    onChange={event => {
-                      const val = (event.target as HTMLInputElement).checked;
-                      setControlledBreakpointItems(prev => {
-                        const newItems = [...prev];
-                        const index = newItems.findIndex(i => i.id === item.id);
-                        if (index !== -1) {
-                          newItems[index] = {
-                            ...newItems[index],
-                            disabled: !val,
-                          };
-                        }
-                        return newItems;
-                      });
-                    }}
+                    onChange={event => onStatusChange(item.id, (event.target as HTMLInputElement).checked)}
                   />
                 ) : (
                   <div

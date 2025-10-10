@@ -1,5 +1,5 @@
 import { AdditionalRenderProps, ComponentFactoryData, IgnorePuckConfigurableOptions, RenderProps, InternalRootData } from '@typings/puck';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
 import { defaultRootConfig, DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
@@ -101,14 +101,9 @@ export async function createRootComponent<P extends DefaultComponentProps>(
     fields: updatedRootConfig.fields,
     // Create a render function that calls all root render functions
     render(renderProps: RenderProps<InternalRootData & InternalRootComponentFields>) {
-      const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
-      console.log('activeBreakpoint', activeBreakpoint);
-      // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
-      // this will flatten the breakpoint data to only contain the active breakpoint data
-      const flattenedData = dbValueToPuck(renderProps, activeBreakpoint);
       return (
         <RenderErrorBoundary prefix='Root'>
-          <Render {...flattenedData} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
+          <Render {...renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
         </RenderErrorBoundary>
       );
     },
@@ -142,11 +137,15 @@ function Render<P extends DefaultComponentProps>({
   puck,
   processedConfigs,
   remoteKeys,
-  ...props
+  ...renderProps
 }: RenderProps<InternalRootData & InternalRootComponentFields> & {
   processedConfigs: CustomRootConfigWithRemote<P>[];
   remoteKeys: Set<string>;
 }) {
+  const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
+  // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
+  // this will flatten the breakpoint data to only contain the active breakpoint data
+  const props = dbValueToPuck(renderProps, activeBreakpoint) as RenderProps<InternalRootData & InternalRootComponentFields>;
   const editorElements = usePuckIframeElements();
   const { id, styles, editMode = false, content: Content } = props;
   const processedProps = useTemplates(props);
@@ -171,17 +170,26 @@ function Render<P extends DefaultComponentProps>({
     })
     .join('\n');
 
+  const propsForRootMap = useMemo(() => {
+    const map = new Map<string, Record<string, unknown>>();
+    for (const rootConfig of processedConfigs) {
+      const additionalProps: AdditionalRenderProps = {
+        _id: id,
+        _editMode: editMode ?? puck.isEditing,
+        _editor: editorElements,
+        _dashboard: dashboard,
+      };
+      const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
+      map.set(rootConfig._remoteRepositoryId, propsForThisRoot);
+    }
+    return map;
+  }, [processedConfigs, id, editMode, puck.isEditing, editorElements, dashboard, processedProps, remoteKeys]);
+
   return (
     <>
       {processedConfigs.map((rootConfig, index) => {
         if (rootConfig?.render) {
-          const additionalProps: AdditionalRenderProps = {
-            _id: id,
-            _editMode: editMode,
-            _editor: editorElements,
-            _dashboard: dashboard,
-          };
-          const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
+          const propsForThisRoot = propsForRootMap.get(rootConfig._remoteRepositoryId)!;
           return (
             <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>
           );

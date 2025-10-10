@@ -1,10 +1,11 @@
-import { Puck } from '@measured/puck';
+import { createUsePuck, Puck } from '@measured/puck';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useCallback, useEffect, useRef } from 'react';
 import styles from './Preview.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('Preview', styles);
 
+const usePuck = createUsePuck();
 /**
  * Preview Component
  *
@@ -20,6 +21,7 @@ export function Preview() {
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   const previewCanvasWidth = useGlobalStore(store => store.previewCanvasWidth);
   const setPreviewZoom = useGlobalStore(store => store.setPreviewZoom);
+  const dispatch = usePuck(c => c.dispatch);
 
   // Refs for direct DOM manipulation (avoid re-renders)
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,6 +75,14 @@ export function Preview() {
     }
   }, [activeBreakpoint, previewCanvasWidth]);
 
+  const deselect = useCallback(() => {
+    dispatch({
+      type: 'setUi',
+      ui: { itemSelector: null },
+      recordHistory: true,
+    });
+  }, [dispatch]);
+
   // Recalculate zoom when breakpoint or canvas width changes
   useEffect(() => {
     calculateAndApplyZoom();
@@ -96,7 +106,7 @@ export function Preview() {
 
   return (
     <div ref={containerRef} className={getClassName('Preview-Container')}>
-      <div className={getClassName('Preview-CanvasWrapper')}>
+      <div className={getClassName('Preview-CanvasWrapper')} onClick={deselect}>
         <div className={getClassName('Preview-Row')}>
           <div ref={previewContainerRef} className={getClassName('Preview-PreviewContainer')}>
             <div className={getClassName('Preview-Content')} ref={contentRef}>

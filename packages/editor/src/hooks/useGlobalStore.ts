@@ -65,7 +65,7 @@ const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap =>
   return map;
 };
 
-type PuckConfigurationStore = {
+export type PuckConfigurationStore = {
   activeBreakpoint: BreakPoint;
   setActiveBreakpoint: (activeBreakpoint: BreakPoint) => void;
   previewCanvasWidth: number; // Width of the preview canvas, controlled by the toolbar

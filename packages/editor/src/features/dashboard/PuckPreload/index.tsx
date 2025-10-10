@@ -64,7 +64,6 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
         getAllEntities,
         getAllServices: getServices,
       }).then(config => {
-        console.log('test] config', config);
         setUserConfig(config);
         setBreakPointItems(breakpoints);
         useThemeStore.getState().setBreakpoints(breakpointItemToBreakPoints(breakpoints));
@@ -82,33 +81,12 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
     }
   }, [dashboard, pagePath]);
 
-  useEffect(() => {
-    console.log('[test] userConfig', typeof userConfig);
-  }, [userConfig]);
-
-  useEffect(() => {
-    console.log('[test] dashboard', typeof dashboard);
-  }, [dashboard]);
-
-  useEffect(() => {
-    console.log('[test] dashboardPath', typeof dashboardPath);
-  }, [dashboardPath]);
-
-  useEffect(() => {
-    console.log('[test] pagePath', typeof pagePath);
-  }, [pagePath]);
-
-  useEffect(() => {
-    console.log('[test] children', typeof children);
-  }, [children]);
-
   if (dashboardQuery.isLoading) {
     return <Spinner absolute text='Loading dashboard data' />;
   }
   if (!userConfig) {
     return <Spinner absolute text='Connecting the dots...' />;
   }
-  console.log('[test] rendering children', typeof children);
 
   return children;
 }

@@ -1,10 +1,12 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { DrawerItem } from '../DrawerItem';
 import { FieldDefinition } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
 import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
+import { useDebouncer } from '@tanstack/react-pacer';
+import isEqual from '@guanghechen/fast-deep-equal';
 
 type AllFieldRenderers = FieldRenderFunctions<
   Config<{
@@ -15,35 +17,37 @@ type AllFieldRenderers = FieldRenderFunctions<
 // Props accepted by any field renderer in fieldTypes (union of all variants)
 type FieldWrapperProps = Parameters<AllFieldRenderers[keyof AllFieldRenderers]>[0];
 
-function areValuesDeepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (a === null || b === null) return a === b;
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-
-  // Arrays
-  if (Array.isArray(a) || Array.isArray(b)) {
-    if (!Array.isArray(a) || !Array.isArray(b)) return false;
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i += 1) {
-      if (!areValuesDeepEqual(a[i], b[i])) return false;
-    }
-    return true;
-  }
-
-  // Plain objects
-  const aObj = a as Record<string, unknown>;
-  const bObj = b as Record<string, unknown>;
-  const aKeys = Object.keys(aObj);
-  const bKeys = Object.keys(bObj);
-  if (aKeys.length !== bKeys.length) return false;
-  for (const key of aKeys) {
-    if (!Object.prototype.hasOwnProperty.call(bObj, key)) return false;
-    if (!areValuesDeepEqual(aObj[key], bObj[key])) return false;
-  }
-  return true;
-}
-
 const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperProps) => {
+  const [localValue, setLocalValue] = useState(value);
+  const latestValueRef = useRef(value);
+  useEffect(() => {
+    latestValueRef.current = localValue;
+  }, [localValue]);
+
+  // use tanstack debounce to trigger on change after 150ms
+  const debouncedOnChange = useDebouncer(onChange, {
+    wait: 150,
+  });
+
+  // Keep localValue in sync with prop value (prop is source of truth)
+  useEffect(() => {
+    if (!isEqual(value, latestValueRef.current)) {
+      setLocalValue(value);
+    }
+    // Cancel any pending debounced call when the source-of-truth changes
+    debouncedOnChange.cancel();
+  }, [value, debouncedOnChange]);
+
+  const _onChange = useCallback(
+    (next: unknown) => {
+      setLocalValue(next);
+      // Reset and schedule the latest value to ensure trailing delivery
+      debouncedOnChange.cancel();
+      debouncedOnChange.maybeExecute(next);
+    },
+    [debouncedOnChange]
+  );
+
   if (field.type === 'object' || field.type === 'array' || field.type === 'pages') {
     return (
       <CollapsibleFieldWrapper
@@ -59,8 +63,8 @@ const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperPro
     <StandardFieldWrapper
       field={field as StandardFieldComponentProps['field']}
       name={name}
-      onChange={onChange}
-      value={value}
+      onChange={_onChange}
+      value={localValue}
       id={id ?? name}
     />
   );
@@ -72,7 +76,7 @@ const MemoFieldWrapperInner = memo(FieldWrapperInner, (prevProps, nextProps) => 
   // Re-render when handler identity changes
   if (prevProps.onChange !== nextProps.onChange) return false;
   // Re-render when value changes deeply
-  if (!areValuesDeepEqual(prevProps.value, nextProps.value)) return false;
+  if (!isEqual(prevProps.value, nextProps.value)) return false;
   // Ignore other prop changes (name, id, etc.) for performance
   return true;
 });
