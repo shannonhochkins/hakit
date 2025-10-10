@@ -458,9 +458,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       html {
-        /* Prevent horizontal scroll */
-        overflow-x: hidden;
-        overflow-y: auto;
         
         /* Better font rendering on macOS/iOS */
         -webkit-font-smoothing: antialiased;
