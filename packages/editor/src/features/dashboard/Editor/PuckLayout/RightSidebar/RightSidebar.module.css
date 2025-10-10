@@ -50,3 +50,19 @@
   max-height: calc(100% - var(--header-height));
   overflow-y: auto;
 }
+
+.RightSidebar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+  &:hover, &:active, &:focus {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+
+.RightSidebar-breadcrumbLabel {
+  font-weight: var(--font-weight-normal);
+  color: var(--color-text-secondary);
+}

@@ -2,9 +2,11 @@ import React, { useMemo, useEffect } from 'react';
 import { computeDomain, EntityName } from '@hakit/core';
 import { Row, Column } from '@components/Layout';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { usePuckSelectedItem } from '@hooks/usePuckSelectedItem';
 import { getDefaultServiceByEntity } from '@helpers/editor/services';
 import { AutocompleteField } from '../Autocomplete';
+import { createUsePuck } from '@measured/puck';
+
+const usePuck = createUsePuck();
 
 interface Option {
   value: string;
@@ -42,11 +44,7 @@ interface ServiceFieldProps {
 }
 
 export function ServiceField({ id, name, value, onChange, readOnly, helperText, label, icon }: ServiceFieldProps) {
-  const selectedItem = usePuckSelectedItem<{
-    options?: {
-      entity?: string;
-    };
-  }>();
+  const selectedItem = usePuck(c => c.selectedItem);
   const valueFromSelected = selectedItem?.props?.options?.entity;
   const entity = valueFromSelected || 'sun.sun';
   const services = useGlobalStore(store => store.services);

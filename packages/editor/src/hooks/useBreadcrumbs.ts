@@ -9,7 +9,10 @@ type ItemSelector = {
 };
 
 type Breadcrumb = {
+  id: string;
   label: string;
+  isFirst: boolean;
+  isLast: boolean;
   selector: ItemSelector | null;
 };
 
@@ -39,29 +42,50 @@ function getSlots(node: { props?: Record<string, unknown> }): Array<{ name: stri
   return slots;
 }
 
-export function useBreadcrumbs(): Breadcrumb[] {
+function getNodeId(node: PuckNode | null | undefined): string | undefined {
+  const id = node?.props?.['id'];
+  return typeof id === 'string' ? id : undefined;
+}
+
+export function useBreadcrumbs(renderCount?: number): Breadcrumb[] {
   const selectedItem = usePuck(c => c.appState.ui.itemSelector);
   const config = usePuck(c => c.config);
   const data = usePuck(c => c.appState.data) as WithSlotProps<FakePuckPageData>;
 
-  console.log('selectedItem', selectedItem);
-
   return useMemo<Breadcrumb[]>(() => {
-    if (!selectedItem) return [];
+    // Start with the default Dashboard crumb once
+    const crumbs: Breadcrumb[] = [
+      {
+        label: 'Dashboard',
+        isFirst: true,
+        isLast: false,
+        selector: null,
+        id: 'root',
+      },
+    ];
+
+    if (!selectedItem) {
+      // When nothing is selected, only show the default crumb
+      crumbs[0].isLast = true;
+      const finalCrumbs = typeof renderCount === 'number' && renderCount > 0 ? crumbs.slice(-renderCount) : crumbs;
+      return finalCrumbs;
+    }
 
     const rootContent: PuckNode[] = Array.isArray(data?.root?.props?.content) ? (data.root.props.content as PuckNode[]) : [];
 
     const zoneStr = selectedItem.zone ?? '';
     const colon = zoneStr.lastIndexOf(':');
     if (colon <= 0) {
-      return [{ label: 'Page', selector: null }];
+      // ⬅️ previously returned [{ label: 'Page', selector: null }]
+      return [];
     }
     const componentId = zoneStr.slice(0, colon);
     const slotName = zoneStr.slice(colon + 1);
 
     const labelFor = (node: PuckNode | null | undefined): string => {
       if (!node) return 'Component';
-      return (config?.components as any)?.[node.type]?.label ?? node.type ?? 'Component';
+      const cfg = (config as unknown as { components?: Record<string, { label?: string }> })?.components;
+      return cfg?.[node.type]?.label ?? node.type ?? 'Component';
     };
 
     type StackEntry = {
@@ -77,14 +101,14 @@ export function useBreadcrumbs(): Breadcrumb[] {
     const pushAndRecurse = (current: PuckNode, parentId: string, parentSlot: string, indexInParent: number): boolean => {
       path.push({ node: current, parentId, parentSlot, indexInParent });
 
-      if ((current?.props as any)?.id === componentId) {
+      if (getNodeId(current) === componentId) {
         return true;
       }
 
       for (const slot of getSlots(current)) {
         for (let i = 0; i < slot.items.length; i++) {
           const child = slot.items[i];
-          if (pushAndRecurse(child, ((current?.props as any)?.id as string) ?? 'root', slot.name, i)) {
+          if (pushAndRecurse(child, getNodeId(current) ?? 'root', slot.name, i)) {
             return true;
           }
         }
@@ -94,7 +118,6 @@ export function useBreadcrumbs(): Breadcrumb[] {
       return false;
     };
 
-    // 🔧 SPECIAL-CASE: when zone is "root:<slot>", we’re selecting within the virtual root.
     if (componentId !== 'root') {
       for (let i = 0; i < rootContent.length && !found; i++) {
         const child = rootContent[i];
@@ -103,15 +126,11 @@ export function useBreadcrumbs(): Breadcrumb[] {
         }
       }
     } else {
-      // Pretend we "found" the container; its slot is the top-level content.
       found = true;
     }
 
-    const crumbs: Breadcrumb[] = [{ label: 'Page', selector: null }];
-
     if (!found) return crumbs;
 
-    // If not root-container, add crumbs for each ancestor (including the container).
     if (componentId !== 'root') {
       for (const entry of path) {
         const { node, parentId, parentSlot, indexInParent } = entry;
@@ -119,26 +138,30 @@ export function useBreadcrumbs(): Breadcrumb[] {
         crumbs.push({
           label: labelFor(node),
           selector: { index: indexInParent, zone },
+          isFirst: false,
+          isLast: false,
+          id: getNodeId(node) ?? 'root',
         });
       }
     }
 
-    // Now add the selected child inside the container’s slot
     const idx = selectedItem.index ?? -1;
 
     let containerId = componentId;
     let containerSlot: PuckNode[] = [];
 
     if (componentId === 'root') {
-      // 🔧 use the top-level content as the slot
       containerId = 'root';
       containerSlot = rootContent;
     } else {
-      const container = path[path.length - 1]?.node; // node with props.id === componentId
-      containerId = ((container?.props as any)?.id as string) ?? componentId;
-      containerSlot = Array.isArray((container?.props as any)?.[slotName])
-        ? ((container?.props as any)[slotName] as unknown[] as PuckNode[])
-        : [];
+      const container = path[path.length - 1]?.node;
+      containerId = getNodeId(container) ?? componentId;
+      const rawSlot = container?.props ? container.props[slotName as keyof typeof container.props] : undefined;
+      if (Array.isArray(rawSlot) && rawSlot.every(isComponentNode)) {
+        containerSlot = rawSlot as PuckNode[];
+      } else {
+        containerSlot = [];
+      }
     }
 
     const validIndex = idx >= 0 && idx < containerSlot.length;
@@ -149,16 +172,23 @@ export function useBreadcrumbs(): Breadcrumb[] {
       crumbs.push({
         label: labelFor(child),
         selector: { index: idx, zone },
+        isFirst: false,
+        isLast: true,
+        id: `${containerId}:${slotName}`,
       });
     } else if (containerSlot.length > 0) {
-      // Fallback to a safe index if out of bounds
       const safeIndex = Math.max(0, Math.min(idx, containerSlot.length - 1));
       crumbs.push({
         label: 'Item',
         selector: { index: safeIndex, zone: `${containerId}:${slotName}` },
+        isFirst: false,
+        isLast: true,
+        id: `${containerId}:${slotName}`,
       });
     }
 
-    return crumbs;
-  }, [data, config, selectedItem]);
+    const finalCrumbs = typeof renderCount === 'number' && renderCount > 0 ? crumbs.slice(-renderCount) : crumbs;
+
+    return finalCrumbs;
+  }, [data, config, selectedItem, renderCount]);
 }
