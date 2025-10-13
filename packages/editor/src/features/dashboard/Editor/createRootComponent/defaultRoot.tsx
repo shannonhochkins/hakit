@@ -55,19 +55,12 @@ interface TypographyProps {
 }
 
 export type DefaultRootProps = {
-  id: string;
   background: BackgroundProps;
   typography: TypographyProps;
 };
 export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   label: 'Root',
   fields: {
-    id: {
-      type: 'text',
-      label: 'ID',
-      description: 'The ID of the root component',
-      default: 'root',
-    },
     background: {
       type: 'object',
       collapseOptions: {
@@ -652,7 +645,6 @@ function Render(props: RenderProps<DefaultRootProps>) {
 
   return (
     <>
-      {props.id}
       {/* 
         Note: Font links are rendered in component body rather than <head>.
         This is acceptable because:
