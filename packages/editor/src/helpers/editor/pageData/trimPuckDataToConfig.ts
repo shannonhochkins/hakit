@@ -51,12 +51,15 @@ export function trimPuckDataToConfig<
     if (!Array.isArray(arr)) return [];
     const out: ComponentData[] = [];
     for (const item of arr) {
-      if (!isComponent(item)) continue;
+      if (!isComponent(item)) {
+        continue;
+      }
       const componentConfig = userConfig.components?.[item.type as keyof typeof userConfig.components];
-      if (!componentConfig?.fields) continue; // Exclude components with no config
+      if (!componentConfig?.fields) {
+        continue;
+      } // Exclude components with no config
 
       const trimmedProps: Record<string, unknown> = {};
-
       // Preserve top-level id
       if (item.props?.id !== undefined) trimmedProps.id = item.props.id;
 
@@ -83,7 +86,6 @@ export function trimPuckDataToConfig<
     const result: Record<string, unknown> = {};
 
     for (const fieldKey in fields) {
-      if (fieldKey === '_activeBreakpoint') continue; // Skip _activeBreakpoint so we don't store in db
       const fieldConfig = fields[fieldKey as keyof F] as AnyFieldConfig;
       const value = obj[fieldKey];
       if (value === undefined) continue;
@@ -117,7 +119,13 @@ export function trimPuckDataToConfig<
 
     // Always retain styles if present on source, even if not defined in config
     if ('styles' in obj && result.styles === undefined) {
-      result.styles = (obj as Record<string, unknown>).styles;
+      result.styles = obj.styles;
+    }
+
+    // Check for any content arrays that might contain components (not just slot fields)
+    if ('content' in obj && Array.isArray(obj.content) && !('content' in result)) {
+      // This is a content array that wasn't processed by field config, trim it as components
+      result.content = trimContentArray(obj.content);
     }
 
     return result;
@@ -126,6 +134,10 @@ export function trimPuckDataToConfig<
   // Process content array (components)
   if (data.content) {
     trimmedData.content = trimContentArray(data.content);
+  }
+  // now process root content array (components)
+  if (data.root?.content) {
+    trimmedData.root.content = trimContentArray(data.root.content);
   }
 
   // Process root fields
@@ -150,6 +162,8 @@ export function trimPuckDataToConfig<
   return trimmedData;
 }
 
+// TODO - See if we can replace this with walkTree from puck
+
 /**
  * Extends PuckPageData with missing default properties from userConfig.defaultProps.
  * This should be called AFTER dbValueToPuck since that removes breakpoint keys.
@@ -166,45 +180,124 @@ export function extendPuckDataWithDefaults<
   const defaultProps = userConfig.root?.defaultProps;
   if (!defaultProps) return data;
 
-  // Deep clone to avoid mutations
-  const extendedData: PuckPageData = {
-    root: data.root ? { ...data.root, props: { ...data.root.props } } : { props: {} },
-    content: data.content ? [...data.content] : [],
-    zones: { ...data.zones },
-  };
-
-  // Extend root props with defaults
-  if (defaultProps && extendedData.root.props) {
-    // Extend each remote's props with their defaults
-    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps as Record<string, unknown>)) {
-      // only merge top level objects
-      if (remoteId in extendedData.root.props && typeof (extendedData.root.props as Record<string, unknown>)[remoteId] === 'object') {
-        // Remote exists, deep merge defaults (base) with existing data (overlay)
-        (extendedData.root.props as Record<string, unknown>)[remoteId] = merge(
-          remoteDefaults as Record<string, unknown>,
-          (extendedData.root.props as Record<string, unknown>)[remoteId] as Record<string, unknown>
-        );
-      } else {
-        // Remote doesn't exist, use defaults as-is
-        (extendedData.root.props as Record<string, unknown>)[remoteId] = remoteDefaults as Record<string, unknown>;
-      }
+  // Deep clone to avoid mutations - create a completely new structure
+  // Clone zones with new arrays to avoid shared references
+  const clonedZones: Record<string, ComponentData[]> = {};
+  if (data.zones) {
+    for (const [zoneName, zoneContent] of Object.entries(data.zones)) {
+      clonedZones[zoneName] = Array.isArray(zoneContent) ? [...zoneContent] : [];
     }
   }
 
-  // Extend component props with defaults
-  if (extendedData.content) {
-    extendedData.content = extendedData.content.map(item => {
-      const componentConfig = userConfig.components?.[item.type];
-      if (!componentConfig?.defaultProps) return item;
+  const extendedData: PuckPageData = {
+    root: data.root
+      ? {
+          ...data.root,
+          props: {}, // Start with empty props, will populate below
+          content: data.root.content ? [...data.root.content] : undefined,
+        }
+      : { props: {} },
+    content: data.content ? [...data.content] : [],
+    zones: clonedZones,
+  };
 
-      // Deep merge defaults (base) with existing component props (overlay)
-      const extendedProps = merge(componentConfig.defaultProps, item.props || {});
+  // Extend root props with defaults
+  if (defaultProps && data.root?.props) {
+    // Build new root props from scratch to avoid any shared references
+    const newRootProps: Record<string, unknown> = {};
 
+    // First, deep clone all existing props that aren't in defaults
+    for (const [key, value] of Object.entries(data.root.props)) {
+      if (!(key in defaultProps)) {
+        // Property not in defaults, deep clone it to avoid mutation
+        newRootProps[key] = typeof value === 'object' && value !== null ? JSON.parse(JSON.stringify(value)) : value;
+      }
+    }
+
+    // Then merge defaults with existing values
+    for (const [remoteId, remoteDefaults] of Object.entries(defaultProps as Record<string, unknown>)) {
+      if (remoteId in data.root.props && typeof (data.root.props as Record<string, unknown>)[remoteId] === 'object') {
+        // Remote exists, deep merge defaults (base) with existing data (overlay)
+        // merge creates a new object, so this is safe
+        newRootProps[remoteId] = merge(
+          remoteDefaults as Record<string, unknown>,
+          (data.root.props as Record<string, unknown>)[remoteId] as Record<string, unknown>
+        );
+      } else {
+        // Remote doesn't exist, use defaults as-is
+        newRootProps[remoteId] = remoteDefaults as Record<string, unknown>;
+      }
+    }
+
+    extendedData.root.props = newRootProps;
+  } else if (data.root?.props) {
+    // No defaults, but we still need to deep clone to avoid mutations
+    extendedData.root.props = JSON.parse(JSON.stringify(data.root.props)) as typeof data.root.props;
+  }
+
+  // Helper function to recursively extend a component item with default props
+  const extendComponentItem = (item: ComponentData): ComponentData => {
+    const componentConfig = userConfig.components?.[item.type];
+
+    if (!componentConfig?.defaultProps) {
+      // No defaults, but we still need to clone to avoid mutations
+      // Deep clone the props to ensure no shared references
       return {
         ...item,
-        props: extendedProps,
+        props: (item.props ? JSON.parse(JSON.stringify(item.props)) : {}) as ComponentData['props'],
       };
-    });
+    }
+
+    // Deep merge defaults (base) with existing component props (overlay)
+    // merge() creates a new object, so this is safe
+    const extendedProps = merge(componentConfig.defaultProps, item.props || {}) as ComponentData['props'];
+
+    // Recursively process any nested content arrays
+    const processedProps = { ...extendedProps } as Record<string, unknown>;
+
+    // Check if this component has a content array (slot field)
+    if (Array.isArray(processedProps.content)) {
+      processedProps.content = (processedProps.content as ComponentData[]).map(extendComponentItem);
+    }
+
+    // Check for any other props that might contain component arrays
+    for (const [key, value] of Object.entries(processedProps)) {
+      if (key !== 'content' && Array.isArray(value) && value.length > 0) {
+        // Check if this looks like a component array
+        const firstItem = value[0];
+        if (firstItem && typeof firstItem === 'object' && 'type' in firstItem && 'props' in firstItem) {
+          (processedProps as Record<string, unknown>)[key] = (value as ComponentData[]).map(extendComponentItem);
+        }
+      }
+    }
+
+    return {
+      ...item,
+      props: processedProps as ComponentData['props'],
+    };
+  };
+
+  // Extend component props with defaults (recursively)
+  if (extendedData.content) {
+    extendedData.content = extendedData.content.map(extendComponentItem);
+  } else {
+    extendedData.content = [];
+  }
+
+  // now process extendedData.root.content (recursively)
+  if (extendedData.root.content) {
+    extendedData.root.content = extendedData.root.content.map(extendComponentItem);
+  } else {
+    extendedData.root.content = [];
+  }
+
+  // also process zones (recursively)
+  if (extendedData.zones) {
+    for (const [zoneName, zoneContent] of Object.entries(extendedData.zones)) {
+      if (Array.isArray(zoneContent)) {
+        extendedData.zones[zoneName] = zoneContent.map(extendComponentItem);
+      }
+    }
   }
 
   return extendedData;

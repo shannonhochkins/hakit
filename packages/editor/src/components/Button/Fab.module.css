@@ -106,7 +106,7 @@
 .sizeLg { width: 64px; height: 64px; font-size: var(--font-size-xl); }
 
 /* Positions */
-.positionRelative {}
+.positionRelative { position: relative; }
 .positionFixed { position: fixed; z-index: var(--z-fixed); }
 .bottomRight { bottom: var(--space-6); right: var(--space-6); }
 .bottomLeft { bottom: var(--space-6); left: var(--space-6); }
@@ -196,6 +196,28 @@
   --button-overlay-bg-active: var(--gradient-primary-active);
 }
 
+.variantSuccess {
+  --button-bg: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-hover: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-active: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+
+  --button-color: var(--color-text-primary);
+  --button-border: none;
+  --button-border-hover: none;
+  --button-border-active: none;
+
+  --button-shadow: var(--shadow-success-base), var(--shadow-lg);
+  --button-shadow-hover: var(--shadow-success-hover), var(--shadow-xl);
+  --button-shadow-active: var(--shadow-success-active), var(--shadow-xl);
+  --button-shadow-focus: var(--shadow-success-focus);
+
+  --button-overlay-bg: transparent;
+  --button-overlay-bg-hover: var(--gradient-success-hover);
+  --button-overlay-bg-active: var(--gradient-success-active);
+}
+
+
 .active {
   /* non-empty so it can be composed */
   transform: translateZ(0);
@@ -214,8 +236,15 @@
 .Fab--variantTransparent { composes: variantTransparent; }
 .Fab--variantError { composes: variantError; }
 .Fab--variantPrimary { composes: variantPrimary; }
-/* Use base position classes directly in TS instead of composing here */
+.Fab--variantSuccess { composes: variantSuccess; }
 
+/* Use base position classes directly in TS instead of composing here */
+.Fab--positionRelative { composes: positionRelative; }
+.Fab--positionFixed { composes: positionFixed; }
+.Fab--bottomLeft { composes: bottomLeft; }
+.Fab--topRight { composes: topRight; }
+.Fab--topLeft { composes: topLeft; }
+.Fab--bottomRight { composes: bottomRight; }
 @media (prefers-contrast: high) {
   .fab { border: 2px solid currentColor; }
 }

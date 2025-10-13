@@ -1,5 +1,5 @@
-import type { Unit, UnitFieldValue, UnitFieldValueSingle, UnitFieldValueAllCorners } from './index';
-import { units } from './index';
+import type { Unit, UnitFieldValue, UnitFieldValueSingle, UnitFieldValueAllCorners } from '@typings/fields';
+import { units } from '@typings/fields';
 const DEFAULT_UNIT = 'px';
 
 /**

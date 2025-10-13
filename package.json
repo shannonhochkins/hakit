@@ -63,6 +63,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@guanghechen/fast-deep-equal": "^2.3.7",
     "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@octokit/rest": "^22.0.0",

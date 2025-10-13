@@ -38,7 +38,7 @@ export function getResolvedBreakpointValue(value: unknown, active: BreakPoint): 
   // From the active breakpoint onward...
   for (let i = startIndex; i < BREAKPOINT_ORDER.length; i++) {
     const bp = BREAKPOINT_ORDER[i];
-    const key = `$${bp}`;
+    const key: `$${BreakPoint}` = `$${bp}`;
     if (key in value && value[key] !== undefined) {
       // Found a defined value (null is valid, only undefined causes fallback)
       return value[key];

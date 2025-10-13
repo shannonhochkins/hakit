@@ -198,6 +198,8 @@ describe('isBreakpointObject', () => {
         // TypeScript should now know that value is Record<string, unknown>
         expect(typeof value).toBe('object');
         expect(value.$lg).toBe('test');
+        // @ts-expect-error - Types are strictly checked for breakpoint objects, width isn't a breakpoint key
+        // but just to ensure our functionality doesn't strip values we allow it here
         expect(value.width).toBe(100);
 
         // Should be able to access properties without type errors

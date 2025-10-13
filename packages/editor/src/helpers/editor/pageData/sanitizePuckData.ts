@@ -1,20 +1,26 @@
 import type { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import type { DefaultComponentProps } from '@measured/puck';
-import type { AvailableQueries } from '@hakit/components';
-import { dbValueToPuck } from './dbValueToPuck';
 import { extendPuckDataWithDefaults, trimPuckDataToConfig } from './trimPuckDataToConfig';
+
+export interface SanitizePuckDataOptions<
+  Props extends DefaultComponentProps = DefaultComponentProps,
+  RootProps extends DefaultComponentProps = DefaultComponentProps,
+> {
+  data: PuckPageData;
+  userConfig: CustomPuckConfig<Props, RootProps>;
+}
 
 export function sanitizePuckData<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
->(data: PuckPageData, userConfig: CustomPuckConfig<Props, RootProps>, activeBreakpoint: keyof AvailableQueries) {
+>(options: SanitizePuckDataOptions<Props, RootProps>) {
+  const { data, userConfig } = options;
+
   // First trim to only include valid fields
   const trimmedData = trimPuckDataToConfig(data, userConfig);
   if (trimmedData) {
-    // Convert to Puck format (removes breakpoint keys)
-    const puckValue = dbValueToPuck(trimmedData, activeBreakpoint);
-    // Then extend with missing default properties (after breakpoint keys are removed)
-    const extendedPuckValue = extendPuckDataWithDefaults(puckValue, userConfig);
+    // Then extend with missing default properties
+    const extendedPuckValue = extendPuckDataWithDefaults(trimmedData, userConfig);
     if (extendedPuckValue) {
       return extendedPuckValue;
     }

@@ -77,9 +77,7 @@ export const ColorField = ({
               width={250}
               height={150}
               value={value ?? 'transparent'}
-              onChange={color => {
-                onChange(color);
-              }}
+              onChange={onChange}
             />
           </div>
         </div>

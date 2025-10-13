@@ -272,7 +272,7 @@ describe('createRootComponent', () => {
         testField2: 99,
         sharedField: 'isolated value 2',
       },
-      _activeBreakpoint: 'mobile' as const,
+      device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
       content: () => <div data-testid='content-slot'>Content Slot</div>,
       _styleOverrides: { style: 'body { margin: 0; }' },
@@ -290,7 +290,7 @@ describe('createRootComponent', () => {
       expect.objectContaining({
         testField1: 'custom value 1',
         sharedField: 'isolated value 1',
-        _activeBreakpoint: 'mobile',
+        device: 'mobile',
         _dashboard: { id: 'test-dashboard' },
         _editMode: false,
         _editor: { iframe: null, document: null },
@@ -301,7 +301,7 @@ describe('createRootComponent', () => {
       expect.objectContaining({
         testField2: 99,
         sharedField: 'isolated value 2',
-        _activeBreakpoint: 'mobile',
+        device: 'mobile',
         _dashboard: { id: 'test-dashboard' },
         _editMode: false,
         _editor: { iframe: null, document: null },
@@ -338,7 +338,7 @@ describe('createRootComponent', () => {
       },
       content: () => <div data-testid='content-slot'>Content Slot</div>,
       _styleOverrides: { style: 'body { padding: 10px; }' },
-      _activeBreakpoint: 'mobile' as const,
+      device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
     };
 
@@ -418,7 +418,7 @@ describe('createRootComponent', () => {
       },
       content: () => <div>Content</div>,
       _styleOverrides: { style: 'body { margin: 10px; }' },
-      _activeBreakpoint: 'mobile' as const,
+      device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
     };
 
@@ -570,7 +570,7 @@ describe('createRootComponent', () => {
         anotherSlot: () => <div data-testid='another-slot-content'>Slot Content</div>,
       },
       content: () => <div data-testid='content-slot'>Main Content</div>,
-      _activeBreakpoint: 'mobile' as const,
+      device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
     };
 
@@ -587,7 +587,7 @@ describe('createRootComponent', () => {
         something: 'Test Something',
         somethingElse: 'Test Something Else',
         anotherSlot: expect.any(Function),
-        _activeBreakpoint: 'mobile',
+        device: 'mobile',
         _dashboard: { id: 'test-dashboard' },
         _editMode: false,
         _editor: { iframe: null, document: null },
@@ -1005,7 +1005,7 @@ describe('createRootComponent', () => {
         // Missing typography object entirely
       },
       content: () => <div>Content</div>,
-      _activeBreakpoint: 'mobile' as const,
+      device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
     };
 

@@ -73,6 +73,9 @@ function DashboardPageMultiSelect({
               label: 'Select Page',
               description: 'Select the page to navigate to',
               options,
+              metadata: {
+                type: 'page',
+              },
             },
           },
           min,
@@ -176,6 +179,9 @@ export const PageField = memo(function Page({ value, label, multiple, min, max, 
     <AutoField
       field={{
         type: 'select',
+        metadata: {
+          type: 'page',
+        },
         label: label,
         options: options,
         description: 'Select the page to navigate to',

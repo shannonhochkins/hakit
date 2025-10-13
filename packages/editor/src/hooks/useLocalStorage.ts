@@ -8,7 +8,7 @@ const getLocalStorageItem = (key: ValidStorageKeys) => {
   return window.localStorage.getItem(key);
 };
 
-const setLocalStorageItem = (key: ValidStorageKeys, value: unknown) => {
+export const setLocalStorageItem = <T>(key: ValidStorageKeys, value: T) => {
   const stringifiedValue = JSON.stringify(value);
   window.localStorage.setItem(key, stringifiedValue);
   dispatchStorageEvent(key, stringifiedValue);
@@ -102,7 +102,8 @@ export function useLocalStorage<T>(key: ValidStorageKeys, initialValue?: T): [T,
   );
 
   useEffect(() => {
-    if (getLocalStorageItem(key) === null && typeof initialValue !== 'undefined') {
+    const currentValue = getLocalStorageItem(key);
+    if (currentValue === null && typeof initialValue !== 'undefined') {
       setLocalStorageItem(key, initialValue);
     }
   }, [key, initialValue]);

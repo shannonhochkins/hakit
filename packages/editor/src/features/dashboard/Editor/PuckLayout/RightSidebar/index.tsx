@@ -1,12 +1,13 @@
-import { PanelLeftIcon, PanelRightIcon } from 'lucide-react';
+import { ChevronRight, PanelLeftIcon, PanelRightIcon } from 'lucide-react';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { Puck, createUsePuck } from '@measured/puck';
-import { usePuckSelectedItem } from '@hooks/usePuckSelectedItem';
 import { useCallback } from 'react';
 import { X } from 'lucide-react';
 import { IconButton } from '@components/Button/IconButton';
 import styles from './RightSidebar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
+import { Row } from '@components/Layout';
 
 const getClassName = getClassNameFactory('RightSidebar', styles);
 
@@ -15,7 +16,6 @@ const usePuck = createUsePuck();
 export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => void }) {
   const { rightSidebar, setRightSidebarCollapsed } = useEditorUIStore();
   const { isCollapsed } = rightSidebar;
-  const selectedItem = usePuckSelectedItem();
   const dispatch = usePuck(c => c.dispatch);
   const deselect = useCallback(() => {
     dispatch({
@@ -35,7 +35,7 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
     onToggle(true);
   }, [setRightSidebarCollapsed, onToggle]);
 
-  const tabHeading = selectedItem ? `${selectedItem.type} Options` : 'Global Options';
+  const breadcrumbs = useBreadcrumbs(2);
 
   return (
     <>
@@ -58,13 +58,30 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
               aria-label='Collapse properties'
             />
             <div className={getClassName('sidebarTitle')}>
-              {tabHeading}
-              {selectedItem && (
+              <Row wrap='nowrap' gap='var(--space-2)'>
+                {breadcrumbs.map(breadcrumb =>
+                  breadcrumb.isLast ? (
+                    <span key={breadcrumb.id} className={getClassName('breadcrumbLabel')}>
+                      {breadcrumb.label}
+                    </span>
+                  ) : (
+                    <a
+                      className={getClassName('breadcrumb')}
+                      key={breadcrumb.id}
+                      onClick={() => dispatch({ type: 'setUi', ui: { itemSelector: breadcrumb.selector }, recordHistory: true })}
+                    >
+                      {breadcrumb.label}
+                      <ChevronRight size={16} />
+                    </a>
+                  )
+                )}
+              </Row>
+              {breadcrumbs.length > 1 && (
                 <IconButton
                   variant='transparent'
                   onClick={deselect}
                   icon={<X size={16} />}
-                  aria-label='Deselect Component'
+                  aria-label='Deselect'
                   tooltipProps={{
                     placement: 'left',
                   }}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Group } from '@components/Group';
 import { Column } from '@components/Layout';
-import { UnitField, UnitFieldValue, UnitFieldValueSingle } from '@components/Form/Field/Unit';
+import type { UnitFieldValue, UnitFieldValueSingle } from '@typings/fields';
+import { UnitField } from '@components/Form/Field/Unit';
 
 export function StyleguideUnitFields() {
   // Controlled state examples

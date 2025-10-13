@@ -1,43 +1,88 @@
 // Bun Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`sanitizePuckData it should sanitize and retain all expected data and fields 1`] = `
+exports[`sanitizePuckData it should sanitize and retain all expected data and fields and not remove breakpoints 1`] = `
 {
   "content": [],
   "root": {
+    "content": [],
     "props": {
       "@hakit/default-root": {
         "background": {
           "backgroundImage": {},
-          "backgroundPosition": "center center",
-          "backgroundRepeat": "no-repeat",
-          "backgroundSize": "cover",
-          "backgroundSizeCustom": "",
-          "blur": 25,
-          "filterBrightness": 1,
-          "filterContrast": 1,
-          "filterGrayscale": 0,
-          "filterSaturate": 1,
-          "overlayBlendMode": "multiply",
-          "overlayColor": "#4254c5",
-          "overlayOpacity": 0.9,
+          "backgroundPosition": {
+            "$xlg": "center center",
+          },
+          "backgroundRepeat": {
+            "$xlg": "no-repeat",
+          },
+          "backgroundSize": {
+            "$xlg": "cover",
+          },
+          "backgroundSizeCustom": {
+            "$xlg": "",
+          },
+          "blur": {
+            "$xlg": 25,
+          },
+          "filterBrightness": {
+            "$xlg": 1,
+          },
+          "filterContrast": {
+            "$xlg": 1,
+          },
+          "filterGrayscale": {
+            "$xlg": 0,
+          },
+          "filterSaturate": {
+            "$xlg": 1,
+          },
+          "overlayBlendMode": {
+            "$xlg": "multiply",
+          },
+          "overlayColor": {
+            "$xlg": "#4254c5",
+          },
+          "overlayOpacity": {
+            "$xlg": 0.9,
+          },
           "test": {
+            "$xlg": "foo",
             "foo": "",
           },
-          "useAdvancedFilters": false,
-          "useBackgroundImage": true,
+          "useAdvancedFilters": {
+            "$xlg": false,
+          },
+          "useBackgroundImage": {
+            "$xlg": true,
+          },
         },
         "typography": {
-          "baseFontSize": "16px",
-          "bodyWeight": 400,
-          "fontColor": "#ffffff",
-          "fontFamily": "roboto",
-          "headingWeight": 600,
-          "letterSpacing": 0,
-          "lineHeight": 1.5,
-          "useAdvancedTypography": true,
+          "baseFontSize": {
+            "$xlg": "16px",
+          },
+          "bodyWeight": {
+            "$xlg": 400,
+          },
+          "fontColor": {
+            "$xlg": "#ffffff",
+          },
+          "fontFamily": {
+            "$xlg": "roboto",
+          },
+          "headingWeight": {
+            "$xlg": 600,
+          },
+          "letterSpacing": {
+            "$xlg": 0,
+          },
+          "lineHeight": {
+            "$xlg": 1.5,
+          },
+          "useAdvancedTypography": {
+            "$xlg": true,
+          },
         },
       },
-      "_activeBreakpoint": "xlg",
       "content": [
         {
           "props": {
@@ -67,8 +112,16 @@ exports[`sanitizePuckData it should sanitize and retain all expected data and fi
           "type": "Navigation",
         },
       ],
+      "device": {
+        "$xlg": "xlg",
+        "0": "x",
+        "1": "l",
+        "2": "g",
+      },
       "styles": {
-        "css": "",
+        "css": {
+          "$xlg": "",
+        },
       },
     },
   },

@@ -163,6 +163,7 @@ export function Modal({
                 flexShrink: 1,
                 maxWidth: '70%',
               }}
+              gap='var(--space-2)'
             >
               {title && <h4 className={getClassName('title')}>{title}</h4>}
               {description && <h4 className={getClassName('description')}>{description}</h4>}

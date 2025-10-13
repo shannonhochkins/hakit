@@ -5,6 +5,7 @@ import { PrimaryButton } from '@components/Button';
 import { InputField } from '@components/Form/Field/Input';
 import { Alert } from '@components/Alert';
 import React from 'react';
+import { Column } from '@components/Layout';
 
 // URL validation function
 const validateHomeAssistantUrl = (url: string): { isValid: boolean; error?: string } => {
@@ -110,39 +111,38 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
 
   return (
     <Modal open title='Home Assistant URL' hideCloseButton>
-      <InputField
-        id='url'
-        type='text'
-        label='Home Assistant URL *'
-        required
-        value={inputValue}
-        onChange={handleInputChange}
-        onBlur={handleBlur}
-        placeholder='Enter your Home Assistant URL'
-        error={!validation.isValid}
-        helperText={
-          validation.error ||
-          'Enter the URL of your Home Assistant instance. Can be local (http://192.168.1.100:8123) or remote (https://my-ha.duckdns.org)'
-        }
-        autoComplete='url'
-        spellCheck={false}
-        style={{
-          marginBottom: 'var(--space-4)',
-        }}
-      />
+      <Column gap='var(--space-4)' alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
+        <InputField
+          id='url'
+          type='text'
+          label='Home Assistant URL *'
+          required
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          placeholder='Enter your Home Assistant URL'
+          error={!validation.isValid}
+          helperText={
+            validation.error ||
+            'Enter the URL of your Home Assistant instance. Can be local (http://192.168.1.100:8123) or remote (https://my-ha.duckdns.org)'
+          }
+          autoComplete='url'
+          spellCheck={false}
+        />
 
-      {errorMessage && storageUrl && (
-        <Alert severity='warning' title='Invalid Credentials'>
-          We could not connect to your Home Assistant instance with the provided URL of <b>&quot;{storageUrl}&quot;</b>.
-          {storageUrl.includes('local') ? ' This appears to be a localhost url, are you connected to the same network? ' : ''} Please check
-          your URL and try again.
+        {errorMessage && storageUrl && (
+          <Alert severity='warning' title='Invalid Credentials'>
+            We could not connect to your Home Assistant instance with the provided URL of <b>&quot;{storageUrl}&quot;</b>.
+            {storageUrl.includes('local') ? ' This appears to be a localhost url, are you connected to the same network? ' : ''} Please
+            check your URL and try again.
+          </Alert>
+        )}
+
+        <Alert severity='info' title='Privacy Notice'>
+          We do not store your Home Assistant URL. It is only used locally in your browser to connect to your Home Assistant instance for
+          automation and integration purposes.
         </Alert>
-      )}
-
-      <Alert severity='info' title='Privacy Notice'>
-        We do not store your Home Assistant URL. It is only used locally in your browser to connect to your Home Assistant instance for
-        automation and integration purposes.
-      </Alert>
+      </Column>
 
       <ModalActions>
         <PrimaryButton onClick={handleSubmit} disabled={isSubmitDisabled} aria-label='Set Home Assistant URL'>

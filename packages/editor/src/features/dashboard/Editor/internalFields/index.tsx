@@ -1,24 +1,6 @@
 import { FieldConfiguration, InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
-import { useEffect } from 'react';
-import { useActiveBreakpoint } from '@hooks/useActiveBreakpoint';
 
 export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
-  _activeBreakpoint: {
-    type: 'custom',
-    default: 'xlg',
-    label: 'Active Breakpoint',
-    visible: () => false,
-    description: 'The active breakpoint for this component, used for responsive design',
-    render({ onChange, name }) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const breakpoint = useActiveBreakpoint();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useEffect(() => {
-        onChange(breakpoint);
-      }, [onChange, breakpoint]);
-      return <input name={name} type='hidden' value={breakpoint} />;
-    },
-  },
   styles: {
     type: 'object',
     label: 'Global styles',
@@ -42,22 +24,6 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
 };
 
 export const internalComponentFields: FieldConfiguration<InternalComponentFields> = {
-  _activeBreakpoint: {
-    type: 'custom',
-    default: 'xlg',
-    label: 'Active Breakpoint',
-    description: 'The active breakpoint for this component, used for responsive design',
-    visible: () => false,
-    render({ onChange, name }) {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const breakpoint = useActiveBreakpoint();
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useEffect(() => {
-        onChange(breakpoint);
-      }, [onChange, breakpoint]);
-      return <input name={name} type='hidden' value={breakpoint} />;
-    },
-  },
   styles: {
     type: 'object',
     label: 'Style Overrides',

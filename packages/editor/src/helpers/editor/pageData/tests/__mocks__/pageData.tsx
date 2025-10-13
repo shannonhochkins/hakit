@@ -10,9 +10,7 @@ export const pageData: PuckPageData = {
       '@hakit/default-root': {
         background: {
           test: {
-            $xlg: {
-              foo: '',
-            },
+            $xlg: 'foo',
           },
           useBackgroundImage: {
             $xlg: true,
@@ -88,7 +86,7 @@ export const pageData: PuckPageData = {
           },
         },
       },
-      _activeBreakpoint: {
+      device: {
         $xlg: 'xlg',
       },
       styles: {
@@ -118,7 +116,7 @@ export const pageData: PuckPageData = {
               hideIcon: true,
               icon: 'mdi:calendar',
             },
-            _activeBreakpoint: 'xlg',
+            device: 'xlg',
             styles: {
               css: '',
             },
@@ -783,7 +781,7 @@ export const userConfig: CustomPuckConfig<{
         },
         repositoryId: '@hakit/default-root',
       },
-      _activeBreakpoint: {
+      device: {
         type: 'custom',
         default: 'xlg',
         label: 'Active Breakpoint',
@@ -843,7 +841,7 @@ export const userConfig: CustomPuckConfig<{
           letterSpacing: 0,
         },
       },
-      _activeBreakpoint: 'xlg',
+      device: 'xlg',
       styles: {
         css: '',
       },

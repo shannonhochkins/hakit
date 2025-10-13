@@ -7,22 +7,27 @@ function deepClone<T>(v: T): T {
 }
 
 describe('sanitizePuckData', () => {
-  test('it should sanitize and retain all expected data and fields', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
+  test('it should sanitize and retain all expected data and fields and not remove breakpoints', () => {
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+    });
     expect(result).toMatchSnapshot();
   });
-  test('should trim root to configured fields, resolve breakpoint values for xlg, and merge defaults', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
+
+  test('should trim root to configured fields, preserve breakpoint objects, and merge defaults', () => {
+    const result = sanitizePuckData({
+      data: deepClone(basePageData),
+      userConfig,
+    });
 
     expect(result).not.toBeNull();
     if (!result) return;
 
     // content slot should be retained under root.props
     expect(result.root?.props?.content).toBeDefined();
-    // _activeBreakpoint is skipped so it should not be stored in db
-    expect(result.root?.props?._activeBreakpoint).not.toBeUndefined();
 
-    // Ensure the remote object exists and has resolved values
+    // Ensure the remote object exists
     const rootRemote = result.root?.props?.['@hakit/default-root'] as unknown as Record<string, unknown> | undefined;
     expect(rootRemote).toBeDefined();
     const background = rootRemote?.background as unknown as Record<string, unknown> | undefined;
@@ -30,51 +35,43 @@ describe('sanitizePuckData', () => {
     expect(background).toBeDefined();
     expect(typography).toBeDefined();
 
-    // Background values should be flattened to xlg values
+    // Background values should remain as breakpoint objects
     expect(background).toMatchObject({
-      useBackgroundImage: true,
-      backgroundSize: 'cover',
-      backgroundSizeCustom: '',
-      backgroundPosition: 'center center',
-      backgroundRepeat: 'no-repeat',
-      overlayColor: '#4254c5',
-      overlayBlendMode: 'multiply',
-      blur: 25,
-      overlayOpacity: 0.9,
-      useAdvancedFilters: false,
-      filterBrightness: 1,
-      filterContrast: 1,
-      filterSaturate: 1,
-      filterGrayscale: 0,
+      useBackgroundImage: { $xlg: true },
+      backgroundSize: { $xlg: 'cover' },
+      backgroundSizeCustom: { $xlg: '' },
+      backgroundPosition: { $xlg: 'center center' },
+      backgroundRepeat: { $xlg: 'no-repeat' },
+      overlayColor: { $xlg: '#4254c5' },
+      overlayBlendMode: { $xlg: 'multiply' },
+      blur: { $xlg: 25 },
+      overlayOpacity: { $xlg: 0.9 },
+      useAdvancedFilters: { $xlg: false },
+      filterBrightness: { $xlg: 1 },
+      filterContrast: { $xlg: 1 },
+      filterSaturate: { $xlg: 1 },
+      filterGrayscale: { $xlg: 0 },
     });
     // simulates automatic data removal when config fields don't have properties matching the data
     expect(background).not.toHaveProperty('fake');
 
-    // Custom field under background should survive and be resolved
-    expect((background as Record<string, unknown>).test).toEqual({ foo: '' });
+    // Custom field under background should survive as breakpoint object (with merged properties from test being an object)
+    expect(background?.test).toMatchObject({ $xlg: 'foo' });
 
-    // Typography values should be flattened to xlg values
+    // Typography values should remain as breakpoint objects
     expect(typography).toMatchObject({
-      fontFamily: 'roboto',
-      fontColor: '#ffffff',
-      useAdvancedTypography: true,
-      headingWeight: 600,
-      bodyWeight: 400,
-      baseFontSize: '16px',
-      lineHeight: 1.5,
-      letterSpacing: 0,
+      fontFamily: { $xlg: 'roboto' },
+      fontColor: { $xlg: '#ffffff' },
+      useAdvancedTypography: { $xlg: true },
+      headingWeight: { $xlg: 600 },
+      bodyWeight: { $xlg: 400 },
+      baseFontSize: { $xlg: '16px' },
+      lineHeight: { $xlg: 1.5 },
+      letterSpacing: { $xlg: 0 },
     });
 
-    // styles.css should be present and flattened
-    expect(result.root?.props?.styles).toMatchObject({ css: '' });
-  });
-
-  test('should retain root content', () => {
-    const result = sanitizePuckData(deepClone(basePageData), userConfig, 'xlg');
-    expect(result).not.toBeNull();
-    if (!result) return;
-
-    expect(result.root?.props?.content).toBeDefined();
+    // styles.css should be present as breakpoint object
+    expect(result.root?.props?.styles).toMatchObject({ css: { $xlg: '' } });
   });
 
   test('should remove fields not present in the config (root props)', () => {
@@ -89,7 +86,10 @@ describe('sanitizePuckData', () => {
       }
     ).background['unknownNested'] = { $xlg: 'x' } as unknown as Record<string, unknown>;
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -118,7 +118,10 @@ describe('sanitizePuckData', () => {
       }
     ).typography.fontFamily;
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -126,7 +129,7 @@ describe('sanitizePuckData', () => {
       background: Record<string, unknown>;
       typography: Record<string, unknown>;
     };
-    // filterContrast default is 1; fontFamily default is 'roboto'
+    // Defaults should be merged as plain values (from defaultProps which are not breakpoint objects)
     expect(rootRemote.background['filterContrast']).toBe(1);
     expect(rootRemote.typography['fontFamily']).toBe('roboto');
   });
@@ -151,7 +154,10 @@ describe('sanitizePuckData', () => {
       },
     ];
 
-    const result = sanitizePuckData(modified, userConfig, 'xlg');
+    const result = sanitizePuckData({
+      data: modified,
+      userConfig,
+    });
     expect(result).not.toBeNull();
     if (!result) return;
 
@@ -161,9 +167,9 @@ describe('sanitizePuckData', () => {
     expect(item.props?.id).toBe('Navigation-123');
     // unknown top-level prop removed
     expect((item.props as unknown as Record<string, unknown>)['unknownTopLevel']).toBeUndefined();
-    // options.unknown removed, hideClock resolved to boolean
-    expect((item.props as unknown as Record<string, unknown>)['options']).toMatchObject({ hideClock: true });
-    // defaults merged for missing props
+    // options.unknown removed, hideClock kept as breakpoint object
+    expect((item.props as unknown as Record<string, unknown>)['options']).toMatchObject({ hideClock: { $xlg: true } });
+    // defaults merged for missing props as plain values (from defaultProps which are not breakpoint objects)
     expect((item.props as unknown as Record<string, unknown>)['clockOptions']).toMatchObject({
       hideTime: false,
       useTimeEntity: true,

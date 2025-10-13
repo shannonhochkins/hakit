@@ -1,5 +1,4 @@
-import React from 'react';
-import { ButtonHTMLAttributes } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Tooltip, TooltipProps } from '@components/Tooltip';
 import styles from './BaseButton.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
@@ -7,7 +6,7 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('BaseButton', styles);
 
 // Base props interface shared by all button types
-export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface BaseButtonProps extends React.ComponentPropsWithoutRef<'button'> {
   /** Size variant of the button */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Whether the button is in a loading state */
@@ -28,10 +27,22 @@ export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   tooltipProps?: Partial<TooltipProps>;
   /** Custom className to apply to the button */
   className?: string;
+  /** Badge content to display on the button */
+  badge?: React.ReactNode;
+  /** Props to pass to the badge container div */
+  badgeProps?: React.HTMLAttributes<HTMLDivElement>;
+  /** Accessibility label for the badge */
+  'badge-aria-label'?: string;
+  /** Tooltip props for the badge */
+  badgeTooltipProps?: Partial<TooltipProps>;
+  /** Variant for styling (used for badge variant inheritance) */
+  variant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
+  /** Badge variant override (defaults to button variant) */
+  badgeVariant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
 }
 
 // React component wrapper with all logic
-export const BaseButton = ({
+const BaseButtonPrivate = ({
   children,
   startIcon,
   endIcon,
@@ -42,9 +53,17 @@ export const BaseButton = ({
   fullHeight = false,
   autoWidth,
   tooltipProps,
+  badge,
+  badgeProps,
+  badgeTooltipProps,
+  variant,
+  badgeVariant,
   ...props
 }: BaseButtonProps) => {
-  const { className: providedClassName, style: providedStyle, ...restProps } = props;
+  const { className: providedClassName, style: providedStyle, 'badge-aria-label': badgeAriaLabel, style, ...restProps } = props;
+
+  // Use badgeVariant if provided, otherwise inherit from button variant
+  const effectiveBadgeVariant = badgeVariant ?? variant ?? 'primary';
   const className = getClassName(
     {
       BaseButton: true,
@@ -59,22 +78,58 @@ export const BaseButton = ({
     },
     providedClassName
   );
+  const tooltipStyles = useMemo(() => {
+    return {
+      width: fullWidth ? '100%' : undefined,
+      height: fullHeight ? '100%' : undefined,
+      ...tooltipProps?.style,
+    };
+  }, [fullWidth, fullHeight, tooltipProps?.style]);
+
+  const onBadgeClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      badgeProps?.onClick?.(e);
+    },
+    [badgeProps]
+  );
+
   return (
-    <Tooltip
-      title={props['aria-label'] || ''}
-      placement='top'
-      {...tooltipProps}
-      style={{
-        width: fullWidth ? '100%' : undefined,
-        height: fullHeight ? '100%' : undefined,
-        ...tooltipProps?.style,
-      }}
-    >
-      <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
-        {startIcon && !loading && <>{startIcon}</>}
-        {children}
-        {endIcon && !loading && <>{endIcon}</>}
-      </button>
-    </Tooltip>
+    <div className={getClassName('BaseButton-wrapper')} style={style}>
+      <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps} style={tooltipStyles}>
+        <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
+          {startIcon && !loading && <>{startIcon}</>}
+          {children}
+          {endIcon && !loading && <>{endIcon}</>}
+        </button>
+      </Tooltip>
+      {badge && (
+        <Tooltip title={badgeAriaLabel || ''} placement='top' {...badgeTooltipProps}>
+          <div
+            {...badgeProps}
+            className={getClassName(
+              {
+                badge: true,
+                badgePrimary: effectiveBadgeVariant === 'primary',
+                badgeSecondary: effectiveBadgeVariant === 'secondary',
+                badgeError: effectiveBadgeVariant === 'error',
+                badgeSuccess: effectiveBadgeVariant === 'success',
+                badgeTransparent: effectiveBadgeVariant === 'transparent',
+                badgeSizeXs: size === 'xs',
+                badgeSizeSm: size === 'sm',
+                badgeSizeMd: size === 'md',
+                badgeSizeLg: size === 'lg',
+              },
+              badgeProps?.className
+            )}
+            onClick={onBadgeClick}
+          >
+            {badge}
+          </div>
+        </Tooltip>
+      )}
+    </div>
   );
 };
+
+export const BaseButton = memo(BaseButtonPrivate);

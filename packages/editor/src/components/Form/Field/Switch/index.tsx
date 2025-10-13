@@ -11,7 +11,7 @@ type SwitchFieldSize = 'small' | 'medium' | 'large';
 type SwitchFieldProps = {
   id: string;
   label?: React.ReactNode;
-  helperText?: string;
+  helperText?: React.ReactNode;
   checked?: boolean;
   className?: string;
   size?: SwitchFieldSize;
