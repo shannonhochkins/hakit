@@ -107,10 +107,12 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
     children: unknown[];
   }>(error)
     ? JSON.stringify(error.props.children.filter(x => typeof x === 'string').join(' '))
-    : null;
+    : error instanceof Error
+      ? error.message
+      : error;
 
   return (
-    <Modal open title='Home Assistant URL' hideCloseButton>
+    <Modal open title='Connect to Home Assistant' hideCloseButton>
       <Column gap='var(--space-4)' alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
         <InputField
           id='url'
@@ -120,11 +122,16 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          placeholder='Enter your Home Assistant URL'
+          placeholder='Enter your HA URL'
           error={!validation.isValid}
           helperText={
-            validation.error ||
-            'Enter the URL of your Home Assistant instance. Can be local (http://192.168.1.100:8123) or remote (https://my-ha.duckdns.org)'
+            validation.error || (
+              <>
+                <p>Enter the URL where your Home Assistant is running — for example:</p>
+                <p>• Local: http://homeassistant.local:8123</p>
+                <p>• Remote: a DuckDNS or Nabu Casa URL.</p>
+              </>
+            )
           }
           autoComplete='url'
           spellCheck={false}
@@ -139,11 +146,10 @@ export function HassModal({ error }: { error?: React.ReactNode }) {
         )}
 
         <Alert severity='info' title='Privacy Notice'>
-          We do not store your Home Assistant URL. It is only used locally in your browser to connect to your Home Assistant instance for
-          automation and integration purposes.
+          We don’t collect or share your Home Assistant details. Your connection info stays safely on your device so you can reconnect
+          easily next time.
         </Alert>
       </Column>
-
       <ModalActions>
         <PrimaryButton onClick={handleSubmit} disabled={isSubmitDisabled} aria-label='Set Home Assistant URL'>
           Connect
