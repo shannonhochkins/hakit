@@ -78,6 +78,15 @@ const BaseButtonPrivate = ({
     },
     providedClassName
   );
+  const wrapperClassName = getClassName(
+    {
+      wrapper: true,
+      fullWidth,
+      fullHeight,
+      autoWidth,
+    },
+    providedClassName
+  );
   const tooltipStyles = useMemo(() => {
     return {
       width: fullWidth ? '100%' : undefined,
@@ -95,7 +104,7 @@ const BaseButtonPrivate = ({
   );
 
   return (
-    <div className={getClassName('BaseButton-wrapper')} style={style}>
+    <div className={wrapperClassName} style={style}>
       <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps} style={tooltipStyles}>
         <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
           {startIcon && !loading && <>{startIcon}</>}

@@ -1,0 +1,164 @@
+/* UpdateAddonModal CSS Module */
+
+.UpdateAddonModal-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.UpdateAddonModal-addonIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.UpdateAddonModal-addonInfo {
+  flex: 1;
+}
+
+.UpdateAddonModal-addonName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.UpdateAddonModal-addonUrl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.UpdateAddonModal-versionUpdateSection {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  width: 100%;
+}
+
+.UpdateAddonModal-versionUpdateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.UpdateAddonModal-versionUpdateTitle {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.UpdateAddonModal-versionComparison {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.UpdateAddonModal-versionBadge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.UpdateAddonModal-versionBadge--current {
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+}
+
+.UpdateAddonModal-versionBadge--new {
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+}
+
+.UpdateAddonModal-releaseNotesSection {
+  margin-bottom: var(--space-4);
+  width: 100%;
+}
+
+.UpdateAddonModal-releaseNotesTitle {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.UpdateAddonModal-releaseNotesContent {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.UpdateAddonModal-releaseNotesLink {
+  color: var(--color-primary-400);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
+.UpdateAddonModal-releaseNotesLink:hover {
+  color: var(--color-primary-300);
+  text-decoration: underline;
+}
+
+.UpdateAddonModal-componentChangesSection {
+  margin-bottom: var(--space-4);
+  width: 100%;
+}
+
+.UpdateAddonModal-componentChangesTitle {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.UpdateAddonModal-componentList {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.UpdateAddonModal-componentItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.UpdateAddonModal-componentIcon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.UpdateAddonModal-githubLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  transition: color var(--transition-normal);
+  margin-bottom: var(--space-4);
+}
+
+.UpdateAddonModal-githubLink:hover {
+  color: var(--color-primary-400);
+}

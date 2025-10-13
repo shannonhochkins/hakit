@@ -15,7 +15,7 @@ type SetupParams = {
   field: FieldConfiguration[string];
   name: string;
   value: Value;
-  repositoryId?: string;
+  addonId?: string;
   onChange?: (v: Value) => void;
   componentIdForMap: string;
 };
@@ -93,7 +93,7 @@ describe('useTemplateMode', () => {
         name: params.name,
         // @ts-expect-error this is fine, just a test
         value: params.value,
-        repositoryId: params.repositoryId,
+        addonId: params.addonId,
         onChange: onChange,
         componentIdForMap: params.componentIdForMap,
       })
@@ -157,12 +157,12 @@ describe('useTemplateMode', () => {
     expect(hook.result.current.templateMode).toBe(false);
   });
 
-  it('flatPath uses dot-notation with repository id; toggle on then supply value -> templateMode true', () => {
+  it('flatPath uses dot-notation with addon id; toggle on then supply value -> templateMode true', () => {
     const { hook, changes } = setup({
       field: boolField,
       name: 'background.useBackgroundImage',
       value: false,
-      repositoryId: '@hakit/default-root',
+      addonId: '@hakit/default-root',
       componentIdForMap: 'root',
     });
     act(() => hook.result.current.handleTemplateToggle(true));
@@ -172,7 +172,7 @@ describe('useTemplateMode', () => {
         field: boolField,
         name: 'background.useBackgroundImage',
         value: nextVal as unknown as DefaultComponentProps,
-        repositoryId: '@hakit/default-root',
+        addonId: '@hakit/default-root',
         onChange: () => {},
         componentIdForMap: 'root',
       })

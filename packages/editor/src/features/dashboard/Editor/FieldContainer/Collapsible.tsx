@@ -34,7 +34,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   value,
   id,
 }: CollapsibleFieldComponentProps<Props>) {
-  const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
+  const addonId = 'addonId' in field ? (field.addonId as string) : undefined;
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const getPuck = useGetPuck();
@@ -64,12 +64,12 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemOrRootProps ? selectedItemOrRootProps : appState.data.root?.props;
       if (!visibleData) return;
-      // when a repositoryId is available, we're a root component field and we need to only send a subset of data
-      const data = repositoryId ? visibleData[repositoryId] : visibleData;
+      // when a addonId is available, we're a root component field and we need to only send a subset of data
+      const data = addonId ? visibleData[addonId] : visibleData;
       return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemOrRootProps, getPuck, field, repositoryId]);
+  }, [selectedItemOrRootProps, getPuck, field, addonId]);
 
   const onToggleExpand = useCallback(() => {
     toggleExpanded(prev => !prev);

@@ -378,7 +378,7 @@ export const userConfig: CustomPuckConfig<{
                 default: {
                   foo: '',
                 },
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
                 render: () => <></>,
               },
               useBackgroundImage: {
@@ -386,13 +386,13 @@ export const userConfig: CustomPuckConfig<{
                 label: 'Use Background Image',
                 description: 'Whether to use a background image or not',
                 default: true,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundImage: {
                 type: 'imageUpload',
                 label: 'Background Image',
                 description: 'The entity to display in the button card',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
                 default: '',
               },
               backgroundSize: {
@@ -418,21 +418,21 @@ export const userConfig: CustomPuckConfig<{
                     value: 'custom',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundSizeCustom: {
                 type: 'text',
                 label: 'Custom Background Size',
                 description: 'Any valid CSS background-size value',
                 default: '',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundPosition: {
                 type: 'text',
                 label: 'Background Position',
                 description: 'CSS background-position (e.g., "center center", "top", "50% 50%")',
                 default: 'center center',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundRepeat: {
                 type: 'select',
@@ -465,7 +465,7 @@ export const userConfig: CustomPuckConfig<{
                     value: 'round',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayColor: {
                 type: 'color',
@@ -473,7 +473,7 @@ export const userConfig: CustomPuckConfig<{
                 description:
                   'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
                 default: '#4254c5',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayBlendMode: {
                 type: 'select',
@@ -546,7 +546,7 @@ export const userConfig: CustomPuckConfig<{
                     value: 'soft-light',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               blur: {
                 type: 'number',
@@ -554,7 +554,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 description: 'Blur amount applied to the background image',
                 default: 25,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayOpacity: {
                 type: 'number',
@@ -564,14 +564,14 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 max: 1,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               useAdvancedFilters: {
                 type: 'switch',
                 label: 'Use Advanced Filters',
                 description: 'Enable image filters like brightness, contrast, saturation and grayscale',
                 default: false,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterBrightness: {
                 type: 'number',
@@ -581,7 +581,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterContrast: {
                 type: 'number',
@@ -591,7 +591,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterSaturate: {
                 type: 'number',
@@ -601,7 +601,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterGrayscale: {
                 type: 'number',
@@ -611,10 +611,10 @@ export const userConfig: CustomPuckConfig<{
                 min: 0,
                 max: 1,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
             },
-            repositoryId: '@hakit/default-root',
+            addonId: '@hakit/default-root',
           },
           typography: {
             type: 'object',
@@ -675,21 +675,21 @@ export const userConfig: CustomPuckConfig<{
                     value: 'merriweather',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               fontColor: {
                 type: 'color',
                 label: 'Font Color',
                 description: 'Primary text color for your dashboard',
                 default: '#ffffff',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               useAdvancedTypography: {
                 type: 'switch',
                 label: 'Advanced Typography',
                 description: 'Enable advanced typography options',
                 default: false,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               headingWeight: {
                 type: 'select',
@@ -718,7 +718,7 @@ export const userConfig: CustomPuckConfig<{
                     value: 700,
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               bodyWeight: {
                 type: 'select',
@@ -743,7 +743,7 @@ export const userConfig: CustomPuckConfig<{
                     value: 600,
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               baseFontSize: {
                 type: 'unit',
@@ -753,7 +753,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 12,
                 max: 24,
                 step: 1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               lineHeight: {
                 type: 'number',
@@ -763,7 +763,7 @@ export const userConfig: CustomPuckConfig<{
                 min: 1.2,
                 max: 2,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               letterSpacing: {
                 type: 'number',
@@ -773,13 +773,13 @@ export const userConfig: CustomPuckConfig<{
                 min: -1,
                 max: 2,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
             },
-            repositoryId: '@hakit/default-root',
+            addonId: '@hakit/default-root',
           },
         },
-        repositoryId: '@hakit/default-root',
+        addonId: '@hakit/default-root',
       },
       device: {
         type: 'custom',

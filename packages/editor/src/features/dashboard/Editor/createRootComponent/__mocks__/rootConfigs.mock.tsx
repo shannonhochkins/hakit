@@ -148,8 +148,8 @@ export const rootConfigs: [CustomRootConfigWithRemote<RootProps>] = [
         },
       },
     },
-    _remoteRepositoryId: '@hakit/default-root',
-    _remoteRepositoryName: '@hakit/editor',
+    _remoteAddonId: '@hakit/default-root',
+    _remoteAddonName: '@hakit/editor',
     styles: props => {
       return `background-color: ${props.background?.backgroundColor || '#ffffff'};
       background-image: url(${props.background?.useBackgroundImage ? props.background?.backgroundImage : ''});

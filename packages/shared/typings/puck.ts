@@ -16,7 +16,7 @@ export type DefaultPropsCallbackData = {
 };
 
 export type InternalRootData = {
-  _remoteRepositoryId?: string; // Optional remote name for tracking
+  _remoteAddonId?: string; // Optional remote name for tracking
 };
 
 // Just for readability, this shouldn't ever change

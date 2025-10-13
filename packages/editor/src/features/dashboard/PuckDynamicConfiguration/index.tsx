@@ -3,8 +3,8 @@ import { registerRemotes, loadRemote, registerPlugins } from '@module-federation
 import { type UserOptions } from '@module-federation/runtime-core';
 import { CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
-import { getUserRepositories } from '@services/repositories';
-import { MfManifest } from '@server/routes/repositories/validate-zip';
+import { getUserAddons } from '@services/addons';
+import { MfManifest } from '@server/routes/addons/validate-zip';
 import { createRootComponent } from '@features/dashboard/Editor/createRootComponent';
 
 interface ComponentModule {
@@ -12,14 +12,14 @@ interface ComponentModule {
 }
 
 export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomPuckComponentConfig<P> & {
-  _remoteRepositoryId: string; // remote id for tracking
-  _remoteRepositoryName: string; // remote name for tracking
+  _remoteAddonId: string; // remote id for tracking
+  _remoteAddonName: string; // remote name for tracking
 };
 
 type Remote = UserOptions['remotes'][number];
 
-type RemoteWithRepositoryId = Remote & {
-  repositoryId: string; // Add repositoryId to Remote type
+type RemoteWithAddonId = Remote & {
+  addonId: string; // Add addonId to Remote type
 };
 
 const resolvedEntryByName = new Map<string, string>();
@@ -39,17 +39,17 @@ registerPlugins([
 // -------------------------
 // Helpers to reduce duplication
 // -------------------------
-type UserRepo = Awaited<ReturnType<typeof getUserRepositories>>[number];
+type UserAddon = Awaited<ReturnType<typeof getUserAddons>>[number];
 
-function buildPreRemotes(userRepos: UserRepo[]): Array<RemoteWithRepositoryId> {
-  return userRepos.map(userRepo => ({
-    name: userRepo.repository.name,
-    entry: userRepo.version.manifestUrl,
-    repositoryId: userRepo.repository.id,
+function buildPreRemotes(userAddons: UserAddon[]): Array<RemoteWithAddonId> {
+  return userAddons.map(userAddon => ({
+    name: userAddon.addon.name,
+    entry: userAddon.version.manifestUrl,
+    addonId: userAddon.addon.id,
   }));
 }
 
-async function initContainersEarly(remotesToInit: Array<RemoteWithRepositoryId>) {
+async function initContainersEarly(remotesToInit: Array<RemoteWithAddonId>) {
   // Ensure the runtime knows about these remotes
   registerRemotes(remotesToInit);
   // Force-load a non-existent expose to trigger container init and fire beforeInitContainer
@@ -70,24 +70,24 @@ async function hydrateLiveManifestsFromOverrides(resolved: Map<string, string>, 
   );
 }
 
-async function buildRemoteWithDbFallback(userRepo: UserRepo, manifestCache: Map<string, MfManifest>): Promise<RemoteWithRepositoryId> {
-  const manifestUrl = userRepo.version.manifestUrl;
+async function buildRemoteWithDbFallback(userAddon: UserAddon, manifestCache: Map<string, MfManifest>): Promise<RemoteWithAddonId> {
+  const manifestUrl = userAddon.version.manifestUrl;
 
-  if (!manifestCache.has(userRepo.repository.name)) {
+  if (!manifestCache.has(userAddon.addon.name)) {
     try {
       const manifestResponse = await fetch(manifestUrl);
       if (manifestResponse.ok) {
-        manifestCache.set(userRepo.repository.name, (await manifestResponse.json()) as MfManifest);
+        manifestCache.set(userAddon.addon.name, (await manifestResponse.json()) as MfManifest);
       }
     } catch (error) {
-      console.error(`Failed to fetch manifest for remote ${userRepo.repository.name}:`, error);
+      console.error(`Failed to fetch manifest for remote ${userAddon.addon.name}:`, error);
     }
   }
 
   return {
-    name: userRepo.repository.name,
+    name: userAddon.addon.name,
     entry: manifestUrl,
-    repositoryId: userRepo.repository.id,
+    addonId: userAddon.addon.id,
   };
 }
 
@@ -95,32 +95,30 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
   const components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
   const categories: NonNullable<Config['categories']> = {};
-  const userRepositories = await getUserRepositories();
+  const userAddons = await getUserAddons();
   const remoteManifest = new Map<string, MfManifest>();
-  // Create a map of excluded components by repository name
+  // Create a map of excluded components by addon name
   const excludedComponents = new Map<string, Set<string>>();
 
   // Process user preferences to build excluded components list
-  userRepositories.forEach(userRepo => {
-    const excludedForRepo = new Set<string>();
-    userRepo.version.components.forEach(component => {
+  userAddons.forEach(userAddon => {
+    const excludedForAddon = new Set<string>();
+    userAddon.version.components.forEach(component => {
       if (!component.enabled) {
-        excludedForRepo.add(component.name);
+        excludedForAddon.add(component.name);
       }
     });
-    if (excludedForRepo.size > 0) {
-      excludedComponents.set(userRepo.repository.name, excludedForRepo);
+    if (excludedForAddon.size > 0) {
+      excludedComponents.set(userAddon.addon.name, excludedForAddon);
     }
   });
 
   // Early resolve of effective remote entries and hydrate live manifests
-  const preRemotes = buildPreRemotes(userRepositories);
+  const preRemotes = buildPreRemotes(userAddons);
   await initContainersEarly(preRemotes);
   await hydrateLiveManifestsFromOverrides(resolvedEntryByName, remoteManifest);
 
-  const remotes: RemoteWithRepositoryId[] = await Promise.all(
-    userRepositories.map(userRepo => buildRemoteWithDbFallback(userRepo, remoteManifest))
-  );
+  const remotes: RemoteWithAddonId[] = await Promise.all(userAddons.map(userAddon => buildRemoteWithDbFallback(userAddon, remoteManifest)));
 
   for (const remote of remotes) {
     const remoteManifestData = remoteManifest.get(remote.name);
@@ -135,8 +133,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
     }
     for (const module of remoteManifestData.exposes) {
       // Skip loading components that are disabled in user preferences
-      const excludedForRepo = excludedComponents.get(remote.name);
-      if (excludedForRepo && excludedForRepo.has(module.name)) {
+      const excludedForAddon = excludedComponents.get(remote.name);
+      if (excludedForAddon && excludedForAddon.has(module.name)) {
         continue;
       }
       // load the module contents from the current instance
@@ -165,8 +163,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         // we need to restructure them to support this
         rootConfigs.push({
           ...component.config,
-          _remoteRepositoryName: remote.name, // track which remote this came from
-          _remoteRepositoryId: remote.repositoryId, // track which remote this came from
+          _remoteAddonName: remote.name, // track which remote this came from
+          _remoteAddonId: remote.addonId, // track which remote this came from
         });
       } else {
         // create the puck definitions
@@ -187,8 +185,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         components[componentLabel] = {
           ...componentConfig,
           // @ts-expect-error - we know this doesn't exist, it's fine.
-          _remoteRepositoryName: remote.name, // track which remote this came from
-          _remoteRepositoryId: remote.name, // track which remote this came from
+          _remoteAddonName: remote.name, // track which remote this came from
+          _remoteAddonId: remote.name, // track which remote this came from
         };
         const categoryLabel = remote.name;
         if (!categories[categoryLabel]) {

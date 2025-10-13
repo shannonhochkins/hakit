@@ -16,8 +16,8 @@ export function useFieldBreakpointConfig(
   const itemOrRoot = selectedItem ?? appState.data.root;
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
 
-  // Get repositoryId from field
-  const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
+  // Get addonId from field
+  const addonId = 'addonId' in field ? (field.addonId as string) : undefined;
 
   // Calculate responsive mode based on field configuration
   const responsiveMode = useMemo(() => {
@@ -30,15 +30,15 @@ export function useFieldBreakpointConfig(
   // Get the current field's breakpoint mode from the map
   const isBreakpointModeEnabled = useMemo(() => {
     const componentId = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
-    const fieldPath = repositoryId && !name?.includes(repositoryId) ? `${repositoryId}.${name}` : name;
+    const fieldPath = addonId && !name?.includes(addonId) ? `${addonId}.${name}` : name;
     return componentBreakpointMap[componentId]?.[fieldPath] ?? false;
-  }, [componentBreakpointMap, selectedItemOrRootProps?.id, repositoryId, name]);
+  }, [componentBreakpointMap, selectedItemOrRootProps?.id, addonId, name]);
 
   // Function to toggle breakpoint mode
   const toggleBreakpointMode = useCallback((): boolean => {
     const { componentBreakpointMap, setComponentBreakpointMap } = useGlobalStore.getState();
     const componentId = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
-    const fieldPath = repositoryId ? `${repositoryId}.${name}` : name;
+    const fieldPath = addonId ? `${addonId}.${name}` : name;
 
     const newValue = !isBreakpointModeEnabled;
 
@@ -50,7 +50,7 @@ export function useFieldBreakpointConfig(
     updatedMap[componentId][fieldPath] = newValue;
     setComponentBreakpointMap(updatedMap);
     return newValue;
-  }, [selectedItemOrRootProps, repositoryId, name, isBreakpointModeEnabled]);
+  }, [selectedItemOrRootProps, addonId, name, isBreakpointModeEnabled]);
 
   return {
     responsiveMode,

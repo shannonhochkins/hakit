@@ -24,7 +24,7 @@ function collectTemplatePaths(node: unknown, basePath: string[] = []): string[] 
   const visited = new WeakSet<object>();
   const walk = (value: unknown, path: (string | number)[]) => {
     if (typeof value === 'string' && value.startsWith(TEMPLATE_PREFIX)) {
-      // Use dot-notation for keys; do not split repository ids that may contain '/'
+      // Use dot-notation for keys; do not split addon ids that may contain '/'
       const key = path.map(p => String(p)).join('.');
       results.push(key);
       return;

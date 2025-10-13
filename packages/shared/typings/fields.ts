@@ -111,8 +111,8 @@ export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
   default: Props;
   /** if enabled, this field will be able to configure different values at different breakpoints @default true */
   responsiveMode?: boolean;
-  /** The id of the repository that the field belongs to */
-  repositoryId?: string;
+  /** The id of the addon that the field belongs to */
+  addonId?: string;
   /** The label of the field */
   label: string;
   /** used to determine if we want to show the current field based on the current data */

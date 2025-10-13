@@ -10,7 +10,7 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
-import { attachRepositoryReference } from '@helpers/editor/pageData/attachRepositoryReference';
+import { attachAddonReference } from '@helpers/editor/pageData/attachAddonReference';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 
@@ -27,37 +27,37 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // we omit default props here as they're computed further down
   const defaultConfig: Omit<CustomRootConfigWithRemote<DefaultRootProps>, 'defaultProps'> = {
     ...defaultRootConfig,
-    _remoteRepositoryId: '@hakit/default-root', // this is the default root config
-    _remoteRepositoryName: '@hakit/editor', // this is the default root config
+    _remoteAddonId: '@hakit/default-root', // this is the default root config
+    _remoteAddonName: '@hakit/editor', // this is the default root config
   };
 
   // Always include the default config first
   // the object above is typed, so okay to cast here as the rest of the values in this array are unknown values/types
   processedConfigs.push(defaultConfig as unknown as CustomRootConfigWithRemote<P>);
-  remoteKeys.add(defaultConfig._remoteRepositoryId);
+  remoteKeys.add(defaultConfig._remoteAddonId);
 
   // Process provided root configs, ignoring duplicates
   rootConfigs.forEach(rootConfig => {
-    if (!remoteKeys.has(rootConfig._remoteRepositoryId)) {
+    if (!remoteKeys.has(rootConfig._remoteAddonId)) {
       processedConfigs.push(rootConfig);
-      remoteKeys.add(rootConfig._remoteRepositoryId);
+      remoteKeys.add(rootConfig._remoteAddonId);
     } else {
-      console.warn(`Duplicate root config repository ID detected: ${rootConfig._remoteRepositoryId}. Ignoring duplicate.`);
+      console.warn(`Duplicate root config addon ID detected: ${rootConfig._remoteAddonId}. Ignoring duplicate.`);
     }
   });
 
   processedConfigs.forEach(rootConfig => {
-    mergedFields[rootConfig._remoteRepositoryId] = {
+    mergedFields[rootConfig._remoteAddonId] = {
       type: 'object',
-      label: rootConfig._remoteRepositoryName || rootConfig.label,
+      label: rootConfig._remoteAddonName || rootConfig.label,
       collapseOptions: {
         startExpanded: true,
       },
       // @ts-expect-error - impossible to type this correctly as it is a dynamic object
       objectFields: {
-        ...attachRepositoryReference(rootConfig.fields, rootConfig._remoteRepositoryId),
+        ...attachAddonReference(rootConfig.fields, rootConfig._remoteAddonId),
       },
-      repositoryId: rootConfig._remoteRepositoryId,
+      addonId: rootConfig._remoteAddonId,
     };
   });
 
@@ -110,7 +110,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
     },
   };
   // @ts-expect-error - side effect of dodgeyness, but it does exist so we should remove it
-  delete finalRootConfig._remoteRepositoryId; // Remove renderProps as it's not needed in the final config
+  delete finalRootConfig._remoteAddonId; // Remove renderProps as it's not needed in the final config
   return finalRootConfig;
 }
 
@@ -140,7 +140,7 @@ function getPropsForRoot<P extends DefaultComponentProps>(
   // trim off any remote objects that do not match the current rootConfig
   const baseProps = Object.fromEntries(Object.entries(props).filter(([key]) => !remoteKeys.has(key)));
   // Get the current remote's props and spread them at the top level
-  const currentRemoteProps = props[rootConfig._remoteRepositoryId] || {};
+  const currentRemoteProps = props[rootConfig._remoteAddonId] || {};
   // Combine base props with current remote's props and style overrides
   const propsForThisRoot = {
     ...baseProps, // Override with filtered base props (without other remotes)
@@ -199,7 +199,7 @@ function Render<P extends DefaultComponentProps>({
         _dashboard: dashboard,
       };
       const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
-      map.set(rootConfig._remoteRepositoryId, propsForThisRoot);
+      map.set(rootConfig._remoteAddonId, propsForThisRoot);
     }
     return map;
   }, [processedConfigs, id, editMode, puck.isEditing, editorElements, dashboard, processedProps, remoteKeys]);
@@ -208,7 +208,7 @@ function Render<P extends DefaultComponentProps>({
     <>
       {processedConfigs.map((rootConfig, index) => {
         if (rootConfig?.render) {
-          const propsForThisRoot = propsForRootMap.get(rootConfig._remoteRepositoryId)!;
+          const propsForThisRoot = propsForRootMap.get(rootConfig._remoteAddonId)!;
 
           return (
             <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>

@@ -74,27 +74,27 @@ export const pagesTable = pgTable(
 );
 
 // ----------------------
-// REPOSITORY SYSTEM - Component Repository Management
+// ADDON SYSTEM - Component Addon Management
 // ----------------------
 
 /* ------------------------------------------------------------------
-   GLOBAL REPOSITORIES CATALOGUE
+   GLOBAL ADDONS CATALOGUE
 -------------------------------------------------------------------*/
-export const repositoriesTable = pgTable(
-  'repositories',
+export const addonsTable = pgTable(
+  'addons',
   {
     id: uuid('id').primaryKey().notNull(),
-    // Repository name (globally unique, user-friendly identifier)
+    // Addon name (globally unique, user-friendly identifier)
     name: varchar('name', { length: 100 }).notNull(),
     // GitHub repository URL (the source of truth)
     githubUrl: varchar('github_url', { length: 500 }).notNull(),
-    // Repository description from package.json or GitHub
+    // Addon description from package.json or GitHub
     description: text('description'),
-    // Repository author/organization from GitHub
+    // Addon author/organization from GitHub
     author: varchar('author', { length: 100 }).notNull(),
-    // Repository visibility
+    // Addon visibility
     isPublic: jsonb('is_public').notNull().default(true),
-    // Repository metadata
+    // Addon metadata
     lastUpdated: timestamp('last_updated'),
     // Computed/cached fields for search performance
     totalDownloads: integer('total_downloads').notNull().default(0),
@@ -103,33 +103,33 @@ export const repositoriesTable = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   table => [
-    // Repository names must be globally unique
-    unique('unique_repo_name').on(table.name),
-    // GitHub URLs must be unique (one repo = one entry)
+    // Addon names must be globally unique
+    unique('unique_addon_name').on(table.name),
+    // GitHub URLs must be unique (one addon = one entry)
     unique('unique_github_url').on(table.githubUrl),
     // Index for searching by author
-    index('repositories_author_idx').on(table.author),
-    // Index for public repositories (for browsing/discovery)
-    index('repositories_public_idx').on(table.isPublic),
-    // Index for recently updated repositories
-    index('repositories_updated_idx').on(table.lastUpdated),
+    index('addons_author_idx').on(table.author),
+    // Index for public addons (for browsing/discovery)
+    index('addons_public_idx').on(table.isPublic),
+    // Index for recently updated addons
+    index('addons_updated_idx').on(table.lastUpdated),
     // Index for search by popularity
-    index('repositories_popularity_idx').on(table.totalDownloads),
+    index('addons_popularity_idx').on(table.totalDownloads),
     // Validate GitHub URL format
     check('valid_github_url', sql`${table.githubUrl} ~ '^https://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+/?$'`),
   ]
 );
 
 /* ------------------------------------------------------------------
-   REPOSITORY VERSIONS - Immutable version snapshots
+   ADDON VERSIONS - Immutable version snapshots
 -------------------------------------------------------------------*/
-export const repositoryVersionsTable = pgTable(
-  'repository_versions',
+export const addonVersionsTable = pgTable(
+  'addon_versions',
   {
     id: uuid('id').primaryKey().notNull(),
-    // Reference to the parent repository
-    repositoryId: uuid('repository_id')
-      .references(() => repositoriesTable.id, { onDelete: 'cascade' })
+    // Reference to the parent addon
+    addonId: uuid('addon_id')
+      .references(() => addonsTable.id, { onDelete: 'cascade' })
       .notNull(),
     // Version string from package.json (semantic versioning)
     version: varchar('version', { length: 50 }).notNull(),
@@ -147,62 +147,62 @@ export const repositoryVersionsTable = pgTable(
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   table => [
-    // Versions must be unique per repository
-    unique('unique_repo_version').on(table.repositoryId, table.version),
-    // Index for repository lookups
-    index('repo_versions_repo_id_idx').on(table.repositoryId),
+    // Versions must be unique per addon
+    unique('unique_addon_version').on(table.addonId, table.version),
+    // Index for addon lookups
+    index('addon_versions_addon_id_idx').on(table.addonId),
     // Index for version ordering (newest first)
-    index('repo_versions_created_at_idx').on(table.createdAt),
+    index('addon_versions_created_at_idx').on(table.createdAt),
     // Index for popular versions (by download count)
-    index('repo_versions_downloads_idx').on(table.downloadCount),
+    index('addon_versions_downloads_idx').on(table.downloadCount),
     // Index for release versions (excluding betas)
-    index('repo_versions_stable_idx').on(table.repositoryId, table.isBeta),
-    // Composite index for finding latest stable version per repo
-    index('repo_versions_latest_stable_idx').on(table.repositoryId, table.isBeta, table.createdAt),
+    index('addon_versions_stable_idx').on(table.addonId, table.isBeta),
+    // Composite index for finding latest stable version per addon
+    index('addon_versions_latest_stable_idx').on(table.addonId, table.isBeta, table.createdAt),
   ]
 );
 
 /* ------------------------------------------------------------------
-   USER ↔ REPOSITORIES - User's connected repositories with active versions
+   USER ↔ ADDONS - User's connected addons with active versions
 -------------------------------------------------------------------*/
-export const userRepositoriesTable = pgTable(
-  'user_repositories',
+export const userAddonsTable = pgTable(
+  'user_addons',
   {
     id: uuid('id').primaryKey().notNull(),
     // User ID from Kinde authentication
     userId: varchar('user_id', { length: 50 }).notNull(),
-    // Reference to the global repository
-    repositoryId: uuid('repository_id')
-      .references(() => repositoriesTable.id, { onDelete: 'cascade' })
+    // Reference to the global addon
+    addonId: uuid('addon_id')
+      .references(() => addonsTable.id, { onDelete: 'cascade' })
       .notNull(),
     // Currently active version for this user
     versionId: uuid('version_id')
-      .references(() => repositoryVersionsTable.id, { onDelete: 'restrict' })
+      .references(() => addonVersionsTable.id, { onDelete: 'restrict' })
       .notNull(),
     // Connection timestamps
     connectedAt: timestamp('connected_at').defaultNow().notNull(),
     lastUsedAt: timestamp('last_used_at'),
   },
   table => [
-    // Enforce "one active version per repo per user"
-    unique('unique_user_repo').on(table.userId, table.repositoryId),
-    // Index for user's repository lookups (most common query)
-    index('user_repo_user_idx').on(table.userId),
-    // Index for repository usage analytics
-    index('user_repo_repo_idx').on(table.repositoryId),
+    // Enforce "one active version per addon per user"
+    unique('unique_user_addon').on(table.userId, table.addonId),
+    // Index for user's addon lookups (most common query)
+    index('user_addon_user_idx').on(table.userId),
+    // Index for addon usage analytics
+    index('user_addon_addon_idx').on(table.addonId),
     // Index for version lookups
-    index('user_repo_version_idx').on(table.versionId),
-    // Index for recently connected repositories per user
-    index('user_repo_recent_idx').on(table.userId, table.connectedAt),
-    // Index for active users per repository (for analytics)
-    index('user_repo_usage_idx').on(table.repositoryId, table.lastUsedAt),
+    index('user_addon_version_idx').on(table.versionId),
+    // Index for recently connected addons per user
+    index('user_addon_recent_idx').on(table.userId, table.connectedAt),
+    // Index for active users per addon (for analytics)
+    index('user_addon_usage_idx').on(table.addonId, table.lastUsedAt),
     // Validate user ID format (Kinde format)
     check('valid_user_id', sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
   ]
 );
 
 /* ------------------------------------------------------------------
-   USER COMPONENT PREFERENCES - User's component enable/disable preferences
+   USER ADDON PREFERENCES - User's addon enable/disable preferences
 -------------------------------------------------------------------*/
 export const userComponentPreferencesTable = pgTable(
   'user_component_preferences',
@@ -210,9 +210,9 @@ export const userComponentPreferencesTable = pgTable(
     id: uuid('id').primaryKey().notNull(),
     // User ID from Kinde authentication
     userId: varchar('user_id', { length: 50 }).notNull(),
-    // Reference to the user repository
-    userRepositoryId: uuid('user_repository_id')
-      .references(() => userRepositoriesTable.id, { onDelete: 'cascade' })
+    // Reference to the user addon
+    userAddonId: uuid('user_addon_id')
+      .references(() => userAddonsTable.id, { onDelete: 'cascade' })
       .notNull(),
     // Component name
     componentName: varchar('component_name', { length: 200 }).notNull(),
@@ -223,16 +223,16 @@ export const userComponentPreferencesTable = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   table => [
-    // Enforce "one preference per component per user repo"
-    unique('unique_user_repo_component').on(table.userId, table.userRepositoryId, table.componentName),
+    // Enforce "one preference per component per user addon"
+    unique('unique_user_addon_component').on(table.userId, table.userAddonId, table.componentName),
     // Index for user's component preferences (most common query)
     index('user_component_prefs_user_idx').on(table.userId),
-    // Index for user repository lookups
-    index('user_component_prefs_user_repo_idx').on(table.userRepositoryId),
+    // Index for user addon lookups
+    index('user_component_prefs_user_addon_idx').on(table.userAddonId),
     // Index for component name lookups
     index('user_component_prefs_component_idx').on(table.componentName),
-    // Composite index for user + repo + component lookups
-    index('user_component_prefs_lookup_idx').on(table.userId, table.userRepositoryId, table.componentName),
+    // Composite index for user + addon + component lookups
+    index('user_component_prefs_lookup_idx').on(table.userId, table.userAddonId, table.componentName),
     // Validate user ID format (Kinde format)
     check('valid_user_id', sql`${table.userId} ~ '^kp_[a-f0-9]{32}$'`),
   ]

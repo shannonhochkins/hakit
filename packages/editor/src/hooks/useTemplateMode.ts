@@ -10,7 +10,7 @@ type UseTemplateModeParams<Props extends DefaultComponentProps> = {
   field: FieldConfiguration[string];
   name: string;
   value: Props;
-  repositoryId?: string;
+  addonId?: string;
   onChange: (value: Props) => void;
   componentIdForMap: string;
 };
@@ -27,7 +27,7 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
   field,
   name,
   value,
-  repositoryId,
+  addonId,
   onChange,
   componentIdForMap,
 }: UseTemplateModeParams<Props>): UseTemplateModeReturn {
@@ -51,10 +51,10 @@ export function useTemplateMode<Props extends DefaultComponentProps>({
       return undefined;
     }
     const segs = name.split('.').filter(Boolean);
-    const withRepo = repositoryId ? [repositoryId, ...segs] : segs;
+    const withRepo = addonId ? [addonId, ...segs] : segs;
     const fp = withRepo.join('.');
     return fp;
-  }, [name, repositoryId]);
+  }, [name, addonId]);
 
   const templateMode = useMemo(() => {
     if (!flatPath) return false;
