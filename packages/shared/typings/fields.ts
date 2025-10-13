@@ -16,7 +16,15 @@ import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
 import type { EntityName } from '@hakit/core';
-import { UnitFieldValue } from '@components/Form/Field/Unit';
+
+export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
+export type Unit = (typeof units)[number];
+
+export type UnitFieldValueSingle = `${number}${Unit}`;
+
+export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${number}${Unit} ${number}${Unit}`;
+
+export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
 
 export type SlotField = PuckSlotField;
 
@@ -114,6 +122,8 @@ export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
     /** Whether templates are enabled for this field. Defaults to true when omitted. */
     enabled?: boolean;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>;
 };
 
 // Per-field-type overrides: omit certain ExtendedFieldTypes keys

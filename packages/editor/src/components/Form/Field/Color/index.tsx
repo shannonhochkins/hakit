@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useDropdownPortal } from '../_shared/useDropdownPortal';
 import styles from './ColorField.module.css';
 import { InputField } from '../Input';
-import { useDebouncer } from '@tanstack/react-pacer';
 
 type InputFieldSize = 'small' | 'medium' | 'large';
 
@@ -36,7 +35,6 @@ export const ColorField = ({
 }: ColorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
-  const [localValue, setLocalValue] = useState(value);
 
   const { renderPortal } = useDropdownPortal({
     anchorRef,
@@ -44,11 +42,6 @@ export const ColorField = ({
     onRequestClose: () => setIsOpen(false),
     overlap: 0,
     matchWidth: false,
-  });
-
-  // use tanstack debounce to trigger on change after 150ms
-  const debouncedOnChange = useDebouncer(onChange, {
-    wait: 150,
   });
 
   useEffect(() => {
@@ -64,7 +57,7 @@ export const ColorField = ({
         id={id}
         name={name}
         icon={icon}
-        value={localValue}
+        value={value}
         label={label}
         helperText={helperText}
         disabled={disabled}
@@ -84,11 +77,7 @@ export const ColorField = ({
               width={250}
               height={150}
               value={value ?? 'transparent'}
-              onChange={color => {
-                setLocalValue(color);
-                debouncedOnChange.cancel();
-                debouncedOnChange.maybeExecute(color);
-              }}
+              onChange={onChange}
             />
           </div>
         </div>

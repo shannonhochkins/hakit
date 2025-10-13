@@ -7,15 +7,7 @@ import { IconButton } from '@components/Button';
 import { Grid2X2 } from 'lucide-react';
 import { getComputedValue, updateCornerValue, createAllCornersValue, createSingleValue } from './computedValue';
 const getClassName = getClassNameFactory('UnitField', styles);
-
-export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
-export type Unit = (typeof units)[number];
-
-export type UnitFieldValueSingle = `${number}${Unit}`;
-
-export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${number}${Unit} ${number}${Unit}`;
-
-export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
+import { UnitFieldValue, UnitFieldValueSingle, Unit } from '@typings/fields';
 
 export type UnitFieldProps = Omit<InputNumberProps, 'endAdornment' | 'onChange' | 'value' | 'type'> &
   (

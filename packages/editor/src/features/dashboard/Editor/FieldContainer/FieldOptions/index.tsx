@@ -11,6 +11,7 @@ export function FieldOptions({
   field,
   onClose,
   name,
+  allowTemplates,
   onResponsiveToggleChange,
   onTemplateToggleChange,
   templateMode,
@@ -22,6 +23,7 @@ export function FieldOptions({
   onResponsiveToggleChange: (value: boolean) => void;
   onTemplateToggleChange: (value: boolean) => void;
   templateMode: boolean;
+  allowTemplates: boolean;
 }) {
   // Use the shared hook for breakpoint configuration
   const { responsiveMode, isBreakpointModeEnabled, toggleBreakpointMode } = useFieldBreakpointConfig(field, name);
@@ -66,15 +68,17 @@ export function FieldOptions({
           id='responsive-mode'
           name='responsive-mode'
         />
-        <SwitchField
-          label='Template Mode'
-          checked={templateMode}
-          onChange={e => onTemplateToggleChange(e.target.checked)}
-          icon={<CodeXml size={16} />}
-          helperText='Enable template mode for this field, this will allow you to use home assistant templates for this field value'
-          id='template-mode'
-          name='template-mode'
-        />
+        {allowTemplates && (
+          <SwitchField
+            label='Template Mode'
+            checked={templateMode}
+            onChange={e => onTemplateToggleChange(e.target.checked)}
+            icon={<CodeXml size={16} />}
+            helperText='Enable template mode for this field, this will allow you to use home assistant templates for this field value'
+            id='template-mode'
+            name='template-mode'
+          />
+        )}
       </Column>
     </Modal>
   );

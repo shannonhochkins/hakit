@@ -39,12 +39,6 @@ export function Editor() {
       // we should now take the current data, merge with the original data
       // sort out any new breakpoint values based on flags set in the store
       // and sing a happy song and hope and pray this works.
-      const { hasInitializedData, setHasInitializedData } = useGlobalStore.getState();
-
-      if (!hasInitializedData) {
-        setHasInitializedData(true);
-        return;
-      }
 
       if (!userConfig) {
         return;
@@ -81,7 +75,7 @@ export function Editor() {
             userConfig,
           });
           if (sanitizedData && !deepEqual(currentPage.data, sanitizedData)) {
-            console.log('Updating data for db', {
+            console.debug('Updating data for db', {
               // updatedOriginal: updated,
               updated: sanitizedData,
               originalData: currentPage.data,
@@ -101,7 +95,7 @@ export function Editor() {
     return <Spinner absolute text='Loading page data' />;
   }
 
-  console.log('puckPageData', userConfig, puckPageData);
+  console.debug('puckPageData', { userConfig, puckPageData });
 
   return (
     <div

@@ -30,7 +30,7 @@ export function useFieldBreakpointConfig(
   // Get the current field's breakpoint mode from the map
   const isBreakpointModeEnabled = useMemo(() => {
     const componentId = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
-    const fieldPath = repositoryId ? `${repositoryId}.${name}` : name;
+    const fieldPath = repositoryId && !name?.includes(repositoryId) ? `${repositoryId}.${name}` : name;
     return componentBreakpointMap[componentId]?.[fieldPath] ?? false;
   }, [componentBreakpointMap, selectedItemOrRootProps?.id, repositoryId, name]);
 

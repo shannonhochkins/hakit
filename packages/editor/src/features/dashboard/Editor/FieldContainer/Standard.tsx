@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { UiState, useGetPuck, type DefaultComponentProps } from '@measured/puck';
-import { Settings } from 'lucide-react';
+import { useGetPuck, type DefaultComponentProps } from '@measured/puck';
+import { Code, Settings } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
@@ -8,7 +8,7 @@ import { IconButton } from '@components/Button/IconButton';
 import { FieldWrapper } from './FieldWrapper';
 import { Row } from '@components/Layout';
 import { CodeField } from '@components/Form/Field/Code';
-import { useTemplateMode } from './useTemplateMode';
+import { useTemplateMode } from '@hooks/useTemplateMode';
 import { ICON_MAP } from './constants';
 import { CustomAutoField } from './CustomAutoField';
 import styles from './FieldContainer.module.css';
@@ -76,7 +76,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       } else {
         puckOnChange(
           // Send back the large breakpoint value if available
-          isBreakpointObject(value) ? value.$xlg : value,
+          isBreakpointObject(puckValue) ? puckValue.$xlg : value,
           // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
           uiState
         );
@@ -181,7 +181,17 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       <FieldWrapper className={`hakit-field-wrapper`}>
         <div className={styles.fieldInput}>
           {allowTemplates && templateMode ? (
-            <CodeField value={templateInputValue} language='jinja2' onChange={onTemplateInputChange} id={id} name={name} />
+            <CodeField
+              value={templateInputValue}
+              language='jinja2'
+              onChange={onTemplateInputChange}
+              id={id}
+              name={name}
+              label={fieldLabel}
+              icon={<Code size={16} />}
+              helperText={field.description}
+              readOnly={field.readOnly}
+            />
           ) : (
             <CustomAutoField field={field} fieldLabel={fieldLabel} name={name} onChange={onChange} value={value} id={id} icon={_icon} />
           )}
@@ -197,7 +207,8 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         open={fieldOptionsOpen}
         field={field}
         name={name}
-        templateMode={allowTemplates && templateMode}
+        allowTemplates={allowTemplates}
+        templateMode={templateMode}
         onResponsiveToggleChange={onResponsiveToggleChange}
         onTemplateToggleChange={handleTemplateToggle}
         onClose={onCloseFieldOptions}

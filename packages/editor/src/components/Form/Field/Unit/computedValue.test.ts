@@ -1,6 +1,6 @@
 import { expect, test, describe } from 'bun:test';
 import { getComputedValue, createSingleValue, createAllCornersValue, updateCornerValue } from './computedValue';
-import type { UnitFieldValue, Unit } from './index';
+import type { UnitFieldValue, Unit } from '@typings/fields';
 
 describe('getComputedValue', () => {
   describe('single values', () => {

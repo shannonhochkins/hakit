@@ -39,7 +39,6 @@ export type IgnorePuckConfigurableOptions =
   | 'resolveFields'
   | 'defaultProps'
   | 'resolveFields'
-  | 'resolveData'
   | 'resolvePermissions'
   | 'inline'
   | 'category'; // category is handled internally
@@ -84,7 +83,7 @@ export type CustomConfig<
     components: Props;
     fields: FieldDefinition;
   }>,
-  'components' | 'root' | 'fields'
+  'components' | 'root' | 'fields' | 'resolveData'
 > & {
   components: {
     [ComponentName in keyof Props]: Omit<CustomComponentConfig<Props[ComponentName]>, 'type'>;

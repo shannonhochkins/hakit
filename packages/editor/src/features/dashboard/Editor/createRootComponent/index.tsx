@@ -9,10 +9,10 @@ import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
-import { useTemplates } from '@hooks/useTemplates';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { attachRepositoryReference } from '@helpers/editor/pageData/attachRepositoryReference';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
+import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
@@ -99,11 +99,12 @@ export async function createRootComponent<P extends DefaultComponentProps>(
     ...updatedRootConfig,
     // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: updatedRootConfig.fields,
+    inline: false,
     // Create a render function that calls all root render functions
     render(renderProps: RenderProps<InternalRootData & InternalRootComponentFields>) {
       return (
         <RenderErrorBoundary prefix='Root'>
-          <Render {...renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
+          <TemplateSubscriber props={renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
         </RenderErrorBoundary>
       );
     },
@@ -111,6 +112,22 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // @ts-expect-error - side effect of dodgeyness, but it does exist so we should remove it
   delete finalRootConfig._remoteRepositoryId; // Remove renderProps as it's not needed in the final config
   return finalRootConfig;
+}
+
+function TemplateSubscriber<P extends DefaultComponentProps>({
+  props,
+  remoteKeys,
+  processedConfigs,
+}: {
+  props: RenderProps<InternalRootData & InternalRootComponentFields>;
+  remoteKeys: Set<string>;
+  processedConfigs: CustomRootConfigWithRemote<P>[];
+}) {
+  const { data, loading, error } = useResolvedJinjaTemplate(props);
+  if (error) {
+    throw error;
+  }
+  return <>{loading || !data ? null : <Render {...data} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />}</>;
 }
 
 function getPropsForRoot<P extends DefaultComponentProps>(
@@ -145,10 +162,12 @@ function Render<P extends DefaultComponentProps>({
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
   // this will flatten the breakpoint data to only contain the active breakpoint data
-  const props = dbValueToPuck(renderProps, activeBreakpoint) as RenderProps<InternalRootData & InternalRootComponentFields>;
+  const currentBreakpointProps = dbValueToPuck(renderProps, activeBreakpoint) as RenderProps<
+    InternalRootData & InternalRootComponentFields
+  >;
   const editorElements = usePuckIframeElements();
-  const { id, styles, editMode = false, content: Content } = props;
-  const processedProps = useTemplates(props);
+  const processedProps = currentBreakpointProps;
+  const { id, styles, editMode = false, content: Content } = processedProps;
 
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
@@ -190,6 +209,7 @@ function Render<P extends DefaultComponentProps>({
       {processedConfigs.map((rootConfig, index) => {
         if (rootConfig?.render) {
           const propsForThisRoot = propsForRootMap.get(rootConfig._remoteRepositoryId)!;
+
           return (
             <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>
           );

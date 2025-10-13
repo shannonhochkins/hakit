@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import { UnitFieldValue } from '@components/Form/Field/Unit';
+import { UnitFieldValue } from '@typings/fields';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -652,6 +652,7 @@ function Render(props: RenderProps<DefaultRootProps>) {
 
   return (
     <>
+      {props.id}
       {/* 
         Note: Font links are rendered in component body rather than <head>.
         This is acceptable because:

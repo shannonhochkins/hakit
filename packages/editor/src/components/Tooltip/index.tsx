@@ -18,7 +18,7 @@ export function Tooltip({ placement = 'top', title = null, children, ...rest }: 
   const id = useId();
   return (
     <>
-      <div data-tooltip-id={id} data-tooltip-place={placement}>
+      <div data-tooltip-id={id} data-tooltip-place={placement} {...rest}>
         {children}
       </div>
       <ReactTooltip

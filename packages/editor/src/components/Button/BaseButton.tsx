@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { ButtonHTMLAttributes } from 'react';
 import { Tooltip, TooltipProps } from '@components/Tooltip';
 import styles from './BaseButton.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
@@ -7,7 +6,7 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('BaseButton', styles);
 
 // Base props interface shared by all button types
-export interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface BaseButtonProps extends React.ComponentPropsWithoutRef<'button'> {
   /** Size variant of the button */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Whether the button is in a loading state */
@@ -61,7 +60,7 @@ const BaseButtonPrivate = ({
   badgeVariant,
   ...props
 }: BaseButtonProps) => {
-  const { className: providedClassName, style: providedStyle, 'badge-aria-label': badgeAriaLabel, ...restProps } = props;
+  const { className: providedClassName, style: providedStyle, 'badge-aria-label': badgeAriaLabel, style, ...restProps } = props;
 
   // Use badgeVariant if provided, otherwise inherit from button variant
   const effectiveBadgeVariant = badgeVariant ?? variant ?? 'primary';
@@ -96,7 +95,7 @@ const BaseButtonPrivate = ({
   );
 
   return (
-    <div className={getClassName('BaseButton-wrapper')}>
+    <div className={getClassName('BaseButton-wrapper')} style={style}>
       <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps} style={tooltipStyles}>
         <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
           {startIcon && !loading && <>{startIcon}</>}

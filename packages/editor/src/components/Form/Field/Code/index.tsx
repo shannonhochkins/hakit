@@ -57,9 +57,10 @@ export const CodeField = ({
                 onClick={() => setEditing(true)}
                 tooltipProps={{
                   placement: 'left',
-                  style: {
-                    height: '100%',
-                  },
+                }}
+                style={{
+                  flex: 1,
+                  height: '100%',
                 }}
                 className={getClassName('editButton')}
               />
@@ -88,9 +89,9 @@ export const CodeField = ({
             className={getClassName('saveButton')}
             tooltipProps={{
               placement: 'left',
-              style: {
-                flex: 1,
-              },
+            }}
+            style={{
+              flex: 1,
             }}
             variant='primary'
             aria-label='Save'
@@ -104,9 +105,9 @@ export const CodeField = ({
             className={getClassName('cancelButton')}
             tooltipProps={{
               placement: 'left',
-              style: {
-                flex: 1,
-              },
+            }}
+            style={{
+              flex: 1,
             }}
             aria-label='Cancel'
             icon={<XIcon size={18} />}

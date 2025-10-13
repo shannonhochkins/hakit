@@ -88,8 +88,6 @@ export type PuckConfigurationStore = {
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
   dashboardWithoutData: Dashboard | null;
   setDashboardWithoutData: (dashboard: Dashboard | null) => void;
-  hasInitializedData: boolean; // Flag to indicate if the initial data has been set
-  setHasInitializedData: (hasInitializedData: boolean) => void;
   puckPageData: PuckPageData | null;
   // NOTE - Important that this is only triggered once when the dashboard is loading or changing pages
   setPuckPageData: (newPageData: PuckPageData) => void;
@@ -151,15 +149,12 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setDashboardWithoutData: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
-    hasInitializedData: false,
-    setHasInitializedData: (hasInitializedData: boolean) => set(state => ({ ...state, hasInitializedData })),
     puckPageData: null,
     setPuckPageData: (puckPageData: PuckPageData) =>
       set(state => ({ ...state, puckPageData, templateFieldMap: computeTemplateFieldMap(puckPageData) })),
     unsavedPuckPageData: null,
     setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData | null) => {
       return set(state => {
-        if (!state.hasInitializedData) return state;
         return { ...state, unsavedPuckPageData };
       });
     },
