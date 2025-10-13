@@ -131,6 +131,7 @@ export const createPuckOverridesPlugin = (): Plugin<
         },
         hidden: FieldWrapper,
         slot: FieldWrapper,
+        icon: FieldWrapper,
       },
     },
   };

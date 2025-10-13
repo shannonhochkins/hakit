@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { useGetPuck, type DefaultComponentProps } from '@measured/puck';
+import { createUsePuck, type DefaultComponentProps } from '@measured/puck';
 import { Code, Settings } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
@@ -22,6 +22,7 @@ import { BreakpointIndicators } from './BreakpointIndicators';
 /**
  * Helper function to create custom fields (cf - custom field)
  */
+const usePuck = createUsePuck();
 
 export type StandardFieldComponentProps<Props extends DefaultComponentProps = DefaultComponentProps> = {
   // these excluded field types render differently and don't need all these fancy changes
@@ -43,8 +44,9 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   const value = useMemo(() => dbValueToPuck(puckValue, activeBreakpoint ?? 'xlg'), [puckValue, activeBreakpoint]);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
-  const getPuck = useGetPuck();
-  const { selectedItem, appState } = getPuck();
+  const selectedItem = usePuck(state => state.selectedItem);
+  const appState = usePuck(state => state.appState);
+  const uiState = usePuck(state => state.appState.ui);
   const itemOrRoot = selectedItem ?? appState.data.root;
   const [fieldOptionsOpen, setFieldOptionsOpen] = useState(false);
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
@@ -55,7 +57,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const onChange = useCallback(
     (value: unknown) => {
       if (typeof value === 'undefined') return;
-      const uiState = getPuck().appState.ui;
       const isValueBreakpointObject = isBreakpointObject(puckValue);
       if (responsiveMode && isBreakpointModeEnabled) {
         puckOnChange(
@@ -82,7 +83,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         );
       }
     },
-    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled, getPuck]
+    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled, uiState]
   );
 
   const componentIdForMap = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';
@@ -102,7 +103,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
 
   const isVisible = useMemo(() => {
     if (typeof field.visible === 'function') {
-      const { appState } = getPuck();
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemOrRootProps ? selectedItemOrRootProps : appState.data.root?.props;
       if (!visibleData) return;
@@ -111,7 +111,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemOrRootProps, getPuck, field, addonId]);
+  }, [selectedItemOrRootProps, appState, field, addonId]);
 
   const fieldOptions = useMemo(
     () => (
@@ -143,7 +143,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
 
   const onRemoveBreakpoint = useCallback(
     (newValue: unknown) => {
-      const uiState = getPuck().appState.ui;
       // intentionally just triggering puckOnChange instead of onChange as we know it's already
       // a breakpoint object so we just send it
       // the user has just decided to remove an individual breakpoint value
@@ -153,7 +152,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         uiState
       );
     },
-    [getPuck, puckOnChange]
+    [uiState, puckOnChange]
   );
 
   const onResponsiveToggleChange = useCallback(() => {

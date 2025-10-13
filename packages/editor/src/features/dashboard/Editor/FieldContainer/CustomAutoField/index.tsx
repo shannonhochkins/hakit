@@ -14,6 +14,8 @@ import { Alert } from '@components/Alert';
 import { SwitchField } from '@components/Form/Field/Switch';
 import { UnitField } from '@components/Form/Field/Unit';
 import { validateBoolean, validateNumber, validateString, validateStringArray } from './valueValidation';
+import { IconField } from '@components/Form/Field/Icon';
+import { icons } from 'lucide-react';
 
 type CustomAutoFieldProps<Props> = {
   field: FieldConfiguration[string];
@@ -373,6 +375,20 @@ export function renderField(props: RenderFieldProps) {
           }}
           onChange={props.onChange}
           value={props.value}
+        />
+      );
+    case 'icon':
+      return (
+        <IconField
+          value={validateString(props.value, undefined) as keyof typeof icons}
+          onChange={props.onChange}
+          id={id}
+          name={props.name}
+          label={props.fieldLabel}
+          icon={props.icon}
+          readOnly={props.field.readOnly}
+          placeholder='Select an icon...'
+          helperText={props.field.description}
         />
       );
     default:

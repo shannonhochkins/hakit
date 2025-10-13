@@ -14,6 +14,7 @@ import {
   ImagePlus,
   CodeXml,
   Ruler,
+  VectorSquare,
 } from 'lucide-react';
 
 // Create an object with keys based on the extracted type values
@@ -39,4 +40,5 @@ export const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   // not seen anyway
   hidden: <Hash size={16} />,
   unit: <Ruler size={16} />,
+  icon: <VectorSquare size={16} />,
 };

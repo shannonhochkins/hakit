@@ -1,10 +1,11 @@
 import { IconButton } from '@components/Button/IconButton';
-import { useGetPuck } from '@measured/puck';
 import { Undo2Icon } from 'lucide-react';
+import { createUsePuck } from '@measured/puck';
+
+const usePuck = createUsePuck();
 
 export function Undo() {
-  const getPuck = useGetPuck();
-  const { history } = getPuck();
+  const history = usePuck(state => state.history);
   const { hasPast, back } = history;
   return (
     <IconButton

@@ -66,21 +66,21 @@ type CommonAutocompleteProps<T> = {
   isOptionEqualToValue?: (option: T, value: T) => boolean;
 };
 
-type SingleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
+export type SingleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   multiple?: false;
   value?: T;
   onChange?: (value: T) => void;
   renderValue?: (value: T) => React.ReactNode;
 };
 
-type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
+export type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   multiple: true;
   value?: T[];
   onChange?: (value: T[]) => void;
   renderValue?: (values: T[]) => React.ReactNode;
 };
 
-type AutocompleteFieldProps<T = string> = SingleAutocompleteProps<T> | MultipleAutocompleteProps<T>;
+export type AutocompleteFieldProps<T = string> = SingleAutocompleteProps<T> | MultipleAutocompleteProps<T>;
 export function AutocompleteField<T = string>({
   id,
   icon,

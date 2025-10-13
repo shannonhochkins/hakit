@@ -16,6 +16,7 @@ import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
 import type { EntityName } from '@hakit/core';
+import { icons } from 'lucide-react';
 
 export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
 export type Unit = (typeof units)[number];
@@ -135,6 +136,7 @@ type FieldTypeOmitMap = {
   object: 'default';
   entity: 'default';
   unit: 'default';
+  icon: 'default';
 };
 
 // What each field actually stores/returns
@@ -144,6 +146,7 @@ export type FieldValueByKind = {
   imageUpload: string;
   color: string;
   code: string;
+  icon: string;
 
   page: string;
   pages: string[];
@@ -171,6 +174,7 @@ export type FieldValueByKind = {
 export type FieldDefinition = {
   custom: { type: 'custom' };
   switch: { type: 'switch' };
+  icon: { type: 'icon'; default: keyof typeof icons };
   text: TextField;
   number: NumberField;
   textarea: TextareaField;

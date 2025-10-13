@@ -1,10 +1,11 @@
-import { useGetPuck } from '@measured/puck';
 import { Redo2Icon } from 'lucide-react';
 import { IconButton } from '@components/Button/IconButton';
+import { createUsePuck } from '@measured/puck';
+
+const usePuck = createUsePuck();
 
 export function Redo() {
-  const getPuck = useGetPuck();
-  const { history } = getPuck();
+  const history = usePuck(state => state.history);
   const { hasFuture, forward } = history;
   return (
     <IconButton

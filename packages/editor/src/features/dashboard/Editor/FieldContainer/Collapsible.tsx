@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { UiState, useGetPuck, type DefaultComponentProps } from '@measured/puck';
+import { createUsePuck, UiState, type DefaultComponentProps } from '@measured/puck';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
@@ -11,6 +11,8 @@ import styles from './FieldContainer.module.css';
 import { IconButton } from '@components/Button';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { AutoHeight } from '@components/AutoHeight';
+
+const usePuck = createUsePuck();
 
 const getClassName = getClassNameFactory('CollapsibleFieldWrapper', styles);
 /**
@@ -37,8 +39,8 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   const addonId = 'addonId' in field ? (field.addonId as string) : undefined;
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
-  const getPuck = useGetPuck();
-  const { selectedItem, appState } = getPuck();
+  const selectedItem = usePuck(state => state.selectedItem);
+  const appState = usePuck(state => state.appState);
   const itemOrRoot = selectedItem ?? appState.data.root;
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
 
@@ -60,7 +62,6 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
 
   const isVisible = useMemo(() => {
     if (typeof field.visible === 'function') {
-      const { appState } = getPuck();
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemOrRootProps ? selectedItemOrRootProps : appState.data.root?.props;
       if (!visibleData) return;
@@ -69,7 +70,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
       return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemOrRootProps, getPuck, field, addonId]);
+  }, [selectedItemOrRootProps, appState, field, addonId]);
 
   const onToggleExpand = useCallback(() => {
     toggleExpanded(prev => !prev);

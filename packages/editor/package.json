@@ -29,7 +29,7 @@
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-router": "^1.124.0",
     "@uiw/react-md-editor": "^4.0.8",
-    "lucide-react": "^0.503.0",
+    "lucide-react": "^0.545.0",
     "monaco-editor": "^0.52.2",
     "monaco-yaml": "^5.3.1",
     "react": "^19.1.1",
