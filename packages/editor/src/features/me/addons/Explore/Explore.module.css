@@ -1,0 +1,64 @@
+/* Explore CSS Module */
+
+.Explore {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.Explore-pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mq-md .Explore-pageHeader {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.Explore-headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.Explore-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.Explore-pageSubtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.Explore-searchAndFilter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mq-md .Explore-searchAndFilter {
+  flex-direction: row;
+  align-items: center;
+}
+
+.Explore-addonList {
+  gap: var(--space-3);
+}
+
+.Explore-loadingState {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.Explore-errorState {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-error-500);
+}

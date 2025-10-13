@@ -47,22 +47,22 @@ const navigationStructure: NavGroupItem[] = [
     label: 'Dashboards',
   },
   {
-    to: '/me/repositories',
+    to: '/me/addons',
     icon: <PackageIcon size={18} />,
-    label: 'Repositories',
+    label: 'Addons',
     subItems: [
       {
-        to: '/me/repositories',
+        to: '/me/addons',
         icon: <Component size={16} />,
         label: 'Installed',
       },
       {
-        to: '/me/repositories/explore',
+        to: '/me/addons/explore',
         icon: <SearchIcon size={16} />,
         label: 'Explore',
       },
       {
-        to: '/me/repositories/install',
+        to: '/me/addons/install',
         icon: <PlusIcon size={16} />,
         label: 'Install',
       },

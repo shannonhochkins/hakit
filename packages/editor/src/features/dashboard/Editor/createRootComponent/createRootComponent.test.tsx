@@ -79,8 +79,8 @@ const mockRootConfig1: CustomRootConfigWithRemote<MockRootProps> = {
       default: 'from config 1',
     },
   },
-  _remoteRepositoryId: 'test-repo-1',
-  _remoteRepositoryName: 'Test Repository 1',
+  _remoteAddonId: 'test-addon-1',
+  _remoteAddonName: 'Test Addon 1',
   styles: (props: MockRootProps) => `color: ${props.testField1 || 'red'};`,
   render: mock(() => <div data-testid='test-root-1'>Test Root 1 Content</div>),
 };
@@ -100,8 +100,8 @@ const mockRootConfig2: CustomRootConfigWithRemote<MockRootProps> = {
       default: 'from config 2',
     },
   },
-  _remoteRepositoryId: 'test-repo-2',
-  _remoteRepositoryName: 'Test Repository 2',
+  _remoteAddonId: 'test-addon-2',
+  _remoteAddonName: 'Test Addon 2',
   styles: (props: MockRootProps) => `font-size: ${props.testField2 || 16}px;`,
   render: mock(() => <div data-testid='test-root-2'>Test Root 2 Content</div>),
 };
@@ -124,8 +124,8 @@ const mockRootConfig3: CustomRootConfigWithRemote<MockRootProps> = {
       type: 'slot',
     },
   },
-  _remoteRepositoryId: 'test-repo-3',
-  _remoteRepositoryName: 'Test Repository 3',
+  _remoteAddonId: 'test-addon-3',
+  _remoteAddonName: 'Test Addon 3',
   styles: (props: MockRootProps) => `font-size: ${props.testField2 || 16}px;`,
   render: mock(() => <div data-testid='test-root-3'>Test Root 3 Content</div>),
 };
@@ -141,8 +141,8 @@ const duplicateRootConfig: CustomRootConfigWithRemote<MockRootProps> = {
       default: 'should be ignored',
     },
   },
-  _remoteRepositoryId: 'test-repo-1', // Same ID as mockRootConfig1
-  _remoteRepositoryName: 'Duplicate Repository',
+  _remoteAddonId: 'test-addon-1', // Same ID as mockRootConfig1
+  _remoteAddonName: 'Duplicate Addon',
   render: mock(() => <div data-testid='duplicate-root'>Duplicate Content</div>),
 };
 
@@ -163,23 +163,23 @@ describe('createRootComponent', () => {
     expect(result).toBeDefined();
     expect(result.fields).toBeDefined();
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-1']).toBeDefined();
+    expect(result.fields!['test-addon-1']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-2']).toBeDefined();
+    expect(result.fields!['test-addon-2']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-3']).toBeDefined();
+    expect(result.fields!['test-addon-3']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-1'].type).toBe('object');
+    expect(result.fields!['test-addon-1'].type).toBe('object');
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-2'].type).toBe('object');
+    expect(result.fields!['test-addon-2'].type).toBe('object');
     // @ts-expect-error - This does exist, just not typed intentionally
-    expect(result.fields!['test-repo-3'].type).toBe('object');
+    expect(result.fields!['test-addon-3'].type).toBe('object');
 
-    // now just check the 3rd repo has the slot field
+    // now just check the 3rd addon has the slot field
     // @ts-expect-error - This does exist, just not typed intentionally
-    const testRepo3Field = result.fields!['test-repo-3'] as Record<string, unknown>;
-    expect(testRepo3Field.type).toBe('object');
-    expect(testRepo3Field.objectFields).toHaveProperty('anotherSlot');
+    const testAddon3Field = result.fields!['test-addon-3'] as Record<string, unknown>;
+    expect(testAddon3Field.type).toBe('object');
+    expect(testAddon3Field.objectFields).toHaveProperty('anotherSlot');
   });
 
   test('should always include the default root config with fixed id', async () => {
@@ -205,45 +205,45 @@ describe('createRootComponent', () => {
     expect(result.fields).toBeDefined();
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('@hakit/default-root');
-    expect(fieldKeys).toContain('test-repo-1');
-    expect(fieldKeys).toContain('test-repo-2');
+    expect(fieldKeys).toContain('test-addon-1');
+    expect(fieldKeys).toContain('test-addon-2');
     expect(fieldKeys).toContain('content');
 
     // Check first config fields structure
     // @ts-expect-error - This does exist, just not typed intentionally
-    const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
-    expect(testRepo1Field.label).toBe('Test Repository 1');
-    expect(testRepo1Field.type).toBe('object');
+    const testAddon1Field = result.fields!['test-addon-1'] as Record<string, unknown>;
+    expect(testAddon1Field.label).toBe('Test Addon 1');
+    expect(testAddon1Field.type).toBe('object');
 
     // Check second config fields structure
     // @ts-expect-error - This does exist, just not typed intentionally
-    const testRepo2Field = result.fields!['test-repo-2'] as Record<string, unknown>;
-    expect(testRepo2Field.label).toBe('Test Repository 2');
-    expect(testRepo2Field.type).toBe('object');
+    const testAddon2Field = result.fields!['test-addon-2'] as Record<string, unknown>;
+    expect(testAddon2Field.label).toBe('Test Addon 2');
+    expect(testAddon2Field.type).toBe('object');
   });
 
-  test('should ignore duplicate repository IDs and warn about them', async () => {
+  test('should ignore duplicate addon IDs and warn about them', async () => {
     const result = await createRootComponent([mockRootConfig1, duplicateRootConfig, mockRootConfig2], mockComponentFactoryData);
 
     // Should only have unique configs
     expect(result.fields).toBeDefined();
     const fieldKeys = Object.keys(result.fields!);
     expect(fieldKeys).toContain('@hakit/default-root');
-    expect(fieldKeys).toContain('test-repo-1');
-    expect(fieldKeys).toContain('test-repo-2');
+    expect(fieldKeys).toContain('test-addon-1');
+    expect(fieldKeys).toContain('test-addon-2');
     expect(fieldKeys).toContain('content');
 
     // Should warn about duplicate
-    expect(console.warn).toHaveBeenCalledWith('Duplicate root config repository ID detected: test-repo-1. Ignoring duplicate.');
+    expect(console.warn).toHaveBeenCalledWith('Duplicate root config addon ID detected: test-addon-1. Ignoring duplicate.');
 
     // Should have the first config, not the duplicate
 
     // @ts-expect-error - This does exist, just not typed intentionally
-    const testRepo1Field = result.fields!['test-repo-1'] as Record<string, unknown>;
-    expect(testRepo1Field.label).toBe('Test Repository 1');
+    const testAddon1Field = result.fields!['test-addon-1'] as Record<string, unknown>;
+    expect(testAddon1Field.label).toBe('Test Addon 1');
     // Should keep the original config's properties, not the duplicate's
-    expect(testRepo1Field.objectFields).toHaveProperty('testField1');
-    expect(testRepo1Field.objectFields).toHaveProperty('sharedField');
+    expect(testAddon1Field.objectFields).toHaveProperty('testField1');
+    expect(testAddon1Field.objectFields).toHaveProperty('sharedField');
   });
 
   test('should always include content slot field in final config', async () => {
@@ -264,11 +264,11 @@ describe('createRootComponent', () => {
           useBackgroundImage: false,
         },
       },
-      'test-repo-1': {
+      'test-addon-1': {
         testField1: 'custom value 1',
         sharedField: 'isolated value 1',
       },
-      'test-repo-2': {
+      'test-addon-2': {
         testField2: 99,
         sharedField: 'isolated value 2',
       },
@@ -314,11 +314,11 @@ describe('createRootComponent', () => {
 
     const config1Call = mockRenderFn1.mock.calls[0][0];
     expect(config1Call).not.toHaveProperty('testField2');
-    expect(config1Call).not.toHaveProperty('test-repo-2');
+    expect(config1Call).not.toHaveProperty('test-addon-2');
 
     const config2Call = mockRenderFn2.mock.calls[0][0];
     expect(config2Call).not.toHaveProperty('testField1');
-    expect(config2Call).not.toHaveProperty('test-repo-1');
+    expect(config2Call).not.toHaveProperty('test-addon-1');
   });
 
   test('should handle root configs with styles function from mock', async () => {
@@ -363,10 +363,10 @@ describe('createRootComponent', () => {
     expect(result.fields!['@hakit/default-root']).toBeDefined();
   });
 
-  test('should not have _remoteRepositoryId in final config', async () => {
+  test('should not have _remoteAddonId in final config', async () => {
     const result = await createRootComponent([mockRootConfig1], mockComponentFactoryData);
 
-    expect(result).not.toHaveProperty('_remoteRepositoryId');
+    expect(result).not.toHaveProperty('_remoteAddonId');
   });
 
   test('should collect and apply all styles from root configs', async () => {
@@ -380,8 +380,8 @@ describe('createRootComponent', () => {
           default: 'blue',
         },
       },
-      _remoteRepositoryId: 'style-repo-1',
-      _remoteRepositoryName: 'Style Repository 1',
+      _remoteAddonId: 'style-addon-1',
+      _remoteAddonName: 'Style Addon 1',
       styles: (props: MockRootProps) => `body { color: ${props.color || 'blue'}; }`,
       render: mock(() => <div>Style Config 1</div>),
     };
@@ -396,8 +396,8 @@ describe('createRootComponent', () => {
           default: 16,
         },
       },
-      _remoteRepositoryId: 'style-repo-2',
-      _remoteRepositoryName: 'Style Repository 2',
+      _remoteAddonId: 'style-addon-2',
+      _remoteAddonName: 'Style Addon 2',
       styles: (props: MockRootProps) => `body { font-size: ${props.fontSize || 16}px; }`,
       render: mock(() => <div>Style Config 2</div>),
     };
@@ -410,10 +410,10 @@ describe('createRootComponent', () => {
           backgroundColor: '#ffffff',
         },
       },
-      'style-repo-1': {
+      'style-addon-1': {
         color: 'red',
       },
-      'style-repo-2': {
+      'style-addon-2': {
         fontSize: 18,
       },
       content: () => <div>Content</div>,
@@ -433,21 +433,21 @@ describe('createRootComponent', () => {
     expect(mockStyleConfig2.styles).toBeDefined();
   });
 
-  test('should attach repository reference to default root config', async () => {
+  test('should attach addon reference to default root config', async () => {
     const result = await createRootComponent([], mockComponentFactoryData);
 
     expect(result.fields).toBeDefined();
 
     // @ts-expect-error - dynamic key not present in the static type
     if (result.fields!['@hakit/default-root'].type === 'custom') {
-      // Check that the default root config has the repository ID
+      // Check that the default root config has the addon ID
       // @ts-expect-error - dynamic key not present in the static type
       const defaultRootField = result.fields!['@hakit/default-root']._field;
-      expect(defaultRootField.repositoryId).toBe('@hakit/default-root');
+      expect(defaultRootField.addonId).toBe('@hakit/default-root');
     }
   });
 
-  test('should attach repository reference to array fields', async () => {
+  test('should attach addon reference to array fields', async () => {
     // Create a root config with array fields to test array field processing
     interface ArrayProps {
       items: Array<{
@@ -488,8 +488,8 @@ describe('createRootComponent', () => {
           },
         },
       },
-      _remoteRepositoryId: 'array-repo',
-      _remoteRepositoryName: 'Array Repository',
+      _remoteAddonId: 'array-addon',
+      _remoteAddonName: 'Array Addon',
       render: mock(() => <div>Array Config</div>),
     };
 
@@ -497,11 +497,11 @@ describe('createRootComponent', () => {
 
     expect(result.fields).toBeDefined();
     // @ts-expect-error = this does exist, it's intentionally not typed internally
-    const field = result.fields['array-repo'];
-    expect(field.repositoryId).toBe('array-repo');
+    const field = result.fields['array-addon'];
+    expect(field.addonId).toBe('array-addon');
     // @ts-expect-error = this does exist, it's intentionally not typed internally
-    const subField = result.fields['array-repo'].objectFields.items;
-    expect(subField.repositoryId).toBe('array-repo');
+    const subField = result.fields['array-addon'].objectFields.items;
+    expect(subField.addonId).toBe('array-addon');
   });
 
   test('should handle root config with slot fields', async () => {
@@ -534,8 +534,8 @@ describe('createRootComponent', () => {
           type: 'slot',
         },
       },
-      _remoteRepositoryId: 'slot-repo',
-      _remoteRepositoryName: 'Slot Repository',
+      _remoteAddonId: 'slot-addon',
+      _remoteAddonName: 'Slot Addon',
       render: mock(props => (
         <div data-testid='slot-root'>
           <h1>{props.something}</h1>
@@ -550,12 +550,12 @@ describe('createRootComponent', () => {
     // Verify the slot config was properly processed
     expect(result.fields).toBeDefined();
     const fieldKeys = Object.keys(result.fields!);
-    expect(fieldKeys).toContain('slot-repo');
+    expect(fieldKeys).toContain('slot-addon');
     expect(fieldKeys).toContain('content');
     // @ts-expect-error - dynamic key not present in the static type
-    const slotRepoField = result.fields!['slot-repo'] as Record<string, unknown>;
-    expect(slotRepoField.label).toBe('Slot Repository');
-    expect(slotRepoField.type).toBe('object');
+    const slotAddonField = result.fields!['slot-addon'] as Record<string, unknown>;
+    expect(slotAddonField.label).toBe('Slot Addon');
+    expect(slotAddonField.type).toBe('object');
 
     // Test that the render function properly handles slots
     const mockProps = {
@@ -564,7 +564,7 @@ describe('createRootComponent', () => {
           backgroundColor: '#ffffff',
         },
       },
-      'slot-repo': {
+      'slot-addon': {
         something: 'Test Something',
         somethingElse: 'Test Something Else',
         anotherSlot: () => <div data-testid='another-slot-content'>Slot Content</div>,
@@ -639,18 +639,18 @@ describe('createRootComponent', () => {
 
     // Check custom root config defaults
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('test-repo-1');
+    expect(result.defaultProps).toHaveProperty('test-addon-1');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-1']).toHaveProperty('testField1', 'default value 1');
+    expect(result.defaultProps['test-addon-1']).toHaveProperty('testField1', 'default value 1');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-1']).toHaveProperty('sharedField', 'from config 1');
+    expect(result.defaultProps['test-addon-1']).toHaveProperty('sharedField', 'from config 1');
 
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('test-repo-2');
+    expect(result.defaultProps).toHaveProperty('test-addon-2');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-2']).toHaveProperty('testField2', 42);
+    expect(result.defaultProps['test-addon-2']).toHaveProperty('testField2', 42);
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-2']).toHaveProperty('sharedField', 'from config 2');
+    expect(result.defaultProps['test-addon-2']).toHaveProperty('sharedField', 'from config 2');
   });
 
   test('should handle nested object field defaults', async () => {
@@ -710,8 +710,8 @@ describe('createRootComponent', () => {
           },
         },
       },
-      _remoteRepositoryId: 'nested-repo',
-      _remoteRepositoryName: 'Nested Repository',
+      _remoteAddonId: 'nested-addon',
+      _remoteAddonName: 'Nested Addon',
       render: mock(() => <div>Nested Config</div>),
     };
 
@@ -719,12 +719,12 @@ describe('createRootComponent', () => {
 
     // Check that nested defaults are populated
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('nested-repo');
+    expect(result.defaultProps).toHaveProperty('nested-addon');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['nested-repo']).toHaveProperty('config');
+    expect(result.defaultProps['nested-addon']).toHaveProperty('config');
 
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const configDefaults = result.defaultProps['nested-repo'].config;
+    const configDefaults = result.defaultProps['nested-addon'].config;
     expect(configDefaults).toHaveProperty('enabled', true);
     expect(configDefaults).toHaveProperty('settings');
 
@@ -772,8 +772,8 @@ describe('createRootComponent', () => {
           },
         },
       },
-      _remoteRepositoryId: 'array-repo',
-      _remoteRepositoryName: 'Array Repository',
+      _remoteAddonId: 'array-addon',
+      _remoteAddonName: 'Array Addon',
       render: mock(() => <div>Array Config</div>),
     };
 
@@ -781,12 +781,12 @@ describe('createRootComponent', () => {
 
     // Check that array defaults are populated
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('array-repo');
+    expect(result.defaultProps).toHaveProperty('array-addon');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['array-repo']).toHaveProperty('items');
+    expect(result.defaultProps['array-addon']).toHaveProperty('items');
 
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const itemsDefaults = result.defaultProps['array-repo'].items;
+    const itemsDefaults = result.defaultProps['array-addon'].items;
     expect(Array.isArray(itemsDefaults)).toBe(true);
     expect(itemsDefaults).toHaveLength(2);
     expect(itemsDefaults[0]).toEqual({ name: 'Default Item 1', count: 5 });
@@ -845,8 +845,8 @@ describe('createRootComponent', () => {
           default: '#ff0000',
         },
       },
-      _remoteRepositoryId: 'various-repo',
-      _remoteRepositoryName: 'Various Repository',
+      _remoteAddonId: 'various-addon',
+      _remoteAddonName: 'Various Addon',
       render: mock(() => <div>Various Config</div>),
     };
 
@@ -854,9 +854,9 @@ describe('createRootComponent', () => {
 
     // Check that various field type defaults are populated
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('various-repo');
+    expect(result.defaultProps).toHaveProperty('various-addon');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const variousDefaults = result.defaultProps['various-repo'];
+    const variousDefaults = result.defaultProps['various-addon'];
 
     expect(variousDefaults).toHaveProperty('textField', 'Default Text');
     expect(variousDefaults).toHaveProperty('numberField', 42);
@@ -938,13 +938,13 @@ describe('createRootComponent', () => {
 
     // Verify custom config defaults are also present
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('test-repo-1');
+    expect(result.defaultProps).toHaveProperty('test-addon-1');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps).toHaveProperty('test-repo-2');
+    expect(result.defaultProps).toHaveProperty('test-addon-2');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-1']).toHaveProperty('testField1', 'default value 1');
+    expect(result.defaultProps['test-addon-1']).toHaveProperty('testField1', 'default value 1');
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    expect(result.defaultProps['test-repo-2']).toHaveProperty('testField2', 42);
+    expect(result.defaultProps['test-addon-2']).toHaveProperty('testField2', 42);
   });
 
   test('should match defaultRootConfig field structure exactly', async () => {

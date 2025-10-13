@@ -39,9 +39,9 @@ This project is evolving rapidly, and your support helps drive development forwa
 
 ### 🧩 **Powerful Component System**
 - **React-based Components**: Leverage the vast React ecosystem instead of limited Lovelace components
-- **GitHub Integration**: Transform entire GitHub repositories into comprehensive theme packages
-- **Multi-theme Support**: Use multiple themes and repositories simultaneously
-- **Component Repositories**: Support for both individual components and complete theme packages
+- **GitHub Integration**: Transform entire GitHub repositories (addons) into comprehensive theme packages
+- **Multi-theme Support**: Use multiple themes and repositories (addons) simultaneously
+- **Component Addons**: Support for both individual components and complete theme packages
 - **Unlimited Field Types**: Complete customization with virtually unlimited field options
 
 ### 🎯 **Developer-Friendly**

@@ -35,7 +35,7 @@ We have index.css, and the use of Global from emotion, we should pick a consiste
 # Editor
 
 ## UX
-- When no repositories are added or remotes, there's technically nothing you can do in the editor
+- When no addons are added or remotes, there's technically nothing you can do in the editor
   - In this case, there will be no components, so the left side bar should have a link back to the me/components portal
   - Global options for default root? Do we need this? Or can we just display "no options" when there are no fields for any component 
 

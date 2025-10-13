@@ -5,7 +5,7 @@ import { serveStatic } from 'hono/bun';
 // routes
 // import uploadRoute from "./routes/upload";
 import dashboardRoute from './routes/dashboard';
-import repositoriesRoutes from './routes/repositories';
+import addonsRoutes from './routes/addons';
 import authRoute from './routes/auth';
 import uploadRoute from './routes/upload';
 import { Scalar } from '@scalar/hono-api-reference';
@@ -32,7 +32,7 @@ const healthRoute = new Hono().get(
 export const apiRoutes = app
   .basePath('/api')
   .route('/dashboard', dashboardRoute)
-  .route('/repositories', repositoriesRoutes)
+  .route('/addons', addonsRoutes)
   .route('/upload', uploadRoute)
   .route('/issues', issuesRoute)
   .route('/', authRoute)

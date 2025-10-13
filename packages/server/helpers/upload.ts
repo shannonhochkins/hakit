@@ -68,20 +68,14 @@ export async function uploadImage(userId: string, file: File) {
   return getPublicUrl(response.fullPath);
 }
 
-function repositoryContentPrefix(repositoryId: string, version: string, filename: string) {
-  return join('repositories', repositoryId, version, filename);
+function addonContentPrefix(addonId: string, version: string, filename: string) {
+  return join('addons', addonId, version, filename);
 }
 
-// Upload repository file (for manifests, zips, etc.)
-export async function uploadRepositoryFile(
-  repositoryId: string,
-  version: string,
-  file: File | ArrayBuffer,
-  filename: string,
-  mimeType?: string
-) {
+// Upload addon file (for manifests, zips, etc.)
+export async function uploadAddonFile(addonId: string, version: string, file: File | ArrayBuffer, filename: string, mimeType?: string) {
   try {
-    const filePath = repositoryContentPrefix(repositoryId, version, filename);
+    const filePath = addonContentPrefix(addonId, version, filename);
 
     let fileToUpload: File;
     if (file instanceof ArrayBuffer) {
@@ -101,14 +95,14 @@ export async function uploadRepositoryFile(
       publicUrl: getPublicUrl(data.fullPath),
     };
   } catch (e) {
-    console.error('Error uploading repository file:', e);
+    console.error('Error uploading addon file:', e);
     throw e;
   }
 }
 
-// Upload all files from a zip buffer to repository storage
-export async function uploadRepositoryZipContents(
-  repositoryId: string,
+// Upload all files from a zip buffer to addon storage
+export async function uploadAddonZipContents(
+  addonId: string,
   version: string,
   zipBuffer: Buffer,
   stream?: SSEStreamingApi,
@@ -151,11 +145,11 @@ export async function uploadRepositoryZipContents(
         try {
           // For module federation to work, the remote application needs to have a publicPath of
           // {{{_HAKIT_ASSET_PREFIX_}}}, so that we can dynamically replace it before we upload with the right path
-          // to the repository assets so that when the runtime modules load, they can resolve the correct paths
+          // to the addon assets so that when the runtime modules load, they can resolve the correct paths
           // Convert to string, replace placeholder, convert back to buffer
           const textContent = new TextDecoder('utf-8').decode(fileContent);
-          const repositoryPath = repositoryContentPrefix(repositoryId, version, '');
-          const fullPath = join(process.env.SUPABASE_BUCKET_NAME!, repositoryPath);
+          const addonPath = addonContentPrefix(addonId, version, '');
+          const fullPath = join(process.env.SUPABASE_BUCKET_NAME!, addonPath);
           const basePath = getPublicUrl(fullPath);
           const updatedContent = textContent.replace(/{{{_HAKIT_ASSET_PREFIX_}}}/g, basePath);
           // save converted content back to buffer, ArrayBufferLike is similar to ArrayBuffer enough for us to cast it here.
@@ -167,7 +161,7 @@ export async function uploadRepositoryZipContents(
       }
 
       // Upload the file
-      const uploadResult = await uploadRepositoryFile(repositoryId, version, fileContent, filenameStr, mimeType);
+      const uploadResult = await uploadAddonFile(addonId, version, fileContent, filenameStr, mimeType);
 
       uploadedFiles.push({
         filename: filenameStr,
@@ -183,7 +177,7 @@ export async function uploadRepositoryZipContents(
 
     return { uploadedFiles, manifestUrl };
   } catch (e) {
-    console.error('Error uploading repository zip contents:', e);
+    console.error('Error uploading addon zip contents:', e);
     throw e;
   }
 }

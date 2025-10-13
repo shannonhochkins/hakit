@@ -39,7 +39,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   value: puckValue,
   id,
 }: StandardFieldComponentProps<Props>) {
-  const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
+  const addonId = 'addonId' in field ? (field.addonId as string) : undefined;
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   const value = useMemo(() => dbValueToPuck(puckValue, activeBreakpoint ?? 'xlg'), [puckValue, activeBreakpoint]);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
@@ -90,7 +90,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     field,
     name,
     value,
-    repositoryId,
+    addonId,
     onChange,
     componentIdForMap,
   });
@@ -106,12 +106,12 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
       // If there's no expected selectedItem, we can assume the root options should be shown
       const visibleData = selectedItemOrRootProps ? selectedItemOrRootProps : appState.data.root?.props;
       if (!visibleData) return;
-      // when a repositoryId is available, we're a root component field and we need to only send a subset of data
-      const data = repositoryId ? visibleData[repositoryId] : visibleData;
+      // when a addonId is available, we're a root component field and we need to only send a subset of data
+      const data = addonId ? visibleData[addonId] : visibleData;
       return field.visible(data);
     }
     return field.visible ?? true;
-  }, [selectedItemOrRootProps, getPuck, field, repositoryId]);
+  }, [selectedItemOrRootProps, getPuck, field, addonId]);
 
   const fieldOptions = useMemo(
     () => (

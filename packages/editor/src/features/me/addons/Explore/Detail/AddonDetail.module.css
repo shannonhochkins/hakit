@@ -1,0 +1,171 @@
+/* AddonDetail CSS Module */
+
+.AddonDetail {
+  gap: var(--space-6);
+}
+
+.AddonDetail-backButtonContainer {
+  gap: var(--space-4);
+}
+
+.AddonDetail-backButton {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.AddonDetail-backButton:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-overlay);
+}
+
+.AddonDetail-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.AddonDetail-addonOverview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+}
+
+.AddonDetail-overviewContent {
+  padding: var(--space-6);
+  width: 100%;
+}
+
+.AddonDetail-addonLayout {
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.mq-md .AddonDetail-addonLayout {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.AddonDetail-thumbnailContainer {
+  height: 128px;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+  flex-shrink: 0;
+}
+
+.AddonDetail-thumbnailPlaceholder {
+  height: 100%;
+  width: 100%;
+  color: var(--color-text-muted);
+}
+
+.AddonDetail-addonInfo {
+  flex: 1;
+}
+
+.AddonDetail-description {
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-4) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.AddonDetail-metaGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4);
+}
+
+.AddonDetail-metaItem {
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.AddonDetail-metaLabel {
+  color: var(--color-text-muted);
+}
+
+.AddonDetail-metaValue {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.AddonDetail-metaLink {
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.AddonDetail-metaLink:hover {
+  color: var(--color-text-primary);
+}
+
+.AddonDetail-actionsContainer {
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.AddonDetail-readmeSection {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  width: 100%;
+}
+
+.AddonDetail-readmeHeader {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-4) var(--space-6);
+}
+
+.AddonDetail-readmeTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+  cursor: pointer;
+}
+
+.AddonDetail-readmeContent {
+  padding: var(--space-6);
+}
+
+.AddonDetail-loadingContainer {
+  padding: var(--space-8) var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.AddonDetail-errorContainer {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.AddonDetail-errorTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.AddonDetail-errorDescription {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4) 0;
+}

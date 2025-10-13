@@ -225,8 +225,8 @@ export const mockConfig = {
         },
       },
       inline: true,
-      _remoteRepositoryName: '@hakit/test',
-      _remoteRepositoryId: '@hakit/test',
+      _remoteAddonName: '@hakit/test',
+      _remoteAddonId: '@hakit/test',
     },
     FieldRework: {
       label: 'FieldRework',
@@ -266,8 +266,8 @@ export const mockConfig = {
         },
       },
       inline: true,
-      _remoteRepositoryName: '@hakit/test',
-      _remoteRepositoryId: '@hakit/test',
+      _remoteAddonName: '@hakit/test',
+      _remoteAddonId: '@hakit/test',
     },
     Layout: {
       label: 'Layout',
@@ -457,8 +457,8 @@ export const mockConfig = {
           css: '',
         },
       },
-      _remoteRepositoryName: '@hakit/test',
-      _remoteRepositoryId: '@hakit/test',
+      _remoteAddonName: '@hakit/test',
+      _remoteAddonId: '@hakit/test',
     },
     'Field Test': {
       label: 'Field Test',
@@ -651,8 +651,8 @@ export const mockConfig = {
         },
       },
       inline: true,
-      _remoteRepositoryName: '@hakit/test',
-      _remoteRepositoryId: '@hakit/test',
+      _remoteAddonName: '@hakit/test',
+      _remoteAddonId: '@hakit/test',
     },
   },
   categories: {
@@ -677,7 +677,7 @@ export const mockConfig = {
             label: 'ID',
             description: 'The ID of the root component',
             default: 'root',
-            repositoryId: '@hakit/default-root',
+            addonId: '@hakit/default-root',
           },
           background: {
             type: 'object',
@@ -692,13 +692,13 @@ export const mockConfig = {
                 label: 'Use Background Image',
                 description: 'Whether to use a background image or not',
                 default: true,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundImage: {
                 type: 'imageUpload',
                 label: 'Background Image',
                 description: 'The entity to display in the button card',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundSize: {
                 type: 'select',
@@ -723,21 +723,21 @@ export const mockConfig = {
                     value: 'custom',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundSizeCustom: {
                 type: 'text',
                 label: 'Custom Background Size',
                 description: 'Any valid CSS background-size value',
                 default: '',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundPosition: {
                 type: 'text',
                 label: 'Background Position',
                 description: 'CSS background-position (e.g., "center center", "top", "50% 50%")',
                 default: 'center center',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               backgroundRepeat: {
                 type: 'select',
@@ -770,7 +770,7 @@ export const mockConfig = {
                     value: 'round',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayColor: {
                 type: 'color',
@@ -778,7 +778,7 @@ export const mockConfig = {
                 description:
                   'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
                 default: '#4254c5',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayBlendMode: {
                 type: 'select',
@@ -851,7 +851,7 @@ export const mockConfig = {
                     value: 'soft-light',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               blur: {
                 type: 'number',
@@ -859,7 +859,7 @@ export const mockConfig = {
                 min: 0,
                 description: 'Blur amount applied to the background image',
                 default: 25,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               overlayOpacity: {
                 type: 'number',
@@ -869,14 +869,14 @@ export const mockConfig = {
                 min: 0,
                 max: 1,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               useAdvancedFilters: {
                 type: 'switch',
                 label: 'Use Advanced Filters',
                 description: 'Enable image filters like brightness, contrast, saturation and grayscale',
                 default: false,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterBrightness: {
                 type: 'number',
@@ -886,7 +886,7 @@ export const mockConfig = {
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterContrast: {
                 type: 'number',
@@ -896,7 +896,7 @@ export const mockConfig = {
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterSaturate: {
                 type: 'number',
@@ -906,7 +906,7 @@ export const mockConfig = {
                 min: 0,
                 max: 3,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               filterGrayscale: {
                 type: 'number',
@@ -916,10 +916,10 @@ export const mockConfig = {
                 min: 0,
                 max: 1,
                 step: 0.05,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
             },
-            repositoryId: '@hakit/default-root',
+            addonId: '@hakit/default-root',
           },
           typography: {
             type: 'object',
@@ -980,21 +980,21 @@ export const mockConfig = {
                     value: 'merriweather',
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               fontColor: {
                 type: 'color',
                 label: 'Font Color',
                 description: 'Primary text color for your dashboard',
                 default: '#ffffff',
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               useAdvancedTypography: {
                 type: 'switch',
                 label: 'Advanced Typography',
                 description: 'Enable advanced typography options',
                 default: false,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               headingWeight: {
                 type: 'select',
@@ -1023,7 +1023,7 @@ export const mockConfig = {
                     value: 700,
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               bodyWeight: {
                 type: 'select',
@@ -1048,7 +1048,7 @@ export const mockConfig = {
                     value: 600,
                   },
                 ],
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               baseFontSize: {
                 type: 'unit',
@@ -1058,7 +1058,7 @@ export const mockConfig = {
                 min: 12,
                 max: 24,
                 step: 1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               lineHeight: {
                 type: 'number',
@@ -1068,7 +1068,7 @@ export const mockConfig = {
                 min: 1.2,
                 max: 2,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
               letterSpacing: {
                 type: 'number',
@@ -1078,13 +1078,13 @@ export const mockConfig = {
                 min: -1,
                 max: 2,
                 step: 0.1,
-                repositoryId: '@hakit/default-root',
+                addonId: '@hakit/default-root',
               },
             },
-            repositoryId: '@hakit/default-root',
+            addonId: '@hakit/default-root',
           },
         },
-        repositoryId: '@hakit/default-root',
+        addonId: '@hakit/default-root',
         default: {
           id: 'root',
           background: {
@@ -1139,7 +1139,7 @@ export const mockConfig = {
         type: 'slot',
       },
     },
-    _remoteRepositoryName: '@hakit/editor',
+    _remoteAddonName: '@hakit/editor',
     defaultProps: {
       '@hakit/default-root': {
         id: 'root',

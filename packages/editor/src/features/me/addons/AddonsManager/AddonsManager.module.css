@@ -1,0 +1,83 @@
+/* AddonsManager CSS Module */
+
+.AddonsManager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.AddonsManager-pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mq-md .AddonsManager-pageHeader {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.AddonsManager-headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.AddonsManager-pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.AddonsManager-pageSubtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.AddonsManager-searchAndFilter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mq-md .AddonsManager-searchAndFilter {
+  flex-direction: row;
+  align-items: center;
+}
+
+.AddonsManager-addonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.AddonsManager-componentInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.AddonsManager-componentIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.AddonsManager-componentName {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.AddonsManager-statusContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
