@@ -46,7 +46,7 @@ export function StyleguideAlerts() {
         <Alert severity='info' title='Clickable Alert' onClick={() => alert('Alert clicked!')}>
           This alert is clickable and will show an alert when clicked.
         </Alert>
-        <Alert severity='warning' title='Interactive Warning' onClick={() => console.log('Warning alert clicked')}>
+        <Alert severity='warning' title='Interactive Warning' onClick={() => console.debug('Warning alert clicked')}>
           Click this warning alert to see console output.
         </Alert>
       </Group>

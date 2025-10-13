@@ -14,10 +14,17 @@ import type {
 import type { ReactNode } from 'react';
 import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
-import { AvailableQueries } from '@hakit/components';
 import type { OnValidate } from '@monaco-editor/react';
 import type { EntityName } from '@hakit/core';
-import { UnitFieldValue } from '@components/Form/Field/Unit';
+
+export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
+export type Unit = (typeof units)[number];
+
+export type UnitFieldValueSingle = `${number}${Unit}`;
+
+export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${number}${Unit} ${number}${Unit}`;
+
+export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
 
 export type SlotField = PuckSlotField;
 
@@ -80,7 +87,6 @@ export type FieldConfiguration<
 };
 
 export interface InternalComponentFields {
-  _activeBreakpoint: keyof AvailableQueries;
   styles: {
     css: string;
   };
@@ -88,7 +94,6 @@ export interface InternalComponentFields {
 
 export interface InternalRootComponentFields {
   content: Slot;
-  _activeBreakpoint: keyof AvailableQueries;
   styles: {
     css: string;
   };
@@ -117,6 +122,8 @@ export type ExtendedFieldTypes<DataShape = unknown, Props = unknown> = {
     /** Whether templates are enabled for this field. Defaults to true when omitted. */
     enabled?: boolean;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any>;
 };
 
 // Per-field-type overrides: omit certain ExtendedFieldTypes keys
@@ -156,7 +163,6 @@ export type FieldValueByKind = {
   // containers / special
   object: object;
   array: unknown[];
-  divider: never; // (or unknown, if you prefer)
   hidden: unknown;
   slot: Slot;
   unit: UnitFieldValue;
@@ -181,7 +187,6 @@ export type FieldDefinition = {
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };
   code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
-  divider: { type: 'divider' };
   entity: {
     type: 'entity';
     filterOptions?: (entities: HassEntity[]) => HassEntity[];

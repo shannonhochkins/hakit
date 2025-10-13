@@ -21,13 +21,8 @@ await moduleMocker.mock('leaflet', () => ({
 }));
 
 // Mock functions for testing
-const mockUseActiveBreakpoint = mock(() => 'desktop');
 const mockUseGlobalStore = mock(() => ({ dashboardWithoutData: { id: 'test-dashboard' } }));
 const mockUsePuckIframeElements = mock(() => ({ iframe: null, document: null }));
-
-await moduleMocker.mock('@hooks/useActiveBreakpoint', () => ({
-  useActiveBreakpoint: mockUseActiveBreakpoint,
-}));
 
 await moduleMocker.mock('@hooks/useGlobalStore', () => ({
   useGlobalStore: mockUseGlobalStore,
@@ -65,7 +60,6 @@ function SimpleComponent({ text, count }: SimpleProps) {
 describe('createComponent', () => {
   beforeEach(() => {
     // Reset all mocks
-    mockUseActiveBreakpoint.mockClear();
     mockUseGlobalStore.mockClear();
     mockUsePuckIframeElements.mockClear();
   });
@@ -113,7 +107,6 @@ describe('createComponent', () => {
       expect.objectContaining({
         text: 'hello',
         count: 0,
-        _activeBreakpoint: 'xlg',
         // css may be '' initially
         styles: expect.objectContaining({ css: '' }),
       })
@@ -152,15 +145,10 @@ describe('createComponent', () => {
 
     const transformedFields = result.fields;
     expect(transformedFields).toHaveProperty('text');
-    expect(transformedFields).toHaveProperty('_activeBreakpoint');
     expect(transformedFields).toHaveProperty('styles');
 
     // Verify transformed structure
     expect(transformedFields.text.type).toBe('text');
-
-    const activeBreakpointField = transformedFields._activeBreakpoint;
-    expect(activeBreakpointField.type).toBe('custom');
-    expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('object');
@@ -184,12 +172,7 @@ describe('createComponent', () => {
     const result = await componentFactory(data);
 
     const transformedFields = result.fields;
-    expect(transformedFields).toHaveProperty('_activeBreakpoint');
     expect(transformedFields).toHaveProperty('styles');
-
-    const activeBreakpointField = transformedFields._activeBreakpoint;
-    expect(activeBreakpointField.type).toBe('custom');
-    expect(activeBreakpointField.type === 'custom' ? typeof activeBreakpointField.render : null).toBe('function');
 
     const stylesField = transformedFields.styles;
     expect(stylesField.type).toBe('object');
@@ -242,7 +225,6 @@ describe('createComponent', () => {
     expect(result.defaultProps).toEqual(
       expect.objectContaining({
         ...expectedDefaults,
-        _activeBreakpoint: 'xlg',
         styles: expect.objectContaining({ css: '' }),
       })
     );
@@ -262,8 +244,6 @@ describe('createComponent', () => {
     const result = await componentFactory(data);
 
     const transformedFields = result.fields;
-    expect(transformedFields._activeBreakpoint).toBeDefined();
-    expect(transformedFields._activeBreakpoint.type).toBe('custom');
     expect(transformedFields.styles).toBeDefined();
   });
 

@@ -10,6 +10,7 @@ import { DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import type { ComponentData } from '@measured/puck';
+import { setLocalStorageItem } from './useLocalStorage';
 
 type ComponentId = string;
 type FieldDotNotatedKey = string;
@@ -64,7 +65,7 @@ const computeTemplateFieldMap = (data: PuckPageData | null): TemplateFieldMap =>
   return map;
 };
 
-type PuckConfigurationStore = {
+export type PuckConfigurationStore = {
   activeBreakpoint: BreakPoint;
   setActiveBreakpoint: (activeBreakpoint: BreakPoint) => void;
   previewCanvasWidth: number; // Width of the preview canvas, controlled by the toolbar
@@ -87,8 +88,6 @@ type PuckConfigurationStore = {
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
   dashboardWithoutData: Dashboard | null;
   setDashboardWithoutData: (dashboard: Dashboard | null) => void;
-  hasInitializedData: boolean; // Flag to indicate if the initial data has been set
-  setHasInitializedData: (hasInitializedData: boolean) => void;
   puckPageData: PuckPageData | null;
   // NOTE - Important that this is only triggered once when the dashboard is loading or changing pages
   setPuckPageData: (newPageData: PuckPageData) => void;
@@ -99,8 +98,6 @@ type PuckConfigurationStore = {
   modalStack: number[]; // track modal "depths" by ID or index
   pushModal: () => number;
   popModal: (id: number) => void;
-  editorMode: boolean;
-  setEditorMode: (editorMode: boolean) => void;
   componentBreakpointMap: ComponentBreakpointModeMap;
   setComponentBreakpointMap: (componentBreakpointModeMap: ComponentBreakpointModeMap) => void;
   // Actions object for centralized operations
@@ -125,8 +122,13 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setPreviewFitToWidth: (fitToWidth: boolean) => {
       return set(state => ({ ...state, previewFitToWidth: fitToWidth }));
     },
-    activeBreakpoint: 'sm', // Default to 'sm' to trigger smart initialization
+    // intentionally set to undefined, this value is set as the very first thing before the page loads
+    // so to avoid typescript BS, we just assume everything else within the page already has the value set
+    activeBreakpoint: undefined as unknown as BreakPoint,
     setActiveBreakpoint: (activeBreakpoint: BreakPoint) => {
+      // sync the new value with the local storage
+      setLocalStorageItem<BreakPoint>('selectedBreakpoint', activeBreakpoint);
+
       return set(state => ({ ...state, activeBreakpoint }));
     },
     componentBreakpointMap: {},
@@ -147,15 +149,12 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setDashboardWithoutData: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
-    hasInitializedData: false,
-    setHasInitializedData: (hasInitializedData: boolean) => set(state => ({ ...state, hasInitializedData })),
     puckPageData: null,
     setPuckPageData: (puckPageData: PuckPageData) =>
       set(state => ({ ...state, puckPageData, templateFieldMap: computeTemplateFieldMap(puckPageData) })),
     unsavedPuckPageData: null,
     setUnsavedPuckPageData: (unsavedPuckPageData: PuckPageData | null) => {
       return set(state => {
-        if (!state.hasInitializedData) return state;
         return { ...state, unsavedPuckPageData };
       });
     },
@@ -174,8 +173,6 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         modalStack: state.modalStack.filter(mid => mid !== id),
       }));
     },
-    setEditorMode: (editorMode: boolean) => set(state => ({ ...state, editorMode })),
-    editorMode: false,
 
     // Actions object for centralized operations
     actions: {
@@ -183,7 +180,6 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         const { updateDashboardPageForUser, updateDashboardForUser } = await import('@services/dashboard');
         const state = get();
         const { unsavedPuckPageData, setUnsavedPuckPageData, dashboard, breakpointItems } = state;
-
         if (!unsavedPuckPageData) return;
         if (!dashboard) {
           toast('Dashboard not found', {

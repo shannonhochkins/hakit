@@ -2,7 +2,7 @@ import { DefaultComponentProps, Slot } from '@measured/puck';
 import { DefaultPropsCallbackData } from '@typings/puck';
 import type { FieldConfiguration } from '@typings/fields';
 import { EntityName } from '@hakit/core';
-import { UnitFieldValue } from '@components/Form/Field/Unit';
+import { UnitFieldValue } from '@typings/fields';
 
 type DummyFields = {
   text: string;

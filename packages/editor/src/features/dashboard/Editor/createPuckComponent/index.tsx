@@ -14,6 +14,8 @@ import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
+import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
+import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
@@ -58,12 +60,20 @@ export function createComponent<P extends object>(
       defaultProps,
       // All components are inline by default for automatic dragRef attachment
       inline: true,
+      resolveData(data, changed) {
+        // NOTE: We do NOT need to process templates at this level, as all components are added to the root content block
+        // this means we resolve all tempaltes in the createRootComponent, and all props will be resolved to the child
+        if (config.resolveData) {
+          return config.resolveData(data, changed) as unknown as P & InternalComponentFields;
+        }
+        return data as unknown as P & InternalComponentFields;
+      },
       // this render function is ONLY used for components, rootComponents redefine the render function
       // which is why here we only provide InternalComponentFields
       render(renderProps: RenderProps<P & InternalComponentFields>) {
         return (
           <RenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
-            <Render {...renderProps} internalComponentConfig={config} />
+            <TemplateSubscriber props={renderProps} internalComponentConfig={config} />
           </RenderErrorBoundary>
         );
       },
@@ -73,12 +83,33 @@ export function createComponent<P extends object>(
   };
 }
 
-function Render<P extends object>(
-  renderProps: RenderProps<P & InternalComponentFields> & {
-    internalComponentConfig: CustomComponentConfig<P>;
+function TemplateSubscriber<P extends object>({
+  props,
+  internalComponentConfig,
+}: {
+  props: RenderProps<P & InternalComponentFields>;
+  internalComponentConfig: CustomComponentConfig<P>;
+}) {
+  const { data, loading, error } = useResolvedJinjaTemplate(props);
+  if (error) {
+    throw error;
   }
+  // whilst loading, just return null to avoid having to "flicker" the content
+  return <>{loading || !data ? null : <Render {...data} internalComponentConfig={internalComponentConfig} />}</>;
+}
+
+function Render<P extends object>(
+  originalProps: RenderProps<P & InternalComponentFields> & { internalComponentConfig: CustomComponentConfig<P> }
 ) {
-  const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = renderProps;
+  const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
+
+  // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
+  // this will flatten the breakpoint data to only contain the active breakpoint data
+  const currentBreakpointProps = useMemo(() => {
+    return dbValueToPuck(originalProps, activeBreakpoint ?? 'xlg') as typeof originalProps;
+  }, [originalProps, activeBreakpoint]);
+
+  const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
   const editorElements = usePuckIframeElements();
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
   // Extract the correct type for renderProps from the config's render function
@@ -90,7 +121,6 @@ function Render<P extends object>(
       _editor: editorElements,
       _dashboard: dashboard,
     };
-
     const obj = {
       ...props,
       ...renderProps,
@@ -118,11 +148,10 @@ function Render<P extends object>(
 
   // Generate emotion CSS in iframe context where correct cache is active
   const emotionCss = useEmotionCss(styleStrings);
-
   // Generate the rendered element outside the error boundary to ensure proper error catching
   const renderedElement = useMemo(() => {
     try {
-      // @ts-expect-error - this is okay, we can't type at this level
+      // @ts-expect-error - Puck's complex WithDeepSlots type is difficult to satisfy with generics
       return config.render(fullProps);
     } catch (error) {
       console.error('HAKIT: Error in config.render for component:', config.label, error);
@@ -131,5 +160,5 @@ function Render<P extends object>(
   }, [fullProps, config]);
 
   // Wrap the rendered element with error boundary to catch rendering errors
-  return attachDragRefToElement(renderedElement, puck?.dragRef, config.label, emotionCss);
+  return attachDragRefToElement(renderedElement, puck.dragRef, config.label, emotionCss);
 }

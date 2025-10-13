@@ -1,13 +1,13 @@
 import { ComponentBreakpointModeMap } from '@hooks/useGlobalStore';
 import { PuckPageData } from '@typings/puck';
-import { multipleBreakpointsEnabled } from './multipleBreakpointsEnabled';
+import { isBreakpointObject } from './isBreakpointObject';
 
 /**
  * Generates a ComponentBreakpointModeMap from PuckPageData by analyzing which fields have multiple breakpoint values.
  *
  * This function traverses the entire page data structure (root props and content components) to identify
- * fields that have multiple breakpoint configurations enabled. It uses the existing `multipleBreakpointsEnabled`
- * helper to determine if a field value contains more than one breakpoint definition.
+ * fields that have breakpoint configurations enabled. It uses the existing `isBreakpointObject` helper
+ * to determine if a field value contains a breakpoint definition.
  *
  * The resulting map is used to track which component fields have breakpoint functionality enabled,
  * allowing the editor to show/hide breakpoint controls appropriately.
@@ -20,8 +20,8 @@ import { multipleBreakpointsEnabled } from './multipleBreakpointsEnabled';
  * const pageData = {
  *   root: {
  *     props: {
- *       backgroundColor: { $xlg: '#fff', $md: '#f5f5f5' }, // multiple breakpoints -> true
- *       padding: { $xlg: 24 } // single breakpoint -> false
+ *       backgroundColor: { $xlg: '#fff', $md: '#f5f5f5' }, // breakpoints -> true
+ *       padding: { $xlg: 24 } // breakpoint -> true
  *     }
  *   },
  *   content: [
@@ -29,9 +29,10 @@ import { multipleBreakpointsEnabled } from './multipleBreakpointsEnabled';
  *       type: 'HeadingBlock',
  *       props: {
  *         id: 'heading-1',
- *         title: { $xlg: 'Desktop Title', $sm: 'Mobile Title' }, // multiple -> true
+ *         title: { $xlg: 'Desktop Title', $sm: 'Mobile Title' }, // breakpoints -> true
  *         style: {
- *           fontSize: { $xlg: '2rem', $md: '1.5rem' } // multiple -> true
+ *           fontSize: { $xlg: '2rem', $md: '1.5rem' }, // breakpoints -> true
+ *           padding: '0px' // breakpoints -> false
  *         }
  *       }
  *     }
@@ -43,11 +44,12 @@ import { multipleBreakpointsEnabled } from './multipleBreakpointsEnabled';
  * // {
  * //   'root': {
  * //     'backgroundColor': true,
- * //     'padding': false
+ * //     'padding': true
  * //   },
  * //   'heading-1': {
  * //     'title': true,
- * //     'style.fontSize': true
+ * //     'style.fontSize': true,
+ * //     'style.padding': false,
  * //   }
  * // }
  * ```
@@ -72,7 +74,7 @@ export function generateComponentBreakpointMap(databaseValue: PuckPageData): Com
         if (!breakpointMap[componentId]) {
           breakpointMap[componentId] = {};
         }
-        breakpointMap[componentId][basePath] = multipleBreakpointsEnabled(obj);
+        breakpointMap[componentId][basePath] = isBreakpointObject(obj);
       }
 
       // Traverse array items (but don't create paths for indices)
@@ -97,7 +99,7 @@ export function generateComponentBreakpointMap(databaseValue: PuckPageData): Com
           breakpointMap[componentId] = {};
         }
 
-        const hasMultiple = multipleBreakpointsEnabled(obj);
+        const hasMultiple = isBreakpointObject(obj);
         // If this field path already exists and has multiple breakpoints, keep true
         // Otherwise, set to the current result
         if (breakpointMap[componentId][basePath] !== true) {
@@ -109,11 +111,6 @@ export function generateComponentBreakpointMap(databaseValue: PuckPageData): Com
 
     // This is a regular object - traverse its properties
     for (const [key, value] of Object.entries(objectRecord)) {
-      // Skip excluded keys (like 'id', 'type', etc.)
-      if (key === 'id' || key === 'type' || key === 'puck' || key === 'editMode' || key === 'children') {
-        continue;
-      }
-
       const fieldPath = basePath ? `${basePath}.${key}` : key;
 
       if (value && typeof value === 'object') {
@@ -125,10 +122,9 @@ export function generateComponentBreakpointMap(databaseValue: PuckPageData): Com
           breakpointMap[componentId] = {};
         }
 
-        const hasMultiple = multipleBreakpointsEnabled(value);
         // If this field path already exists and has multiple breakpoints, keep true
         if (breakpointMap[componentId][fieldPath] !== true) {
-          breakpointMap[componentId][fieldPath] = hasMultiple;
+          breakpointMap[componentId][fieldPath] = isBreakpointObject(value);
         }
       }
     }

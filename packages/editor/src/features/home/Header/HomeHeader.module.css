@@ -59,7 +59,9 @@
   padding: 0;
 }
 
-.HomeHeader-navItem {}
+.HomeHeader-navItem {
+  list-style: none;
+}
 
 .HomeHeader-navLink {
   color: inherit;

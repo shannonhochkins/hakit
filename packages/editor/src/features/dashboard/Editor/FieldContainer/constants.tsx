@@ -13,7 +13,6 @@ import {
   ExternalLink,
   ImagePlus,
   CodeXml,
-  Minus,
   Ruler,
 } from 'lucide-react';
 
@@ -36,7 +35,6 @@ export const ICON_MAP: { [key in FieldTypes]: ReactNode } = {
   color: <Palette size={16} />,
   slider: <Hash size={16} />,
   code: <CodeXml size={16} />,
-  divider: <Minus size={16} />,
   switch: <CheckCircle size={16} />,
   // not seen anyway
   hidden: <Hash size={16} />,

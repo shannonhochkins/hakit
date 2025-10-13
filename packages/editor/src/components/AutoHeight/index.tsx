@@ -1,4 +1,4 @@
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useMemo } from 'react';
 
 type AutoHeightProps = {
   isOpen: boolean;
@@ -191,16 +191,16 @@ export const AutoHeight = ({
     };
   }, [isOpen, duration, onCollapseComplete, renderChildren, keepChildrenRendered]);
 
+  const styles = useMemo(() => {
+    return {
+      overflow: 'hidden',
+      height: isOpen && !shouldAnimate ? 'auto' : undefined,
+      ...style,
+    };
+  }, [isOpen, shouldAnimate, style]);
+
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      style={{
-        overflow: 'hidden',
-        height: isOpen && !shouldAnimate ? 'auto' : undefined,
-        ...style,
-      }}
-    >
+    <div ref={containerRef} className={className} style={styles}>
       {renderChildren || keepChildrenRendered ? children : null}
     </div>
   );

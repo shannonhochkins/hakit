@@ -19,5 +19,9 @@ export const PrimaryButton = ({ variant = 'primary', className, ...props }: Prim
     },
     className
   );
-  return <BaseButton className={computed} {...props} />;
+
+  // Map PrimaryButton variant to BaseButton variant for badge inheritance
+  const baseVariant = variant === 'success' || variant === 'error' ? variant : 'primary';
+
+  return <BaseButton className={computed} variant={baseVariant} {...props} />;
 };

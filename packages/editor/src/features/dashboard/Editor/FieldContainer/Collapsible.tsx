@@ -30,11 +30,11 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   field,
   name,
   onChange: puckOnChange,
+  // NOTE: Important we don't transform the value here for objects/arrays, each field type handles this via the Standard field type
   value,
   id,
 }: CollapsibleFieldComponentProps<Props>) {
   const repositoryId = 'repositoryId' in field ? (field.repositoryId as string) : undefined;
-
   const [isExpanded, toggleExpanded] = useState(field.collapseOptions ? (field.collapseOptions?.startExpanded ?? false) : true);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const getPuck = useGetPuck();
@@ -45,6 +45,8 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   const onChange = useCallback(
     (value: unknown, uiState?: Partial<UiState>) => {
       if (typeof value === 'undefined') return;
+      // we don't need to transform the value here for objects/arrays, each field type handles this via the Standard field type
+      // object/array fields don't support responsive values, we we just send back the value here
       // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
       puckOnChange(value, uiState);
     },
@@ -110,15 +112,18 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     `field-label ${field.type ? `field-${field.type}` : ''}`
   );
 
+  const styles = useMemo(() => {
+    return {
+      display: isVisible ? 'block' : 'none',
+    };
+  }, [isVisible]);
+
+  const fieldsetClassName = useMemo(() => {
+    return `hakit-field ${className} ${field.type ? `field-${field.type}` : ''}`;
+  }, [className, field.type]);
+
   return (
-    <Fieldset
-      style={{
-        display: isVisible ? 'block' : 'none',
-      }}
-      id={id}
-      className={`hakit-field ${className} ${field.type ? `field-${field.type}` : ''}`}
-      onClick={onFieldsetClick}
-    >
+    <Fieldset style={styles} id={id} className={fieldsetClassName} onClick={onFieldsetClick}>
       <FieldLabel
         label={field.label}
         icon={_icon}
@@ -126,9 +131,6 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
         className={fieldLabelClassName}
         labelClassName={fieldLabelLabelClassName}
         iconClassName={fieldLabelLabelClassName}
-        style={{
-          padding: 0,
-        }}
         endAdornment={
           <>
             {field.type === 'object' && (
@@ -148,7 +150,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
       />
       <AutoHeight isOpen={isExpanded} duration={300} renderChildren>
         <FieldWrapper className='hakit-field-wrapper'>
-          <div className={styles.fieldInput}>
+          <div className={getClassName('fieldInput')}>
             <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} fieldLabel={field.label} />
           </div>
         </FieldWrapper>

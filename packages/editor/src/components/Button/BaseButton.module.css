@@ -233,6 +233,175 @@
   }
 }
 
+/* Wrapper for button and badge */
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Badge base styling */
+.badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  aspect-ratio: 1 / 1;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-primary-base);
+  
+  /* Default size (md) */
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  min-height: 18px;
+  padding: 2px 4px;
+  font-size: var(--font-size-xs);
+  border: 2px solid var(--color-surface);
+}
+
+/* Badge size variants */
+.badgeSizeXs {
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  min-height: 14px;
+  padding: 2px;
+  font-size: 8px;
+  border-width: 1.5px;
+}
+
+.badgeSizeSm {
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 1.5px 3px;
+  font-size: 9px;
+  border-width: 1.5px;
+}
+
+.badgeSizeMd {
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  min-height: 18px;
+  padding: 2px 4px;
+  font-size: var(--font-size-xs);
+  border-width: 2px;
+}
+
+.badgeSizeLg {
+  top: -8px;
+  right: -8px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 3px 5px;
+  font-size: var(--font-size-sm);
+  border-width: 2px;
+}
+
+
+/* Badge variant - Primary (blue) */
+.badgePrimary {
+  background-color: var(--color-primary-500);
+  color: var(--color-white);
+  border-color: var(--color-primary-600);
+}
+
+.badgePrimary:hover {
+  background-color: var(--color-primary-600);
+  transform: scale(1.1);
+  border-color: var(--color-primary-600)
+}
+
+.badgePrimary:active {
+  background-color: var(--color-primary-700);
+  transform: scale(0.95);
+  border-color: var(--color-primary-700);
+}
+
+/* Badge variant - Secondary (gray) */
+.badgeSecondary {
+  background-color: var(--color-gray-700);
+  color: var(--color-text-primary);
+  border-color: var(--color-gray-600);
+}
+
+.badgeSecondary:hover {
+  background-color: var(--color-gray-600);
+  transform: scale(1.1);
+  border-color: var(--color-gray-600);
+}
+
+.badgeSecondary:active {
+  background-color: var(--color-gray-800);
+  transform: scale(0.95);
+  border-color: var(--color-gray-800);
+}
+
+/* Badge variant - Error (red) */
+.badgeError {
+  background-color: var(--color-error-500);
+  color: var(--color-white);
+  border-color: var(--color-error-600);
+}
+
+.badgeError:hover {
+  background-color: var(--color-error-400);
+  transform: scale(1.1);
+  border-color: var(--color-error-400);
+}
+
+.badgeError:active {
+  background-color: var(--color-error-600);
+  transform: scale(0.95);
+  border-color: var(--color-error-600);
+}
+
+/* Badge variant - error */
+
+.badgeSuccess {
+  background-color: var(--color-success-500);
+  color: var(--color-white);
+  border-color: var(--color-success-600);
+}
+
+.badgeSuccess:hover {
+  background-color: var(--color-success-400);
+  transform: scale(1.1);
+  border-color: var(--color-success-400);
+}
+
+.badgeSuccess:active {
+  background-color: var(--color-success-600);
+  transform: scale(0.95);
+  border-color: var(--color-success-600);
+}
+
+/* Badge variant - transparent */
+.badgeTransparent {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border-color: transparent;
+}
+
+.badgeTransparent:hover {
+  background-color: transparent;
+  transform: scale(1.1);
+  border-color: transparent;
+}
+
+.badgeTransparent:active {
+  background-color: transparent;
+  transform: scale(0.95);
+  border-color: transparent;
+}
+
 /* ClassNameFactory compatibility (BEM-like aliases) */
 .BaseButton { composes: baseButton; }
 .BaseButton--loading { composes: loading; }
@@ -243,5 +412,16 @@
 .BaseButton--sizeSm { composes: sizeSm; }
 .BaseButton--sizeMd { composes: sizeMd; }
 .BaseButton--sizeLg { composes: sizeLg; }
+.BaseButton-wrapper { composes: wrapper; }
+.BaseButton-badge { composes: badge; }
+.BaseButton--badgePrimary { composes: badgePrimary; }
+.BaseButton--badgeSecondary { composes: badgeSecondary; }
+.BaseButton--badgeError { composes: badgeError; }
+.BaseButton--badgeTransparent { composes: badgeTransparent; }
+.BaseButton--badgeSuccess { composes: badgeSuccess; }
+.BaseButton--badgeSizeXs { composes: badgeSizeXs; }
+.BaseButton--badgeSizeSm { composes: badgeSizeSm; }
+.BaseButton--badgeSizeMd { composes: badgeSizeMd; }
+.BaseButton--badgeSizeLg { composes: badgeSizeLg; }
 
 

@@ -20,7 +20,7 @@ export function StyleguideEntityFields() {
           value={selectedEntity}
           filterOptions={entities => entities.filter(entity => entity.entity_id?.startsWith('light'))}
           onChange={(entityId, entity) => {
-            console.log('Selected entity:', entityId, entity);
+            console.debug('Selected entity:', entityId, entity);
             setSelectedEntity(entityId);
           }}
         />
@@ -38,7 +38,7 @@ export function StyleguideEntityFields() {
             name='entity-field-2'
             value={selectedEntity2}
             onChange={(entityId, entity) => {
-              console.log('Selected entity:', entityId, entity);
+              console.debug('Selected entity:', entityId, entity);
               setSelectedEntity2(entityId);
             }}
           />
@@ -55,7 +55,7 @@ export function StyleguideEntityFields() {
             name='entity-field-3'
             value={selectedEntity3}
             onChange={(entityId, entity) => {
-              console.log('Selected entity:', entityId, entity);
+              console.debug('Selected entity:', entityId, entity);
               setSelectedEntity3(entityId);
             }}
           />
@@ -72,7 +72,7 @@ export function StyleguideEntityFields() {
             name='entity-field-4'
             value={selectedEntity4}
             onChange={(entityId, entity) => {
-              console.log('Selected entity:', entityId, entity);
+              console.debug('Selected entity:', entityId, entity);
               setSelectedEntity4(entityId);
             }}
           />
@@ -83,14 +83,6 @@ export function StyleguideEntityFields() {
           Selected: <strong>{selectedEntity}</strong>
         </p>
       </div>
-
-      {/* <Group title='Entity Fields - With Different States'>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <Entity value='light.living_room' onChange={entityId => console.log('Light changed to:', entityId)} />
-          <Entity value='sensor.time' onChange={entityId => console.log('Sensor changed to:', entityId)} />
-          <Entity value='binary_sensor.door_front' onChange={entityId => console.log('Binary sensor changed to:', entityId)} />
-        </div>
-      </Group> */}
     </Column>
   );
 }
