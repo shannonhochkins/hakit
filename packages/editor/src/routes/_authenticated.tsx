@@ -26,7 +26,6 @@ const Login = () => {
 const Component = () => {
   const context = Route.useRouteContext();
   const [hassUrl] = useLocalStorage<string | null>('hassUrl');
-  const [hassToken] = useLocalStorage<string | undefined>('hassToken');
   const { markAccountCreated } = useAuthButtonState();
 
   // Mark that user has created an account when they successfully authenticate
@@ -45,11 +44,13 @@ const Component = () => {
     return <HassModal />;
   }
 
+  // WARNING - In dev mode because of react strict mode, a request to auth is made twice, causing an "Invalid Credentials" error to appear
+  // in the modal indicating there's an authentication issue, trust me future shannon, this is just a local issue and if you refresh
+  // the page the error goes away.
   return (
     <HassConnect
       loading={<Spinner absolute text='Connecting to Home Assistant' />}
       hassUrl={hassUrl}
-      hassToken={hassToken}
       options={{
         renderError: error => {
           return <HassModal error={error} />;

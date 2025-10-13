@@ -1,10 +1,10 @@
 import { useSyncExternalStore, useCallback, useEffect, useMemo } from 'react';
 
-type ValidStorageKeys = 'hassUrl' | 'hassToken' | 'panel' | 'hasCreatedAccount' | 'selectedBreakpoint';
+type ValidStorageKeys = 'hassUrl' | 'hassTokens' | 'panel' | 'hasCreatedAccount' | 'selectedBreakpoint';
 
 type Value = string | null | undefined;
 
-const getLocalStorageItem = (key: ValidStorageKeys) => {
+export const getLocalStorageItem = (key: ValidStorageKeys) => {
   return window.localStorage.getItem(key);
 };
 

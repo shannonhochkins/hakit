@@ -18,7 +18,7 @@ type InputFieldAdornmentProps = {
 type InputFieldBaseProps = {
   id: string;
   label?: React.ReactNode;
-  helperText?: string;
+  helperText?: React.ReactNode;
   error?: boolean;
   success?: boolean;
   rowAdornment?: React.ReactNode | InputFieldAdornmentProps;
