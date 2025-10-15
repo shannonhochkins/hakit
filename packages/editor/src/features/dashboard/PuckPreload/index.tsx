@@ -10,6 +10,8 @@ import { getServices as _getServices } from 'home-assistant-js-websocket';
 import { getPuckConfiguration } from '../PuckDynamicConfiguration';
 import { generateComponentBreakpointMap } from '@helpers/editor/pageData/generateComponentBreakpointMap';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
+import { dashboardsQueryOptions } from '@services/dashboard';
+import { useQuery } from '@tanstack/react-query';
 
 interface DashboardProps {
   dashboardPath?: string;
@@ -21,6 +23,7 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
   const dashboardQuery = useDashboardWithData(dashboardPath);
   const dashboard = dashboardQuery.data;
   const userConfig = useGlobalStore(store => store.userConfig);
+  const dashboardsQuery = useQuery(dashboardsQueryOptions);
 
   useEffect(() => {
     const { connection, entities } = useStore.getState();
@@ -81,7 +84,11 @@ export function PuckPreload({ dashboardPath, pagePath, children }: DashboardProp
     }
   }, [dashboard, pagePath]);
 
-  if (dashboardQuery.isLoading) {
+  useEffect(() => {
+    if (dashboardsQuery.data) useGlobalStore.getState().setDashboards(dashboardsQuery.data);
+  }, [dashboardsQuery.data]);
+
+  if (dashboardQuery.isLoading || dashboardsQuery.isLoading) {
     return <Spinner absolute text='Loading dashboard data' />;
   }
   if (!userConfig) {

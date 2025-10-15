@@ -57,6 +57,9 @@ export const CodeField = ({
                 onClick={() => setEditing(true)}
                 tooltipProps={{
                   placement: 'left',
+                  style: {
+                    height: '100%',
+                  },
                 }}
                 style={{
                   flex: 1,
@@ -89,6 +92,9 @@ export const CodeField = ({
             className={getClassName('saveButton')}
             tooltipProps={{
               placement: 'left',
+              style: {
+                height: '100%',
+              },
             }}
             style={{
               flex: 1,
@@ -105,6 +111,9 @@ export const CodeField = ({
             className={getClassName('cancelButton')}
             tooltipProps={{
               placement: 'left',
+              style: {
+                height: '100%',
+              },
             }}
             style={{
               flex: 1,

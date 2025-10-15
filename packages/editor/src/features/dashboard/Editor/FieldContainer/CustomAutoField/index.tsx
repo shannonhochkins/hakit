@@ -13,7 +13,7 @@ import { RadioField, type RadioOption } from '@components/Form/Field/Radio';
 import { Alert } from '@components/Alert';
 import { SwitchField } from '@components/Form/Field/Switch';
 import { UnitField } from '@components/Form/Field/Unit';
-import { validateBoolean, validateNumber, validateString, validateStringArray } from './valueValidation';
+import { validateBoolean, validateNumber, validateString, validatePageValue, validatePageValueArray } from './valueValidation';
 import { IconField } from '@components/Form/Field/Icon';
 import { icons } from 'lucide-react';
 
@@ -149,11 +149,14 @@ export function renderField(props: RenderFieldProps) {
     case 'page':
       return (
         <PageField
-          value={validateString(props.value, '')}
+          value={validatePageValue(props.value, props.field.default)}
           label={props.fieldLabel}
           icon={props.icon}
           multiple={false}
-          onChange={e => props.onChange(e.id)}
+          onChange={e => {
+            console.log('page field onChange', e);
+            props.onChange(e);
+          }}
           id={id}
           name={props.name}
           helperText={props.field.description}
@@ -163,11 +166,11 @@ export function renderField(props: RenderFieldProps) {
     case 'pages':
       return (
         <PageField
-          value={validateStringArray(props.value, [])}
+          value={validatePageValueArray(props.value, props.field.default)}
           label={props.fieldLabel}
           icon={props.icon}
           multiple={true}
-          onChange={e => props.onChange(e.map(page => page.id))}
+          onChange={e => props.onChange(e)}
           id={id}
           name={props.name}
           helperText={props.field.description}

@@ -41,9 +41,13 @@
 .CollapsibleFieldWrapper-FieldLabel--collapsed {
   border-bottom: 0;
   color: var(--color-text-muted);
+  padding-bottom: var(--space-3);
 }
 .CollapsibleFieldWrapper-FieldLabel--collapsible {
   cursor: pointer;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 }
 .CollapsibleFieldWrapper :global(.field-label.field-array), .CollapsibleFieldWrapper :global(.field-label.field-pages) {
   padding-left:0;

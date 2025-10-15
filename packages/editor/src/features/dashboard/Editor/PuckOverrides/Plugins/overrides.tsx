@@ -26,7 +26,7 @@ const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperPro
 
   // use tanstack debounce to trigger on change after 150ms
   const debouncedOnChange = useDebouncer(onChange, {
-    wait: 150,
+    wait: field.type === 'pages' || field.type === 'page' ? 0 : 150,
   });
 
   // Keep localValue in sync with prop value (prop is source of truth)

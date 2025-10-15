@@ -88,6 +88,8 @@ export type PuckConfigurationStore = {
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
   dashboardWithoutData: Dashboard | null;
   setDashboardWithoutData: (dashboard: Dashboard | null) => void;
+  dashboards: Dashboard[] | null;
+  setDashboards: (dashboards: Dashboard[] | null) => void;
   puckPageData: PuckPageData | null;
   // NOTE - Important that this is only triggered once when the dashboard is loading or changing pages
   setPuckPageData: (newPageData: PuckPageData) => void;
@@ -149,6 +151,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setDashboardWithoutData: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
+    dashboards: null,
+    setDashboards: (dashboards: Dashboard[] | null) => set(state => ({ ...state, dashboards })),
     puckPageData: null,
     setPuckPageData: (puckPageData: PuckPageData) =>
       set(state => ({ ...state, puckPageData, templateFieldMap: computeTemplateFieldMap(puckPageData) })),

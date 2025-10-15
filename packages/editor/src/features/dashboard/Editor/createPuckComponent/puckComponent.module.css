@@ -1,0 +1,7 @@
+.PuckComponent {
+  &.pressable {
+    touch-action: manipulation;       /* removes 300ms delay & double-tap zoom on the element */
+    -webkit-touch-callout: none;      /* reduces iOS long-press callout */
+    -webkit-tap-highlight-color: transparent; /* nicer iOS tap feel */
+  }
+}

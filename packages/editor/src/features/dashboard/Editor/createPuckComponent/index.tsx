@@ -9,14 +9,17 @@ import {
   RenderProps,
 } from '@typings/puck';
 import { useMemo } from 'react';
-import { attachDragRefToElement } from './attachDragRefToElement';
+import { attachPropsToElement } from './attachPropsToElement';
 import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
-
+import { usePressGestures } from '@hooks/usePressGestures';
+import puckComponentStyles from './puckComponent.module.css';
+import { useNavigate } from '@tanstack/react-router';
+import { router } from '../../../../router';
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
@@ -98,10 +101,67 @@ function TemplateSubscriber<P extends object>({
   return <>{loading || !data ? null : <Render {...data} internalComponentConfig={internalComponentConfig} />}</>;
 }
 
+function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
+  if (interaction.type === 'none') return undefined;
+  if (interaction.type === 'external') {
+    // we've received an external url action, we should trigger it
+    // target can be "_blank" | "_self" | "_parent" | "_top"
+    const target = interaction.target;
+    const url = interaction.url;
+    // now we need to handle the actions based on the provided information
+    if (target === '_blank') {
+      window.open(url, '_blank');
+    } else if (target === '_self') {
+      window.open(url, '_self');
+    } else if (target === '_parent') {
+      window.open(url, '_parent');
+    } else if (target === '_top') {
+      window.open(url, '_top');
+    }
+    return undefined;
+  }
+  if (interaction.type === 'navigate') {
+    const dashboards = useGlobalStore.getState().dashboards;
+    const dashboard = dashboards?.find(dashboard => dashboard.id === interaction.page.dashboardId);
+    const page = dashboard?.pages.find(page => page.id === interaction.page.pageId);
+    if (!page || !dashboard) {
+      console.error('No page or dashboard found to navigate to, has this page been deleted?', interaction.page);
+      return;
+    }
+    router.navigate({
+      to: '/dashboard/$dashboardPath/$pagePath',
+      // TODO - Ideally, this would be false, but it appears like we're not reloading data when the dashboard/page path changes
+      reloadDocument: true,
+      params: {
+        dashboardPath: dashboard.path,
+        pagePath: page.path,
+      },
+    });
+    return;
+  }
+  if (interaction.type === 'controlEntity') return interaction.entity;
+  return undefined;
+}
+
 function Render<P extends object>(
   originalProps: RenderProps<P & InternalComponentFields> & { internalComponentConfig: CustomComponentConfig<P> }
 ) {
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
+  const { interactions } = originalProps;
+  const hasTap = interactions?.tap?.type !== 'none' && interactions?.tap;
+  const hasDoubleTap = interactions?.doubleTap?.type !== 'none' && interactions?.doubleTap;
+  const hasHold = interactions?.hold?.type !== 'none' && interactions?.hold;
+  const { bindWithProps } = usePressGestures(
+    {
+      onTap: hasTap ? () => processInteractions(interactions?.tap) : undefined,
+      onDoubleTap: hasDoubleTap ? () => processInteractions(interactions?.doubleTap) : undefined,
+      onHold: hasHold ? () => processInteractions(interactions?.hold) : undefined,
+    },
+    {
+      holdDelay: interactions?.hold?.holdDelay,
+      doubleTapDelay: interactions?.doubleTap?.doubleTapDelay,
+    }
+  );
 
   // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
   // this will flatten the breakpoint data to only contain the active breakpoint data
@@ -160,5 +220,15 @@ function Render<P extends object>(
   }, [fullProps, config]);
 
   // Wrap the rendered element with error boundary to catch rendering errors
-  return attachDragRefToElement(renderedElement, puck.dragRef, config.label, emotionCss);
+  return attachPropsToElement({
+    element: renderedElement,
+    ref: puck.dragRef,
+    componentLabel: config.label,
+    updateProps: userProps =>
+      bindWithProps({
+        ...userProps,
+        css: emotionCss,
+        className: [puckComponentStyles.pressable, userProps.className].filter(Boolean).join(' '),
+      }),
+  });
 }

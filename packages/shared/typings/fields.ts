@@ -27,6 +27,11 @@ export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${numb
 
 export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
 
+export type PageValue = {
+  dashboardId: string;
+  pageId: string;
+};
+
 export type SlotField = PuckSlotField;
 
 export type FieldOption = {
@@ -63,7 +68,7 @@ type LeafField<Value, DataShape> = {
 }[CompatibleLeafKinds<Value>];
 
 // Containers stay as before
-type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
+export type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
   objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
 };
 
@@ -87,7 +92,33 @@ export type FieldConfiguration<
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: FieldFor<ComponentProps[PropName], DataShape>;
 };
 
+export type Navigate = {
+  type: 'navigate';
+  page: PageValue;
+};
+export type ControlEntity = {
+  type: 'controlEntity';
+  entity: EntityName;
+  service: string;
+};
+export type None = {
+  type: 'none';
+};
+export type External = {
+  type: 'external';
+  url: string;
+  target: '_blank' | '_self' | '_parent' | '_top';
+};
+
+export type Actions = Navigate | ControlEntity | None | External;
+
+export type ActionTypes = Actions['type'];
 export interface InternalComponentFields {
+  interactions: {
+    tap: Actions;
+    hold: Actions & { holdDelay?: number };
+    doubleTap: Actions & { doubleTapDelay?: number };
+  };
   styles: {
     css: string;
   };
@@ -137,6 +168,8 @@ type FieldTypeOmitMap = {
   entity: 'default';
   unit: 'default';
   icon: 'default';
+  page: 'default';
+  pages: 'default';
 };
 
 // What each field actually stores/returns
@@ -148,8 +181,8 @@ export type FieldValueByKind = {
   code: string;
   icon: string;
 
-  page: string;
-  pages: string[];
+  page: PageValue;
+  pages: PageValue[];
 
   entity: EntityName;
   service: string;
@@ -183,8 +216,8 @@ export type FieldDefinition = {
     renderValue?: (option: FieldOption) => string;
   };
   radio: RadioField;
-  page: { type: 'page' };
-  pages: { type: 'pages' };
+  page: { type: 'page'; default: PageValue };
+  pages: { type: 'pages'; default: PageValue[] };
   service: { type: 'service' };
   color: { type: 'color' };
   imageUpload: { type: 'imageUpload' };

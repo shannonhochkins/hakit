@@ -18,6 +18,7 @@ import { StyleguideAlerts } from './Alerts';
 import { StyleguideTabs } from './Tabs';
 import { StyleguideUnitFields } from './UnitFields';
 import { StyleguideIconFields } from './IconFields';
+import { StyleguidePageFields } from './PageFields';
 
 const options = [
   {
@@ -88,6 +89,10 @@ const options = [
     label: 'Icon Fields',
     value: 'Icon Fields',
   },
+  {
+    label: 'Page Fields',
+    value: 'Page Fields',
+  },
 ];
 
 const sortedList = options.sort((a, b) => a.label.localeCompare(b.label));
@@ -132,6 +137,7 @@ export function Styleguide() {
       {preview.value === 'Tabs' && <StyleguideTabs />}
       {preview.value === 'Unit Fields' && <StyleguideUnitFields />}
       {preview.value === 'Icon Fields' && <StyleguideIconFields />}
+      {preview.value === 'Page Fields' && <StyleguidePageFields />}
     </>
   );
 }
