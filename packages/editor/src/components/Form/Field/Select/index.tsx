@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDropdownPortal, closeAllDropdowns } from '../_shared/useDropdownPortal';
-import { ChevronDownIcon, XIcon, CheckCircleIcon } from 'lucide-react';
+import { ChevronDownIcon, XIcon } from 'lucide-react';
 import styles from './SelectField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
@@ -249,7 +249,6 @@ export function SelectField<T extends FieldOption = FieldOption>({
                       handleSelect(option);
                     }}
                   >
-                    {selected && <CheckCircleIcon size={16} className={styles.checkIcon} />}
                     {renderOptionNode(option)}
                   </div>
                 );

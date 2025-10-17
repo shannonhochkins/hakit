@@ -75,7 +75,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
           uiState
         );
       } else {
-        console.log('sending value', value, name, field);
         puckOnChange(
           // Send back the large breakpoint value if available
           isBreakpointObject(puckValue) ? puckValue.$xlg : value,
@@ -84,7 +83,7 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         );
       }
     },
-    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled, uiState, name, field]
+    [puckOnChange, puckValue, activeBreakpoint, responsiveMode, isBreakpointModeEnabled, uiState]
   );
 
   const componentIdForMap = typeof selectedItemOrRootProps?.id === 'string' ? selectedItemOrRootProps.id : 'root';

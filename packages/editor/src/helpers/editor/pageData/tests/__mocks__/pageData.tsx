@@ -1,5 +1,6 @@
 import { FilterByDomain } from '@hakit/core';
 import { EntityName } from '@hakit/core';
+import { PageValue } from '@typings/fields';
 import { CustomPuckConfig, PuckPageData, Slot } from '@typings/puck';
 
 export const pageData: PuckPageData = {
@@ -132,7 +133,7 @@ export interface NavigationProps {
   content: Slot;
   options: {
     hideClock?: boolean;
-    pages: string[];
+    pages: PageValue[];
   };
   clockOptions: {
     useTimeEntity?: boolean;

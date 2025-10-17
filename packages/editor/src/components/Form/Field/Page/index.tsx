@@ -131,13 +131,20 @@ export const PageField = memo(function Page({ value, multiple, min, max, onChang
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = dashboardsQuery.data;
   // create a map of all pages, and include the dashboard name each page object
-  const allPages = useMemo(() => dashboards?.flatMap(d => d.pages.map(p => ({ ...p, dashboardName: d.name }))) ?? [], [dashboards]);
+  const allPages = useMemo(
+    () => dashboards?.flatMap(d => d.pages.map(p => ({ ...p, dashboardName: d.name, dashboardPath: d.path }))) ?? [],
+    [dashboards]
+  );
   const options = useMemo(() => {
     return allPages.map(item => ({
       value: item.id,
-      label: item.dashboardName + ' / ' + item.name + (item.path === pagePath ? ` (current)` : ''),
+      label:
+        item.dashboardName +
+        ' / ' +
+        item.name +
+        (item.path === pagePath && item.dashboardPath === params?.dashboardPath ? ` (current)` : ''),
     }));
-  }, [allPages, pagePath]);
+  }, [allPages, pagePath, params?.dashboardPath]);
 
   const handleChange = (value: unknown) => {
     if (isPageValue(value)) {

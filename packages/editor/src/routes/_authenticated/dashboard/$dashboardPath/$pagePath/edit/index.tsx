@@ -3,18 +3,28 @@ import { Editor } from '@features/dashboard/Editor';
 import { PuckPreload } from '@features/dashboard/PuckPreload';
 import { RecoveryPrompt } from '@features/dashboard/Editor/RecoveryPrompt';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
+import { loadDashboardAndPageOrNotFound } from '../../../loader';
+import { NotFound } from '@features/404';
 
 export const Route = createFileRoute('/_authenticated/dashboard/$dashboardPath/$pagePath/edit/')({
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    return await loadDashboardAndPageOrNotFound({
+      queryClient,
+      dashboardPath: params.dashboardPath,
+      pagePath: params.pagePath,
+    });
+  },
   component: RouteComponent,
+  notFoundComponent: NotFound,
 });
 
 function RouteComponent() {
-  // get the path param from /editor:/id with tanstack router
-  const params = Route.useParams();
+  const { dashboard, page } = Route.useLoaderData();
 
   return (
     <RenderErrorBoundary prefix='Dashboard'>
-      <PuckPreload dashboardPath={params.dashboardPath} pagePath={params.pagePath}>
+      <PuckPreload dashboard={dashboard} page={page}>
         <RecoveryPrompt>
           <Editor />
         </RecoveryPrompt>

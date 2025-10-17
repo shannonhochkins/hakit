@@ -28,11 +28,13 @@ export type PressHandlers = {
 export type PressGestureOptions = {
   holdDelay?: number;
   doubleTapDelay?: number;
+  disabled?: boolean;
 };
 
 export function usePressGestures(handlers: PressHandlers, options?: PressGestureOptions) {
   const holdDelay = options?.holdDelay ?? HOLD_DELAY;
   const doubleTapDelay = options?.doubleTapDelay ?? DOUBLE_TAP_DELAY;
+  const disabled = options?.disabled ?? false;
   const state = useRef<{
     pointerId: number | null;
     pointerType: 'mouse' | 'touch' | 'pen' | null;
@@ -134,9 +136,9 @@ export function usePressGestures(handlers: PressHandlers, options?: PressGesture
   );
 
   /** Derived flags — used to completely skip logic when not needed */
-  const hasTap = !!handlers.onTap;
-  const hasDouble = !!handlers.onDoubleTap;
-  const hasHold = !!handlers.onHold;
+  const hasTap = !disabled && !!handlers.onTap;
+  const hasDouble = !disabled && !!handlers.onDoubleTap;
+  const hasHold = !disabled && !!handlers.onHold;
   const hasCancel = !!handlers.onTapCancel;
 
   /** Internal handlers (each is a no-op if not needed) */
@@ -384,7 +386,7 @@ export function usePressGestures(handlers: PressHandlers, options?: PressGesture
 
   /** Single-surface API */
   function bindWithProps(userProps: DivProps): DivProps {
-    // If no gestures are requested at all, return props untouched.
+    // If disabled or no gestures are requested at all, return props untouched.
     if (!hasTap && !hasDouble && !hasHold) {
       // Special case: enable native-like dblclick behavior for pointer sequences
       // when user supplied onDoubleClick but no gestures are requested.

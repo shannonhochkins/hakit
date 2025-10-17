@@ -13,9 +13,17 @@ import { RadioField, type RadioOption } from '@components/Form/Field/Radio';
 import { Alert } from '@components/Alert';
 import { SwitchField } from '@components/Form/Field/Switch';
 import { UnitField } from '@components/Form/Field/Unit';
-import { validateBoolean, validateNumber, validateString, validatePageValue, validatePageValueArray } from './valueValidation';
+import {
+  validateBoolean,
+  validateNumber,
+  validateString,
+  validatePageValue,
+  validatePageValueArray,
+  validateJson,
+} from './valueValidation';
 import { IconField } from '@components/Form/Field/Icon';
 import { icons } from 'lucide-react';
+import { DomainService, SnakeOrCamelDomains } from '@hakit/core';
 
 type CustomAutoFieldProps<Props> = {
   field: FieldConfiguration[string];
@@ -131,7 +139,8 @@ export function renderField(props: RenderFieldProps) {
           onChange={props.onChange}
         />
       );
-    case 'code':
+    case 'code': {
+      const language = props.field.language ?? 'json';
       return (
         <CodeField
           label={props.fieldLabel}
@@ -140,12 +149,14 @@ export function renderField(props: RenderFieldProps) {
           readOnly={props.field.readOnly}
           id={id}
           name={props.name}
-          value={validateString(props.value, '')}
-          language={props.field.language}
+          // Typescript, being typescript, will fix later, unnecessary casting of language and validate function
+          value={language === 'json' ? (validateJson(props.value, {}) as string) : validateString(props.value, '')}
+          language={language as 'yaml'}
           onValidate={props.field.onValidate}
           onChange={props.onChange}
         />
       );
+    }
     case 'page':
       return (
         <PageField
@@ -153,10 +164,7 @@ export function renderField(props: RenderFieldProps) {
           label={props.fieldLabel}
           icon={props.icon}
           multiple={false}
-          onChange={e => {
-            console.log('page field onChange', e);
-            props.onChange(e);
-          }}
+          onChange={props.onChange}
           id={id}
           name={props.name}
           helperText={props.field.description}
@@ -194,7 +202,8 @@ export function renderField(props: RenderFieldProps) {
     case 'service':
       return (
         <ServiceField
-          value={validateString(props.value, undefined)}
+          value={validateString(props.value, undefined) as DomainService<SnakeOrCamelDomains>}
+          domain={props.field.domain as SnakeOrCamelDomains}
           onChange={props.onChange}
           label={props.fieldLabel}
           icon={props.icon}

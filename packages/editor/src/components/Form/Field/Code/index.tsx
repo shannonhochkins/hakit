@@ -12,12 +12,23 @@ import { HelperText } from '../_shared/HelperText';
 
 const getClassName = getClassNameFactory('CodeField', styles);
 
-interface CodeFieldProps extends Omit<InputTextareaProps, 'type' | 'value' | 'onChange'> {
-  language: FieldDefinition['code']['language'];
+type DefaultProps = Omit<InputTextareaProps, 'type' | 'value' | 'onChange'> & {
   onValidate?: FieldDefinition['code']['onValidate'];
+};
+
+type JsonCodeFieldProps = {
+  language: 'json';
+  value: object;
+  onChange: (value: object) => void;
+} & DefaultProps;
+
+type GenericCodeFieldProps = {
+  language: Exclude<FieldDefinition['code']['language'], 'json'>;
   value: string;
   onChange: (value: string) => void;
-}
+} & DefaultProps;
+
+export type CodeFieldProps = JsonCodeFieldProps | GenericCodeFieldProps;
 
 export const CodeField = ({
   id,
@@ -32,8 +43,19 @@ export const CodeField = ({
   icon = <CodeIcon size={18} />,
   error,
 }: CodeFieldProps) => {
-  const [localValue, setLocalValue] = useState<string>(value);
+  const [localValue, setLocalValue] = useState<string>(typeof value === 'string' ? value : JSON.stringify(value, null, 2));
   const [editing, setEditing] = useState<boolean>(false);
+  const [jsonValid, setJsonValid] = useState<boolean>(true);
+
+  function validateOnChange(value: string) {
+    try {
+      JSON.parse(value);
+      setJsonValid(true);
+    } catch {
+      setJsonValid(false);
+    }
+    setLocalValue(value);
+  }
 
   if (!editing) {
     return (
@@ -43,10 +65,11 @@ export const CodeField = ({
           label={label}
           name={name}
           icon={icon}
-          value={value}
+          error={error}
+          helperText={!error && !jsonValid ? helperText : 'Invalid syntax, please check your code'}
+          value={typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
           readOnly
           placeholder='Click "Edit" to open the code editor...'
-          helperText={helperText}
           disabled
           endAdornment={
             !readOnly && (
@@ -79,7 +102,12 @@ export const CodeField = ({
     <Column fullWidth alignItems='flex-start' justifyContent='flex-start' gap='var(--space-1)'>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
       <Row fullWidth alignItems='flex-start' justifyContent='flex-start' gap='var(--space-2)' wrap='nowrap'>
-        <MonacoCodeEditor value={localValue} language={language} onChange={setLocalValue} onValidate={onValidate} />
+        <MonacoCodeEditor
+          value={localValue}
+          language={language as FieldDefinition['code']['language']}
+          onChange={validateOnChange}
+          onValidate={onValidate}
+        />
         <Column
           style={{
             flex: 1,
@@ -99,12 +127,15 @@ export const CodeField = ({
             style={{
               flex: 1,
             }}
-            variant='primary'
+            variant={error || !jsonValid ? 'error' : 'primary'}
             aria-label='Save'
             icon={<SaveIcon size={18} />}
             onClick={() => {
-              setEditing(false);
-              onChange(localValue);
+              if (jsonValid) {
+                setEditing(false);
+                // @ts-expect-error - TODO - Fix this
+                onChange(language === 'json' ? (JSON.parse(localValue) as object) : localValue);
+              }
             }}
           />
           <IconButton

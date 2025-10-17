@@ -2,12 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGlobalStore } from './useGlobalStore';
 import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
-import { updateDashboardPageForUser, dashboardByPathWithPageDataQueryOptions } from '@services/dashboard';
+import { updateDashboardPageForUser } from '@services/dashboard';
 import { type PuckAction } from '@measured/puck';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
-import { useQueryClient } from '@tanstack/react-query';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 
 const TIME_THRESHOLD_SECONDS = 1; // Threshold for showing recovery prompt
@@ -37,7 +36,6 @@ export function getStorageKey(dashboardPath: string, pagePath: string): string |
 }
 
 export function useUnsavedChanges(): UnsavedChangesState {
-  const queryClient = useQueryClient();
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
     shouldThrow: false,
@@ -198,15 +196,9 @@ export function useUnsavedChanges(): UnsavedChangesState {
         error: 'Failed to update dashboard page data after recovery',
       }
     ).finally(() => {
-      // Invalidate the dashboard query to trigger a refetch
-      // This will automatically update the store via useDashboardWithData
-      if (params?.dashboardPath) {
-        const queryKey = dashboardByPathWithPageDataQueryOptions(params.dashboardPath).queryKey;
-        queryClient.invalidateQueries({ queryKey });
-      }
       setShowRecoveryPrompt(false);
     });
-  }, [params, getStoredData, removeStoredData, queryClient]);
+  }, [params, getStoredData, removeStoredData]);
 
   const rejectRecovery = useCallback(() => {
     removeStoredData();

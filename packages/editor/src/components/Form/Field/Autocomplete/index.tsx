@@ -390,7 +390,6 @@ export function AutocompleteField<T = string>({
                     className={`${getClassName('option')} ${isSelected ? getClassName('selectedOption') : ''} ${isHighlighted ? getClassName('highlightedOption') : ''}`}
                     onClick={() => data.handleOptionClick(option)}
                   >
-                    {isSelected && <CheckCircleIcon size={16} className={getClassName('checkIcon')} />}
                     {renderOptionNode(option)}
                   </div>
                 );

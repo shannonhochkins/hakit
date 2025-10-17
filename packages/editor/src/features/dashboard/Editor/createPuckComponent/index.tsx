@@ -18,8 +18,10 @@ import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 import { usePressGestures } from '@hooks/usePressGestures';
 import puckComponentStyles from './puckComponent.module.css';
-import { useNavigate } from '@tanstack/react-router';
 import { router } from '../../../../router';
+import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@hakit/core';
+import { callService as _callService } from 'home-assistant-js-websocket';
+import { toSnakeCase } from '@helpers/string/toSnakeCase';
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
@@ -101,7 +103,52 @@ function TemplateSubscriber<P extends object>({
   return <>{loading || !data ? null : <Render {...data} internalComponentConfig={internalComponentConfig} />}</>;
 }
 
-function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
+const callService = async ({
+  domain,
+  service,
+  serviceData,
+  target: _target,
+}: {
+  domain: SnakeOrCamelDomains;
+  service: string;
+  serviceData: object;
+  target: string | string[] | { entity_id: string | string[] };
+}): Promise<unknown> => {
+  const { connection, ready } = useStore.getState();
+  const target =
+    typeof _target === 'string' || Array.isArray(_target)
+      ? {
+          entity_id: _target,
+        }
+      : _target;
+  if (typeof service !== 'string') {
+    throw new Error('service must be a string');
+  }
+  if (connection && ready) {
+    try {
+      await _callService(
+        connection,
+        toSnakeCase(domain),
+        toSnakeCase(service),
+        // purposely cast here as we know it's correct
+        serviceData as object,
+        target,
+        false // don't return the response
+      );
+      // TODO - As this request can potentially fail silently, we might want to either
+      // 1. Provide a "hey, we did what you asked for" notification
+      // 2. Provide a "hey, we did what you asked for, but it failed" notification
+      // Otherwise, return void
+      return undefined;
+    } catch (e) {
+      // TODO - raise error to client here
+      console.error('Error calling service:', e);
+    }
+  }
+  return undefined;
+};
+
+async function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
   if (interaction.type === 'none') return undefined;
   if (interaction.type === 'external') {
     // we've received an external url action, we should trigger it
@@ -130,8 +177,7 @@ function processInteractions(interaction: InternalComponentFields['interactions'
     }
     router.navigate({
       to: '/dashboard/$dashboardPath/$pagePath',
-      // TODO - Ideally, this would be false, but it appears like we're not reloading data when the dashboard/page path changes
-      reloadDocument: true,
+      reloadDocument: false,
       params: {
         dashboardPath: dashboard.path,
         pagePath: page.path,
@@ -139,7 +185,35 @@ function processInteractions(interaction: InternalComponentFields['interactions'
     });
     return;
   }
-  if (interaction.type === 'controlEntity') return interaction.entity;
+  if (interaction.type === 'controlEntity') {
+    const entities = useStore.getState().entities;
+    const callServiceData = interaction.callService;
+    const entity = callServiceData.entity;
+    const service = callServiceData.service as unknown as DomainService<'light'>;
+    if (!entity) {
+      console.error('No entity found to control, has this entity been deleted?', callServiceData);
+      return;
+    }
+    if (!entities[entity]) {
+      console.error('No entity found to control, has this entity been deleted?', callServiceData);
+      return;
+    }
+    if (!service) {
+      console.error('No service found to call, has this service been deleted?', callServiceData);
+      return;
+    }
+    const domain = computeDomain(entity) as SnakeOrCamelDomains;
+
+    await callService({
+      domain,
+      service: service,
+      serviceData: callServiceData.serviceData ?? {},
+      target: {
+        entity_id: entity,
+      },
+    });
+    return;
+  }
   return undefined;
 }
 
@@ -160,6 +234,7 @@ function Render<P extends object>(
     {
       holdDelay: interactions?.hold?.holdDelay,
       doubleTapDelay: interactions?.doubleTap?.doubleTapDelay,
+      disabled: originalProps.puck.isEditing,
     }
   );
 

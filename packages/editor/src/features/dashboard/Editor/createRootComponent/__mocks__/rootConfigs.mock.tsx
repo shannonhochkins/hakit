@@ -1,5 +1,5 @@
-import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
-import { CSSProperties } from 'react';
+import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
+import { type CSSProperties } from 'react';
 
 type RootProps = {
   background: BackgroundProps;

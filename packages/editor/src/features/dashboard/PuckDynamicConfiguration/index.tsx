@@ -1,5 +1,5 @@
 import { Config, DefaultComponentProps } from '@measured/puck';
-import { registerRemotes, loadRemote, registerPlugins } from '@module-federation/enhanced/runtime';
+import { getInstance, createInstance } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
 import { CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
@@ -24,7 +24,9 @@ type RemoteWithAddonId = Remote & {
 
 const resolvedEntryByName = new Map<string, string>();
 
-registerPlugins([
+const instance = getInstance() ?? createInstance({ name: 'host', remotes: [] });
+
+instance.registerPlugins([
   {
     name: 'capture-remote-entry',
     // Called before a container is initialized; receives the resolved info
@@ -51,9 +53,9 @@ function buildPreRemotes(userAddons: UserAddon[]): Array<RemoteWithAddonId> {
 
 async function initContainersEarly(remotesToInit: Array<RemoteWithAddonId>) {
   // Ensure the runtime knows about these remotes
-  registerRemotes(remotesToInit);
+  instance.registerRemotes(remotesToInit);
   // Force-load a non-existent expose to trigger container init and fire beforeInitContainer
-  await Promise.all(remotesToInit.map(r => loadRemote(`${r.name}/__init__`, { from: 'runtime' }).catch(() => null)));
+  await Promise.all(remotesToInit.map(r => instance.loadRemote(`${r.name}/__init__`, { from: 'runtime' }).catch(() => null)));
 }
 
 async function hydrateLiveManifestsFromOverrides(resolved: Map<string, string>, targetMap: Map<string, MfManifest>) {
@@ -138,9 +140,10 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         continue;
       }
       // load the module contents from the current instance
-      const component = await loadRemote<ComponentModule>(`${remote.name}/${module.name}`, {
-        from: 'runtime',
-      })
+      const component = await instance
+        .loadRemote<ComponentModule>(`${remote.name}/${module.name}`, {
+          from: 'runtime',
+        })
         .then(loadedModule => {
           if (!loadedModule) {
             throw new Error(`No "${module.name}" component found`);

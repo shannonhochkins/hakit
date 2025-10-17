@@ -106,6 +106,12 @@ export type PuckConfigurationStore = {
   actions: {
     save: (pagePath?: string, callback?: () => void) => Promise<void>;
   };
+  editingDashboardPage: {
+    dashboardId: string;
+    pageId: string;
+  } | null;
+  setEditingDashboardPage: (dashboardId: string, pageId: string) => void;
+  resetPuckInformation: (dashboardChanged?: boolean) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
@@ -226,6 +232,23 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           callback();
         }
       },
+    },
+    editingDashboardPage: null,
+    setEditingDashboardPage: (dashboardId: string, pageId: string) =>
+      set(state => ({ ...state, editingDashboardPage: { dashboardId, pageId } })),
+    resetPuckInformation: (dashboardChanged: boolean = false) => {
+      set(state => ({
+        ...state,
+        puckPageData: null,
+        unsavedPuckPageData: null,
+        templateFieldMap: {},
+        componentBreakpointMap: {},
+        userConfig: null,
+        activeBreakpoint: undefined as unknown as BreakPoint,
+        dashboard: dashboardChanged ? null : state.dashboard,
+        dashboardWithoutData: dashboardChanged ? null : state.dashboardWithoutData,
+        emotionCache: null,
+      }));
     },
   };
 });

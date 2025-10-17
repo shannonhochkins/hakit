@@ -1,3 +1,8 @@
+# Interactions
+- Controlling an entity, may need to be an individual field action, to pick entity, service, serviceData so we can "pass" the entity, service and serviceData over to the action in question instead of having to rely on individual fields to be setup on the props the same way everywhere.
+
+
+
 - Kinde
   - Do i really need this? supabase already has auth, haven't looked into it yet though
   - See if i can capture location of the user, to determine the best database location

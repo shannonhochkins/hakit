@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
 import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
-import type { EntityName } from '@hakit/core';
+import type { DomainService, EntityName, ServiceData, SnakeOrCamelDomains } from '@hakit/core';
 import { icons } from 'lucide-react';
 
 export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
@@ -98,8 +98,11 @@ export type Navigate = {
 };
 export type ControlEntity = {
   type: 'controlEntity';
-  entity: EntityName;
-  service: string;
+  callService: {
+    entity: EntityName | undefined;
+    service: DomainService<SnakeOrCamelDomains> | undefined;
+    serviceData: ServiceData<SnakeOrCamelDomains, DomainService<SnakeOrCamelDomains>> | object | undefined;
+  };
 };
 export type None = {
   type: 'none';
@@ -170,6 +173,7 @@ type FieldTypeOmitMap = {
   icon: 'default';
   page: 'default';
   pages: 'default';
+  service: 'default';
 };
 
 // What each field actually stores/returns
@@ -185,7 +189,7 @@ export type FieldValueByKind = {
   pages: PageValue[];
 
   entity: EntityName;
-  service: string;
+  service: DomainService<SnakeOrCamelDomains>;
 
   slider: number;
 
@@ -218,7 +222,7 @@ export type FieldDefinition = {
   radio: RadioField;
   page: { type: 'page'; default: PageValue };
   pages: { type: 'pages'; default: PageValue[] };
-  service: { type: 'service' };
+  service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
   color: { type: 'color' };
   imageUpload: { type: 'imageUpload' };
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };

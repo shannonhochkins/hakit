@@ -1,11 +1,17 @@
-import { AdditionalRenderProps, ComponentFactoryData, IgnorePuckConfigurableOptions, RenderProps, InternalRootData } from '@typings/puck';
+import type {
+  AdditionalRenderProps,
+  ComponentFactoryData,
+  IgnorePuckConfigurableOptions,
+  RenderProps,
+  InternalRootData,
+} from '@typings/puck';
 import { Fragment, useMemo } from 'react';
-import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
+import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
-import { defaultRootConfig, DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
-import { DefaultComponentProps } from '@measured/puck';
+import { defaultRootConfig, type DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
+import { type DefaultComponentProps } from '@measured/puck';
 import { css, Global } from '@emotion/react';
-import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
+import { type FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';

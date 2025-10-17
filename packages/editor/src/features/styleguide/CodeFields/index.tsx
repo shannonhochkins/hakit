@@ -4,14 +4,14 @@ import { Column } from '@components/Layout';
 import { CodeField } from '@components/Form/Field/Code';
 
 export function StyleguideCodeFields() {
-  const [value, setValue] = useState<string>(`{
-  "name": "Example",
-  "enabled": true
-}`);
-  const [value2, setValue2] = useState<string>(`{
-    "name": "Example",
-    "enabled": true
-  }`);
+  const [value, setValue] = useState<object>({
+    name: 'Example',
+    enabled: true,
+  });
+  const [value2, setValue2] = useState<object>({
+    name: 'Example',
+    enabled: true,
+  });
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Code Field - Preview Only'>
@@ -51,7 +51,7 @@ export function StyleguideCodeFields() {
           name='code-field-different-languages-css'
         />
         <CodeField
-          value={'{"a":1}'}
+          value={{ a: 1 }}
           language='json'
           onChange={() => {}}
           id='code-field-different-languages-json'

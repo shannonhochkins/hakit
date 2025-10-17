@@ -1,5 +1,11 @@
 import { Actions, FieldConfiguration, InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
 import { DOUBLE_TAP_DELAY, HOLD_DELAY } from '@hooks/usePressGestures';
+import { ServiceField } from '@components/Form/Field/Service';
+import { Entity } from '@components/Form/Field/Entity';
+import { computeDomain, SnakeOrCamelDomains } from '@hakit/core';
+import { Column } from '@components/Layout';
+import { MousePointerClick, TextSelect } from 'lucide-react';
+import { CodeField } from '@components/Form/Field/Code';
 
 export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
   styles: {
@@ -44,24 +50,64 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
             { label: 'Control Entity', value: 'controlEntity' },
           ],
         },
-        entity: {
-          type: 'entity',
-          default: entities => entities[0].entity_id,
-          label: 'Entity',
+        callService: {
+          type: 'custom',
           visible(data) {
             return data.interactions[type]?.type === 'controlEntity';
           },
-          description: 'The entity to control',
-        },
-        service: {
-          type: 'service',
-          default: '',
-          label: 'Service',
-          visible(data) {
-            const a = data.interactions[type];
-            return a?.type === 'controlEntity' && typeof a.entity === 'string' && a.entity.length > 0;
+          default: {
+            entity: undefined,
+            service: undefined,
+            serviceData: undefined,
           },
-          description: 'The service to call',
+          label: 'Call Service',
+          description: 'Call a service on an entity',
+          render({ value, onChange }) {
+            const domain = computeDomain(value?.entity ?? 'unknown') as SnakeOrCamelDomains;
+            const service = value?.service ?? undefined;
+            const serviceData = value?.serviceData ?? {};
+            return (
+              <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: '0 var(--space-3)' }}>
+                <Entity
+                  id='entity-service-entity'
+                  name='entity'
+                  label='Entity'
+                  icon={<TextSelect size={16} />}
+                  helperText='The entity to call the service on'
+                  value={value?.entity}
+                  onChange={entity => onChange({ ...value, entity })}
+                />
+                {domain && (
+                  <ServiceField
+                    icon={<MousePointerClick size={16} />}
+                    label='Service'
+                    helperText='The service to call'
+                    id='entity-service-service'
+                    domain={domain}
+                    name='service'
+                    value={service}
+                    onChange={service => onChange({ ...value, service })}
+                  />
+                )}
+                {service && (
+                  <CodeField
+                    language='json'
+                    label='Service Data'
+                    helperText={'The data to send to the service'}
+                    id='entity-service-service-data'
+                    name='serviceData'
+                    value={serviceData}
+                    onChange={serviceData => {
+                      onChange({
+                        ...value,
+                        serviceData: serviceData,
+                      });
+                    }}
+                  />
+                )}
+              </Column>
+            );
+          },
         },
         url: {
           type: 'text',

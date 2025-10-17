@@ -596,25 +596,25 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   render: Render,
 };
 
+// Map font family names to Google Fonts API format
+const googleFontsNameMap: Record<string, string> = {
+  roboto: 'Roboto',
+  'open-sans': 'Open+Sans',
+  lato: 'Lato',
+  montserrat: 'Montserrat',
+  'source-sans-pro': 'Source+Sans+Pro',
+  poppins: 'Poppins',
+  nunito: 'Nunito',
+  inter: 'Inter',
+  'playfair-display': 'Playfair+Display',
+  merriweather: 'Merriweather',
+};
+
 function Render(props: RenderProps<DefaultRootProps>) {
   const { typography } = props;
 
   // Generate Google Fonts link for non-system fonts
   const selectedFontFamily = typography?.fontFamily ?? 'roboto';
-
-  // Map font family names to Google Fonts API format
-  const googleFontsNameMap: Record<string, string> = {
-    roboto: 'Roboto',
-    'open-sans': 'Open+Sans',
-    lato: 'Lato',
-    montserrat: 'Montserrat',
-    'source-sans-pro': 'Source+Sans+Pro',
-    poppins: 'Poppins',
-    nunito: 'Nunito',
-    inter: 'Inter',
-    'playfair-display': 'Playfair+Display',
-    merriweather: 'Merriweather',
-  };
 
   const googleFontsUrl =
     selectedFontFamily !== 'system'
@@ -631,17 +631,18 @@ function Render(props: RenderProps<DefaultRootProps>) {
 
   // Clean up any existing Google Fonts links when font changes
   React.useEffect(() => {
-    if (typeof document !== 'undefined') {
-      // Remove existing Google Fonts links whenever font changes
-      // This handles: system -> Google Font, Google Font -> system, Google Font -> Google Font
-      const existingLinks = document.querySelectorAll('link[href*="fonts.googleapis.com"][rel="stylesheet"]');
+    if (typeof document !== 'undefined' && selectedFontFamily) {
+      // Remove any existing href where it has href= family=(not the current family)
+      const existingLinks = document.querySelectorAll(
+        `link[href*="fonts.googleapis.com"]:not([href*="${googleFontsNameMap[selectedFontFamily]}"])[rel="stylesheet"]`
+      );
       existingLinks.forEach(link => {
         if (link.parentNode) {
           link.parentNode.removeChild(link);
         }
       });
     }
-  }, [typography?.fontFamily]);
+  }, [selectedFontFamily]);
 
   return (
     <>
@@ -655,8 +656,6 @@ function Render(props: RenderProps<DefaultRootProps>) {
       */}
       {googleFontsUrl && (
         <>
-          <link rel='preconnect' href='https://fonts.googleapis.com' />
-          <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
           <link href={googleFontsUrl} rel='stylesheet' />
         </>
       )}

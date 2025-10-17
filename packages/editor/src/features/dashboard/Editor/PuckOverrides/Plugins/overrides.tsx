@@ -1,7 +1,7 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { DrawerItem } from '../DrawerItem';
-import { FieldDefinition } from '@typings/fields';
+import { FieldDefinition, FieldTypes } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
 import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
@@ -13,6 +13,8 @@ type AllFieldRenderers = FieldRenderFunctions<
     fields: FieldDefinition;
   }>
 >;
+
+const FIELD_TYPES_TO_THROTTLE: FieldTypes[] = ['text', 'textarea', 'code', 'color', 'number', 'slider'];
 
 // Props accepted by any field renderer in fieldTypes (union of all variants)
 type FieldWrapperProps = Parameters<AllFieldRenderers[keyof AllFieldRenderers]>[0];
@@ -26,7 +28,7 @@ const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperPro
 
   // use tanstack debounce to trigger on change after 150ms
   const debouncedOnChange = useDebouncer(onChange, {
-    wait: field.type === 'pages' || field.type === 'page' ? 0 : 150,
+    wait: FIELD_TYPES_TO_THROTTLE.includes(field.type) ? 150 : 0,
   });
 
   // Keep localValue in sync with prop value (prop is source of truth)

@@ -28,3 +28,7 @@ export function validatePageValue<T extends PageValue, F extends PageValue>(valu
 export function validatePageValueArray<T extends PageValue, F extends PageValue>(value: T[], fallback: F[]): T[] | F[] {
   return Array.isArray(value) && value.every(v => typeof v === 'object' && 'dashboardId' in v && 'pageId' in v) ? (value as T[]) : fallback;
 }
+
+export function validateJson<T extends Primitive, F extends object>(value: T, fallback: F): T | F {
+  return typeof value === 'object' ? value : fallback;
+}

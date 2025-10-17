@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { NotFound } from '@features/404';
 
 export const Route = createFileRoute('/_authenticated/me/')({
   beforeLoad: () => {
@@ -8,4 +9,5 @@ export const Route = createFileRoute('/_authenticated/me/')({
       replace: true,
     });
   },
+  notFoundComponent: NotFound,
 });
