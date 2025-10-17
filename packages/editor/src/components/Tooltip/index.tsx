@@ -14,11 +14,11 @@ export type TooltipProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'title'> 
   children: React.ReactNode;
 } & ITooltip;
 
-export function Tooltip({ placement = 'top', title = null, children, ...rest }: TooltipProps) {
+export function Tooltip({ placement = 'top', title = null, children, style, ...rest }: TooltipProps) {
   const id = useId();
   return (
     <>
-      <div data-tooltip-id={id} data-tooltip-place={placement} {...rest}>
+      <div data-tooltip-id={id} data-tooltip-place={placement} style={style} {...rest}>
         {children}
       </div>
       <ReactTooltip

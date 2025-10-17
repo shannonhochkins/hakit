@@ -1,75 +1,101 @@
-import { AutoField } from '@measured/puck';
-import { useMemo, memo, ReactNode } from 'react';
+import { AutoField, UiState } from '@measured/puck';
+import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';
-import { useDashboard } from '@hooks/queeries/useDashboard';
 import { HelperText } from '../_shared/HelperText';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardsQueryOptions } from '@services/dashboard';
+import { FieldOption, PageValue } from '@typings/fields';
+import { SelectField, SelectFieldProps } from '../Select';
 type CommonProps = {
-  readOnly?: boolean;
-  icon?: React.ReactNode;
-  id?: string;
-  name?: string;
-  helperText?: string;
-  label?: ReactNode;
   min?: number;
   max?: number;
-};
+} & Omit<SelectFieldProps, 'onChange' | 'options' | 'renderValue' | 'value'>;
 
 type PageFieldSingleProps = CommonProps & {
   multiple?: false;
-  value?: DashboardPageWithoutData | string;
-  onChange: (value: DashboardPageWithoutData) => void;
+  value?: PageValue;
+  onChange: (value: PageValue) => void;
 };
 
 type PageFieldMultiProps = CommonProps & {
   multiple: true;
-  value?: DashboardPageWithoutData[] | string[];
-  onChange: (value: DashboardPageWithoutData[]) => void;
+  value?: PageValue[];
+  onChange: (value: PageValue[]) => void;
 };
 
 type PageFieldProps = PageFieldSingleProps | PageFieldMultiProps;
+
+type DashboardValue = DashboardPageWithoutData & {
+  dashboardName: string;
+};
+
+function getPage(dashboards: DashboardValue[], pageId: string): DashboardValue | undefined {
+  return dashboards.find(d => d.id === pageId);
+}
 
 function DashboardPageMultiSelect({
   value,
   onChange,
   options,
-  firstDashboard,
-  dashboardMap,
+  allPages,
   min,
   max,
+  name,
+  id,
 }: {
-  value?: DashboardPageWithoutData[];
-  onChange: (value: DashboardPageWithoutData[]) => void;
-  options: { value: string; label: string }[];
-  firstDashboard?: DashboardPageWithoutData;
-  dashboardMap: Map<string, DashboardPageWithoutData>;
+  value?: PageValue[];
+  onChange: (value: PageValue[], uiState?: Partial<UiState>) => void;
+  options: FieldOption[];
+  allPages: DashboardValue[];
   min?: number;
   max?: number;
+  name?: string;
+  id?: string;
 }) {
-  const handleChange = (rawValue: Array<{ page: string }>) => {
-    const newValue = rawValue.map(({ page }) => dashboardMap.get(page)).filter((v): v is DashboardPageWithoutData => !!v);
+  // we receive only the page id here, we have to convert this to the onChange
+  const handleChange = (rawValue: Array<{ page: PageValue }>) => {
+    const newValue = rawValue
+      .map(item => {
+        const page = getPage(allPages, item.page.pageId);
+        return {
+          pageId: page?.id,
+          dashboardId: page?.dashboardId,
+        };
+      })
+      .filter((v): v is PageValue => !!v.pageId && !!v.dashboardId);
     onChange(newValue);
   };
 
   const selectedMultiValue = useMemo(() => {
-    return value ? value.map(item => ({ page: item.id })) : firstDashboard?.id ? [{ page: firstDashboard.id }] : [];
-  }, [value, firstDashboard?.id]);
+    return value ? value.map(item => ({ page: item })) : [];
+  }, [value]);
 
   return (
     <>
       <AutoField
         field={{
+          name: name,
+          id: id,
           type: 'array',
-          getItemSummary: (item: { page: string }) => {
-            const matchedDashboard = dashboardMap.get(item.page);
-            return matchedDashboard?.name ?? firstDashboard?.name ?? '';
+          getItemSummary: (item: { page?: PageValue }) => {
+            const matchedDashboard = getPage(allPages, item.page?.pageId ?? '');
+            if (!matchedDashboard) {
+              console.error('No dashboard found for id', item.page?.pageId);
+              return 'Unknown page';
+            }
+
+            return matchedDashboard?.dashboardName + ' / ' + matchedDashboard?.name;
           },
           defaultItemProps: {
-            page: firstDashboard?.id,
+            page: {
+              pageId: allPages[0]?.id,
+              dashboardId: allPages[0]?.dashboardId,
+            },
           },
           arrayFields: {
             page: {
-              type: 'select',
+              type: 'page',
               label: 'Select Page',
               description: 'Select the page to navigate to',
               options,
@@ -88,106 +114,122 @@ function DashboardPageMultiSelect({
     </>
   );
 }
-export const PageField = memo(function Page({ value, label, multiple, min, max, onChange }: PageFieldProps) {
+
+function isPageValue(value: unknown): value is PageValue {
+  return typeof value === 'object' && value !== null && typeof value === 'object' && 'pageId' in value && 'dashboardId' in value;
+}
+function isPageValueArray(value: unknown): value is PageValue[] {
+  return Array.isArray(value) && value.every(item => isPageValue(item));
+}
+
+export const PageField = memo(function Page({ value, multiple, min, max, onChange, name, ...rest }: PageFieldProps) {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
+    shouldThrow: false,
   });
-  const { pagePath } = params;
-  const dashboardQuery = useDashboard(params.dashboardPath);
-  const dashboard = dashboardQuery?.data;
-  const dashboardItems = useMemo(() => dashboard?.pages ?? [], [dashboard]);
+  const pagePath = params?.pagePath;
+  const dashboardsQuery = useQuery(dashboardsQueryOptions);
+  const dashboards = dashboardsQuery.data;
+  // create a map of all pages, and include the dashboard name each page object
+  const allPages = useMemo(
+    () => dashboards?.flatMap(d => d.pages.map(p => ({ ...p, dashboardName: d.name, dashboardPath: d.path }))) ?? [],
+    [dashboards]
+  );
   const options = useMemo(() => {
-    return dashboardItems.map(item => ({
+    return allPages.map(item => ({
       value: item.id,
-      label: item.name + (item.path === pagePath ? ` (current)` : ''),
+      label:
+        item.dashboardName +
+        ' / ' +
+        item.name +
+        (item.path === pagePath && item.dashboardPath === params?.dashboardPath ? ` (current)` : ''),
     }));
-  }, [dashboardItems, pagePath]);
+  }, [allPages, pagePath, params?.dashboardPath]);
 
-  const [firstDashboard] = dashboardItems;
-
-  const dashboardMap = useMemo(() => {
-    return new Map(dashboardItems.map(item => [item.id, item]));
-  }, [dashboardItems]);
-
-  const handleChange = (
-    value:
-      | string
-      | Array<{
-          page: string;
-        }>
-  ) => {
-    if (typeof value === 'string') {
-      const matchedDashboard = dashboardItems.find(item => item.id === value);
-      if (!matchedDashboard) {
-        console.error('No dashboard found for id', value);
+  const handleChange = (value: unknown) => {
+    if (isPageValue(value)) {
+      const matchedPage = allPages.find(item => item.id === value.pageId);
+      if (!matchedPage) {
+        console.error('No dashboard found for id', value.pageId);
       } else {
-        (onChange as (v: DashboardPageWithoutData) => void)({
-          id: matchedDashboard.id,
-          dashboardId: matchedDashboard.dashboardId,
-          name: matchedDashboard.name,
-          path: matchedDashboard.path,
-          createdAt: matchedDashboard.createdAt,
-          updatedAt: matchedDashboard.updatedAt,
-          thumbnail: matchedDashboard.thumbnail,
-        });
+        (onChange as (v: PageValue) => void)(value);
       }
-    } else {
-      const pages: DashboardPageWithoutData[] = value
+    } else if (isPageValueArray(value)) {
+      const pages: PageValue[] = value
         .filter(page => !!page)
         .flatMap(page => {
-          const matchedDashboard = dashboardMap.get(page.page);
-          if (!matchedDashboard) {
-            console.error('Invalid page or dashboard not found', page?.page);
+          const matchedPage = getPage(allPages, page.pageId);
+          if (!matchedPage) {
+            console.error('Invalid page or dashboard not found', page?.pageId);
             return [];
           }
           return [
             {
-              id: matchedDashboard.id,
-              dashboardId: matchedDashboard.dashboardId,
-              name: matchedDashboard.name,
-              path: matchedDashboard.path,
-              createdAt: matchedDashboard.createdAt,
-              updatedAt: matchedDashboard.updatedAt,
-              thumbnail: matchedDashboard.thumbnail,
+              pageId: matchedPage.id,
+              dashboardId: matchedPage.dashboardId,
             },
           ];
         });
-      (onChange as (v: DashboardPageWithoutData[]) => void)(pages);
+      (onChange as (v: PageValue[]) => void)(pages);
+    } else {
+      console.error('Invalid value', value);
     }
   };
 
   if (multiple) {
-    const normalizedMultiValue: DashboardPageWithoutData[] | undefined = Array.isArray(value)
-      ? typeof value[0] === 'string'
-        ? (value as string[]).map(v => dashboardMap.get(v)).filter((v): v is DashboardPageWithoutData => !!v)
-        : (value as DashboardPageWithoutData[])
-      : undefined;
     return (
       <DashboardPageMultiSelect
-        value={normalizedMultiValue}
-        onChange={onChange as (v: DashboardPageWithoutData[]) => void}
+        name={name}
+        value={value}
+        onChange={onChange as (v: PageValue[]) => void}
         options={options}
-        dashboardMap={dashboardMap}
-        firstDashboard={firstDashboard}
+        allPages={allPages}
         min={min}
         max={max}
       />
     );
   }
+  // const singleValue = value
+  //   ? { page: value.pageId }
+  //   : ({
+  //       page: allPages[0]?.id,
+  //     } satisfies { page: string });
+
+  const singleValue = options.find(item => item.value === value?.pageId) ?? options[0];
 
   return (
-    <AutoField
-      field={{
-        type: 'select',
-        metadata: {
-          type: 'page',
-        },
-        label: label,
-        options: options,
-        description: 'Select the page to navigate to',
+    <SelectField
+      name={name}
+      multiple={false}
+      value={singleValue}
+      options={options}
+      renderValue={v => v.label}
+      {...rest}
+      onChange={e => {
+        const page = getPage(allPages, e.value);
+        handleChange({
+          pageId: page?.id,
+          dashboardId: page?.dashboardId,
+        });
       }}
-      onChange={handleChange}
-      value={typeof value === 'string' ? value : value ? (value as DashboardPageWithoutData).id : firstDashboard.id}
     />
   );
+  // return (
+  //   <AutoField
+  //     name={name}
+  //     field={{
+  //       name: name,
+  //       type: 'select',
+  //       metadata: {
+  //         type: 'page',
+  //       },
+  //       label: label,
+  //       options: options,
+  //       description: 'Select the page to navigate to',
+  //     }}
+  //     onChange={handleChange}
+  //     // @ts-expect-error - TODO - fix this
+  //     value={singleValue}
+  //   />
+  // );
 });

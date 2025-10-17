@@ -15,7 +15,7 @@ import type { ReactNode } from 'react';
 import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
-import type { EntityName } from '@hakit/core';
+import type { DomainService, EntityName, ServiceData, SnakeOrCamelDomains } from '@hakit/core';
 import { icons } from 'lucide-react';
 
 export const units = ['auto', 'px', 'em', 'rem', 'vh', 'vw', '%'] as const;
@@ -26,6 +26,11 @@ export type UnitFieldValueSingle = `${number}${Unit}`;
 export type UnitFieldValueAllCorners = `${number}${Unit} ${number}${Unit} ${number}${Unit} ${number}${Unit}`;
 
 export type UnitFieldValue = UnitFieldValueSingle | UnitFieldValueAllCorners | 'auto';
+
+export type PageValue = {
+  dashboardId: string;
+  pageId: string;
+};
 
 export type SlotField = PuckSlotField;
 
@@ -63,7 +68,7 @@ type LeafField<Value, DataShape> = {
 }[CompatibleLeafKinds<Value>];
 
 // Containers stay as before
-type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
+export type ObjectFieldNode<Value, DataShape> = Omit<FieldNode<'object', Value, DataShape>, 'objectFields'> & {
   objectFields: { [K in keyof Value]: FieldFor<Value[K], DataShape> };
 };
 
@@ -87,7 +92,36 @@ export type FieldConfiguration<
   [PropName in keyof Omit<ComponentProps, 'editMode'>]: FieldFor<ComponentProps[PropName], DataShape>;
 };
 
+export type Navigate = {
+  type: 'navigate';
+  page: PageValue;
+};
+export type ControlEntity = {
+  type: 'controlEntity';
+  callService: {
+    entity: EntityName | undefined;
+    service: DomainService<SnakeOrCamelDomains> | undefined;
+    serviceData: ServiceData<SnakeOrCamelDomains, DomainService<SnakeOrCamelDomains>> | object | undefined;
+  };
+};
+export type None = {
+  type: 'none';
+};
+export type External = {
+  type: 'external';
+  url: string;
+  target: '_blank' | '_self' | '_parent' | '_top';
+};
+
+export type Actions = Navigate | ControlEntity | None | External;
+
+export type ActionTypes = Actions['type'];
 export interface InternalComponentFields {
+  interactions: {
+    tap: Actions;
+    hold: Actions & { holdDelay?: number };
+    doubleTap: Actions & { doubleTapDelay?: number };
+  };
   styles: {
     css: string;
   };
@@ -137,6 +171,9 @@ type FieldTypeOmitMap = {
   entity: 'default';
   unit: 'default';
   icon: 'default';
+  page: 'default';
+  pages: 'default';
+  service: 'default';
 };
 
 // What each field actually stores/returns
@@ -148,11 +185,11 @@ export type FieldValueByKind = {
   code: string;
   icon: string;
 
-  page: string;
-  pages: string[];
+  page: PageValue;
+  pages: PageValue[];
 
   entity: EntityName;
-  service: string;
+  service: DomainService<SnakeOrCamelDomains>;
 
   slider: number;
 
@@ -183,9 +220,9 @@ export type FieldDefinition = {
     renderValue?: (option: FieldOption) => string;
   };
   radio: RadioField;
-  page: { type: 'page' };
-  pages: { type: 'pages' };
-  service: { type: 'service' };
+  page: { type: 'page'; default: PageValue };
+  pages: { type: 'pages'; default: PageValue[] };
+  service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
   color: { type: 'color' };
   imageUpload: { type: 'imageUpload' };
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };

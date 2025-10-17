@@ -1,12 +1,13 @@
-import { computeDomain, EntityName } from '@hakit/core';
+import { SnakeOrCamelDomains } from '@hakit/core';
+import { toSnakeCase } from '@helpers/string/toSnakeCase';
 import type { HassServices } from 'home-assistant-js-websocket';
 
-export function getDefaultServiceByEntity(entity: string | EntityName, services: HassServices | null): string | undefined {
+export function getDefaultServiceByDomain(domain: SnakeOrCamelDomains, services: HassServices | null): string | undefined {
   if (!services) {
     return;
   }
-  const domain = computeDomain(entity as EntityName);
-  const service = services[domain];
+  const snakeDomain = toSnakeCase(domain);
+  const service = services[snakeDomain];
   if (!service) {
     return;
   }

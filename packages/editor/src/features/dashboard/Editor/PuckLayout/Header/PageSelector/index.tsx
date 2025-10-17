@@ -2,27 +2,27 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { SelectField } from '@components/Form/Field/Select';
 import { Layers } from 'lucide-react';
-import { useDashboard } from '@hooks/queeries/useDashboard';
 import styles from './PageSelector.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { useGlobalStore } from '@hooks/useGlobalStore';
 
 const getClassName = getClassNameFactory('PageSelector', styles);
 
 export function PageSelector() {
+  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
-  const { data } = useDashboard(params.dashboardPath);
   const navigate = useNavigate();
   const pages = useMemo(() => {
     return (
-      data?.pages.map(page => ({
+      dashboard?.pages.map(page => ({
         id: page.id,
         title: page.name,
         path: page.path,
       })) || []
     );
-  }, [data?.pages]);
+  }, [dashboard?.pages]);
   // get the current page from the params
   const value = pages.find(page => page.path === params.pagePath) || pages[0];
 
@@ -46,12 +46,11 @@ export function PageSelector() {
         startAdornment={<Layers size={36} />}
         renderOption={option => option.label}
         onChange={option => {
-          const page = data?.pages.find(page => page.id === option.value);
+          const page = dashboard?.pages.find(page => page.id === option.value);
           if (typeof page === 'undefined') return;
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',
-            // quickest pathway forward to load new data
-            reloadDocument: true,
+            reloadDocument: false,
             params: {
               dashboardPath: params.dashboardPath,
               pagePath: page.path,

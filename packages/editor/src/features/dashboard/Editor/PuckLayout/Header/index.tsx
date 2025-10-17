@@ -10,9 +10,9 @@ import { PageSelector } from './PageSelector';
 import { FeatureText } from '@components/FeatureText';
 import { PageForm } from '../../../../../components/Modal/PageForm';
 import { useCallback, useState } from 'react';
-import { useDashboard } from '@hooks/queeries/useDashboard';
 import styles from './Header.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { useGlobalStore } from '@hooks/useGlobalStore';
 
 const getClassName = getClassNameFactory('Header', styles);
 
@@ -22,7 +22,7 @@ export function Header() {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
   });
-  const { data } = useDashboard(params.dashboardPath);
+  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
   const { isFullscreen } = useEditorUIStore();
 
   function handleBackToDashboards() {
@@ -77,14 +77,13 @@ export function Header() {
       </div>
       <PageForm
         mode='new'
-        dashboardId={data?.id}
+        dashboardId={dashboard?.id}
         isOpen={newPageOpen}
         onClose={onClose}
         onSuccess={newPage => {
           navigate({
             to: '/dashboard/$dashboardPath/$pagePath/edit',
-            // quickest pathway forward to load new data
-            reloadDocument: true,
+            reloadDocument: false,
             params: {
               dashboardPath: params.dashboardPath,
               pagePath: newPage.path,

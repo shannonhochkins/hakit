@@ -17,7 +17,6 @@ export class ModuleMocker {
       ...mocks,
     };
     mock.module(modulePath, () => result);
-
     this.mocks.push({
       clear: () => {
         mock.module(modulePath, () => original);

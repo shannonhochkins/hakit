@@ -1,6 +1,7 @@
 import type { CustomPuckConfig, PuckPageData } from '@typings/puck';
 import type { DefaultComponentProps } from '@measured/puck';
-import { extendPuckDataWithDefaults, trimPuckDataToConfig } from './trimPuckDataToConfig';
+import { trimPuckDataToConfig } from './trimPuckDataToConfig';
+import { extendPuckDataWithDefaults } from './extendPuckDataWithDefaults';
 
 export interface SanitizePuckDataOptions<
   Props extends DefaultComponentProps = DefaultComponentProps,

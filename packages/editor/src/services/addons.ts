@@ -227,6 +227,7 @@ export const addonsQueryOptions = queryOptions({
   queryKey: ['addons'],
   queryFn: () => getAddons(),
   staleTime: 5 * 60 * 1000, // 5 minutes
+  retry: false,
 });
 
 export const addonQueryOptions = (addonId: string) =>
@@ -234,6 +235,7 @@ export const addonQueryOptions = (addonId: string) =>
     queryKey: ['addon', addonId],
     queryFn: () => getAddon(addonId),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
 export const addonVersionQueryOptions = (addonId: string, version: string) =>
@@ -241,6 +243,7 @@ export const addonVersionQueryOptions = (addonId: string, version: string) =>
     queryKey: ['addon-version', addonId, version],
     queryFn: () => getAddonVersion(addonId, version),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
 export const addonVersionsQueryOptions = (addonId: string) =>
@@ -248,12 +251,14 @@ export const addonVersionsQueryOptions = (addonId: string) =>
     queryKey: ['addon-versions', addonId],
     queryFn: () => getAddonVersions(addonId),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
 export const userAddonsQueryOptions = queryOptions({
   queryKey: ['user-addons'],
   queryFn: () => getUserAddons(),
   staleTime: 2 * 60 * 1000, // 2 minutes
+  retry: false,
 });
 
 export const popularAddonsQueryOptions = (limit: number = 10) =>
@@ -261,6 +266,7 @@ export const popularAddonsQueryOptions = (limit: number = 10) =>
     queryKey: ['popular-addons', limit],
     queryFn: () => getPopularAddons(limit),
     staleTime: 10 * 60 * 1000, // 10 minutes
+    retry: false,
   });
 
 export const recentAddonsQueryOptions = (limit: number = 10) =>
@@ -268,6 +274,7 @@ export const recentAddonsQueryOptions = (limit: number = 10) =>
     queryKey: ['recent-addons', limit],
     queryFn: () => getRecentAddons(limit),
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
 export const searchAddonsQueryOptions = (
@@ -279,6 +286,7 @@ export const searchAddonsQueryOptions = (
     queryFn: () => searchAddons(query, options),
     enabled: query.length > 0,
     staleTime: 2 * 60 * 1000,
+    retry: false,
   });
 
 export const searchAddonsByComponentQueryOptions = (component: string, options: { limit?: number; offset?: number } = {}) =>
@@ -287,4 +295,5 @@ export const searchAddonsByComponentQueryOptions = (component: string, options: 
     queryFn: () => searchAddonByComponent(component, options),
     enabled: component.length > 0,
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });

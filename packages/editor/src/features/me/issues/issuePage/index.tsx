@@ -14,6 +14,7 @@ import { EDITOR_VERSION } from '@constants';
 import { MarkdownEditor } from '@components/Markdown/MarkdownEditor';
 import styles from './IssuePage.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { NotFound } from '@features/404';
 
 const getClassName = getClassNameFactory('IssuePage', styles);
 
@@ -24,8 +25,8 @@ export function IssuePage({ id }: { id: number }) {
   const clientUsername = user?.name || 'unknown';
   const clientVersion = EDITOR_VERSION;
 
-  const { data: issue, isLoading } = useQuery(issueQueryOptions(id));
-  const { data: commentsData, isLoading: loadingComments } = useQuery(issueCommentsQueryOptions(id));
+  const { data: issue, isLoading, isError } = useQuery(issueQueryOptions(id));
+  const { data: commentsData, isLoading: loadingComments, isError: isErrorComments, status } = useQuery(issueCommentsQueryOptions(id));
 
   const [comment, setComment] = useState('');
   const addCommentMutation = useMutation({
@@ -39,10 +40,14 @@ export function IssuePage({ id }: { id: number }) {
     router.history.back();
   };
 
+  if (isError || isErrorComments) {
+    return <NotFound data={{ data: { reason: 'issue-not-found' } }} />;
+  }
+
   if (isLoading || !issue) {
     return (
       <Row alignItems='center' justifyContent='center' gap='0.5rem' style={{ padding: '3rem' }}>
-        <Loader2 className='spin' size={20} /> Loading issue…
+        <Loader2 className='spin' size={20} /> Loading issue… {status}
       </Row>
     );
   }

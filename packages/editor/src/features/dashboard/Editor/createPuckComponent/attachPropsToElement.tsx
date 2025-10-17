@@ -1,5 +1,4 @@
-import { ReactNode, cloneElement, isValidElement, Fragment } from 'react';
-import { SerializedStyles } from '@emotion/react';
+import { ReactNode, cloneElement, isValidElement, Fragment, DetailedHTMLProps } from 'react';
 
 /**
  * Automatically attach dragRef to the top-level element returned by a component
@@ -27,22 +26,23 @@ import { SerializedStyles } from '@emotion/react';
  * - Handles all common React return patterns
  * - Preserves existing component functionality
  */
-export function attachDragRefToElement(
-  element: ReactNode | undefined,
-  dragRef?: ((element: Element | null) => void) | null,
-  componentLabel?: string,
-  emotionCss?: SerializedStyles
-): ReactNode | undefined {
-  if (!dragRef) {
-    return element;
-  }
 
+type AttachPropsToElementProps = {
+  element: ReactNode | undefined;
+  ref?: ((element: Element | null) => void) | null;
+  componentLabel?: string;
+  updateProps?: (currentProps: React.ComponentPropsWithRef<'div'>) => React.ComponentPropsWithRef<'div'>;
+};
+
+export function attachPropsToElement({ element, ref, componentLabel, updateProps }: AttachPropsToElementProps): ReactNode | undefined {
   // Helper to create wrapper props with optional emotion CSS
-  const createWrapperProps = (additionalProps?: Record<string, unknown>) => ({
-    ref: dragRef,
-    css: emotionCss,
-    ...additionalProps,
-  });
+  const createWrapperProps = (additionalProps?: React.ComponentPropsWithRef<'div'>) => {
+    const baseProps: React.ComponentPropsWithRef<'div'> = {
+      ref: ref ?? null,
+      ...additionalProps,
+    };
+    return updateProps ? updateProps(baseProps) : baseProps;
+  };
 
   // First check: if component intentionally returned falsy value, respect that decision
   // Only return early for truly falsy values that don't render content
@@ -81,23 +81,32 @@ export function attachDragRefToElement(
 
     // Handle regular React elements - clone and add/merge the ref and CSS
     try {
-      // Use a more permissive type for cloneElement to allow ref attachment
-      const clonedElement = cloneElement(element, {
-        ref: (node: Element | null) => {
-          // Call the dragRef
-          dragRef(node);
-          // If the original element had a ref, call it too
-          const originalRef = (element.props as { ref?: unknown })?.ref;
-          if (originalRef) {
-            if (typeof originalRef === 'function') {
-              originalRef(node);
-            } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
-              (originalRef as { current: Element | null }).current = node;
-            }
+      // use the more permissive type for the original props
+      const originalProps = element.props as React.ComponentPropsWithRef<'div'>;
+
+      const composedRef = (node: HTMLDivElement | null) => {
+        if (ref) {
+          ref(node);
+        }
+        const originalRef = originalProps?.ref;
+        if (originalRef) {
+          if (typeof originalRef === 'function') {
+            originalRef(node);
+          } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
+            originalRef.current = node;
           }
-        },
-        css: emotionCss, // Add emotion CSS to the element
-      } as Partial<{ ref: (node: Element | null) => void; css: SerializedStyles }>); // Allow ref and css attachment
+        }
+      };
+
+      // Build the current props view for updateProps to inspect and modify
+      const currentProps: DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
+        ...originalProps,
+        ref: ref ? composedRef : originalProps?.ref,
+      };
+
+      const finalProps = updateProps ? updateProps(currentProps) : currentProps;
+
+      const clonedElement = cloneElement(element, finalProps);
       return clonedElement;
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);

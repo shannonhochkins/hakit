@@ -66,6 +66,7 @@ export const issuesQueryOptions = (params: {
     queryKey: ['issues', params],
     queryFn: () => listIssues(params),
     staleTime: 60 * 1000,
+    retry: false,
   });
 
 export const issueQueryOptions = (number: number) =>
@@ -73,6 +74,7 @@ export const issueQueryOptions = (number: number) =>
     queryKey: ['issue', number],
     queryFn: () => getIssue(number),
     staleTime: 60 * 1000,
+    retry: false,
   });
 
 export const issueCommentsQueryOptions = (number: number) =>
@@ -80,4 +82,5 @@ export const issueCommentsQueryOptions = (number: number) =>
     queryKey: ['issue-comments', number],
     queryFn: () => listIssueComments(number),
     staleTime: 30 * 1000,
+    retry: false,
   });

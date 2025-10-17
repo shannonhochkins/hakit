@@ -1,5 +1,18 @@
 import { expect, test, describe, beforeEach, mock } from 'bun:test';
 import { render } from '@testing-library/react';
+import { createModuleMocker } from '@test-utils/moduleMocker';
+
+/**
+ * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules
+ * after we're done. We do this by setting the mocked value to the original module.
+ */
+
+// Set up module mocker at top level
+const moduleMocker = createModuleMocker();
+
+await moduleMocker.mock('@hakit/components', () => ({
+  AvailableQueries: {},
+}));
 
 // Mock window and leaflet to prevent import issues
 (global as { window?: unknown }).window = {
@@ -10,26 +23,26 @@ import { render } from '@testing-library/react';
 };
 
 // Mock leaflet module to prevent window issues
-mock.module('leaflet', () => ({
+moduleMocker.mock('leaflet', () => ({
   Map: class MockMap {},
   DomUtil: { create: () => ({}) },
   DivIcon: class MockDivIcon {},
 }));
 
 // Mock @hakit/components to prevent leaflet imports
-mock.module('@hakit/components', () => ({
+moduleMocker.mock('@hakit/components', () => ({
   AvailableQueries: {},
 }));
 
 // Mock the hooks used in the render function
-mock.module('@hooks/usePuckIframeElements', () => ({
+moduleMocker.mock('@hooks/usePuckIframeElements', () => ({
   usePuckIframeElements: () => ({
     iframe: null,
     document: null,
   }),
 }));
 
-mock.module('@hooks/useGlobalStore', () => ({
+moduleMocker.mock('@hooks/useGlobalStore', () => ({
   useGlobalStore: (selector: (state: Record<string, unknown>) => unknown) => {
     const mockState = {
       dashboardWithoutData: { id: 'test-dashboard' },
@@ -45,7 +58,7 @@ import { ComponentFactoryData } from '@typings/puck';
 import { rootConfigs } from './__mocks__/rootConfigs.mock';
 import type { Slot } from '@measured/puck';
 import { createRootComponent } from './index';
-import { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
+import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import React from 'react';
 
 // Mock data for component factory
@@ -222,30 +235,6 @@ describe('createRootComponent', () => {
     expect(testAddon2Field.type).toBe('object');
   });
 
-  test('should ignore duplicate addon IDs and warn about them', async () => {
-    const result = await createRootComponent([mockRootConfig1, duplicateRootConfig, mockRootConfig2], mockComponentFactoryData);
-
-    // Should only have unique configs
-    expect(result.fields).toBeDefined();
-    const fieldKeys = Object.keys(result.fields!);
-    expect(fieldKeys).toContain('@hakit/default-root');
-    expect(fieldKeys).toContain('test-addon-1');
-    expect(fieldKeys).toContain('test-addon-2');
-    expect(fieldKeys).toContain('content');
-
-    // Should warn about duplicate
-    expect(console.warn).toHaveBeenCalledWith('Duplicate root config addon ID detected: test-addon-1. Ignoring duplicate.');
-
-    // Should have the first config, not the duplicate
-
-    // @ts-expect-error - This does exist, just not typed intentionally
-    const testAddon1Field = result.fields!['test-addon-1'] as Record<string, unknown>;
-    expect(testAddon1Field.label).toBe('Test Addon 1');
-    // Should keep the original config's properties, not the duplicate's
-    expect(testAddon1Field.objectFields).toHaveProperty('testField1');
-    expect(testAddon1Field.objectFields).toHaveProperty('sharedField');
-  });
-
   test('should always include content slot field in final config', async () => {
     const result = await createRootComponent([mockRootConfig1], mockComponentFactoryData);
 
@@ -367,6 +356,30 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([mockRootConfig1], mockComponentFactoryData);
 
     expect(result).not.toHaveProperty('_remoteAddonId');
+  });
+
+  test('should ignore duplicate addon IDs and warn about them', async () => {
+    const result = await createRootComponent([mockRootConfig1, duplicateRootConfig, mockRootConfig2], mockComponentFactoryData);
+
+    // Should only have unique configs
+    expect(result.fields).toBeDefined();
+    const fieldKeys = Object.keys(result.fields!);
+    expect(fieldKeys).toContain('@hakit/default-root');
+    expect(fieldKeys).toContain('test-addon-1');
+    expect(fieldKeys).toContain('test-addon-2');
+    expect(fieldKeys).toContain('content');
+
+    // Should warn about duplicate
+    expect(console.warn).toHaveBeenCalledWith('Duplicate root config addon ID detected: test-addon-1. Ignoring duplicate.');
+
+    // Should have the first config, not the duplicate
+
+    // @ts-expect-error - This does exist, just not typed intentionally
+    const testAddon1Field = result.fields!['test-addon-1'] as Record<string, unknown>;
+    expect(testAddon1Field.label).toBe('Test Addon 1');
+    // Should keep the original config's properties, not the duplicate's
+    expect(testAddon1Field.objectFields).toHaveProperty('testField1');
+    expect(testAddon1Field.objectFields).toHaveProperty('sharedField');
   });
 
   test('should collect and apply all styles from root configs', async () => {

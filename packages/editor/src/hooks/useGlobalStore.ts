@@ -88,6 +88,8 @@ export type PuckConfigurationStore = {
   setDashboard: (dashboard: DashboardWithPageData | null) => void;
   dashboardWithoutData: Dashboard | null;
   setDashboardWithoutData: (dashboard: Dashboard | null) => void;
+  dashboards: Dashboard[] | null;
+  setDashboards: (dashboards: Dashboard[] | null) => void;
   puckPageData: PuckPageData | null;
   // NOTE - Important that this is only triggered once when the dashboard is loading or changing pages
   setPuckPageData: (newPageData: PuckPageData) => void;
@@ -104,6 +106,12 @@ export type PuckConfigurationStore = {
   actions: {
     save: (pagePath?: string, callback?: () => void) => Promise<void>;
   };
+  editingDashboardPage: {
+    dashboardId: string;
+    pageId: string;
+  } | null;
+  setEditingDashboardPage: (dashboardId: string, pageId: string) => void;
+  resetPuckInformation: (dashboardChanged?: boolean) => void;
 };
 
 export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
@@ -149,6 +157,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     setDashboardWithoutData: (dashboard: Dashboard | null) => set(state => ({ ...state, dashboardWithoutData: dashboard })),
     dashboard: null,
     setDashboard: (dashboard: DashboardWithPageData | null) => set(state => ({ ...state, dashboard })),
+    dashboards: null,
+    setDashboards: (dashboards: Dashboard[] | null) => set(state => ({ ...state, dashboards })),
     puckPageData: null,
     setPuckPageData: (puckPageData: PuckPageData) =>
       set(state => ({ ...state, puckPageData, templateFieldMap: computeTemplateFieldMap(puckPageData) })),
@@ -222,6 +232,23 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           callback();
         }
       },
+    },
+    editingDashboardPage: null,
+    setEditingDashboardPage: (dashboardId: string, pageId: string) =>
+      set(state => ({ ...state, editingDashboardPage: { dashboardId, pageId } })),
+    resetPuckInformation: (dashboardChanged: boolean = false) => {
+      set(state => ({
+        ...state,
+        puckPageData: null,
+        unsavedPuckPageData: null,
+        templateFieldMap: {},
+        componentBreakpointMap: {},
+        userConfig: null,
+        activeBreakpoint: undefined as unknown as BreakPoint,
+        dashboard: dashboardChanged ? null : state.dashboard,
+        dashboardWithoutData: dashboardChanged ? null : state.dashboardWithoutData,
+        emotionCache: null,
+      }));
     },
   };
 });

@@ -223,6 +223,7 @@
 .checkIcon {
   color: var(--color-primary-100);
   justify-self: center;
+  min-width: 16px;
 }
 .chevron {
   transition: transform var(--transition-normal);
