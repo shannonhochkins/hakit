@@ -181,7 +181,7 @@ function Render<P extends DefaultComponentProps>({
   const allCustomStyles = processedConfigs
     .map(rootConfig => {
       const additionalProps: AdditionalRenderProps = {
-        _id: id,
+        id,
         _editMode: editMode ?? puck.isEditing,
         _editor: editorElements,
         _dashboard: dashboard,
@@ -199,7 +199,7 @@ function Render<P extends DefaultComponentProps>({
     const map = new Map<string, Record<string, unknown>>();
     for (const rootConfig of processedConfigs) {
       const additionalProps: AdditionalRenderProps = {
-        _id: id,
+        id,
         _editMode: editMode ?? puck.isEditing,
         _editor: editorElements,
         _dashboard: dashboard,

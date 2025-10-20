@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import type { ComponentData } from '@measured/puck';
 import { setLocalStorageItem } from './useLocalStorage';
+import { generateId } from '@helpers/string/generateId';
 
 type ComponentId = string;
 type FieldDotNotatedKey = string;
@@ -105,6 +106,7 @@ export type PuckConfigurationStore = {
   // Actions object for centralized operations
   actions: {
     save: (pagePath?: string, callback?: () => void) => Promise<void>;
+    createComponentInstance: <D extends DefaultComponentProps>(componentLabel: string) => ComponentData<D> | null;
   };
   editingDashboardPage: {
     dashboardId: string;
@@ -186,6 +188,34 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
 
     // Actions object for centralized operations
     actions: {
+      createComponentInstance: <D extends DefaultComponentProps>(componentLabel: string) => {
+        const { userConfig } = get();
+        if (!userConfig) {
+          toast('User config not loaded', {
+            type: 'error',
+            theme: 'dark',
+          });
+          return null;
+        }
+        const componentConfig = userConfig.components[componentLabel];
+        if (!componentConfig) {
+          toast(`Component "${componentLabel}" not found in user config`, {
+            type: 'error',
+            theme: 'dark',
+          });
+          return null;
+        }
+        const defaultProps = componentConfig.defaultProps || {};
+        const id = generateId(componentLabel);
+        const newInstance: ComponentData<D> = {
+          type: componentLabel,
+          props: {
+            ...defaultProps,
+            id,
+          },
+        };
+        return newInstance;
+      },
       save: async (pagePath?: string, callback?: () => void) => {
         const { updateDashboardPageForUser, updateDashboardForUser } = await import('@services/dashboard');
         const state = get();

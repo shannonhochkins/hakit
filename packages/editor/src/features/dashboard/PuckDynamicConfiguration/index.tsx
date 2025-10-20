@@ -1,11 +1,13 @@
 import { Config, DefaultComponentProps } from '@measured/puck';
 import { getInstance, createInstance } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
-import { CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
+import { CustomComponentConfig, CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
 import { getUserAddons } from '@services/addons';
 import { MfManifest } from '@server/routes/addons/validate-zip';
 import { createRootComponent } from '@features/dashboard/Editor/createRootComponent';
+// import the internal components
+import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;
@@ -93,6 +95,58 @@ async function buildRemoteWithDbFallback(userAddon: UserAddon, manifestCache: Ma
   };
 }
 
+async function processComponent<P extends object>({
+  config,
+  components,
+  remote,
+  data,
+  categories,
+  visible,
+}: {
+  config: CustomComponentConfig<P>;
+  components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>>;
+  remote: RemoteWithAddonId;
+  data: ComponentFactoryData;
+  categories: NonNullable<Config['categories']>;
+  visible?: boolean;
+}) {
+  // create the puck definitions
+  const componentFactory = await createComponent(config);
+  // use our component factory to convert out component structure to a puck component
+  const componentConfig = await componentFactory(data);
+  // it's the same reference to the same element, but just to make puck happy we'll create a new object
+  // and cast it here to the correct type
+  const customComponent = componentConfig;
+  const componentLabel = customComponent.label;
+  if (!componentLabel) {
+    throw new Error(`Component from remote "${remote.name}" has no label`);
+  }
+  if (components[componentLabel]) {
+    // TODO - Potentially prefix component label with a UID and then trim for display?
+    console.warn(`Component "${componentLabel}" already exists`);
+    return null;
+  }
+  components[componentLabel] = {
+    ...componentConfig,
+    // @ts-expect-error - we know this doesn't exist, it's fine.
+    _remoteAddonName: remote.name, // track which remote this came from
+    _remoteAddonId: remote.name, // track which remote this came from
+  };
+  const categoryLabel = remote.name;
+  if (!categories[categoryLabel]) {
+    categories[categoryLabel] = {
+      title: categoryLabel,
+      ...(visible !== false
+        ? {
+            defaultExpanded: true,
+            components: [],
+          }
+        : { visible: false, components: [] }),
+    };
+  }
+  categories[categoryLabel].components?.push(componentLabel);
+}
+
 export async function getPuckConfiguration(data: ComponentFactoryData): Promise<CustomPuckConfig<DefaultComponentProps>> {
   const components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
@@ -170,39 +224,62 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
           _remoteAddonId: remote.addonId, // track which remote this came from
         });
       } else {
-        // create the puck definitions
-        const componentFactory = await createComponent(component.config);
-        // use our component factory to convert out component structure to a puck component
-        const componentConfig = await componentFactory(data);
-        // it's the same reference to the same element, but just to make puck happy we'll create a new object
-        // and cast it here to the correct type
-        const customComponent = componentConfig;
-        const componentLabel = customComponent.label;
-        if (!componentLabel) {
-          throw new Error(`Component from remote "${remote.name}" has no label`);
-        }
-        if (components[componentLabel]) {
-          console.warn(`Component "${componentLabel}" already exists`);
-          continue;
-        }
-        components[componentLabel] = {
-          ...componentConfig,
-          // @ts-expect-error - we know this doesn't exist, it's fine.
-          _remoteAddonName: remote.name, // track which remote this came from
-          _remoteAddonId: remote.name, // track which remote this came from
-        };
-        const categoryLabel = remote.name;
-        if (!categories[categoryLabel]) {
-          categories[categoryLabel] = {
-            title: categoryLabel,
-            defaultExpanded: true,
-            components: [],
-          };
-        }
-        categories[categoryLabel].components?.push(componentLabel);
+        processComponent({
+          config: component.config,
+          components,
+          remote,
+          data,
+          categories,
+        });
       }
     }
   }
+
+  const internalComponents: {
+    remote: RemoteWithAddonId;
+    configs: {
+      // we just want it to expect any component config, this is fine here
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      config: CustomComponentConfig<any>;
+      /**
+       * Whether the component is hidden from the UI (invisible component)
+       */
+      visible?: boolean;
+    }[];
+  }[] = [
+    {
+      remote: {
+        name: '@hakit/internal-hidden',
+        version: '0.0.0',
+        addonId: '@hakit/internal-hidden',
+      },
+      configs: [
+        {
+          config: popupComponentConfig,
+          visible: false,
+        },
+      ],
+    },
+  ];
+
+  internalComponents.forEach(({ remote, configs }) => {
+    configs.forEach(config => {
+      processComponent({
+        config: config.config,
+        components,
+        remote,
+        data,
+        categories,
+        visible: config.visible,
+      });
+    });
+  });
+  // for some reason, we need to mark "other" as visible false to hide other categories
+  categories['other'] = {
+    title: 'Other',
+    visible: false,
+  };
+
   // generate the merged root configuration
   const rootConfig = await createRootComponent(rootConfigs, data);
   // create the puck definitions

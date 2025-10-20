@@ -41,7 +41,8 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       ref: ref ?? null,
       ...additionalProps,
     };
-    return updateProps ? updateProps(baseProps) : baseProps;
+    const updatedProps = updateProps ? updateProps(baseProps) : baseProps;
+    return updatedProps;
   };
 
   // First check: if component intentionally returned falsy value, respect that decision
@@ -105,9 +106,7 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       };
 
       const finalProps = updateProps ? updateProps(currentProps) : currentProps;
-
-      const clonedElement = cloneElement(element, finalProps);
-      return clonedElement;
+      return cloneElement(element, finalProps);
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);
       logAutoWrap('cloneElement failed', 'div');
@@ -115,7 +114,11 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       return <div {...createWrapperProps()}>{element}</div>;
     }
   }
-
+  // for react portals, just return the original element
+  const portal = element as { $$typeof?: symbol };
+  if (portal && portal.$$typeof && typeof portal.$$typeof === 'symbol') {
+    return element;
+  }
   // Fallback for any other case
   logAutoWrap('Component returned unknown type', 'div');
   return <div {...createWrapperProps()}>{element}</div>;

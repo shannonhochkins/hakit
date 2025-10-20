@@ -12,6 +12,7 @@ import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 import { dashboardsQueryOptions } from '@services/dashboard';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardWithPageData } from '@typings/hono';
+import { usePopupStore } from '@hooks/usePopupStore';
 
 interface DashboardProps {
   dashboard: DashboardWithPageData;
@@ -98,6 +99,7 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
         userConfig: config,
       });
       if (sanitizedData) {
+        usePopupStore.getState().initializePopups(sanitizedData);
         setPuckPageData(sanitizedData);
         // Initialize the componentBreakpointMap from the database data
         const breakpointMap = generateComponentBreakpointMap(page.data);

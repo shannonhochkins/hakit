@@ -8,9 +8,9 @@ import {
   // CustomComponentConfigWithDefinition,
   RenderProps,
 } from '@typings/puck';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { attachPropsToElement } from './attachPropsToElement';
-import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
+import { generateEmotionCss } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
@@ -22,6 +22,8 @@ import { router } from '../../../../router';
 import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@hakit/core';
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
+import { usePopupStore } from '@hooks/usePopupStore';
+import { css } from '@emotion/react';
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
@@ -76,6 +78,7 @@ export function createComponent<P extends object>(
       // this render function is ONLY used for components, rootComponents redefine the render function
       // which is why here we only provide InternalComponentFields
       render(renderProps: RenderProps<P & InternalComponentFields>) {
+        console.log('Rendering Inner');
         return (
           <RenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
             <TemplateSubscriber props={renderProps} internalComponentConfig={config} />
@@ -150,6 +153,10 @@ const callService = async ({
 
 async function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
   if (interaction.type === 'none') return undefined;
+  if (interaction.type === 'popup') {
+    usePopupStore.getState().openPopup(interaction.popupId);
+    return;
+  }
   if (interaction.type === 'external') {
     // we've received an external url action, we should trigger it
     // target can be "_blank" | "_self" | "_parent" | "_top"
@@ -185,7 +192,7 @@ async function processInteractions(interaction: InternalComponentFields['interac
     });
     return;
   }
-  if (interaction.type === 'controlEntity') {
+  if (interaction.type === 'callService') {
     const entities = useStore.getState().entities;
     const callServiceData = interaction.callService;
     const entity = callServiceData.entity;
@@ -244,66 +251,59 @@ function Render<P extends object>(
     return dbValueToPuck(originalProps, activeBreakpoint ?? 'xlg') as typeof originalProps;
   }, [originalProps, activeBreakpoint]);
 
-  const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
+  const { editMode = false, puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
   const editorElements = usePuckIframeElements();
-  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
+
   // Extract the correct type for renderProps from the config's render function
   // eslint-disable-next-ine react-hooks/rules-of-hooks
   const fullProps = useMemo(() => {
+    const dashboard = useGlobalStore.getState().dashboardWithoutData;
     const renderProps: AdditionalRenderProps = {
-      _id: id,
+      id,
       _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
       _editor: editorElements,
       _dashboard: dashboard,
+      _dragRef: puck.dragRef,
     };
     const obj = {
       ...props,
       ...renderProps,
     } as P & InternalComponentFields & AdditionalRenderProps;
+    // Generate style strings for emotion CSS processing in iframe context
+    const componentStyles = config.styles ? config.styles(obj) : '';
+    const overrideStyles = props.styles?.css ?? '';
+
+    // Generate emotion CSS in iframe context where correct cache is active
+    const emotionCss = generateEmotionCss({
+      componentStyles,
+      overrideStyles,
+    });
+    if (emotionCss) {
+      obj.css = emotionCss;
+    }
     return obj;
-  }, [props, id, puck, editMode, editorElements, dashboard]);
+  }, [props, id, puck, editMode, config, editorElements]);
 
-  // Generate style strings for emotion CSS processing in iframe context
-  const styleStrings = useMemo(() => {
-    try {
-      const componentStyles = config.styles ? config.styles(fullProps) : '';
-      const overrideStyles = styles?.css ?? '';
-      return {
-        componentStyles,
-        overrideStyles,
-      } satisfies StyleStrings;
-    } catch (error) {
-      console.error('HAKIT: Error generating styles for component:', config.label, error);
-      return {
-        componentStyles: '',
-        overrideStyles: '',
-      } satisfies StyleStrings;
-    }
-  }, [fullProps, styles, config]);
-
-  // Generate emotion CSS in iframe context where correct cache is active
-  const emotionCss = useEmotionCss(styleStrings);
-  // Generate the rendered element outside the error boundary to ensure proper error catching
-  const renderedElement = useMemo(() => {
-    try {
-      // @ts-expect-error - Puck's complex WithDeepSlots type is difficult to satisfy with generics
-      return config.render(fullProps);
-    } catch (error) {
-      console.error('HAKIT: Error in config.render for component:', config.label, error);
-      throw error; // Re-throw to be caught by error boundary
-    }
-  }, [fullProps, config]);
+  // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
+  const renderedElement = config.render(fullProps);
 
   // Wrap the rendered element with error boundary to catch rendering errors
   return attachPropsToElement({
     element: renderedElement,
     ref: puck.dragRef,
     componentLabel: config.label,
-    updateProps: userProps =>
-      bindWithProps({
+    updateProps: userProps => {
+      return bindWithProps({
         ...userProps,
-        css: emotionCss,
+        ...(fullProps.css
+          ? {
+              css: css`
+                ${fullProps.css}
+              `,
+            }
+          : {}),
         className: [puckComponentStyles.pressable, userProps.className].filter(Boolean).join(' '),
-      }),
+      });
+    },
   });
 }

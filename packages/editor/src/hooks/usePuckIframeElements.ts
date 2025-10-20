@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useGlobalStore } from './useGlobalStore';
 
 export function usePuckIframeElements(): {
@@ -13,9 +14,12 @@ export function usePuckIframeElements(): {
   // Get the window object from the document
   const editorWindow = editorIframeDocument?.defaultView || null;
 
-  return {
-    document: editorIframeDocument,
-    iframe: editorIframe,
-    window: editorWindow,
-  };
+  return useMemo(
+    () => ({
+      document: editorIframeDocument,
+      iframe: editorIframe,
+      window: editorWindow,
+    }),
+    [editorIframeDocument, editorIframe, editorWindow]
+  );
 }

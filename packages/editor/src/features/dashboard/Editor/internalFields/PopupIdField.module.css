@@ -1,0 +1,45 @@
+
+.PopupIdField {
+  display: flex;
+  gap: var(--space-2);
+  flex-direction: column;
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+  > p {
+    color: var(--color-text-primary);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+}
+
+.PopupIdField-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+.PopupIdField-status {
+  display: flex;
+  gap: var(--space-3);
+  flex-direction: row;
+  background-color: var(--color-surface);
+  padding: var(--space-2) var(--space-3);
+  align-items: center;
+  border-radius: var(--radius-sm);
+}
+
+.PopupIdField-orb {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.PopupIdField-orb-success {
+  background: var(--color-success-500);
+}
+
+.PopupIdField-orb-warning {
+  background: var(--color-warning-500);
+}

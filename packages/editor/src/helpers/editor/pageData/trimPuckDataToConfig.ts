@@ -1,6 +1,7 @@
 import { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import { ComponentData, DefaultComponentProps } from '@measured/puck';
+import { ComponentData, Config, DefaultComponentProps } from '@measured/puck';
 import { FieldConfiguration } from '@typings/fields';
+import { getPopupIdsInData } from '@hooks/usePopupStore';
 
 /**
  * Trims PuckPageData to only include fields that are defined in the userConfig.
@@ -32,6 +33,7 @@ export function trimPuckDataToConfig<
   RootProps extends DefaultComponentProps = DefaultComponentProps,
 >(data: PuckPageData | null, userConfig?: CustomPuckConfig<Props, RootProps>): PuckPageData | null {
   if (!data || !userConfig) return data;
+  const existingPopups = getPopupIdsInData(data, userConfig as Config);
 
   // Deep clone to avoid mutations
   const trimmedData: PuckPageData = {
@@ -110,6 +112,14 @@ export function trimPuckDataToConfig<
           break;
         }
         default: {
+          if (fieldKey === 'popupId' && typeof value === 'string' && value.length > 0) {
+            // we have a popup id, let's check it exists in the data
+            if (!existingPopups.has(value)) {
+              // popup id does not exist, remap to empty string
+              result[fieldKey] = '';
+              continue;
+            }
+          }
           // Keep primitive or non-nested fields as-is
           result[fieldKey] = value;
         }

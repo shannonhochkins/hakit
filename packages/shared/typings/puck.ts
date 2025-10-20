@@ -9,6 +9,7 @@ import {
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type { Dashboard } from './hono';
 import type { FieldConfiguration, FieldDefinition, InternalComponentFields } from './fields';
+import { SerializedStyles } from '@emotion/react';
 
 export type DefaultPropsCallbackData = {
   entities: HassEntities;
@@ -24,11 +25,23 @@ export type InternalRootData = {
 // type WithField = true;
 
 export type AdditionalRenderProps = {
-  _id: string; // Unique ID for the component instance
-  _editMode: boolean; // Whether the component is being rendered in edit mode
+  /**  Unique ID for the component instance */
+  id: string;
+  /**
+   * This value is the "styles" value provided by the "styles" function in the component configuration, this is automatically assigned to all valid react elements aside from react portals.
+   * Emotion css object to use with emotion/react @example import { css } from '@emotion/react'; add this prop to your element if need be, css={css`${props.css}`}
+   * @hint You will only need this if you're doing something advanced, for example, returning a portal from the Render function of your component
+   * */
+  css?: SerializedStyles;
+  /** Whether the component is being rendered in edit mode */
+  _editMode: boolean;
   /** the hakit context, this houses additional information to send to each render of each component */
   _dashboard: Dashboard | null;
+  /** The drag ref element, this is automatically assigned by default to all valid elements except for react-portals */
+  _dragRef: ((element: Element | null) => void) | null;
+  /** Editor related references, only available when rendering inside the editor */
   _editor?: {
+    /** Reference to the iframe/window/document when rendering inside the editor */
     document: Document | null;
     window: Window | null;
     iframe: HTMLIFrameElement | null;

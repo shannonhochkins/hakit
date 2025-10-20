@@ -16,8 +16,6 @@
   --button-shadow-hover: none;
   --button-shadow-active: none;
   --button-shadow-focus: var(--shadow-primary-focus);
-  --button-transform-hover: translateY(-1px);
-  --button-transform-active: translateY(0);
   --button-spinner-color: var(--color-text-primary);
   --button-overlay-bg: transparent;
   --button-overlay-bg-hover: transparent;
@@ -84,7 +82,6 @@
   color: var(--button-color-hover);
   border: var(--button-border-hover);
   box-shadow: var(--button-shadow-hover);
-  transform: var(--button-transform-hover);
 }
 
 .baseButton:hover:not(:disabled)::before {
@@ -117,7 +114,6 @@
   color: var(--button-color-active);
   border: var(--button-border-active);
   box-shadow: var(--button-shadow-active);
-  transform: var(--button-transform-active);
 }
 
 .baseButton:active:not(:disabled)::before {
@@ -131,7 +127,6 @@
   border: var(--button-border-disabled);
   cursor: not-allowed;
   box-shadow: none;
-  transform: none;
   opacity: var(--button-opacity-disabled);
 }
 

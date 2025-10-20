@@ -6,6 +6,7 @@ import { computeDomain, SnakeOrCamelDomains } from '@hakit/core';
 import { Column } from '@components/Layout';
 import { MousePointerClick, TextSelect } from 'lucide-react';
 import { CodeField } from '@components/Form/Field/Code';
+import { PopupIdField } from './PopupIdField';
 
 export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
   styles: {
@@ -44,23 +45,25 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           description: 'The type of interaction to perform',
           default: 'none',
           options: [
+            // value should match Actions['type']
             { label: 'None', value: 'none' },
-            { label: 'URL', value: 'external' }, // value should match Actions['type']
+            { label: 'URL', value: 'external' },
             { label: 'Navigate', value: 'navigate' },
-            { label: 'Control Entity', value: 'controlEntity' },
+            { label: 'Call Service', value: 'callService' },
+            { label: 'Popup', value: 'popup' },
           ],
         },
         callService: {
           type: 'custom',
           visible(data) {
-            return data.interactions[type]?.type === 'controlEntity';
+            return data.interactions[type].type === 'callService';
           },
           default: {
             entity: undefined,
             service: undefined,
             serviceData: undefined,
           },
-          label: 'Call Service',
+          label: 'Call Service Options',
           description: 'Call a service on an entity',
           render({ value, onChange }) {
             const domain = computeDomain(value?.entity ?? 'unknown') as SnakeOrCamelDomains;
@@ -115,14 +118,14 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           default: '',
           description: 'The URL to open',
           visible(data) {
-            return data.interactions[type]?.type === 'external';
+            return data.interactions[type].type === 'external';
           },
         },
         target: {
           type: 'select',
           label: 'Navigation Target',
           visible(data) {
-            return data.interactions[type]?.type === 'external';
+            return data.interactions[type].type === 'external';
           },
           default: '_blank',
           options: [
@@ -137,13 +140,23 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           type: 'page',
           label: 'Page ID',
           visible(data) {
-            return data.interactions[type]?.type === 'navigate';
+            return data.interactions[type].type === 'navigate';
           },
           default: {
             dashboardId: '',
             pageId: '',
           },
           description: 'Page to navigate to',
+        },
+        popupId: {
+          type: 'custom',
+          label: 'New Popup',
+          description: 'Configure the popup to open',
+          default: '', // populated later
+          visible(data) {
+            return data.interactions[type].type === 'popup';
+          },
+          render: PopupIdField,
         },
       },
     },

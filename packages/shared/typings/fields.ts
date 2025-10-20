@@ -96,13 +96,17 @@ export type Navigate = {
   type: 'navigate';
   page: PageValue;
 };
-export type ControlEntity = {
-  type: 'controlEntity';
+export type CallService = {
+  type: 'callService';
   callService: {
     entity: EntityName | undefined;
     service: DomainService<SnakeOrCamelDomains> | undefined;
     serviceData: ServiceData<SnakeOrCamelDomains, DomainService<SnakeOrCamelDomains>> | object | undefined;
   };
+};
+export type Popup = {
+  type: 'popup';
+  popupId: string;
 };
 export type None = {
   type: 'none';
@@ -113,7 +117,7 @@ export type External = {
   target: '_blank' | '_self' | '_parent' | '_top';
 };
 
-export type Actions = Navigate | ControlEntity | None | External;
+export type Actions = Navigate | CallService | None | External | Popup;
 
 export type ActionTypes = Actions['type'];
 export interface InternalComponentFields {
@@ -179,7 +183,6 @@ type FieldTypeOmitMap = {
 // What each field actually stores/returns
 export type FieldValueByKind = {
   custom: unknown;
-
   imageUpload: string;
   color: string;
   code: string;

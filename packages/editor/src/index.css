@@ -556,7 +556,7 @@ button::-moz-focus-inner,
 }
 /* add some padding to top level fields that are not objects */
 [class*="_PuckFields-field_"] > [class*="_InputWrapper_"]:not(:has([class*="field-object"])) {
-  padding-left: var(--space-3);
+  padding: var(--space-3);
 }
 
 body, html {
