@@ -18,22 +18,12 @@
   margin: 0;
 }
 
-.PopupIdField-status {
-  display: flex;
-  gap: var(--space-3);
-  flex-direction: row;
-  background-color: var(--color-surface);
-  padding: var(--space-2) var(--space-3);
-  align-items: center;
-  border-radius: var(--radius-sm);
-}
 
 .PopupIdField-orb {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
-  margin-right: 4px;
 }
 
 .PopupIdField-orb-success {

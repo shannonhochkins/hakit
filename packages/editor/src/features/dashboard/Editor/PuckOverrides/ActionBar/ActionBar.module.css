@@ -1,0 +1,27 @@
+
+.ActionBar {
+  cursor: default;
+  padding: 4px;
+  background: var(--color-surface);
+  width: auto;
+  color: var(--color-text-primary);
+  border-radius: 8px;
+  align-items: center;
+  min-height: 26px;
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+}
+
+.ActionBar-label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: var(--space-1);
+  margin-right: var(--space-1);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+  font-weight: 500;
+  margin: 0;
+}

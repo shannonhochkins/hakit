@@ -84,6 +84,7 @@ export const Fab = ({
       tooltipProps={tooltipProps}
       variant={variant}
       style={styles}
+      active={active}
       {...props}
     >
       {loading ? null : icon}

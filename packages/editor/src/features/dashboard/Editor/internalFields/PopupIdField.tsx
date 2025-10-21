@@ -7,18 +7,26 @@ import type { PopupProps } from '../InternalComponents/Popup';
 import styles from './PopupIdField.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { IconButton, SecondaryButton } from '@components/Button';
-import { Plus, SquareArrowOutUpRight, Trash } from 'lucide-react';
+import { Plus, SquareArrowOutUpRight, Trash, X } from 'lucide-react';
+import { SelectField } from '@components/Form/Field/Select';
 const usePuck = createUsePuck();
 
 const cn = getClassNameFactory('PopupIdField', styles);
 
-export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Parameters<CustomFieldRender<string>>[0]) => {
+export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }: Parameters<CustomFieldRender<string>>[0]) => {
   const dispatch = usePuck(s => s.dispatch);
   const state = usePuck(s => s.appState);
   const getSelectorForId = usePuck(s => s.getSelectorForId);
   const getItemBySelector = usePuck(s => s.getItemBySelector);
+  const getItemById = usePuck(s => s.getItemById);
   const currentComponent = state.ui.itemSelector ? getItemBySelector(state.ui.itemSelector) : null;
-  const hasPopupLinked = usePopupStore(store => store.popups.find(p => p.id === value)) !== undefined;
+  const popups = usePopupStore(store => store.popups);
+  const hasPopupLinked = popups.find(p => p.id === value) !== undefined;
+  const existingPopupComponents = popups
+    .map(p => getItemById(p.id))
+    .filter((c): c is ComponentData<PopupProps> => !!c && c.type === 'Popup');
+  const currentPopupComponent = existingPopupComponents.find(c => c.props.id === value);
+  console.log('currentPopupComponent', currentPopupComponent);
   // an auto complete, populated with all existing popups
   // and a button to "create" a new popup, which will assign the id of the popup via onchange once created
   // this will need to be done via the puck api
@@ -28,6 +36,7 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Par
   // use a new store to maintain/manage available popups
   // need a way to "remove/delete" a popup as well
   const handleInsertPopup = () => {
+    let id: string | undefined;
     dispatch({
       type: 'setData',
       data(previous) {
@@ -43,14 +52,23 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Par
         if (currentComponent) {
           newPopup.props.relatedComponentId = currentComponent.props.id;
         }
-        // push into the root content array to render at the same level
-        const content: ComponentData[] = 'content' in root ? ((root.content as ComponentData[]) ?? []) : [];
-        const newContent = [...content, newPopup];
+        // push into the root popupContent array to render at the same level
+        const popupContent: ComponentData[] = 'popupContent' in root ? ((root.popupContent as ComponentData[]) ?? []) : [];
+        const newContent = [...popupContent, newPopup];
         onChange(newPopup.props.id);
+        id = newPopup.props.id;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            openPopup(id);
+          });
+        });
         // update the array property with the new array
-        return setDeep(previous, `root.props.content`, newContent);
+        return setDeep(previous, `root.props.popupContent`, newContent);
       },
     });
+  };
+  const handleDeselectPopup = () => {
+    onChange('');
   };
   const handleRemovePopup = () => {
     if (!value) return;
@@ -58,20 +76,21 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Par
       type: 'setData',
       data(previous) {
         const root = previous.root.props ?? {};
-        // remove from the root content array
-        const content: ComponentData[] = 'content' in root ? ((root.content as ComponentData[]) ?? []) : [];
-        const newContent = content.filter(c => c.props.id !== value);
+        // remove from the root popupContent array
+        const popupContent: ComponentData[] = 'popupContent' in root ? ((root.popupContent as ComponentData[]) ?? []) : [];
+        const newContent = popupContent.filter(c => c.props.id !== value);
         // update the array property with the new array
         usePopupStore.getState().removePopup(value);
         onChange('');
-        return setDeep(previous, `root.props.content`, newContent);
+        return setDeep(previous, `root.props.popupContent`, newContent);
       },
     });
   };
-  const openPopup = () => {
-    if (!value) return;
-    usePopupStore.getState().openPopup(value);
-    const itemSelector = getSelectorForId(value);
+  const openPopup = (id?: string) => {
+    const popupToOpen = id || value;
+    if (!popupToOpen) return;
+    usePopupStore.getState().openPopup(popupToOpen);
+    const itemSelector = getSelectorForId(popupToOpen);
     if (itemSelector) {
       dispatch({
         type: 'set',
@@ -87,6 +106,10 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Par
       console.error('Failed to find selector for popup id', value);
     }
   };
+
+  const options = existingPopupComponents.map(c => ({ label: c.props.title || 'Popup', value: c.props.id }));
+  const selectValue = options.find(o => o.value === value);
+
   return (
     <>
       <div
@@ -96,47 +119,68 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange }: Par
       >
         <hr className={cn('divider')} />
         <p>Popup Configuration</p>
-        <span className={cn('status')}>
-          <span
-            className={cn({
-              orb: true,
-              'orb-success': hasPopupLinked,
-              'orb-warning': !hasPopupLinked,
-            })}
+        <Row fullWidth wrap='nowrap' gap={'var(--space-2)'} justifyContent='space-between' alignItems='center'>
+          <SelectField
+            id={`popup-selector-${id}`}
+            name={`popup-selector-${id}`}
+            value={selectValue}
+            options={options}
+            onChange={option => {
+              onChange(option ? option.value : '');
+            }}
+            startAdornment={
+              <span
+                className={cn({
+                  orb: true,
+                  'orb-success': hasPopupLinked,
+                  'orb-warning': !hasPopupLinked,
+                })}
+              />
+            }
+            placeholder='Select from existing popups'
           />
-          <span>{!hasPopupLinked ? 'No popup created' : 'Popup created'}</span>
-        </span>
-        {hasPopupLinked && (
-          <Row wrap='nowrap' gap={'var(--space-2)'} justifyContent='space-between' alignItems='center'>
-            <SecondaryButton
-              size='sm'
-              fullWidth
-              startIcon={<SquareArrowOutUpRight size={16} />}
-              onClick={openPopup}
-              aria-label='Open Popup'
-              style={{
-                borderRadius: 'var(--radius-sm)',
-              }}
-            >
-              Open Popup
-            </SecondaryButton>
-            <IconButton variant='error' icon={<Trash size={16} />} onClick={handleRemovePopup} aria-label='Remove Popup' />
-          </Row>
-        )}
-        {!hasPopupLinked && (
+          <IconButton
+            disabled={!hasPopupLinked}
+            variant='secondary'
+            icon={<X size={18} />}
+            onClick={handleDeselectPopup}
+            aria-label='Unlink Popup'
+          />
+        </Row>
+        <Row wrap='nowrap' gap={'var(--space-2)'} justifyContent='space-between' alignItems='center'>
+          <SecondaryButton
+            size='sm'
+            startIcon={<SquareArrowOutUpRight size={16} />}
+            onClick={() => openPopup()}
+            aria-label='Open Popup'
+            fullWidth
+            disabled={!hasPopupLinked}
+            style={{
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
+            Open
+          </SecondaryButton>
           <SecondaryButton
             style={{
               borderRadius: 'var(--radius-sm)',
             }}
             startIcon={<Plus size={16} />}
             aria-label='Create Popup'
-            size='sm'
             fullWidth
+            size='sm'
             onClick={handleInsertPopup}
           >
-            Create Popup
+            New
           </SecondaryButton>
-        )}
+          <IconButton
+            disabled={!hasPopupLinked}
+            variant='error'
+            icon={<Trash size={18} />}
+            onClick={handleRemovePopup}
+            aria-label='Delete Popup'
+          />
+        </Row>
       </div>
     </>
   );

@@ -48,11 +48,13 @@ export const CodeField = ({
   const [jsonValid, setJsonValid] = useState<boolean>(true);
 
   function validateOnChange(value: string) {
-    try {
-      JSON.parse(value);
-      setJsonValid(true);
-    } catch {
-      setJsonValid(false);
+    if (language == 'json') {
+      try {
+        JSON.parse(value);
+        setJsonValid(true);
+      } catch {
+        setJsonValid(false);
+      }
     }
     setLocalValue(value);
   }
@@ -133,9 +135,9 @@ export const CodeField = ({
             onClick={() => {
               if (jsonValid) {
                 setEditing(false);
-                // @ts-expect-error - TODO - Fix this
-                onChange(language === 'json' ? (JSON.parse(localValue) as object) : localValue);
               }
+              // @ts-expect-error - TODO - Fix this
+              onChange(language === 'json' ? (JSON.parse(localValue) as object) : localValue);
             }}
           />
           <IconButton

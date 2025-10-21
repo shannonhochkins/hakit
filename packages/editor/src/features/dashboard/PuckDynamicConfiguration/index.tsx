@@ -8,6 +8,7 @@ import { MfManifest } from '@server/routes/addons/validate-zip';
 import { createRootComponent } from '@features/dashboard/Editor/createRootComponent';
 // import the internal components
 import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
+import { containerComponentConfig } from '@features/dashboard/Editor/InternalComponents/Container';
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;
@@ -257,6 +258,18 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         {
           config: popupComponentConfig,
           visible: false,
+        },
+      ],
+    },
+    {
+      remote: {
+        name: '@hakit/layout',
+        version: '0.0.0',
+        addonId: '@hakit/layout',
+      },
+      configs: [
+        {
+          config: containerComponentConfig,
         },
       ],
     },

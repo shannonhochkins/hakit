@@ -22,6 +22,7 @@ interface PopupStore {
   popups: PopupState[];
   removePopup: (id: string) => void;
   openPopup: (id: string) => void;
+  closeAllPopups: () => void;
   closePopup: (id: string) => void;
   initializePopups: (data: PuckPageData) => void;
 }
@@ -77,6 +78,10 @@ export const usePopupStore = create<PopupStore>(set => {
           popups: state.popups.map(popup => (popup.id === id ? { ...popup, isOpen: true } : popup)),
         };
       }),
+    closeAllPopups: () =>
+      set(state => ({
+        popups: state.popups.map(popup => ({ ...popup, isOpen: false })),
+      })),
     closePopup: id =>
       set(state => {
         const popup = state.popups.find(popup => popup.id === id);

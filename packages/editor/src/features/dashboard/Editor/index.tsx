@@ -1,5 +1,5 @@
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Config, Puck, OnAction, useGetPuck } from '@measured/puck';
+import { Config, Puck, OnAction, useGetPuck, UiState } from '@measured/puck';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 import { Spinner } from '@components/Loaders/Spinner';
@@ -12,6 +12,7 @@ import deepEqual from 'deep-equal';
 import { EditorShortcuts } from './EditorShortcuts';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 import { usePopupStore } from '@hooks/usePopupStore';
+import { usePuckMiddleware } from '@hooks/usePuckMiddleware';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
@@ -19,6 +20,29 @@ const overridesPlugin = createPuckOverridesPlugin();
 function SyncUnsavedAndPuckData() {
   const getPuck = useGetPuck();
   const unsavedPuckPageData = useGlobalStore(state => state.unsavedPuckPageData);
+  usePuckMiddleware.getState().onAction((action, appState) => {
+    const { getItemBySelector } = getPuck();
+    // listen for setData actions to update unsaved data
+    if (action.type === 'remove') {
+      // whenever a component is removed, we need to re-address the validatity of popups
+      // and components that may have assigned popups that no longer exist
+      const data = appState.data;
+      usePopupStore.getState().initializePopups(data);
+    }
+    console.log('action received', action);
+    // middleware to open popup when a popup component is selected from the outline or canvas
+    if (action.type === 'setUi') {
+      const itemSelector = (action.ui as Partial<UiState>)?.itemSelector;
+      if (itemSelector) {
+        const item = getItemBySelector(itemSelector);
+        if (item?.type === 'Popup') {
+          const popupId = item.props.id;
+          usePopupStore.getState().closeAllPopups();
+          usePopupStore.getState().openPopup(popupId);
+        }
+      }
+    }
+  });
 
   // Sync unsaved data to puck
   useEffect(() => {
@@ -115,12 +139,7 @@ export function Editor() {
   );
 
   const onAction = useCallback((action: Parameters<OnAction>[0], appState: Parameters<OnAction>[1]) => {
-    if (action.type === 'remove') {
-      // whenever a component is removed, we need to re-address the validatity of popups
-      // and components that may have assigned popups that no longer exist
-      const data = appState.data;
-      usePopupStore.getState().initializePopups(data);
-    }
+    usePuckMiddleware.getState().emitAction(action, appState, appState);
   }, []);
 
   if (!userConfig) {

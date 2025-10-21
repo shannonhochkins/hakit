@@ -150,7 +150,7 @@
   --button-shadow-active: var(--shadow-lg);
   --button-overlay-bg: transparent;
   --button-overlay-bg-hover: rgba(255, 255, 255, 0.1);
-  --button-overlay-bg-active: rgba(255, 255, 255, 0.2);
+  --button-overlay-bg-active: rgba(255, 255, 255, 0.5);
 }
 
 .variantError {

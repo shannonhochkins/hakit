@@ -1,4 +1,5 @@
-import { ReactNode, cloneElement, isValidElement, Fragment, DetailedHTMLProps } from 'react';
+import { jsx } from '@emotion/react';
+import { ReactNode, isValidElement, Fragment, DetailedHTMLProps } from 'react';
 
 /**
  * Automatically attach dragRef to the top-level element returned by a component
@@ -12,14 +13,14 @@ import { ReactNode, cloneElement, isValidElement, Fragment, DetailedHTMLProps } 
  * 2. **Intentional falsy returns**: Returns null, undefined, false, empty string unchanged
  * 3. **Array returns**: Wraps entire array in a div with dragRef
  * 4. **String/number returns**: Wraps in a span with dragRef (including 0 and negative numbers)
- * 5. **Regular elements**: Uses cloneElement to add/merge the ref
+ * 5. **Regular elements**: Uses jsx from '@emotion/react' to add/merge the ref and apply css properly
  * 6. **Existing refs**: Preserves and calls existing refs alongside dragRef
- * 7. **Clone failures**: Falls back to div wrapper if cloneElement fails
+ * 7. **Clone failures**: Falls back to div wrapper if jsx fails
  *
  * Trade-offs:
  * - May introduce extra wrapper elements in some cases
  * - Fragment semantics are lost (converted to div)
- * - Some performance overhead from cloneElement
+ * - Some performance overhead from jsx/cloning
  *
  * Benefits:
  * - Eliminates manual ref management for users
@@ -84,7 +85,6 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
     try {
       // use the more permissive type for the original props
       const originalProps = element.props as React.ComponentPropsWithRef<'div'>;
-
       const composedRef = (node: HTMLDivElement | null) => {
         if (ref) {
           ref(node);
@@ -106,7 +106,15 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       };
 
       const finalProps = updateProps ? updateProps(currentProps) : currentProps;
-      return cloneElement(element, finalProps);
+      return jsx(
+        element.type,
+        {
+          ...finalProps,
+          ref,
+          key: element.key, // special prop; jsx will handle it
+        },
+        originalProps.children
+      );
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);
       logAutoWrap('cloneElement failed', 'div');

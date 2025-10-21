@@ -1,14 +1,8 @@
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import {
-  AdditionalRenderProps,
-  ComponentFactoryData,
-  CustomComponentConfig,
-  // CustomComponentConfigWithDefinition,
-  RenderProps,
-} from '@typings/puck';
-import { useEffect, useMemo } from 'react';
+import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, RenderProps } from '@typings/puck';
+import { useMemo } from 'react';
 import { attachPropsToElement } from './attachPropsToElement';
 import { generateEmotionCss } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
@@ -23,7 +17,7 @@ import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@ha
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
 import { usePopupStore } from '@hooks/usePopupStore';
-import { css } from '@emotion/react';
+
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
@@ -78,7 +72,6 @@ export function createComponent<P extends object>(
       // this render function is ONLY used for components, rootComponents redefine the render function
       // which is why here we only provide InternalComponentFields
       render(renderProps: RenderProps<P & InternalComponentFields>) {
-        console.log('Rendering Inner');
         return (
           <RenderErrorBoundary prefix={config.label} ref={renderProps?.puck?.dragRef}>
             <TemplateSubscriber props={renderProps} internalComponentConfig={config} />
@@ -102,8 +95,10 @@ function TemplateSubscriber<P extends object>({
   if (error) {
     throw error;
   }
-  // whilst loading, just return null to avoid having to "flicker" the content
-  return <>{loading || !data ? null : <Render {...data} internalComponentConfig={internalComponentConfig} />}</>;
+  if (loading || !data) return null;
+  // Pass processed template data as props object, keep internal config separate
+  // @ts-expect-error - TODO - Fix later
+  return <Render {...(data as RenderProps<P & InternalComponentFields>)} internalComponentConfig={internalComponentConfig} />;
 }
 
 const callService = async ({
@@ -142,6 +137,7 @@ const callService = async ({
       // 1. Provide a "hey, we did what you asked for" notification
       // 2. Provide a "hey, we did what you asked for, but it failed" notification
       // Otherwise, return void
+      // maybe, this is an opt in setting
       return undefined;
     } catch (e) {
       // TODO - raise error to client here
@@ -251,7 +247,7 @@ function Render<P extends object>(
     return dbValueToPuck(originalProps, activeBreakpoint ?? 'xlg') as typeof originalProps;
   }, [originalProps, activeBreakpoint]);
 
-  const { editMode = false, puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
+  const { puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
   const editorElements = usePuckIframeElements();
 
   // Extract the correct type for renderProps from the config's render function
@@ -260,7 +256,7 @@ function Render<P extends object>(
     const dashboard = useGlobalStore.getState().dashboardWithoutData;
     const renderProps: AdditionalRenderProps = {
       id,
-      _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
+      _editMode: puck.isEditing, // Ensure editMode is always defined
       _editor: editorElements,
       _dashboard: dashboard,
       _dragRef: puck.dragRef,
@@ -279,29 +275,23 @@ function Render<P extends object>(
       overrideStyles,
     });
     if (emotionCss) {
+      // Attach serialized styles under a dedicated key
       obj.css = emotionCss;
     }
     return obj;
-  }, [props, id, puck, editMode, config, editorElements]);
+  }, [props, id, puck.dragRef, puck.isEditing, config, editorElements]);
 
   // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
   const renderedElement = config.render(fullProps);
-
-  // Wrap the rendered element with error boundary to catch rendering errors
   return attachPropsToElement({
     element: renderedElement,
     ref: puck.dragRef,
     componentLabel: config.label,
     updateProps: userProps => {
+      // After initial creation we avoid adding css prop again; keep className merge
       return bindWithProps({
         ...userProps,
-        ...(fullProps.css
-          ? {
-              css: css`
-                ${fullProps.css}
-              `,
-            }
-          : {}),
+        ...(fullProps.css ? { css: fullProps.css } : {}),
         className: [puckComponentStyles.pressable, userProps.className].filter(Boolean).join(' '),
       });
     },

@@ -109,14 +109,14 @@
   opacity: 1;
 }
 
-.baseButton:active:not(:disabled) {
+.baseButton-active:not(:disabled) {
   background: var(--button-bg-active);
   color: var(--button-color-active);
   border: var(--button-border-active);
   box-shadow: var(--button-shadow-active);
 }
 
-.baseButton:active:not(:disabled)::before {
+.baseButton-active:not(:disabled)::before {
   background: var(--button-overlay-bg-active);
   opacity: 1;
 }
@@ -223,7 +223,7 @@
     transform: none !important;
   }
   .baseButton:hover:not(:disabled),
-  .baseButton:active:not(:disabled) {
+  .baseButton-active:not(:disabled) {
     transform: none;
   }
 }
@@ -403,6 +403,7 @@
 .BaseButton--fullWidth { composes: fullWidth; }
 .BaseButton--fullHeight { composes: fullHeight; }
 .BaseButton--autoWidth { composes: autoWidth; }
+.BaseButton--active { composes: baseButton-active; }
 .BaseButton--sizeXs { composes: sizeXs; }
 .BaseButton--sizeSm { composes: sizeSm; }
 .BaseButton--sizeMd { composes: sizeMd; }

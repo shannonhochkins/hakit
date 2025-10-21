@@ -29,6 +29,9 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
   content: {
     type: 'slot',
   },
+  popupContent: {
+    type: 'slot',
+  },
 };
 
 function getInteractionFields<T extends keyof InternalComponentFields['interactions']>(type: T) {

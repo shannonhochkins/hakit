@@ -133,6 +133,7 @@ export interface InternalComponentFields {
 
 export interface InternalRootComponentFields {
   content: Slot;
+  popupContent: Slot;
   styles: {
     css: string;
   };
