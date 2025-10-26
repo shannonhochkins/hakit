@@ -136,8 +136,18 @@ export const CodeField = ({
               if (jsonValid) {
                 setEditing(false);
               }
-              // @ts-expect-error - TODO - Fix this
-              onChange(language === 'json' ? (JSON.parse(localValue) as object) : localValue);
+              try {
+                if (language === 'json') {
+                  const parsed = JSON.parse(localValue);
+                  // @ts-expect-error - TODO - Fix this
+                  return onChange(parsed);
+                }
+                // @ts-expect-error - TODO - Fix this
+                onChange(localValue);
+              } finally {
+                console.error('Failed to save code field value');
+                // no-op
+              }
             }}
           />
           <IconButton

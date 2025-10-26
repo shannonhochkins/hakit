@@ -25,8 +25,6 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
   const existingPopupComponents = popups
     .map(p => getItemById(p.id))
     .filter((c): c is ComponentData<PopupProps> => !!c && c.type === 'Popup');
-  const currentPopupComponent = existingPopupComponents.find(c => c.props.id === value);
-  console.log('currentPopupComponent', currentPopupComponent);
   // an auto complete, populated with all existing popups
   // and a button to "create" a new popup, which will assign the id of the popup via onchange once created
   // this will need to be done via the puck api

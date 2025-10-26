@@ -1,5 +1,5 @@
 import { jsx } from '@emotion/react';
-import { ReactNode, isValidElement, Fragment, DetailedHTMLProps } from 'react';
+import { ReactNode, isValidElement, Fragment } from 'react';
 
 /**
  * Automatically attach dragRef to the top-level element returned by a component
@@ -83,38 +83,45 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
 
     // Handle regular React elements - clone and add/merge the ref and CSS
     try {
-      // use the more permissive type for the original props
       const originalProps = element.props as React.ComponentPropsWithRef<'div'>;
-      const composedRef = (node: HTMLDivElement | null) => {
-        if (ref) {
-          ref(node);
-        }
-        const originalRef = originalProps?.ref;
-        if (originalRef) {
-          if (typeof originalRef === 'function') {
-            originalRef(node);
-          } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
-            originalRef.current = node;
-          }
-        }
-      };
 
       // Build the current props view for updateProps to inspect and modify
-      const currentProps: DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
+      const currentProps: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
         ...originalProps,
-        ref: ref ? composedRef : originalProps?.ref,
+        // don't compose yet; let updateProps see the original
+        ref: originalProps?.ref,
       };
 
       const finalProps = updateProps ? updateProps(currentProps) : currentProps;
-      return jsx(
-        element.type,
-        {
-          ...finalProps,
-          ref,
-          key: element.key, // special prop; jsx will handle it
-        },
-        originalProps.children
-      );
+
+      // Compose refs *after* updateProps so we include any ref it set
+      const innerRef = finalProps?.ref;
+      const outerRef = ref;
+
+      const composedRef = (node: HTMLDivElement | null) => {
+        // outer ref first
+        if (typeof outerRef === 'function') outerRef(node);
+        else if (outerRef && typeof outerRef === 'object' && 'current' in outerRef) {
+          // @ts-expect-error - TODO - Fix types later
+          outerRef.current = node;
+        }
+
+        // then inner/original ref
+        if (typeof innerRef === 'function') innerRef(node);
+        else if (innerRef && typeof innerRef === 'object' && 'current' in innerRef) {
+          innerRef.current = node;
+        }
+      };
+
+      // Ensure children are on props (not as jsx's 3rd arg)
+      const propsForJsx = {
+        ...finalProps,
+        ref: composedRef, // <— our composed ref wins
+        key: element.key, // key goes here for jsx runtime
+        children: finalProps?.children ?? originalProps?.children,
+      };
+
+      return jsx(element.type, propsForJsx);
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);
       logAutoWrap('cloneElement failed', 'div');
