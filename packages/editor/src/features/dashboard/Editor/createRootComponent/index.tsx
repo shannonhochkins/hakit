@@ -139,7 +139,7 @@ function TemplateSubscriber<P extends DefaultComponentProps>({
 function getPropsForRoot<P extends DefaultComponentProps>(
   rootConfig: CustomRootConfigWithRemote<P>,
   props: Record<string, unknown>,
-  additionalProps: AdditionalRenderProps,
+  additionalProps: Omit<AdditionalRenderProps, '_dragRef'>,
   remoteKeys: Set<string>
 ) {
   // Create a new props object without any remote keys
@@ -173,15 +173,15 @@ function Render<P extends DefaultComponentProps>({
   >;
   const editorElements = usePuckIframeElements();
   const processedProps = currentBreakpointProps;
-  const { id, styles, editMode = false, content: Content } = processedProps;
+  const { id, styles, editMode = false, content: Content, popupContent: PopupContent } = processedProps;
 
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
   // gather all root config styles to apply globally
   const allCustomStyles = processedConfigs
     .map(rootConfig => {
-      const additionalProps: AdditionalRenderProps = {
-        _id: id,
+      const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
+        id,
         _editMode: editMode ?? puck.isEditing,
         _editor: editorElements,
         _dashboard: dashboard,
@@ -198,8 +198,8 @@ function Render<P extends DefaultComponentProps>({
   const propsForRootMap = useMemo(() => {
     const map = new Map<string, Record<string, unknown>>();
     for (const rootConfig of processedConfigs) {
-      const additionalProps: AdditionalRenderProps = {
-        _id: id,
+      const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
+        id,
         _editMode: editMode ?? puck.isEditing,
         _editor: editorElements,
         _dashboard: dashboard,
@@ -224,6 +224,8 @@ function Render<P extends DefaultComponentProps>({
       })}
       {/* the root dropzone */}
       <Content />
+      {/* slot that houses all popup portals, intentionally hiding this zone so users can't drag into it */}
+      <PopupContent style={{ display: 'none' }} />
 
       <Global
         styles={css`

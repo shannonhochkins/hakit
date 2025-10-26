@@ -20,3 +20,5 @@ export const EXCLUDE_FIELD_TYPES_FROM_TEMPLATES: readonly FieldTypes[] = [
 
 // Marker used to store raw template strings in DB
 export const TEMPLATE_PREFIX = 'jinja2Template::';
+
+export const DEFAULT_FIELD_DEBOUNCE_MS = 150;

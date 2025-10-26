@@ -39,6 +39,10 @@ export interface BaseButtonProps extends React.ComponentPropsWithoutRef<'button'
   variant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
   /** Badge variant override (defaults to button variant) */
   badgeVariant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
+  /** Wrapper style for the outer div */
+  wrapperStyle?: React.CSSProperties;
+  /** active state */
+  active?: boolean;
 }
 
 // React component wrapper with all logic
@@ -58,9 +62,10 @@ const BaseButtonPrivate = ({
   badgeTooltipProps,
   variant,
   badgeVariant,
+  active,
   ...props
 }: BaseButtonProps) => {
-  const { className: providedClassName, style: providedStyle, 'badge-aria-label': badgeAriaLabel, style, ...restProps } = props;
+  const { className: providedClassName, style: providedStyle, 'badge-aria-label': badgeAriaLabel, wrapperStyle, ...restProps } = props;
 
   // Use badgeVariant if provided, otherwise inherit from button variant
   const effectiveBadgeVariant = badgeVariant ?? variant ?? 'primary';
@@ -75,6 +80,7 @@ const BaseButtonPrivate = ({
       fullWidth,
       fullHeight,
       autoWidth,
+      active: !!active,
     },
     providedClassName
   );
@@ -104,7 +110,7 @@ const BaseButtonPrivate = ({
   );
 
   return (
-    <div className={wrapperClassName} style={style}>
+    <div className={wrapperClassName} style={wrapperStyle}>
       <Tooltip title={props['aria-label'] || ''} placement='top' {...tooltipProps} style={tooltipStyles}>
         <button className={className} disabled={disabled || loading} style={providedStyle} {...restProps}>
           {startIcon && !loading && <>{startIcon}</>}

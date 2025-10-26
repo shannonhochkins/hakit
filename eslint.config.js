@@ -32,6 +32,7 @@ export default defineConfig([
     files: ['**/*.{jsx,tsx}'],
     rules: {
       'react/react-in-jsx-scope': 'off', // 👈 turn off the outdated rule
+      'react/no-unknown-property': ['error', { ignore: ['css'] }],
     },
   },
   {

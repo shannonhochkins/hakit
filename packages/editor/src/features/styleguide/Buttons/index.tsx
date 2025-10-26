@@ -78,6 +78,7 @@ export function StyleguideButtons() {
       </Group>
 
       <Group title='Icon Button - Variants & States'>
+        <IconButton aria-label='IconButton active' icon={<PlusIcon size={16} />} active />
         <IconButton aria-label='IconButton secondary' icon={<PlusIcon size={16} />} />
         <IconButton aria-label='IconButton primary' icon={<PlusIcon size={16} />} variant='primary' />
         <IconButton aria-label='IconButton error' icon={<PlusIcon size={16} />} variant='error' />

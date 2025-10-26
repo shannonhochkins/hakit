@@ -16,8 +16,6 @@
   --button-shadow-hover: none;
   --button-shadow-active: none;
   --button-shadow-focus: var(--shadow-primary-focus);
-  --button-transform-hover: translateY(-1px);
-  --button-transform-active: translateY(0);
   --button-spinner-color: var(--color-text-primary);
   --button-overlay-bg: transparent;
   --button-overlay-bg-hover: transparent;
@@ -84,7 +82,6 @@
   color: var(--button-color-hover);
   border: var(--button-border-hover);
   box-shadow: var(--button-shadow-hover);
-  transform: var(--button-transform-hover);
 }
 
 .baseButton:hover:not(:disabled)::before {
@@ -112,15 +109,14 @@
   opacity: 1;
 }
 
-.baseButton:active:not(:disabled) {
+.baseButton-active:not(:disabled) {
   background: var(--button-bg-active);
   color: var(--button-color-active);
   border: var(--button-border-active);
   box-shadow: var(--button-shadow-active);
-  transform: var(--button-transform-active);
 }
 
-.baseButton:active:not(:disabled)::before {
+.baseButton-active:not(:disabled)::before {
   background: var(--button-overlay-bg-active);
   opacity: 1;
 }
@@ -131,7 +127,6 @@
   border: var(--button-border-disabled);
   cursor: not-allowed;
   box-shadow: none;
-  transform: none;
   opacity: var(--button-opacity-disabled);
 }
 
@@ -228,7 +223,7 @@
     transform: none !important;
   }
   .baseButton:hover:not(:disabled),
-  .baseButton:active:not(:disabled) {
+  .baseButton-active:not(:disabled) {
     transform: none;
   }
 }
@@ -408,6 +403,7 @@
 .BaseButton--fullWidth { composes: fullWidth; }
 .BaseButton--fullHeight { composes: fullHeight; }
 .BaseButton--autoWidth { composes: autoWidth; }
+.BaseButton--active { composes: baseButton-active; }
 .BaseButton--sizeXs { composes: sizeXs; }
 .BaseButton--sizeSm { composes: sizeSm; }
 .BaseButton--sizeMd { composes: sizeMd; }

@@ -1,5 +1,5 @@
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Config, Puck } from '@measured/puck';
+import { Config, Puck, OnAction, useGetPuck, UiState } from '@measured/puck';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 import { Spinner } from '@components/Loaders/Spinner';
@@ -11,9 +11,58 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import { EditorShortcuts } from './EditorShortcuts';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
+import { usePopupStore } from '@hooks/usePopupStore';
+import { usePuckMiddleware } from '@hooks/usePuckMiddleware';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
+
+function SyncUnsavedAndPuckData() {
+  const getPuck = useGetPuck();
+  const unsavedPuckPageData = useGlobalStore(state => state.unsavedPuckPageData);
+  usePuckMiddleware.getState().onAction((action, appState) => {
+    const { getItemBySelector } = getPuck();
+    // listen for setData actions to update unsaved data
+    if (action.type === 'remove') {
+      // whenever a component is removed, we need to re-address the validatity of popups
+      // and components that may have assigned popups that no longer exist
+      const data = appState.data;
+      usePopupStore.getState().initializePopups(data);
+    }
+    console.log('action received', action);
+    // middleware to open popup when a popup component is selected from the outline or canvas
+    if (action.type === 'setUi') {
+      const itemSelector = (action.ui as Partial<UiState>)?.itemSelector;
+      if (itemSelector) {
+        const item = getItemBySelector(itemSelector);
+        if (item?.type === 'Popup') {
+          const popupId = item.props.id;
+          usePopupStore.getState().closeAllPopups();
+          usePopupStore.getState().openPopup(popupId);
+        }
+      }
+    }
+  });
+
+  // Sync unsaved data to puck
+  useEffect(() => {
+    if (unsavedPuckPageData) {
+      // unsavedPuckPageData has a sanitization layer which will perform trimming on things
+      // and ensure validity on other values, for example after removing a popup component, any components
+      // that referenced that popup should have had their popupId field cleared out.
+      const { dispatch, appState } = getPuck();
+      const data = appState.data;
+      if (!deepEqual(data, unsavedPuckPageData)) {
+        dispatch({
+          type: 'setData',
+          data: unsavedPuckPageData,
+        });
+      }
+    }
+  }, [unsavedPuckPageData, getPuck]);
+
+  return null;
+}
 
 export function Editor() {
   const puckPageData = useGlobalStore(state => state.puckPageData);
@@ -80,6 +129,7 @@ export function Editor() {
               updated: sanitizedData,
               originalData: currentPage.data,
             });
+            usePopupStore.getState().initializePopups(sanitizedData);
             setUnsavedPuckPageData(sanitizedData);
           }
         }
@@ -88,13 +138,16 @@ export function Editor() {
     [userConfig, pagePath]
   );
 
+  const onAction = useCallback((action: Parameters<OnAction>[0], appState: Parameters<OnAction>[1]) => {
+    usePuckMiddleware.getState().emitAction(action, appState, appState);
+  }, []);
+
   if (!userConfig) {
     return <Spinner absolute text='Loading user data' />;
   }
   if (!puckPageData) {
     return <Spinner absolute text='Loading page data' />;
   }
-
   console.debug('puckPageData', { userConfig, puckPageData });
 
   return (
@@ -106,11 +159,7 @@ export function Editor() {
     >
       <Puck
         onChange={handlePuckChange}
-        // onAction={action => {
-        // if (action.type === 'insert') {
-        //   setPanel('options');
-        // }
-        // }}
+        onAction={onAction}
         iframe={{
           // this was causing puck to load indefinitely
           waitForStyles: false,
@@ -123,6 +172,7 @@ export function Editor() {
         data={puckPageData}
       >
         <PuckLayout />
+        <SyncUnsavedAndPuckData />
       </Puck>
       <EditorShortcuts />
     </div>

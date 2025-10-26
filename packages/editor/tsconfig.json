@@ -6,6 +6,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "useDefineForClassFields": true,
+    "jsxImportSource": "@emotion/react",
 
     /* modules */
     "module": "ESNext",
@@ -36,6 +37,6 @@
       "@test-utils/*": ["./src/test-utils/*"]
     }
   },
-  "include": ["src/**/*", "./.d.ts"],
+  "include": ["src/**/*", "./.d.ts", "./emotion.d.ts"],
   "exclude": ["node_modules/**", "**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**", "**/.tanstack/**", "**/@mf-types/**"]
 }

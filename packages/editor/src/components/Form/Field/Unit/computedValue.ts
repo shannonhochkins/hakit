@@ -75,7 +75,7 @@ export function getComputedValue(value?: UnitFieldValue):
     return null;
   }
 
-  const [topStr, leftStr, rightStr, bottomStr] = parts;
+  const [topStr, rightStr, bottomStr, leftStr] = parts;
 
   const top = parseUnitValue(topStr);
   const left = parseUnitValue(leftStr);
@@ -114,7 +114,7 @@ export function createAllCornersValue(
   right: { value: number; unit: Unit },
   bottom: { value: number; unit: Unit }
 ): UnitFieldValueAllCorners {
-  return `${top.value}${top.unit} ${left.value}${left.unit} ${right.value}${right.unit} ${bottom.value}${bottom.unit}` as UnitFieldValueAllCorners;
+  return `${top.value}${top.unit} ${right.value}${right.unit} ${bottom.value}${bottom.unit} ${left.value}${left.unit}` as UnitFieldValueAllCorners;
 }
 
 /**

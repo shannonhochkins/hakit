@@ -58,6 +58,36 @@ export type DefaultRootProps = {
   background: BackgroundProps;
   typography: TypographyProps;
 };
+// TODO - Combine to shared constant
+// Map font family names to Google Fonts API format
+const googleFontsNameMap: Record<string, string> = {
+  roboto: 'Roboto',
+  'open-sans': 'Open+Sans',
+  lato: 'Lato',
+  montserrat: 'Montserrat',
+  'source-sans-pro': 'Source+Sans+Pro',
+  poppins: 'Poppins',
+  nunito: 'Nunito',
+  inter: 'Inter',
+  'playfair-display': 'Playfair+Display',
+  merriweather: 'Merriweather',
+};
+
+// Font family mapping
+const fontFamilyMap: Record<string, string> = {
+  system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  roboto: '"Roboto", system-ui, sans-serif',
+  'open-sans': '"Open Sans", system-ui, sans-serif',
+  lato: '"Lato", system-ui, sans-serif',
+  montserrat: '"Montserrat", system-ui, sans-serif',
+  'source-sans-pro': '"Source Sans Pro", system-ui, sans-serif',
+  poppins: '"Poppins", system-ui, sans-serif',
+  nunito: '"Nunito", system-ui, sans-serif',
+  inter: '"Inter", system-ui, sans-serif',
+  'playfair-display': '"Playfair Display", system-ui, serif',
+  merriweather: '"Merriweather", system-ui, serif',
+};
+
 export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   label: 'Root',
   fields: {
@@ -353,21 +383,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       ? `url(${background?.backgroundImage ? background.backgroundImage : defaultBackground})`
       : '';
 
-    // Font family mapping
-    const fontFamilyMap: Record<string, string> = {
-      system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      roboto: '"Roboto", system-ui, sans-serif',
-      'open-sans': '"Open Sans", system-ui, sans-serif',
-      lato: '"Lato", system-ui, sans-serif',
-      montserrat: '"Montserrat", system-ui, sans-serif',
-      'source-sans-pro': '"Source Sans Pro", system-ui, sans-serif',
-      poppins: '"Poppins", system-ui, sans-serif',
-      nunito: '"Nunito", system-ui, sans-serif',
-      inter: '"Inter", system-ui, sans-serif',
-      'playfair-display': '"Playfair Display", system-ui, serif',
-      merriweather: '"Merriweather", system-ui, serif',
-    };
-
     const selectedFontFamily = typography?.fontFamily ?? 'roboto';
     const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
 
@@ -594,20 +609,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     `;
   },
   render: Render,
-};
-
-// Map font family names to Google Fonts API format
-const googleFontsNameMap: Record<string, string> = {
-  roboto: 'Roboto',
-  'open-sans': 'Open+Sans',
-  lato: 'Lato',
-  montserrat: 'Montserrat',
-  'source-sans-pro': 'Source+Sans+Pro',
-  poppins: 'Poppins',
-  nunito: 'Nunito',
-  inter: 'Inter',
-  'playfair-display': 'Playfair+Display',
-  merriweather: 'Merriweather',
 };
 
 function Render(props: RenderProps<DefaultRootProps>) {

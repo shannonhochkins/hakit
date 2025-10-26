@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './Column.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-export interface ColumnProps extends React.ComponentPropsWithoutRef<'div'> {
+export interface ColumnProps extends React.ComponentPropsWithRef<'div'> {
   /** standard flex css properties for align-items, @default center */
   alignItems?: React.CSSProperties['alignItems'];
   /** standard flex css properties for justify-content, @default center */

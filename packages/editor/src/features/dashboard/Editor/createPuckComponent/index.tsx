@@ -1,16 +1,10 @@
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import {
-  AdditionalRenderProps,
-  ComponentFactoryData,
-  CustomComponentConfig,
-  // CustomComponentConfigWithDefinition,
-  RenderProps,
-} from '@typings/puck';
+import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, RenderProps } from '@typings/puck';
 import { useMemo } from 'react';
 import { attachPropsToElement } from './attachPropsToElement';
-import { useEmotionCss, type StyleStrings } from './generateEmotionCss';
+import { generateEmotionCss } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
@@ -22,6 +16,8 @@ import { router } from '../../../../router';
 import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@hakit/core';
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
+import { usePopupStore } from '@hooks/usePopupStore';
+
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
@@ -99,8 +95,10 @@ function TemplateSubscriber<P extends object>({
   if (error) {
     throw error;
   }
-  // whilst loading, just return null to avoid having to "flicker" the content
-  return <>{loading || !data ? null : <Render {...data} internalComponentConfig={internalComponentConfig} />}</>;
+  if (loading || !data) return null;
+  // Pass processed template data as props object, keep internal config separate
+  // @ts-expect-error - TODO - Fix later
+  return <Render {...(data as RenderProps<P & InternalComponentFields>)} internalComponentConfig={internalComponentConfig} />;
 }
 
 const callService = async ({
@@ -139,6 +137,7 @@ const callService = async ({
       // 1. Provide a "hey, we did what you asked for" notification
       // 2. Provide a "hey, we did what you asked for, but it failed" notification
       // Otherwise, return void
+      // maybe, this is an opt in setting
       return undefined;
     } catch (e) {
       // TODO - raise error to client here
@@ -150,6 +149,10 @@ const callService = async ({
 
 async function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
   if (interaction.type === 'none') return undefined;
+  if (interaction.type === 'popup') {
+    usePopupStore.getState().openPopup(interaction.popupId);
+    return;
+  }
   if (interaction.type === 'external') {
     // we've received an external url action, we should trigger it
     // target can be "_blank" | "_self" | "_parent" | "_top"
@@ -185,7 +188,7 @@ async function processInteractions(interaction: InternalComponentFields['interac
     });
     return;
   }
-  if (interaction.type === 'controlEntity') {
+  if (interaction.type === 'callService') {
     const entities = useStore.getState().entities;
     const callServiceData = interaction.callService;
     const entity = callServiceData.entity;
@@ -244,66 +247,53 @@ function Render<P extends object>(
     return dbValueToPuck(originalProps, activeBreakpoint ?? 'xlg') as typeof originalProps;
   }, [originalProps, activeBreakpoint]);
 
-  const { styles, editMode = false, puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
+  const { puck, id, internalComponentConfig: config, ...props } = currentBreakpointProps;
   const editorElements = usePuckIframeElements();
-  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
+
   // Extract the correct type for renderProps from the config's render function
   // eslint-disable-next-ine react-hooks/rules-of-hooks
   const fullProps = useMemo(() => {
+    const dashboard = useGlobalStore.getState().dashboardWithoutData;
     const renderProps: AdditionalRenderProps = {
-      _id: id,
-      _editMode: editMode ?? puck.isEditing, // Ensure editMode is always defined
+      id,
+      _editMode: puck.isEditing, // Ensure editMode is always defined
       _editor: editorElements,
       _dashboard: dashboard,
+      _dragRef: puck.dragRef,
     };
     const obj = {
       ...props,
       ...renderProps,
     } as P & InternalComponentFields & AdditionalRenderProps;
+    // Generate style strings for emotion CSS processing in iframe context
+    const componentStyles = config.styles ? config.styles(obj) : '';
+    const overrideStyles = props.styles?.css ?? '';
+
+    // Generate emotion CSS in iframe context where correct cache is active
+    const emotionCss = generateEmotionCss({
+      componentStyles,
+      overrideStyles,
+    });
+    if (emotionCss) {
+      // Attach serialized styles under a dedicated key
+      obj.css = emotionCss;
+    }
     return obj;
-  }, [props, id, puck, editMode, editorElements, dashboard]);
+  }, [props, id, puck.dragRef, puck.isEditing, config, editorElements]);
 
-  // Generate style strings for emotion CSS processing in iframe context
-  const styleStrings = useMemo(() => {
-    try {
-      const componentStyles = config.styles ? config.styles(fullProps) : '';
-      const overrideStyles = styles?.css ?? '';
-      return {
-        componentStyles,
-        overrideStyles,
-      } satisfies StyleStrings;
-    } catch (error) {
-      console.error('HAKIT: Error generating styles for component:', config.label, error);
-      return {
-        componentStyles: '',
-        overrideStyles: '',
-      } satisfies StyleStrings;
-    }
-  }, [fullProps, styles, config]);
-
-  // Generate emotion CSS in iframe context where correct cache is active
-  const emotionCss = useEmotionCss(styleStrings);
-  // Generate the rendered element outside the error boundary to ensure proper error catching
-  const renderedElement = useMemo(() => {
-    try {
-      // @ts-expect-error - Puck's complex WithDeepSlots type is difficult to satisfy with generics
-      return config.render(fullProps);
-    } catch (error) {
-      console.error('HAKIT: Error in config.render for component:', config.label, error);
-      throw error; // Re-throw to be caught by error boundary
-    }
-  }, [fullProps, config]);
-
-  // Wrap the rendered element with error boundary to catch rendering errors
+  // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
+  const renderedElement = config.render(fullProps);
   return attachPropsToElement({
     element: renderedElement,
     ref: puck.dragRef,
     componentLabel: config.label,
-    updateProps: userProps =>
-      bindWithProps({
+    updateProps: userProps => {
+      // After initial creation we avoid adding css prop again; keep className merge
+      return bindWithProps({
         ...userProps,
-        css: emotionCss,
+        ...(fullProps.css ? { css: fullProps.css } : {}),
         className: [puckComponentStyles.pressable, userProps.className].filter(Boolean).join(' '),
-      }),
+      });
+    },
   });
 }

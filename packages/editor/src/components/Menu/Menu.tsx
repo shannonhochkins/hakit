@@ -28,6 +28,7 @@ export interface MenuProps extends Omit<React.ComponentPropsWithoutRef<'div'>, '
   anchorOrigin?: Origin; // relative to anchor
   transformOrigin?: Origin; // point on the menu that is placed at the anchor point
   children: React.ReactNode;
+  doc?: Document;
 }
 
 export function Menu({
@@ -39,6 +40,7 @@ export function Menu({
   transformOrigin = { vertical: 'top', horizontal: 'right' },
   className,
   style,
+  doc = document,
   ...rest
 }: MenuProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -57,12 +59,12 @@ export function Menu({
 
   // Create a persistent portal container for this instance
   useLayoutEffect(() => {
-    const el = document.createElement('div');
+    const el = doc.createElement('div');
     el.setAttribute('data-portal', 'menu');
     el.style.position = 'absolute';
     el.style.zIndex = String(1060);
     el.style.width = 'auto';
-    document.body.appendChild(el);
+    doc.body.appendChild(el);
     containerRef.current = el;
     setPortalEl(el);
     return () => {
@@ -70,7 +72,7 @@ export function Menu({
       if (containerRef.current === el) containerRef.current = null;
       setPortalEl(null);
     };
-  }, []);
+  }, [doc]);
 
   // When this menu opens, mark it as active
   useEffect(() => {
@@ -94,13 +96,13 @@ export function Menu({
       if (anchorEl && anchorEl.contains(target)) return; // click on anchor should not close
       onClose();
     };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('touchstart', onPointerDown);
+    doc.addEventListener('mousedown', onPointerDown);
+    doc.addEventListener('touchstart', onPointerDown);
     return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('touchstart', onPointerDown);
+      doc.removeEventListener('mousedown', onPointerDown);
+      doc.removeEventListener('touchstart', onPointerDown);
     };
-  }, [open, onClose, anchorEl]);
+  }, [open, onClose, anchorEl, doc]);
 
   const position = useCallback(() => {
     const container = containerRef.current;
@@ -225,7 +227,7 @@ export function Menu({
     );
   }, [open, children, className, style, rest, computedPlacement.arrowClass, computedPlacement.arrowStyle]);
 
-  if (!open || typeof document === 'undefined') return null;
+  if (!open || typeof doc === 'undefined') return null;
   if (!portalEl) return null;
   return createPortal(content, portalEl);
 }

@@ -1,4 +1,5 @@
-import { ReactNode, cloneElement, isValidElement, Fragment, DetailedHTMLProps } from 'react';
+import { jsx } from '@emotion/react';
+import { ReactNode, isValidElement, Fragment } from 'react';
 
 /**
  * Automatically attach dragRef to the top-level element returned by a component
@@ -12,14 +13,14 @@ import { ReactNode, cloneElement, isValidElement, Fragment, DetailedHTMLProps } 
  * 2. **Intentional falsy returns**: Returns null, undefined, false, empty string unchanged
  * 3. **Array returns**: Wraps entire array in a div with dragRef
  * 4. **String/number returns**: Wraps in a span with dragRef (including 0 and negative numbers)
- * 5. **Regular elements**: Uses cloneElement to add/merge the ref
+ * 5. **Regular elements**: Uses jsx from '@emotion/react' to add/merge the ref and apply css properly
  * 6. **Existing refs**: Preserves and calls existing refs alongside dragRef
- * 7. **Clone failures**: Falls back to div wrapper if cloneElement fails
+ * 7. **Clone failures**: Falls back to div wrapper if jsx fails
  *
  * Trade-offs:
  * - May introduce extra wrapper elements in some cases
  * - Fragment semantics are lost (converted to div)
- * - Some performance overhead from cloneElement
+ * - Some performance overhead from jsx/cloning
  *
  * Benefits:
  * - Eliminates manual ref management for users
@@ -41,7 +42,8 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       ref: ref ?? null,
       ...additionalProps,
     };
-    return updateProps ? updateProps(baseProps) : baseProps;
+    const updatedProps = updateProps ? updateProps(baseProps) : baseProps;
+    return updatedProps;
   };
 
   // First check: if component intentionally returned falsy value, respect that decision
@@ -81,33 +83,45 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
 
     // Handle regular React elements - clone and add/merge the ref and CSS
     try {
-      // use the more permissive type for the original props
       const originalProps = element.props as React.ComponentPropsWithRef<'div'>;
 
-      const composedRef = (node: HTMLDivElement | null) => {
-        if (ref) {
-          ref(node);
-        }
-        const originalRef = originalProps?.ref;
-        if (originalRef) {
-          if (typeof originalRef === 'function') {
-            originalRef(node);
-          } else if (originalRef && typeof originalRef === 'object' && 'current' in originalRef) {
-            originalRef.current = node;
-          }
-        }
-      };
-
       // Build the current props view for updateProps to inspect and modify
-      const currentProps: DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
+      const currentProps: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
         ...originalProps,
-        ref: ref ? composedRef : originalProps?.ref,
+        // don't compose yet; let updateProps see the original
+        ref: originalProps?.ref,
       };
 
       const finalProps = updateProps ? updateProps(currentProps) : currentProps;
 
-      const clonedElement = cloneElement(element, finalProps);
-      return clonedElement;
+      // Compose refs *after* updateProps so we include any ref it set
+      const innerRef = finalProps?.ref;
+      const outerRef = ref;
+
+      const composedRef = (node: HTMLDivElement | null) => {
+        // outer ref first
+        if (typeof outerRef === 'function') outerRef(node);
+        else if (outerRef && typeof outerRef === 'object' && 'current' in outerRef) {
+          // @ts-expect-error - TODO - Fix types later
+          outerRef.current = node;
+        }
+
+        // then inner/original ref
+        if (typeof innerRef === 'function') innerRef(node);
+        else if (innerRef && typeof innerRef === 'object' && 'current' in innerRef) {
+          innerRef.current = node;
+        }
+      };
+
+      // Ensure children are on props (not as jsx's 3rd arg)
+      const propsForJsx = {
+        ...finalProps,
+        ref: composedRef, // <— our composed ref wins
+        key: element.key, // key goes here for jsx runtime
+        children: finalProps?.children ?? originalProps?.children,
+      };
+
+      return jsx(element.type, propsForJsx);
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);
       logAutoWrap('cloneElement failed', 'div');
@@ -115,7 +129,11 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       return <div {...createWrapperProps()}>{element}</div>;
     }
   }
-
+  // for react portals, just return the original element
+  const portal = element as { $$typeof?: symbol };
+  if (portal && portal.$$typeof && typeof portal.$$typeof === 'symbol') {
+    return element;
+  }
   // Fallback for any other case
   logAutoWrap('Component returned unknown type', 'div');
   return <div {...createWrapperProps()}>{element}</div>;
