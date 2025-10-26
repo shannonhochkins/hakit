@@ -1,5 +1,5 @@
-import { ComponentData, createUsePuck, ActionBar as PuckActionBar, Slot, useGetPuck, walkTree } from '@measured/puck';
-import { ArrowDown, ArrowUp, Box, Copy, CornerLeftUp, DotIcon, Trash } from 'lucide-react';
+import { ComponentData, createUsePuck, Slot, useGetPuck, walkTree } from '@measured/puck';
+import { ArrowDown, ArrowUp, Box, Copy, CornerLeftUp, EllipsisVertical, Trash } from 'lucide-react';
 import { PopupProps } from '../../InternalComponents/Popup';
 import { useCallback, useMemo, useState } from 'react';
 import { usePopupStore } from '@hooks/usePopupStore';
@@ -45,12 +45,6 @@ export function ActionBar() {
     });
   });
   const isRoot = parentId === 'root' || parentId === null;
-  // console.log('ActionBarData', {
-  //   parentId,
-  //   isRoot,
-  //   selectedNode,
-  //   itemSelector,
-  // });
 
   const onSelectPopupParent = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
@@ -192,6 +186,9 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
+        style={{
+          background: `var(--color-gray-800)`,
+        }}
         variant='transparent'
         aria-label='Select Parent Component'
         tooltipProps={{
@@ -203,44 +200,15 @@ export function ActionBar() {
     );
   }, [isPopup, isRoot, parentId, onSelectParent]);
 
-  const copyAction = useMemo(() => {
-    if (!globalPermissions.duplicate) return null;
-    return (
-      <IconButton
-        size='xs'
-        variant='transparent'
-        aria-label='Duplicate Component'
-        tooltipProps={{
-          basic: true,
-        }}
-        icon={<Copy size={16} />}
-        onClick={onDuplicate}
-      />
-    );
-  }, [globalPermissions.duplicate, onDuplicate]);
-
-  const deleteAction = useMemo(() => {
-    if (!globalPermissions.delete) return null;
-    return (
-      <IconButton
-        size='xs'
-        variant='transparent'
-        aria-label='Delete Component'
-        tooltipProps={{
-          basic: true,
-        }}
-        icon={<Trash size={16} />}
-        onClick={onDelete}
-      />
-    );
-  }, [globalPermissions.delete, onDelete]);
-
   const moveUpAction = useMemo(() => {
     if (!globalPermissions.edit || !globalPermissions.drag || !itemSelector) return null;
     const disabled = itemSelector.index <= 0;
     return (
       <IconButton
         size='xs'
+        style={{
+          background: `var(--color-gray-800)`,
+        }}
         variant='transparent'
         aria-label='Move Up'
         disabled={disabled}
@@ -257,6 +225,9 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
+        style={{
+          background: `var(--color-gray-800)`,
+        }}
         variant='transparent'
         aria-label='Select Linked Component'
         tooltipProps={{
@@ -279,6 +250,9 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
+        style={{
+          background: `var(--color-gray-800)`,
+        }}
         variant='transparent'
         aria-label='Move Down'
         disabled={disabled}
@@ -337,9 +311,15 @@ export function ActionBar() {
         >
           Wrap in Container
         </MenuItem>
+        <MenuItem onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete}>
+          Delete
+        </MenuItem>
+        <MenuItem onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate}>
+          Duplicate
+        </MenuItem>
       </Menu>
     );
-  }, [menuAnchorEl, handleMenuClose, puckElements, getPuck]);
+  }, [menuAnchorEl, handleMenuClose, puckElements, getPuck, onDelete, onDuplicate, globalPermissions]);
 
   const handleAdditionalActionsClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
@@ -360,55 +340,53 @@ export function ActionBar() {
   if (!selectedItem)
     return (
       <div className={cn()}>
-        <PuckActionBar.Group>{parentAction}</PuckActionBar.Group>
-        <PuckActionBar.Group>
+        {parentAction && <div className={cn('group')}>{parentAction}</div>}
+        <div className={cn('group')}>
           {moveUpAction}
           {moveDownAction}
-        </PuckActionBar.Group>
-        <PuckActionBar.Group>
-          {copyAction}
-          {deleteAction}
-        </PuckActionBar.Group>
-        <PuckActionBar.Group>
+        </div>
+        <div className={cn('group')}>
           <IconButton
             size='xs'
+            style={{
+              background: `var(--color-gray-800)`,
+            }}
             variant='transparent'
             aria-label='Additional Actions'
             aria-haspopup='menu'
             aria-expanded={Boolean(menuAnchorEl)}
             tooltipProps={{ basic: true }}
-            icon={<DotIcon size={16} />}
+            icon={<EllipsisVertical size={16} />}
             onClick={handleAdditionalActionsClick}
           />
           {additionalActionsMenu}
-        </PuckActionBar.Group>
+        </div>
       </div>
     );
-
+  const parentActionEl = isPopup ? selectLinkedComponentAction : parentAction;
   return (
     <div className={cn()}>
-      <PuckActionBar.Group>{isPopup ? selectLinkedComponentAction : parentAction}</PuckActionBar.Group>
-      <PuckActionBar.Group>
+      {parentActionEl && <div className={cn('group')}>{parentActionEl}</div>}
+      <div className={cn('group')}>
         {moveUpAction}
         {moveDownAction}
-      </PuckActionBar.Group>
-      <PuckActionBar.Group>
-        {copyAction}
-        {deleteAction}
-      </PuckActionBar.Group>
-      <PuckActionBar.Group>
+      </div>
+      <div className={cn('group')}>
         <IconButton
           size='xs'
           variant='transparent'
           aria-label='Additional Actions'
+          style={{
+            background: `var(--color-gray-800)`,
+          }}
           aria-haspopup='menu'
           aria-expanded={Boolean(menuAnchorEl)}
           tooltipProps={{ basic: true }}
-          icon={<DotIcon size={16} />}
+          icon={<EllipsisVertical size={16} />}
           onClick={handleAdditionalActionsClick}
         />
         {additionalActionsMenu}
-      </PuckActionBar.Group>
+      </div>
     </div>
   );
 }

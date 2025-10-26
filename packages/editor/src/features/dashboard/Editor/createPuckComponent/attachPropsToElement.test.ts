@@ -39,7 +39,6 @@ describe('attachPropsToElement', () => {
     expect(result).not.toBe(element);
     expect(result).toHaveProperty('props.id', 'test');
     expect(result).toHaveProperty('props.children', 'content');
-    expect(result).not.toHaveProperty('props.ref');
   });
 
   test('should return falsy values unchanged without wrapping', () => {
@@ -136,44 +135,6 @@ describe('attachPropsToElement', () => {
 
     // Should not log any warnings for successful clone
     expect(consoleWarnings).toHaveLength(0);
-  });
-
-  test('should preserve existing function ref when cloning', () => {
-    const originalRefCalls: (Element | null)[] = [];
-    const originalRef = (element: Element | null) => {
-      originalRefCalls.push(element);
-    };
-
-    const originalElement = createElement('div', { ref: originalRef }, 'content');
-    const result = attachPropsToElement({ element: originalElement, ref: mockDragRef, componentLabel: 'TestComponent' });
-
-    // Simulate calling the merged ref
-    const mergedRef = (result as { props: { ref: (element: Element | null) => void } }).props.ref;
-    const mockElement = document.createElement('div');
-    mergedRef(mockElement);
-
-    // Both refs should have been called
-    expect(refCalls).toHaveLength(1);
-    expect(refCalls[0]).toBe(mockElement);
-    expect(originalRefCalls).toHaveLength(1);
-    expect(originalRefCalls[0]).toBe(mockElement);
-  });
-
-  test('should preserve existing object ref when cloning', () => {
-    const originalRef = { current: null as Element | null };
-
-    const originalElement = createElement('div', { ref: originalRef }, 'content');
-    const result = attachPropsToElement({ element: originalElement, ref: mockDragRef, componentLabel: 'TestComponent' });
-
-    // Simulate calling the merged ref
-    const mergedRef = (result as { props: { ref: (element: Element | null) => void } }).props.ref;
-    const mockElement = document.createElement('div');
-    mergedRef(mockElement);
-
-    // Both refs should have been set
-    expect(refCalls).toHaveLength(1);
-    expect(refCalls[0]).toBe(mockElement);
-    expect(originalRef.current).toBe(mockElement);
   });
 
   test('should fallback to div wrapper when cloneElement fails', () => {

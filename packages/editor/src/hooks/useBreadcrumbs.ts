@@ -29,7 +29,6 @@ export function useBreadcrumbs(renderCount?: number): Breadcrumb[] {
   const getItemBySelector = usePuck(c => c.getItemBySelector);
   const getSelectorForId = usePuck(c => c.getSelectorForId);
   const selectedNode = selectedItem ? getItemBySelector(selectedItem) : null;
-
   return useMemo<Breadcrumb[]>(() => {
     const base: Breadcrumb[] = [
       {
