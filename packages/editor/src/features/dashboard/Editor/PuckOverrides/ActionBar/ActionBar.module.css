@@ -1,0 +1,26 @@
+
+.ActionBar {
+  cursor: default;
+  padding: var(--space-1);
+  background: var(--color-surface);
+  width: auto;
+  color: var(--color-text-primary);
+  border-radius: var(--radius-lg);
+  align-items: center;
+  min-height: var(--space-4);
+  padding-left: 0;
+  padding-right: 0;
+  display: flex;
+  > .ActionBar-group:first-child {
+    border-inline-start: none;
+  }
+}
+
+.ActionBar-group {
+  align-items: center;
+  border-inline-start: 0.5px solid var(--color-gray-750); /* Fractional value required due to scaling */
+  display: flex;
+  gap: var(--space-1);
+  height: 100%;
+  padding: 0 var(--space-2);
+}

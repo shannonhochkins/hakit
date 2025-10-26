@@ -1,8 +1,10 @@
 import GradientPicker from 'react-best-gradient-color-picker';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useDropdownPortal } from '../_shared/useDropdownPortal';
 import styles from './ColorField.module.css';
 import { InputField } from '../Input';
+import { useDebouncer } from '@tanstack/react-pacer';
+import { DEFAULT_FIELD_DEBOUNCE_MS } from '@helpers/editor/pageData/constants';
 
 type InputFieldSize = 'small' | 'medium' | 'large';
 
@@ -17,6 +19,7 @@ interface ColorProps {
   className?: string;
   disabled?: boolean;
   size?: InputFieldSize;
+  debounce?: number;
   onChange: (color: string) => void;
 }
 
@@ -32,9 +35,11 @@ export const ColorField = ({
   helperText,
   name,
   readOnly = false,
+  debounce = DEFAULT_FIELD_DEBOUNCE_MS,
 }: ColorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const [localValue, setLocalValue] = useState<string>(value);
 
   const { renderPortal } = useDropdownPortal({
     anchorRef,
@@ -43,6 +48,23 @@ export const ColorField = ({
     overlap: 0,
     matchWidth: false,
   });
+
+  // use tanstack debounce to trigger on change after 150ms
+  const debouncedOnChange = useDebouncer(onChange, {
+    wait: debounce,
+    leading: false,
+    trailing: true,
+  });
+
+  const _onChange = useCallback(
+    (next: string) => {
+      setLocalValue(next);
+      // Reset and schedule the latest value to ensure trailing delivery
+      debouncedOnChange.cancel();
+      debouncedOnChange.maybeExecute(next);
+    },
+    [debouncedOnChange]
+  );
 
   useEffect(() => {
     return () => {
@@ -57,7 +79,7 @@ export const ColorField = ({
         id={id}
         name={name}
         icon={icon}
-        value={value}
+        value={localValue}
         label={label}
         helperText={helperText}
         disabled={disabled}
@@ -65,7 +87,7 @@ export const ColorField = ({
         readOnly={readOnly}
         className={`${className} ${styles.colorField}`}
         onClick={() => (disabled ? undefined : setIsOpen(!isOpen))}
-        startAdornment={<div ref={anchorRef} className={styles.swatch} style={{ background: `${value}` }} />}
+        startAdornment={<div ref={anchorRef} className={styles.swatch} style={{ background: `${localValue}` }} />}
       />
       {renderPortal(
         <div className={styles.portalWrapper}>
@@ -76,8 +98,8 @@ export const ColorField = ({
               hidePresets
               width={250}
               height={150}
-              value={value ?? 'transparent'}
-              onChange={onChange}
+              value={localValue ?? 'transparent'}
+              onChange={_onChange}
             />
           </div>
         </div>

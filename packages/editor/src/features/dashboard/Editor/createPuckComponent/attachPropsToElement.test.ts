@@ -39,7 +39,7 @@ describe('attachPropsToElement', () => {
     expect(result).not.toBe(element);
     expect(result).toHaveProperty('props.id', 'test');
     expect(result).toHaveProperty('props.children', 'content');
-    expect(result).not.toHaveProperty('props.ref');
+    expect(result).toHaveProperty('props.ref');
   });
 
   test('should return falsy values unchanged without wrapping', () => {

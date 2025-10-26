@@ -1,6 +1,7 @@
 import { expect, test, describe, beforeEach, mock } from 'bun:test';
 import { render } from '@testing-library/react';
 import { createModuleMocker } from '@test-utils/moduleMocker';
+import { createElement } from 'react';
 
 /**
  * Due to an issue with Bun (https://github.com/oven-sh/bun/issues/7823), we need to manually restore mocked modules
@@ -52,6 +53,16 @@ moduleMocker.mock('@hooks/useGlobalStore', () => ({
     };
     return selector(mockState);
   },
+}));
+
+await moduleMocker.mock('@components/Alert', () => ({
+  Alert: ({ title, children }: { title: string; children: React.ReactNode }) =>
+    createElement('div', { 'data-testid': 'alert', 'data-title': title }, children),
+}));
+
+await moduleMocker.mock('@components/Button', () => ({
+  PrimaryButton: ({ title, children }: { title: string; children: React.ReactNode }) =>
+    createElement('div', { 'data-testid': 'primary-button', 'data-title': title }, children),
 }));
 
 import { ComponentFactoryData } from '@typings/puck';

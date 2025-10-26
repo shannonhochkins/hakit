@@ -72,9 +72,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('10px 20px 30px 40px');
       expect(result).toEqual({
         top: { value: 10, unit: 'px' },
-        left: { value: 20, unit: 'px' },
-        right: { value: 30, unit: 'px' },
-        bottom: { value: 40, unit: 'px' },
+        right: { value: 20, unit: 'px' }, // second token
+        bottom: { value: 30, unit: 'px' }, // third token
+        left: { value: 40, unit: 'px' }, // fourth token
       });
     });
 
@@ -82,9 +82,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('1.00px 10px 33.33% 10px');
       expect(result).toEqual({
         top: { value: 1, unit: 'px' },
-        left: { value: 10, unit: 'px' },
-        right: { value: 33.33, unit: '%' },
-        bottom: { value: 10, unit: 'px' },
+        right: { value: 10, unit: 'px' }, // second token
+        bottom: { value: 33.33, unit: '%' }, // third token
+        left: { value: 10, unit: 'px' }, // fourth token
       });
     });
 
@@ -92,9 +92,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('1.5em 2.25rem 3.75vh 4.125vw');
       expect(result).toEqual({
         top: { value: 1.5, unit: 'em' },
-        left: { value: 2.25, unit: 'rem' },
-        right: { value: 3.75, unit: 'vh' },
-        bottom: { value: 4.125, unit: 'vw' },
+        right: { value: 2.25, unit: 'rem' }, // second token
+        bottom: { value: 3.75, unit: 'vh' }, // third token
+        left: { value: 4.125, unit: 'vw' }, // fourth token
       });
     });
 
@@ -102,9 +102,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('-5px -10px -15px -20px');
       expect(result).toEqual({
         top: { value: -5, unit: 'px' },
-        left: { value: -10, unit: 'px' },
-        right: { value: -15, unit: 'px' },
-        bottom: { value: -20, unit: 'px' },
+        right: { value: -10, unit: 'px' }, // second token
+        bottom: { value: -15, unit: 'px' }, // third token
+        left: { value: -20, unit: 'px' }, // fourth token
       });
     });
 
@@ -112,9 +112,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('0px 0em 0% 0vh');
       expect(result).toEqual({
         top: { value: 0, unit: 'px' },
-        left: { value: 0, unit: 'em' },
-        right: { value: 0, unit: '%' },
-        bottom: { value: 0, unit: 'vh' },
+        right: { value: 0, unit: 'em' }, // second token
+        bottom: { value: 0, unit: '%' }, // third token
+        left: { value: 0, unit: 'vh' }, // fourth token
       });
     });
 
@@ -122,9 +122,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('10px -5em 0% 15.5vh');
       expect(result).toEqual({
         top: { value: 10, unit: 'px' },
-        left: { value: -5, unit: 'em' },
-        right: { value: 0, unit: '%' },
-        bottom: { value: 15.5, unit: 'vh' },
+        right: { value: -5, unit: 'em' }, // second token
+        bottom: { value: 0, unit: '%' }, // third token
+        left: { value: 15.5, unit: 'vh' }, // fourth token
       });
     });
 
@@ -132,9 +132,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('1.234px 56.789em 90.123% 45.678vh');
       expect(result).toEqual({
         top: { value: 1.234, unit: 'px' },
-        left: { value: 56.789, unit: 'em' },
-        right: { value: 90.123, unit: '%' },
-        bottom: { value: 45.678, unit: 'vh' },
+        right: { value: 56.789, unit: 'em' }, // second token
+        bottom: { value: 90.123, unit: '%' }, // third token
+        left: { value: 45.678, unit: 'vh' }, // fourth token
       });
     });
   });
@@ -211,9 +211,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('10px   20px   30px   40px');
       expect(result).toEqual({
         top: { value: 10, unit: 'px' },
-        left: { value: 20, unit: 'px' },
-        right: { value: 30, unit: 'px' },
-        bottom: { value: 40, unit: 'px' },
+        right: { value: 20, unit: 'px' }, // second token
+        bottom: { value: 30, unit: 'px' }, // third token
+        left: { value: 40, unit: 'px' }, // fourth token
       });
     });
   });
@@ -230,9 +230,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('  10px 20px 30px 40px  ');
       expect(result).toEqual({
         top: { value: 10, unit: 'px' },
-        left: { value: 20, unit: 'px' },
-        right: { value: 30, unit: 'px' },
-        bottom: { value: 40, unit: 'px' },
+        right: { value: 20, unit: 'px' },
+        bottom: { value: 30, unit: 'px' },
+        left: { value: 40, unit: 'px' },
       });
     });
 
@@ -240,9 +240,9 @@ describe('getComputedValue', () => {
       const result = getComputedValue('10px  20px  30px  40px');
       expect(result).toEqual({
         top: { value: 10, unit: 'px' },
-        left: { value: 20, unit: 'px' },
-        right: { value: 30, unit: 'px' },
-        bottom: { value: 40, unit: 'px' },
+        right: { value: 20, unit: 'px' },
+        bottom: { value: 30, unit: 'px' },
+        left: { value: 40, unit: 'px' },
       });
     });
   });
@@ -283,7 +283,7 @@ describe('createAllCornersValue', () => {
       { value: 30, unit: 'px' },
       { value: 40, unit: 'px' }
     );
-    expect(result).toBe('10px 20px 30px 40px');
+    expect(result).toBe('10px 30px 40px 20px'); // top right bottom left
   });
 
   test('should create all corners value with different units', () => {
@@ -293,7 +293,7 @@ describe('createAllCornersValue', () => {
       { value: 33.33, unit: '%' },
       { value: 10, unit: 'vh' }
     );
-    expect(result).toBe('1px 10em 33.33% 10vh');
+    expect(result).toBe('1px 33.33% 10vh 10em');
   });
 
   test('should handle decimal values', () => {
@@ -303,7 +303,7 @@ describe('createAllCornersValue', () => {
       { value: 3.75, unit: 'rem' },
       { value: 4.125, unit: 'vh' }
     );
-    expect(result).toBe('1.5px 2.25em 3.75rem 4.125vh');
+    expect(result).toBe('1.5px 3.75rem 4.125vh 2.25em');
   });
 
   test('should handle negative values', () => {
@@ -313,7 +313,7 @@ describe('createAllCornersValue', () => {
       { value: -15, unit: 'rem' },
       { value: -20, unit: 'vh' }
     );
-    expect(result).toBe('-5px -10em -15rem -20vh');
+    expect(result).toBe('-5px -15rem -20vh -10em');
   });
 });
 
@@ -326,7 +326,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40, unit: 'px' },
     } as const;
     const result = updateCornerValue(currentValue, { top: { value: 15, unit: 'em' } });
-    expect(result).toBe('15em 20px 30px 40px');
+    expect(result).toBe('15em 30px 40px 20px');
   });
 
   test('should update left corner value', () => {
@@ -337,7 +337,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40, unit: 'px' },
     } as const;
     const result = updateCornerValue(currentValue, { left: { value: 25, unit: 'rem' } });
-    expect(result).toBe('10px 25rem 30px 40px');
+    expect(result).toBe('10px 30px 40px 25rem');
   });
 
   test('should update right corner value', () => {
@@ -348,7 +348,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40, unit: 'px' },
     } as const;
     const result = updateCornerValue(currentValue, { right: { value: 35, unit: 'vh' } });
-    expect(result).toBe('10px 20px 35vh 40px');
+    expect(result).toBe('10px 35vh 40px 20px');
   });
 
   test('should update bottom corner value', () => {
@@ -359,7 +359,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40, unit: 'px' },
     } as const;
     const result = updateCornerValue(currentValue, { bottom: { value: 45, unit: 'vw' } });
-    expect(result).toBe('10px 20px 30px 45vw');
+    expect(result).toBe('10px 30px 45vw 20px');
   });
 
   test('should handle decimal values', () => {
@@ -370,7 +370,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40.125, unit: 'vh' },
     } as const;
     const result = updateCornerValue(currentValue, { top: { value: 15.5, unit: 'px' } });
-    expect(result).toBe('15.5px 20.25em 30.75rem 40.125vh');
+    expect(result).toBe('15.5px 30.75rem 40.125vh 20.25em');
   });
 
   test('should handle negative values', () => {
@@ -381,7 +381,7 @@ describe('updateCornerValue', () => {
       bottom: { value: 40, unit: 'px' },
     } as const;
     const result = updateCornerValue(currentValue, { left: { value: -25, unit: 'px' } });
-    expect(result).toBe('10px -25px 30px 40px');
+    expect(result).toBe('10px 30px 40px -25px');
   });
 
   test('should update multiple corners at once', () => {
@@ -395,7 +395,7 @@ describe('updateCornerValue', () => {
       top: { value: 15, unit: 'em' },
       bottom: { value: 45, unit: 'vh' },
     });
-    expect(result).toBe('15em 20px 30px 45vh');
+    expect(result).toBe('15em 30px 45vh 20px');
   });
 });
 
@@ -414,14 +414,14 @@ describe('round-trip tests', () => {
     const computed = getComputedValue(original);
     expect(computed).toEqual({
       top: { value: 1, unit: 'px' },
-      left: { value: 10, unit: 'px' },
-      right: { value: 33.33, unit: '%' },
-      bottom: { value: 10, unit: 'px' },
+      right: { value: 10, unit: 'px' }, // second token
+      bottom: { value: 33.33, unit: '%' }, // third token
+      left: { value: 10, unit: 'px' }, // fourth token
     });
     // @ts-expect-error: Testing computed value, value could be auto
     const recreated = createAllCornersValue(computed!.top, computed!.left, computed!.right, computed!.bottom);
-    // Note: 1.00 becomes 1 when parsed, which is correct behavior
-    expect(recreated).toBe('1px 10px 33.33% 10px');
+    // Note: 1.00 becomes 1 when parsed, which is correct behavior. Output order top right bottom left
+    expect(recreated).toBe('1px 10px 33.33% 10px'); // stays same string but now interpreted as top right bottom left
   });
 
   test('should handle complex decimal round-trip', () => {
@@ -429,9 +429,9 @@ describe('round-trip tests', () => {
     const computed = getComputedValue(original);
     expect(computed).toEqual({
       top: { value: 1.234, unit: 'px' },
-      left: { value: 56.789, unit: 'em' },
-      right: { value: 90.123, unit: '%' },
-      bottom: { value: 45.678, unit: 'vh' },
+      right: { value: 56.789, unit: 'em' }, // second
+      bottom: { value: 90.123, unit: '%' }, // third
+      left: { value: 45.678, unit: 'vh' }, // fourth
     });
 
     // @ts-expect-error: Testing computed value, value could be auto

@@ -48,11 +48,13 @@ export const CodeField = ({
   const [jsonValid, setJsonValid] = useState<boolean>(true);
 
   function validateOnChange(value: string) {
-    try {
-      JSON.parse(value);
-      setJsonValid(true);
-    } catch {
-      setJsonValid(false);
+    if (language == 'json') {
+      try {
+        JSON.parse(value);
+        setJsonValid(true);
+      } catch {
+        setJsonValid(false);
+      }
     }
     setLocalValue(value);
   }
@@ -133,8 +135,18 @@ export const CodeField = ({
             onClick={() => {
               if (jsonValid) {
                 setEditing(false);
+              }
+              try {
+                if (language === 'json') {
+                  const parsed = JSON.parse(localValue);
+                  // @ts-expect-error - TODO - Fix this
+                  return onChange(parsed);
+                }
                 // @ts-expect-error - TODO - Fix this
-                onChange(language === 'json' ? (JSON.parse(localValue) as object) : localValue);
+                onChange(localValue);
+              } finally {
+                console.error('Failed to save code field value');
+                // no-op
               }
             }}
           />

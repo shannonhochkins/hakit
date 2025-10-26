@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
+import { usePopupStore } from './usePopupStore';
 
 const TIME_THRESHOLD_SECONDS = 1; // Threshold for showing recovery prompt
 
@@ -181,6 +182,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
       });
       return;
     }
+    usePopupStore.getState().initializePopups(sanitizedData);
     // Update internal puck data
     setPuckPageData(sanitizedData);
     // the user has accepted the recovery, so we update the dashboard page data

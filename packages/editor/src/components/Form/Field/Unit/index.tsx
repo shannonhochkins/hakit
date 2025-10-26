@@ -51,7 +51,8 @@ export function UnitField({ onChange, value, className, label, supportsAllCorner
               className={getClassName(undefined, className)}
               type='number'
               value={value.value}
-              label={label + ' (' + corner + ')'}
+              label={label}
+              valueSuffix={corner.charAt(0).toUpperCase() + corner.slice(1)}
               onChange={e => {
                 _onChange(
                   updateCornerValue(computedValue, {

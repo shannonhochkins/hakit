@@ -2,6 +2,7 @@ import { useId } from 'react';
 import styles from './Tooltip.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { Tooltip as ReactTooltip, type PlacesType, type ITooltip } from 'react-tooltip';
+import { createPortal } from 'react-dom';
 
 const getClassName = getClassNameFactory('Tooltip', styles);
 
@@ -12,34 +13,49 @@ export type TooltipProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'title'> 
   title?: React.ReactNode | null;
   /** the children of the tooltip */
   children: React.ReactNode;
+  /** basic mode, will just add a "title" attribute to the element */
+  basic?: boolean;
 } & ITooltip;
 
-export function Tooltip({ placement = 'top', title = null, children, style, ...rest }: TooltipProps) {
+// Single Tooltip implementation with optional manual positioning when portalLocation provided
+
+export function Tooltip({ placement = 'top', title = null, children, style, basic, ...rest }: TooltipProps) {
   const id = useId();
+
   return (
     <>
-      <div data-tooltip-id={id} data-tooltip-place={placement} style={style} {...rest}>
+      <div
+        data-tooltip-id={id}
+        data-tooltip-place={placement}
+        style={style}
+        title={basic && title ? (typeof title === 'string' ? title : undefined) : undefined}
+      >
         {children}
       </div>
-      <ReactTooltip
-        place={placement}
-        id={id}
-        {...rest}
-        className={getClassName(
-          {
-            element: true,
-          },
-          'tooltip-element'
+      {!basic &&
+        createPortal(
+          <ReactTooltip
+            place={placement}
+            id={id}
+            opacity={1}
+            {...rest}
+            className={getClassName(
+              {
+                element: true,
+              },
+              'tooltip-element'
+            )}
+            classNameArrow={getClassName(
+              {
+                arrow: true,
+              },
+              'tooltip-arrow'
+            )}
+          >
+            {title}
+          </ReactTooltip>,
+          document.body
         )}
-        classNameArrow={getClassName(
-          {
-            arrow: true,
-          },
-          'tooltip-arrow'
-        )}
-      >
-        {title}
-      </ReactTooltip>
     </>
   );
 }

@@ -1,12 +1,12 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo } from 'react';
 import { DrawerItem } from '../DrawerItem';
-import { FieldDefinition, FieldTypes } from '@typings/fields';
+import { FieldDefinition } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
 import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
-import { useDebouncer } from '@tanstack/react-pacer';
 import isEqual from '@guanghechen/fast-deep-equal';
+import { ActionBar } from '../ActionBar';
 
 type AllFieldRenderers = FieldRenderFunctions<
   Config<{
@@ -14,42 +14,10 @@ type AllFieldRenderers = FieldRenderFunctions<
   }>
 >;
 
-const FIELD_TYPES_TO_THROTTLE: FieldTypes[] = ['text', 'textarea', 'code', 'color', 'number', 'slider'];
-
 // Props accepted by any field renderer in fieldTypes (union of all variants)
 type FieldWrapperProps = Parameters<AllFieldRenderers[keyof AllFieldRenderers]>[0];
 
 const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperProps) => {
-  const [localValue, setLocalValue] = useState(value);
-  const latestValueRef = useRef(value);
-  useEffect(() => {
-    latestValueRef.current = localValue;
-  }, [localValue]);
-
-  // use tanstack debounce to trigger on change after 150ms
-  const debouncedOnChange = useDebouncer(onChange, {
-    wait: FIELD_TYPES_TO_THROTTLE.includes(field.type) ? 150 : 0,
-  });
-
-  // Keep localValue in sync with prop value (prop is source of truth)
-  useEffect(() => {
-    if (!isEqual(value, latestValueRef.current)) {
-      setLocalValue(value);
-    }
-    // Cancel any pending debounced call when the source-of-truth changes
-    debouncedOnChange.cancel();
-  }, [value, debouncedOnChange]);
-
-  const _onChange = useCallback(
-    (next: unknown) => {
-      setLocalValue(next);
-      // Reset and schedule the latest value to ensure trailing delivery
-      debouncedOnChange.cancel();
-      debouncedOnChange.maybeExecute(next);
-    },
-    [debouncedOnChange]
-  );
-
   if (field.type === 'object' || field.type === 'array' || field.type === 'pages') {
     return (
       <CollapsibleFieldWrapper
@@ -65,8 +33,8 @@ const FieldWrapperInner = ({ field, name, onChange, value, id }: FieldWrapperPro
     <StandardFieldWrapper
       field={field as StandardFieldComponentProps['field']}
       name={name}
-      onChange={_onChange}
-      value={localValue}
+      onChange={onChange}
+      value={value}
       id={id ?? name}
     />
   );
@@ -94,6 +62,7 @@ export const createPuckOverridesPlugin = (): Plugin<
 > => {
   return {
     overrides: {
+      actionBar: ActionBar,
       drawerItem: DrawerItem,
       fieldLabel: ({ children }) => <>{children}</>,
       fields: ({ children }) => {
