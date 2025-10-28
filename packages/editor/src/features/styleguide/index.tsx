@@ -19,6 +19,7 @@ import { StyleguideUnitFields } from './UnitFields';
 import { StyleguideIconFields } from './IconFields';
 import { StyleguidePageFields } from './PageFields';
 import { StyleguidePageTheme } from './Theme';
+import { StyleguidePageMenu } from './Menu';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 
 const options = [
@@ -98,6 +99,10 @@ const options = [
     label: 'Theme',
     value: 'Theme',
   },
+  {
+    label: 'Menu',
+    value: 'Menu',
+  },
 ];
 
 const sortedList = options.sort((a, b) => a.label.localeCompare(b.label));
@@ -145,6 +150,7 @@ export function Styleguide() {
       {preview.value === 'Icon Fields' && <StyleguideIconFields />}
       {preview.value === 'Page Fields' && <StyleguidePageFields />}
       {preview.value === 'Theme' && <StyleguidePageTheme />}
+      {preview.value === 'Menu' && <StyleguidePageMenu />}
     </>
   );
 }

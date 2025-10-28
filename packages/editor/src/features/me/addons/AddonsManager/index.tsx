@@ -1,11 +1,10 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import { PrimaryButton } from '@components/Button/Primary';
-import { DownloadCloudIcon, SearchIcon, PackageIcon, TrashIcon, EyeIcon } from 'lucide-react';
+import { DownloadCloudIcon, SearchIcon, PackageIcon, EyeIcon } from 'lucide-react';
 import { AddonListItem } from '@features/me/addons/AddonsManager/AddonListItem';
 import { Row } from '@components/Layout';
 import { InputField } from '@components/Form/Field/Input';
-import { Menu, MenuItem } from '@components/Menu';
 import { Confirm } from '@components/Modal/confirm';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userAddonsQueryOptions, disconnectAddon, toggleComponentStatus } from '@services/addons';
@@ -38,8 +37,6 @@ export function AddonsManager() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingUserAddonId, setDeletingUserAddonId] = useState<string | null>(null);
   const [togglingComponents, setTogglingComponents] = useState<Set<string>>(new Set());
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [activeAddonId, setActiveAddonId] = useState<string | null>(null);
 
   const userAddons = useMemo(() => userAddonsQuery.data ?? [], [userAddonsQuery.data]);
 
@@ -167,23 +164,6 @@ export function AddonsManager() {
 
   const isTogglingComponent = (userAddonId: string, componentName: string) => {
     return togglingComponents.has(`${userAddonId}-${componentName}`);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-    setActiveAddonId(null);
-  };
-
-  const handleRemove = (userAddonId: string) => {
-    setDeleteConfirmOpen(true);
-    setDeletingUserAddonId(userAddonId);
-  };
-
-  const handleRemoveClick = () => {
-    if (activeAddonId) {
-      handleMenuClose();
-      handleRemove(activeAddonId);
-    }
   };
 
   const confirmDelete = async () => {
@@ -349,25 +329,6 @@ export function AddonsManager() {
           })
         )}
       </div>
-
-      <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={handleMenuClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <MenuItem onClick={handleRemoveClick} style={{ color: 'var(--color-error-500)' }}>
-          <TrashIcon size={16} style={{ marginRight: 8 }} />
-          Remove Addon
-        </MenuItem>
-      </Menu>
 
       <Confirm open={deleteConfirmOpen} title='Remove Addon' onConfirm={confirmDelete} onCancel={cancelDelete}>
         <p>

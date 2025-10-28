@@ -23,6 +23,7 @@
   text-align: left;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
+  border-radius: var(--radius-md);
 }
 
 .menuItem:hover,

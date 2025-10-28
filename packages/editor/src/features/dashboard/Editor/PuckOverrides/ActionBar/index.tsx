@@ -1,13 +1,12 @@
 import { ComponentData, createUsePuck, Slot, useGetPuck, walkTree } from '@measured/puck';
 import { ArrowDown, ArrowUp, Box, Copy, CornerLeftUp, EllipsisVertical, Trash } from 'lucide-react';
 import { PopupProps } from '../../InternalComponents/Popup';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { usePopupStore } from '@hooks/usePopupStore';
 import { IconButton } from '@components/Button';
 import styles from './ActionBar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-import { Menu, MenuItem } from '@components/Menu';
-import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
+import { Menu, MenuAnchor, MenuContent, MenuItem } from '@components/Menu';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { ContainerProps } from '../../InternalComponents/Container';
 
@@ -17,14 +16,11 @@ const usePuck = createUsePuck();
 
 export function ActionBar() {
   const getPuck = useGetPuck();
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const selectedItem = usePuck(s => s.selectedItem);
   const getPermissions = usePuck(s => s.getPermissions);
   const dispatch = usePuck(s => s.dispatch);
   const appState = usePuck(s => s.appState);
   const config = usePuck(s => s.config);
-  const puckElements = usePuckIframeElements();
-  // const refreshPermissions = usePuck((s) => s.refreshPermissions);
   const itemSelector = usePuck(s => s.appState.ui.itemSelector);
   const getItemBySelector = usePuck(s => s.getItemBySelector);
   const getSelectorForId = usePuck(s => s.getSelectorForId);
@@ -265,26 +261,9 @@ export function ActionBar() {
     );
   }, [globalPermissions.edit, globalPermissions.drag, onMoveDown, parentId, getItemById, itemSelector]);
 
-  const handleMenuClose = useCallback(() => {
-    setMenuAnchorEl(null);
-  }, []);
-
-  const additionalActionsMenu = useMemo(() => {
+  const sharedMenuContentItems = useMemo(() => {
     return (
-      <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={handleMenuClose}
-        doc={puckElements?.document ?? document}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
+      <MenuContent>
         <MenuItem
           onClick={() => {
             const { appState, config, getItemBySelector, dispatch } = getPuck();
@@ -307,35 +286,14 @@ export function ActionBar() {
               data: newContent,
             });
           }}
+          label='Wrap in Container'
           startIcon={<Box size={16} />}
-        >
-          Wrap in Container
-        </MenuItem>
-        <MenuItem onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete}>
-          Delete
-        </MenuItem>
-        <MenuItem onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate}>
-          Duplicate
-        </MenuItem>
-      </Menu>
+        />
+        <MenuItem label='Delete' onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete} />
+        <MenuItem label='Duplicate' onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate} />
+      </MenuContent>
     );
-  }, [menuAnchorEl, handleMenuClose, puckElements, getPuck, onDelete, onDuplicate, globalPermissions]);
-
-  const handleAdditionalActionsClick = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      e.stopPropagation();
-      const sameAnchor = menuAnchorEl && e.currentTarget === menuAnchorEl;
-
-      if (menuAnchorEl && sameAnchor) {
-        // Toggle close if clicking the active trigger again
-        handleMenuClose();
-        return;
-      }
-
-      setMenuAnchorEl(e.currentTarget);
-    },
-    [handleMenuClose, menuAnchorEl]
-  );
+  }, [getPuck, onDelete, onDuplicate, globalPermissions]);
 
   if (!selectedItem)
     return (
@@ -346,20 +304,22 @@ export function ActionBar() {
           {moveDownAction}
         </div>
         <div className={cn('group')}>
-          <IconButton
-            size='xs'
-            style={{
-              background: `var(--color-gray-800)`,
-            }}
-            variant='transparent'
-            aria-label='Additional Actions'
-            aria-haspopup='menu'
-            aria-expanded={Boolean(menuAnchorEl)}
-            tooltipProps={{ basic: true }}
-            icon={<EllipsisVertical size={16} />}
-            onClick={handleAdditionalActionsClick}
-          />
-          {additionalActionsMenu}
+          <Menu>
+            <MenuAnchor>
+              <IconButton
+                size='xs'
+                style={{
+                  background: `var(--color-gray-800)`,
+                }}
+                variant='transparent'
+                aria-label='Additional Actions'
+                aria-haspopup='menu'
+                tooltipProps={{ basic: true }}
+                icon={<EllipsisVertical size={16} />}
+              />
+            </MenuAnchor>
+            {sharedMenuContentItems}
+          </Menu>
         </div>
       </div>
     );
@@ -372,20 +332,22 @@ export function ActionBar() {
         {moveDownAction}
       </div>
       <div className={cn('group')}>
-        <IconButton
-          size='xs'
-          variant='transparent'
-          aria-label='Additional Actions'
-          style={{
-            background: `var(--color-gray-800)`,
-          }}
-          aria-haspopup='menu'
-          aria-expanded={Boolean(menuAnchorEl)}
-          tooltipProps={{ basic: true }}
-          icon={<EllipsisVertical size={16} />}
-          onClick={handleAdditionalActionsClick}
-        />
-        {additionalActionsMenu}
+        <Menu>
+          <MenuAnchor>
+            <IconButton
+              size='xs'
+              variant='transparent'
+              aria-label='Additional Actions'
+              style={{
+                background: `var(--color-gray-800)`,
+              }}
+              aria-haspopup='menu'
+              tooltipProps={{ basic: true }}
+              icon={<EllipsisVertical size={16} />}
+            />
+          </MenuAnchor>
+          {sharedMenuContentItems}
+        </Menu>
       </div>
     </div>
   );
