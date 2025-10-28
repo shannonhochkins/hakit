@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { StyleguideInputFields } from './InputFields';
 import { StyleguideSwitchFields } from './SwitchFields';
 import { StyleguideRadioFields } from './RadioFields';
@@ -19,6 +18,8 @@ import { StyleguideTabs } from './Tabs';
 import { StyleguideUnitFields } from './UnitFields';
 import { StyleguideIconFields } from './IconFields';
 import { StyleguidePageFields } from './PageFields';
+import { StyleguidePageTheme } from './Theme';
+import { useLocalStorage } from '@hooks/useLocalStorage';
 
 const options = [
   {
@@ -93,12 +94,17 @@ const options = [
     label: 'Page Fields',
     value: 'Page Fields',
   },
+  {
+    label: 'Theme',
+    value: 'Theme',
+  },
 ];
 
 const sortedList = options.sort((a, b) => a.label.localeCompare(b.label));
 
 export function Styleguide() {
-  const [preview, setPreview] = useState<(typeof options)[number]>(options.find(option => option.value === 'Input Fields')!);
+  const [preview, setPreview] = useLocalStorage<(typeof options)[number]>('styleguide-preview', options[0]);
+
   return (
     <>
       <h1>Styleguide</h1>
@@ -138,6 +144,7 @@ export function Styleguide() {
       {preview.value === 'Unit Fields' && <StyleguideUnitFields />}
       {preview.value === 'Icon Fields' && <StyleguideIconFields />}
       {preview.value === 'Page Fields' && <StyleguidePageFields />}
+      {preview.value === 'Theme' && <StyleguidePageTheme />}
     </>
   );
 }

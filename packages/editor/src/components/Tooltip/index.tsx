@@ -19,7 +19,7 @@ export type TooltipProps = Omit<React.ComponentPropsWithoutRef<'div'>, 'title'> 
 
 // Single Tooltip implementation with optional manual positioning when portalLocation provided
 
-export function Tooltip({ placement = 'top', title = null, children, style, basic, ...rest }: TooltipProps) {
+export function Tooltip({ placement = 'top', title = null, children, style, basic, key, ...rest }: TooltipProps) {
   const id = useId();
 
   return (
@@ -28,6 +28,7 @@ export function Tooltip({ placement = 'top', title = null, children, style, basi
         data-tooltip-id={id}
         data-tooltip-place={placement}
         style={style}
+        key={key}
         title={basic && title ? (typeof title === 'string' ? title : undefined) : undefined}
       >
         {children}
@@ -37,6 +38,7 @@ export function Tooltip({ placement = 'top', title = null, children, style, basi
           <ReactTooltip
             place={placement}
             id={id}
+            key={key}
             opacity={1}
             {...rest}
             className={getClassName(

@@ -1,6 +1,8 @@
 import React, { CSSProperties } from 'react';
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
 import { UnitFieldValue } from '@typings/fields';
+import { generateColorSwatches } from '@helpers/color';
+import { generateCssVariables } from '@helpers/color/generateCssVariables';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -38,8 +40,6 @@ interface BackgroundProps {
 interface TypographyProps {
   /** Font family selection */
   fontFamily: string;
-  /** Font color */
-  fontColor: string;
   /** Advanced typography options */
   useAdvancedTypography?: boolean;
   /** Font weight for headings */
@@ -90,6 +90,7 @@ const fontFamilyMap: Record<string, string> = {
 
 export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   label: 'Root',
+  rootConfiguration: true,
   fields: {
     background: {
       type: 'object',
@@ -293,12 +294,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
             { label: 'Merriweather', value: 'merriweather' },
           ],
         },
-        fontColor: {
-          type: 'color',
-          label: 'Font Color',
-          description: 'Primary text color for your dashboard',
-          default: '#ffffff',
-        },
         useAdvancedTypography: {
           type: 'switch',
           label: 'Advanced Typography',
@@ -385,15 +380,18 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
 
     const selectedFontFamily = typography?.fontFamily ?? 'roboto';
     const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
+    const swatches = generateColorSwatches(props.design.theme);
+    const cssVariables = generateCssVariables(swatches);
 
     return `
       :root {
+        ${cssVariables}
         /* Background Variables */
         --background-image: ${bgImageUrl};
         --background-size: ${bgSize};
         --background-position: ${background?.backgroundPosition ?? 'center center'};
         --background-repeat: ${background?.backgroundRepeat ?? 'no-repeat'};
-        --background-overlay-color: ${background?.overlayColor ?? '#4254c5'};
+        --background-overlay-color: ${background?.overlayColor ?? 'var(--clr-primary-a0'};
         --background-overlay-blend-mode: ${background?.overlayBlendMode ?? 'multiply'};
         --background-overlay-opacity: ${background?.overlayOpacity ?? 0.9};
         --background-blur: ${background?.blur ?? 25}px;
@@ -404,7 +402,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         
         /* Typography Variables */
         --typography-font-family: ${fontFamily};
-        --typography-font-color: ${typography?.fontColor ?? '#ffffff'};
         --typography-heading-weight: ${typography?.headingWeight ?? 600};
         --typography-body-weight: ${typography?.bodyWeight ?? 400};
         --typography-base-font-size: ${typography?.baseFontSize ?? 16}px;
@@ -444,7 +441,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         content: '';
         position: absolute;
         inset: 0;
-        background-color: var(--background-overlay-color, transparent);
+        background: var(--background-overlay-color, transparent);
         opacity: var(--background-overlay-opacity, 0);
         mix-blend-mode: var(--background-overlay-blend-mode, normal);
       }
@@ -484,7 +481,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         font-size: var(--typography-base-font-size);
         line-height: var(--typography-line-height);
         letter-spacing: var(--typography-letter-spacing);
-        color: var(--typography-font-color);
         
         /* Better text rendering */
         text-rendering: optimizeLegibility;
@@ -496,7 +492,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       h1, h2, h3, h4, h5, h6 {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-heading-weight);
-        color: var(--typography-font-color);
         
         /* Better line-height for headings */
         line-height: 1.2;
@@ -508,7 +503,6 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       p, span, div, a, button, input, textarea, select {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-body-weight);
-        color: var(--typography-font-color);
       }
 
       /* Better paragraph spacing */
@@ -660,6 +654,13 @@ function Render(props: RenderProps<DefaultRootProps>) {
           <link href={googleFontsUrl} rel='stylesheet' />
         </>
       )}
+      <div
+        style={{
+          width: '200px',
+          height: '200px',
+          backgroundColor: 'var(--clr-primary-a10)',
+        }}
+      ></div>
       <div className='root-component' id={props.id}>
         <div className='root-component-background'></div>
       </div>

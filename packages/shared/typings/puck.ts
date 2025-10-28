@@ -70,6 +70,8 @@ export type CustomComponentConfig<Props extends DefaultComponentProps = DefaultC
 > & {
   // Label is required
   label: string;
+  /** If this configuration is a dashboard level configuration */
+  rootConfiguration?: boolean;
   fields: FieldConfiguration<Props>;
   render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling

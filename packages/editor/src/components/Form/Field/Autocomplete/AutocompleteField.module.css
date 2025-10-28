@@ -42,14 +42,13 @@
   font-size: var(--font-size-sm);
   padding: var(--space-1);
   color: var(--color-text-primary);
-  text-indent: var(--space-1);
 }
 .placeholder {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   position: absolute;
   pointer-events: none;
-  left: var(--space-3);
+  left: var(--space-4);
 }
 .hasStartAdornment .placeholder { left: calc(2.5rem + var(--space-2)); }
 .hasStartAdornment .valueContainer { padding-left: calc(2.5rem + var(--space-2)); }
@@ -186,6 +185,8 @@
   color: var(--color-primary-700);
 }
 .dropdown {
+  z-index: var(--z-popover);
+  overflow: hidden;
   max-height: 200px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -218,7 +219,10 @@
   background-color: var(--color-primary-800);
 }
 .highlightedOption {
-  background-color: var(--color-surface-elevated);
+  background-color: var(--color-primary-700);
+}
+.highlightedOption:hover {
+  background-color: var(--color-primary-600);
 }
 .checkIcon {
   color: var(--color-primary-100);

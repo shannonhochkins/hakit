@@ -664,6 +664,7 @@ export const mockConfig = {
   },
   root: {
     label: 'Root',
+    rootConfiguration: true,
     fields: {
       '@hakit/default-root': {
         type: 'object',

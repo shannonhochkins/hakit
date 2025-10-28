@@ -1,6 +1,6 @@
 import { useSyncExternalStore, useCallback, useEffect, useMemo } from 'react';
 
-type ValidStorageKeys = 'hassUrl' | 'hassTokens' | 'panel' | 'hasCreatedAccount' | 'selectedBreakpoint';
+type ValidStorageKeys = 'hassUrl' | 'hassTokens' | 'panel' | 'hasCreatedAccount' | 'selectedBreakpoint' | 'styleguide-preview';
 
 type Value = string | null | undefined;
 

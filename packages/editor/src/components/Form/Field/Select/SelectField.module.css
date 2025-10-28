@@ -24,7 +24,7 @@
 }
 .inputWrapper:focus-within {
   border-color: var(--color-primary-500);
-  box-shadow: var(--shadow-primary-focus-sm);
+  box-shadow: none;
 }
 .valueContainer {
   display: flex;
@@ -115,7 +115,8 @@
 .chipRemove:hover { color: var(--color-primary-700); }
 
 .dropdown {
-  width: 100%;
+  overflow: hidden;
+  z-index: var(--z-popover);
   max-height: 200px;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -146,6 +147,12 @@
 }
 .selectedOption:hover {
   background-color: var(--color-primary-800);
+}
+.highlightedOption {
+  background-color: var(--color-primary-700);
+}
+.highlightedOption:hover {
+  background-color: var(--color-primary-600);
 }
 .checkIcon { color: var(--color-primary-500); justify-self: center; }
 

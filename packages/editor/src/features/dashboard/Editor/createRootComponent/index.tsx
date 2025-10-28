@@ -1,10 +1,4 @@
-import type {
-  AdditionalRenderProps,
-  ComponentFactoryData,
-  IgnorePuckConfigurableOptions,
-  RenderProps,
-  InternalRootData,
-} from '@typings/puck';
+import type { AdditionalRenderProps, ComponentFactoryData, RenderProps, InternalRootData } from '@typings/puck';
 import { Fragment, useMemo } from 'react';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
@@ -101,7 +95,9 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // use our component factory to convert out component structure to a puck component
   const updatedRootConfig = await componentFactory(data);
 
-  const finalRootConfig: Omit<CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields>, IgnorePuckConfigurableOptions> = {
+  console.log('defaultProps', JSON.stringify(updatedRootConfig.defaultProps, null, 2));
+
+  const finalRootConfig: CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields> = {
     ...updatedRootConfig,
     // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: updatedRootConfig.fields,

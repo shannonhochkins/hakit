@@ -22,3 +22,5 @@ export const EXCLUDE_FIELD_TYPES_FROM_TEMPLATES: readonly FieldTypes[] = [
 export const TEMPLATE_PREFIX = 'jinja2Template::';
 
 export const DEFAULT_FIELD_DEBOUNCE_MS = 150;
+
+export const CSS_VARIABLE_PREFIX = '--clr-';

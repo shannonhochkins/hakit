@@ -214,7 +214,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         continue;
       }
 
-      const isRootComponent = component.config.label === 'Root';
+      const isRootComponent = component.config.rootConfiguration === true;
 
       if (isRootComponent) {
         // for now, we just capture the rootConfigs as we need to render them under one root
