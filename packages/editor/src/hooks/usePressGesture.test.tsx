@@ -14,7 +14,7 @@ import { render, renderHook, fireEvent, screen, cleanup } from '@testing-library
 import type { PressHandlers } from './usePressGestures';
 import type { ComponentProps } from 'react';
 
-const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise(res => setTimeout(res, Math.max(0, ms)));
 const NEXT_TICK = () => new Promise(res => queueMicrotask(res));
 
 type DivProps = ComponentProps<'div'>;

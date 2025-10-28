@@ -89,7 +89,7 @@ const fontFamilyMap: Record<string, string> = {
 };
 
 export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
-  label: 'Root',
+  label: 'Default Root',
   rootConfiguration: true,
   fields: {
     background: {

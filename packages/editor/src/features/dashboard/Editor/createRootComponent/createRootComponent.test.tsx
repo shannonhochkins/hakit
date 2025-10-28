@@ -280,6 +280,7 @@ describe('createRootComponent', () => {
       device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
       content: () => <div data-testid='content-slot'>Content Slot</div>,
+      popupContent: () => <div data-testid='content-slot'>Content Slot</div>,
       _styleOverrides: { style: 'body { margin: 0; }' },
     };
 
@@ -294,23 +295,77 @@ describe('createRootComponent', () => {
     // Verify render functions were called
     expect(mockRootConfig1.render).toHaveBeenCalledWith(
       expect.objectContaining({
+        design: {
+          override: true,
+          theme: {
+            primary: 'rgb(27, 1, 204)',
+            surface: 'rgb(18, 18, 18)',
+            lightMode: false,
+            tonalityMix: 0.3,
+            semantics: {
+              success: '#22946E',
+              warning: '#A87A2A',
+              danger: '#9C2121',
+              info: '#21498A',
+            },
+          },
+        },
+        styles: {
+          css: '',
+        },
+        device: 'mobile',
+        _styleOverrides: {
+          style: 'body { margin: 0; }',
+        },
         testField1: 'custom value 1',
         sharedField: 'isolated value 1',
-        device: 'mobile',
-        _dashboard: { id: 'test-dashboard' },
-        _editMode: false,
-        _editor: { iframe: null, document: null },
+        id: undefined,
+        _editMode: undefined,
+        _editor: {
+          iframe: null,
+          document: null,
+        },
+        _dashboard: {
+          id: 'test-dashboard',
+        },
       })
     );
 
     expect(mockRootConfig2.render).toHaveBeenCalledWith(
       expect.objectContaining({
+        design: {
+          override: true,
+          theme: {
+            primary: 'rgb(27, 1, 204)',
+            surface: 'rgb(18, 18, 18)',
+            lightMode: false,
+            tonalityMix: 0.3,
+            semantics: {
+              success: '#22946E',
+              warning: '#A87A2A',
+              danger: '#9C2121',
+              info: '#21498A',
+            },
+          },
+        },
+        styles: {
+          css: '',
+        },
+        device: 'mobile',
+        _styleOverrides: {
+          style: 'body { margin: 0; }',
+        },
         testField2: 99,
         sharedField: 'isolated value 2',
-        device: 'mobile',
-        _dashboard: { id: 'test-dashboard' },
-        _editMode: false,
-        _editor: { iframe: null, document: null },
+        id: undefined,
+        _editMode: undefined,
+        _editor: {
+          iframe: null,
+          document: null,
+        },
+        _dashboard: {
+          id: 'test-dashboard',
+        },
       })
     );
 
@@ -604,6 +659,7 @@ describe('createRootComponent', () => {
         anotherSlot: () => <div data-testid='another-slot-content'>Slot Content</div>,
       },
       content: () => <div data-testid='content-slot'>Main Content</div>,
+      popupContent: () => <div data-testid='content-slot'>Main Content</div>,
       device: 'mobile' as const,
       puck: {} as Record<string, unknown>,
     };
@@ -619,13 +675,37 @@ describe('createRootComponent', () => {
     // Verify the render function was called with the correct props including slots
     expect(slotRootConfig.render).toHaveBeenCalledWith(
       expect.objectContaining({
+        design: {
+          override: true,
+          theme: {
+            primary: 'rgb(27, 1, 204)',
+            surface: 'rgb(18, 18, 18)',
+            lightMode: false,
+            tonalityMix: 0.3,
+            semantics: {
+              success: '#22946E',
+              warning: '#A87A2A',
+              danger: '#9C2121',
+              info: '#21498A',
+            },
+          },
+        },
+        styles: {
+          css: '',
+        },
+        device: 'mobile',
         something: 'Test Something',
         somethingElse: 'Test Something Else',
         anotherSlot: expect.any(Function),
-        device: 'mobile',
-        _dashboard: { id: 'test-dashboard' },
-        _editMode: false,
-        _editor: { iframe: null, document: null },
+        id: undefined,
+        _editMode: undefined,
+        _editor: {
+          iframe: null,
+          document: null,
+        },
+        _dashboard: {
+          id: 'test-dashboard',
+        },
       })
     );
 
