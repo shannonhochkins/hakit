@@ -122,6 +122,7 @@ export type Actions = Navigate | CallService | None | External | Popup;
 export type ActionTypes = Actions['type'];
 
 export type DesignFields = {
+  override: boolean;
   theme: {
     primary: string;
     surface: string;

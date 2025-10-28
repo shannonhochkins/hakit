@@ -1,5 +1,6 @@
 .helperText {
   font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
   color: var(--color-text-muted);
   margin-top: var(--space-2);
   user-select: none;

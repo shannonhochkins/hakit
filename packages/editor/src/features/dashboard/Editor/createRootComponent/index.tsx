@@ -1,5 +1,5 @@
 import type { AdditionalRenderProps, ComponentFactoryData, RenderProps, InternalRootData } from '@typings/puck';
-import { Fragment, useMemo } from 'react';
+import { Fragment, useMemo, memo } from 'react';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
 import { defaultRootConfig, type DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
@@ -13,6 +13,35 @@ import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPr
 import { attachAddonReference } from '@helpers/editor/pageData/attachAddonReference';
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
+import isEqual from '@guanghechen/fast-deep-equal';
+
+// Define explicit props type to help retain generics through memo
+type CommonRenderProps<P extends DefaultComponentProps> = {
+  renderProps: Omit<RenderProps<InternalRootData & InternalRootComponentFields>, 'content' | 'popupContent' | 'puck'>;
+  remoteKeys: Set<string>;
+  isEditing: boolean;
+  processedConfigs: CustomRootConfigWithRemote<P>[];
+};
+
+function arePropsEqual<P extends DefaultComponentProps>(prev: CommonRenderProps<P>, next: CommonRenderProps<P>) {
+  // intentionally ignoring props.processedConfigs/props.remoteKeys as it's static
+  if (!isEqual(prev.renderProps, next.renderProps)) return false;
+  if (prev.isEditing !== next.isEditing) return false;
+  // ignore everything else, let it render
+  return true;
+}
+
+// Cast back to the original generic function type so <TemplateSubscriber<P>> works
+// Provide a helper generic wrapper to preserve type inference with memo
+type TemplateSubscriberComponent = <P extends DefaultComponentProps>(props: CommonRenderProps<P>) => React.ReactElement | null;
+
+function withGenericTemplateSubscriber(component: TemplateSubscriberComponent) {
+  const equality = (prev: CommonRenderProps<DefaultComponentProps>, next: CommonRenderProps<DefaultComponentProps>): boolean =>
+    arePropsEqual(prev, next);
+  return memo(component, equality) as TemplateSubscriberComponent;
+}
+
+const TemplateSubscriber = withGenericTemplateSubscriber(TemplateSubscriberInner);
 
 export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
@@ -95,18 +124,33 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // use our component factory to convert out component structure to a puck component
   const updatedRootConfig = await componentFactory(data);
 
-  console.log('defaultProps', JSON.stringify(updatedRootConfig.defaultProps, null, 2));
-
   const finalRootConfig: CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields> = {
     ...updatedRootConfig,
     // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: updatedRootConfig.fields,
     inline: false,
     // Create a render function that calls all root render functions
-    render(renderProps: RenderProps<InternalRootData & InternalRootComponentFields>) {
+    render({
+      content: Content,
+      popupContent: PopupContent,
+      puck,
+      // @ts-expect-error - does exist, just not in the types internally, this is a puck value we intentionally don't render as we have custom slots for the root zone
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      children: _children,
+      ...renderProps
+    }: RenderProps<InternalRootData & InternalRootComponentFields>) {
       return (
         <RenderErrorBoundary prefix='Root'>
-          <TemplateSubscriber props={renderProps} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />
+          <TemplateSubscriber
+            renderProps={renderProps}
+            remoteKeys={remoteKeys}
+            processedConfigs={processedConfigs}
+            isEditing={puck.isEditing}
+          />
+          {/* the root dropzone */}
+          <Content />
+          {/* slot that houses all popup portals, intentionally hiding this zone so users can't drag into it */}
+          <PopupContent style={{ display: 'none' }} />
         </RenderErrorBoundary>
       );
     },
@@ -116,20 +160,23 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   return finalRootConfig;
 }
 
-function TemplateSubscriber<P extends DefaultComponentProps>({
-  props,
+function TemplateSubscriberInner<P extends DefaultComponentProps>({
+  renderProps,
   remoteKeys,
   processedConfigs,
-}: {
-  props: RenderProps<InternalRootData & InternalRootComponentFields>;
-  remoteKeys: Set<string>;
-  processedConfigs: CustomRootConfigWithRemote<P>[];
-}) {
-  const { data, loading, error } = useResolvedJinjaTemplate(props);
+  isEditing,
+}: CommonRenderProps<P>) {
+  const { data, loading, error } = useResolvedJinjaTemplate(renderProps);
   if (error) {
     throw error;
   }
-  return <>{loading || !data ? null : <Render {...data} remoteKeys={remoteKeys} processedConfigs={processedConfigs} />}</>;
+  return (
+    <>
+      {loading || !data ? null : (
+        <Render renderProps={data} remoteKeys={remoteKeys} processedConfigs={processedConfigs} isEditing={isEditing} />
+      )}
+    </>
+  );
 }
 
 function getPropsForRoot<P extends DefaultComponentProps>(
@@ -153,11 +200,11 @@ function getPropsForRoot<P extends DefaultComponentProps>(
 }
 
 function Render<P extends DefaultComponentProps>({
-  puck,
+  renderProps,
   processedConfigs,
   remoteKeys,
-  ...renderProps
-}: RenderProps<InternalRootData & InternalRootComponentFields> & {
+  isEditing,
+}: CommonRenderProps<P> & {
   processedConfigs: CustomRootConfigWithRemote<P>[];
   remoteKeys: Set<string>;
 }) {
@@ -169,7 +216,7 @@ function Render<P extends DefaultComponentProps>({
   >;
   const editorElements = usePuckIframeElements();
   const processedProps = currentBreakpointProps;
-  const { id, styles, editMode = false, content: Content, popupContent: PopupContent } = processedProps;
+  const { id, styles } = processedProps;
 
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
@@ -178,7 +225,7 @@ function Render<P extends DefaultComponentProps>({
     .map(rootConfig => {
       const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
         id,
-        _editMode: editMode ?? puck.isEditing,
+        _editMode: isEditing,
         _editor: editorElements,
         _dashboard: dashboard,
       };
@@ -196,7 +243,7 @@ function Render<P extends DefaultComponentProps>({
     for (const rootConfig of processedConfigs) {
       const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
         id,
-        _editMode: editMode ?? puck.isEditing,
+        _editMode: isEditing,
         _editor: editorElements,
         _dashboard: dashboard,
       };
@@ -204,24 +251,19 @@ function Render<P extends DefaultComponentProps>({
       map.set(rootConfig._remoteAddonId, propsForThisRoot);
     }
     return map;
-  }, [processedConfigs, id, editMode, puck.isEditing, editorElements, dashboard, processedProps, remoteKeys]);
+  }, [processedConfigs, id, isEditing, editorElements, dashboard, processedProps, remoteKeys]);
 
   return (
     <>
       {processedConfigs.map((rootConfig, index) => {
         if (rootConfig?.render) {
           const propsForThisRoot = propsForRootMap.get(rootConfig._remoteAddonId)!;
-
           return (
             <Fragment key={index}>{rootConfig.render(propsForThisRoot as Parameters<CustomRootConfigWithRemote<P>['render']>[0])}</Fragment>
           );
         }
         return null;
       })}
-      {/* the root dropzone */}
-      <Content />
-      {/* slot that houses all popup portals, intentionally hiding this zone so users can't drag into it */}
-      <PopupContent style={{ display: 'none' }} />
 
       <Global
         styles={css`

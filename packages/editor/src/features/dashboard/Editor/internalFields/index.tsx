@@ -7,10 +7,10 @@ import { Column } from '@components/Layout';
 import { MousePointerClick, TextSelect } from 'lucide-react';
 import { CodeField } from '@components/Form/Field/Code';
 import { PopupIdField } from './PopupIdField';
-import { designFields } from './Design';
+import { getDesignFields } from './Design';
 
 export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
-  ...designFields,
+  ...getDesignFields('root'),
   styles: {
     type: 'object',
     label: 'Global styles',
@@ -234,7 +234,7 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
       },
     },
   },
-  ...designFields,
+  ...getDesignFields('component'),
   styles: {
     type: 'object',
     label: 'Style Overrides',

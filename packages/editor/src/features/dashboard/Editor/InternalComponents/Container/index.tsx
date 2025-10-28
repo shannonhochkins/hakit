@@ -349,9 +349,17 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
 
 function Render(props: RenderProps<ContainerProps>) {
   const { content: Content } = props;
+
   return (
     <div className='Container'>
       <Content className='Container-content' />
+      <div
+        style={{
+          width: '200px',
+          height: '200px',
+          background: 'var(--clr-primary-a50',
+        }}
+      ></div>
     </div>
   );
 }

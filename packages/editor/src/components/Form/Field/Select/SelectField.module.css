@@ -33,12 +33,15 @@
   flex: 1;
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
-  min-height: calc(2.5rem - 2px);
-  
+  max-height: calc(2.5rem - 2px);
+  overflow: hidden;
 }
 .placeholder {
   color: var(--color-gray-300);
   font-size: var(--font-size-sm);
+  line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .startAdornment {
   display: flex;

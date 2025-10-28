@@ -2,7 +2,7 @@ import { ColorField } from '@components/Form/Field/Color';
 import { SliderField } from '@components/Form/Field/Slider';
 import { SwitchField } from '@components/Form/Field/Switch';
 import { Column, Row } from '@components/Layout';
-import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
+import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import Color from 'color';
 import { Blend, Lightbulb, LightbulbOff, PaintBucket, Palette } from 'lucide-react';
 import styles from './Design.module.css';
@@ -11,6 +11,7 @@ import { generateColorSwatches } from '@helpers/color';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
 import { Tooltip } from '@components/Tooltip';
 import { type Swatch } from '@helpers/color/primary';
+import { useCallback } from 'react';
 const cn = getClassNameFactory('Design', styles);
 function Swatch({ color }: { color: string }) {
   return <div className={cn('swatch')} style={{ backgroundColor: color }} />;
@@ -50,15 +51,25 @@ function SwatchesRow({ swatches, type }: { swatches: Swatch[]; type: 'primary' |
   );
 }
 
-export const designFields: FieldConfiguration<{ design: InternalComponentFields['design'] }> = {
+export const getDesignFields = (type: 'root' | 'component'): FieldConfiguration<{ design: InternalRootComponentFields['design'] }> => ({
   design: {
     type: 'object',
-    label: 'Design',
+    label: type === 'component' ? 'Design Overrides' : 'Design',
     collapseOptions: {
       startExpanded: false,
     },
-    description: 'Provide design options for the dashboard',
+    description:
+      type === 'component'
+        ? "Override design settings for this component, this will regenerate the css variables scoped to this component and it's children"
+        : 'Provide design options for the dashboard',
     objectFields: {
+      override: {
+        type: 'switch',
+        label: 'Enable Design Overrides',
+        description: 'Enable custom design overrides for this component',
+        default: type === 'root' ? true : false,
+        visible: () => type === 'component',
+      },
       theme: {
         type: 'custom',
         label: 'Theme Colors',
@@ -74,6 +85,9 @@ export const designFields: FieldConfiguration<{ design: InternalComponentFields[
             info: '#21498A',
           },
         },
+        visible(data) {
+          return data.design.override;
+        },
         render({ value, onChange, id }) {
           const swatches = generateColorSwatches({
             primary: value.primary,
@@ -81,6 +95,28 @@ export const designFields: FieldConfiguration<{ design: InternalComponentFields[
             lightMode: value.lightMode,
             tonalityMix: value.tonalityMix,
           });
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          const onSwitchChange = useCallback(
+            (e: React.SyntheticEvent<HTMLInputElement>) => {
+              const checked = (e.target as HTMLInputElement).checked;
+              // using the "color" package, determine if the current surface value should be retrieved from the opposite space
+              // for example, if switching to light mode and the surface is very dark, we may want to adjust it to a lighter color
+              const isCurrentValueDark = Color(value.surface).isDark();
+              const surfaceColor = checked
+                ? isCurrentValueDark
+                  ? Color(value.surface).negate().rgb().toString()
+                  : value.surface
+                : Color(value.surface).isLight()
+                  ? '#121212'
+                  : value.surface;
+              onChange({
+                ...value,
+                surface: surfaceColor,
+                lightMode: checked,
+              });
+            },
+            [onChange, value]
+          );
           return (
             <Column
               gap='var(--space-5)'
@@ -96,25 +132,7 @@ export const designFields: FieldConfiguration<{ design: InternalComponentFields[
                 icon={value.lightMode ? <Lightbulb size={16} /> : <LightbulbOff size={16} />}
                 helperText='Whether the dashboard should use light mode colors'
                 checked={value.lightMode}
-                onChange={e => {
-                  const checked = (e.target as HTMLInputElement).checked;
-                  // using the "color" package, determine if the current surface value should be retrieved from the opposite space
-                  // for example, if switching to light mode and the surface is very dark, we may want to adjust it to a lighter color
-                  const isCurrentValueDark = Color(value.surface).isDark();
-                  const surfaceColor = checked
-                    ? isCurrentValueDark
-                      ? Color(value.surface).negate().rgb().toString()
-                      : value.surface
-                    : Color(value.surface).isLight()
-                      ? '#121212'
-                      : value.surface;
-                  console.log('new surface color', surfaceColor, 'old surface color', value.surface);
-                  onChange({
-                    ...value,
-                    surface: surfaceColor,
-                    lightMode: checked,
-                  });
-                }}
+                onChange={onSwitchChange}
               />
               <ColorField
                 id={`${id}-primary`}
@@ -205,4 +223,4 @@ export const designFields: FieldConfiguration<{ design: InternalComponentFields[
       },
     },
   },
-};
+});

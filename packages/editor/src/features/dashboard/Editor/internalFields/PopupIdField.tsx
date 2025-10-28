@@ -135,7 +135,8 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
                 })}
               />
             }
-            placeholder='Select from existing popups'
+            disabled={options.length === 0}
+            placeholder={options.length === 0 ? 'No Popups Available' : 'Select Existing Popup...'}
           />
           <IconButton
             disabled={!hasPopupLinked}
