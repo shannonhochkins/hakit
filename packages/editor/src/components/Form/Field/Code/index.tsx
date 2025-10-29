@@ -49,6 +49,11 @@ export const CodeField = ({
 
   function validateOnChange(value: string) {
     if (language == 'json') {
+      if (!value) {
+        setJsonValid(true);
+        setLocalValue('{}');
+        return;
+      }
       try {
         JSON.parse(value);
         setJsonValid(true);
@@ -58,7 +63,6 @@ export const CodeField = ({
     }
     setLocalValue(value);
   }
-
   if (!editing) {
     return (
       <div className={getClassName()}>
@@ -68,7 +72,7 @@ export const CodeField = ({
           name={name}
           icon={icon}
           error={error}
-          helperText={!error && !jsonValid ? helperText : 'Invalid syntax, please check your code'}
+          helperText={!error && jsonValid ? helperText : 'Invalid syntax, please check your code'}
           value={typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
           readOnly
           placeholder='Click "Edit" to open the code editor...'
