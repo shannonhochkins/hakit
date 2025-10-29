@@ -95,7 +95,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     background: {
       type: 'object',
       collapseOptions: {
-        startExpanded: true,
+        startExpanded: false,
       },
       label: 'Background options',
       description: 'General options for the main background',
@@ -270,7 +270,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     typography: {
       type: 'object',
       collapseOptions: {
-        startExpanded: true,
+        startExpanded: false,
       },
       label: 'Typography',
       description: 'Font and text styling options',
@@ -380,7 +380,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
 
     const selectedFontFamily = typography?.fontFamily ?? 'roboto';
     const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
-    const swatches = generateColorSwatches(props.design.theme);
+    const swatches = generateColorSwatches(props.theme.colors);
     const cssVariables = generateCssVariables(swatches);
 
     return `

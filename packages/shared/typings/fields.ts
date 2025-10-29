@@ -121,9 +121,9 @@ export type Actions = Navigate | CallService | None | External | Popup;
 
 export type ActionTypes = Actions['type'];
 
-export type DesignFields = {
+export type ThemeFields = {
   override: boolean;
-  theme: {
+  colors: {
     primary: string;
     surface: string;
     lightMode: boolean;
@@ -145,13 +145,13 @@ export interface InternalComponentFields {
   styles: {
     css: string;
   };
-  design: DesignFields;
+  theme: ThemeFields;
 }
 
 export interface InternalRootComponentFields {
   content: Slot;
   popupContent: Slot;
-  design: DesignFields;
+  theme: ThemeFields;
   styles: {
     css: string;
   };

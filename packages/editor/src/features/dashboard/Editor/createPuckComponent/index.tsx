@@ -292,8 +292,8 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
     const componentStyles = config.styles ? config.styles(obj) : '';
     const overrideStyles = props.styles?.css ?? '';
     let cssVariables = '';
-    if (props.design.override) {
-      const swatches = generateColorSwatches(props.design.theme);
+    if (props.theme.override) {
+      const swatches = generateColorSwatches(props.theme.colors);
       cssVariables = generateCssVariables(swatches);
     }
 

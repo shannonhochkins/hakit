@@ -5,14 +5,14 @@ import { Column, Row } from '@components/Layout';
 import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import Color from 'color';
 import { Blend, Lightbulb, LightbulbOff, PaintBucket, Palette } from 'lucide-react';
-import styles from './Design.module.css';
+import styles from './Theme.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { generateColorSwatches } from '@helpers/color';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
 import { Tooltip } from '@components/Tooltip';
 import { type Swatch } from '@helpers/color/primary';
 import { useCallback } from 'react';
-const cn = getClassNameFactory('Design', styles);
+const cn = getClassNameFactory('Theme', styles);
 function Swatch({ color }: { color: string }) {
   return <div className={cn('swatch')} style={{ backgroundColor: color }} />;
 }
@@ -51,26 +51,26 @@ function SwatchesRow({ swatches, type }: { swatches: Swatch[]; type: 'primary' |
   );
 }
 
-export const getDesignFields = (type: 'root' | 'component'): FieldConfiguration<{ design: InternalRootComponentFields['design'] }> => ({
-  design: {
+export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{ theme: InternalRootComponentFields['theme'] }> => ({
+  theme: {
     type: 'object',
-    label: type === 'component' ? 'Design Overrides' : 'Design',
+    label: type === 'component' ? 'Theme Overrides' : 'Theme',
     collapseOptions: {
       startExpanded: false,
     },
     description:
       type === 'component'
-        ? "Override design settings for this component, this will regenerate the css variables scoped to this component and it's children"
-        : 'Provide design options for the dashboard',
+        ? "Override theme settings for this component, this will regenerate the css variables scoped to this component and it's children"
+        : 'Provide theme options for the dashboard',
     objectFields: {
       override: {
         type: 'switch',
-        label: 'Enable Design Overrides',
-        description: 'Enable custom design overrides for this component',
+        label: 'Enable Theme Overrides',
+        description: 'Enable custom theme overrides for this component',
         default: type === 'root' ? true : false,
         visible: () => type === 'component',
       },
-      theme: {
+      colors: {
         type: 'custom',
         label: 'Theme Colors',
         default: {
@@ -86,7 +86,7 @@ export const getDesignFields = (type: 'root' | 'component'): FieldConfiguration<
           },
         },
         visible(data) {
-          return data.design.override;
+          return data.theme.override;
         },
         render({ value, onChange, id }) {
           const swatches = generateColorSwatches({

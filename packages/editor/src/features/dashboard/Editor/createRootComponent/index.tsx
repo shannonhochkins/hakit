@@ -47,7 +47,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   rootConfigs: CustomRootConfigWithRemote<P>[],
   data: ComponentFactoryData
 ) {
-  const mergedFields: Record<string, FieldConfiguration[string]> = {};
+  let mergedFields: Record<string, FieldConfiguration[string]> = {};
   const remoteKeys = new Set<string>();
   const processedConfigs: CustomRootConfigWithRemote<P>[] = [];
 
@@ -76,18 +76,26 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   });
 
   processedConfigs.forEach(rootConfig => {
-    mergedFields[rootConfig._remoteAddonId] = {
-      type: 'object',
-      label: rootConfig._remoteAddonName || rootConfig.label,
-      collapseOptions: {
-        startExpanded: true,
-      },
-      // @ts-expect-error - impossible to type this correctly as it is a dynamic object
-      objectFields: {
-        ...attachAddonReference(rootConfig.fields, rootConfig._remoteAddonId),
-      },
-      addonId: rootConfig._remoteAddonId,
-    };
+    if (rootConfig._remoteAddonId === '@hakit/default-root') {
+      mergedFields = {
+        ...mergedFields,
+        ...rootConfig.fields,
+      };
+    } else {
+      // scope external root configurations to avoid conflicts
+      mergedFields[rootConfig._remoteAddonId] = {
+        type: 'object',
+        label: rootConfig._remoteAddonName || rootConfig.label,
+        collapseOptions: {
+          startExpanded: true,
+        },
+        // @ts-expect-error - impossible to type this correctly as it is a dynamic object
+        objectFields: {
+          ...attachAddonReference(rootConfig.fields, rootConfig._remoteAddonId),
+        },
+        addonId: rootConfig._remoteAddonId,
+      };
+    }
   });
 
   const baseConfig = processedConfigs[0];
