@@ -3,11 +3,11 @@ import { Column, Row } from '@components/Layout';
 import { Group } from '@components/Group';
 import { ColorField } from '@components/Form/Field/Color';
 import { generateColorSwatches } from '@helpers/color';
-import { generateSemanticSwatches } from '@helpers/color/semantic';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
 import { SwitchField } from '@components/Form/Field/Switch';
 import { SliderField } from '@components/Form/Field/Slider';
 import Color from 'color';
+import { Global } from '@emotion/react';
 
 const count = 10;
 
@@ -24,19 +24,18 @@ export function StyleguidePageTheme() {
   const [tonalityMix, setTonalityMix] = useState(0); // 0..1
 
   const swatches = useMemo(
-    () => generateColorSwatches({ primary: primaryColor, surface: surfaceColor, lightMode, tonalityMix }),
-    [primaryColor, surfaceColor, lightMode, tonalityMix]
-  );
-  const semantic = useMemo(
     () =>
-      generateSemanticSwatches({
+      generateColorSwatches({
+        primary: primaryColor,
+        surface: surfaceColor,
         lightMode,
+        tonalityMix,
         success: successColor,
         warning: warningColor,
         danger: dangerColor,
         info: infoColor,
       }),
-    [lightMode, successColor, warningColor, dangerColor, infoColor]
+    [primaryColor, surfaceColor, lightMode, tonalityMix, successColor, warningColor, dangerColor, infoColor]
   );
 
   const selectedWidth = 20; // %
@@ -54,12 +53,9 @@ export function StyleguidePageTheme() {
         : `${surfaceCollapsedWidth}%`;
 
   const tokenBlock = useMemo<string>(() => {
-    const primaryLines = [
-      '/** Theme css colors (primary, surface, semantic) */',
-      generateCssVariables({ ...swatches, semantics: semantic }),
-    ];
+    const primaryLines = ['/** Theme css colors (primary, surface, semantic) */', generateCssVariables(swatches)];
     return primaryLines.join('\n');
-  }, [swatches, semantic]);
+  }, [swatches]);
 
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
@@ -108,15 +104,15 @@ export function StyleguidePageTheme() {
       </Row>
 
       <Group title='Default (left-aligned)'>
-        <div style={{ color: '#EDEDED', background: surfaceColor, padding: 16, borderRadius: 12, width: 'calc(100% - 24px)' }}>
-          <div
-            style={{ marginBottom: 12, fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif' }}
-          >
+        <div
+          style={{ color: 'var(--clr-on-surface-a0)', background: surfaceColor, padding: 16, borderRadius: 12, width: 'calc(100% - 24px)' }}
+        >
+          <div style={{ marginBottom: 12 }}>
             <strong>Primary Base:</strong> <code>{primaryColor}</code>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'nowrap', width: '100%', gap: 8, alignItems: 'stretch', marginBottom: 16 }}>
-            {swatches.primary.map(({ label, color, textColor }, i) => {
+            {swatches.primary.map(({ label, color }, i) => {
               const isSel = selected === i;
               return (
                 <button
@@ -131,7 +127,7 @@ export function StyleguidePageTheme() {
                     transition: 'flex-basis 200ms ease, width 200ms ease',
                     flex: `1 1 ${getWidth(i)}`,
                     width: getWidth(i),
-                    background: color,
+                    background: `var(--clr-primary-${label})`,
                     cursor: 'pointer',
                     border: 'none',
                   }}
@@ -142,7 +138,7 @@ export function StyleguidePageTheme() {
                       left: 10,
                       bottom: 10,
                       right: 10,
-                      color: textColor || '#fff',
+                      color: `var(--clr-on-primary-${label})`,
                       fontSize: 12,
                       lineHeight: 1.2,
                     }}
@@ -153,8 +149,6 @@ export function StyleguidePageTheme() {
                           display: 'inline-block',
                           padding: '6px 8px',
                           borderRadius: 8,
-                          background: 'rgba(0,0,0,0.45)',
-                          border: '1px solid rgba(255,255,255,0.18)',
                         }}
                       >
                         <div style={{ fontWeight: 700, fontSize: 12, opacity: 0.9 }}>{label}</div>
@@ -169,14 +163,12 @@ export function StyleguidePageTheme() {
             })}
           </div>
 
-          <div
-            style={{ marginBottom: 8, fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif' }}
-          >
+          <div style={{ marginBottom: 8 }}>
             <strong>Surface Base:</strong> <code>{surfaceColor}</code>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'nowrap', width: '100%', gap: 8, alignItems: 'stretch', marginBottom: 32 }}>
-            {swatches.surface.map(({ label, color, textColor }, i) => {
+            {swatches.surface.map(({ label, color }, i) => {
               const isSel = selectedSurface === i;
               return (
                 <button
@@ -192,7 +184,7 @@ export function StyleguidePageTheme() {
                     transition: 'flex-basis 200ms ease, width 200ms ease',
                     flex: `1 1 ${getSurfaceWidth(i)}`,
                     width: getSurfaceWidth(i),
-                    background: color,
+                    background: ` var(--clr-surface-${label})`,
                     cursor: 'pointer',
                   }}
                 >
@@ -202,7 +194,7 @@ export function StyleguidePageTheme() {
                       left: 10,
                       bottom: 10,
                       right: 10,
-                      color: textColor || '#fff',
+                      color: `var(--clr-on-surface-${label})`,
                       fontSize: 12,
                       lineHeight: 1.2,
                     }}
@@ -213,8 +205,6 @@ export function StyleguidePageTheme() {
                           display: 'inline-block',
                           padding: '6px 8px',
                           borderRadius: 8,
-                          background: 'rgba(0,0,0,0.45)',
-                          border: '1px solid rgba(255,255,255,0.18)',
                         }}
                       >
                         <div style={{ fontWeight: 700, fontSize: 12, opacity: 0.9 }}>{label}</div>
@@ -237,8 +227,11 @@ export function StyleguidePageTheme() {
           <div
             style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', width: '100%', marginBottom: 24 }}
           >
-            {Object.entries(semantic).map(([name, scale]) => (
-              <div key={name} style={{ background: '#181818', padding: 12, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' }}>
+            {Object.entries(swatches.semantics).map(([name, scale]) => (
+              <div
+                key={name}
+                style={{ background: 'var(--clr-surface-a10)', padding: 12, borderRadius: 12, border: '1px solid var(--clr-surface-a40)' }}
+              >
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>{name}</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {scale.map(s => (
@@ -248,18 +241,27 @@ export function StyleguidePageTheme() {
                       style={{
                         flex: '1 1 0',
                         height: 70,
-                        background: s.color,
+                        background: `var(--clr-${name}-${s.label})`,
                         borderRadius: 8,
                         position: 'relative',
                         overflow: 'hidden',
                         fontSize: 10,
-                        color: s.textColor || '#fff',
+                        color: `var(--clr-on-${name}-${s.label})`,
                         display: 'flex',
                         alignItems: 'flex-end',
                         justifyContent: 'flex-start',
                       }}
                     >
-                      <div style={{ padding: '4px 6px', background: 'rgba(0,0,0,0.35)', borderTopRightRadius: 6 }}>{s.label}</div>
+                      <div
+                        style={{
+                          padding: '4px 6px',
+                          background: 'var(--clr-surface-a40)',
+                          color: `var(--clr-on-surface-a40)`,
+                          borderTopRightRadius: 6,
+                        }}
+                      >
+                        {s.label}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -283,6 +285,13 @@ export function StyleguidePageTheme() {
             </pre>
           </details>
         </div>
+        <Global
+          styles={`
+          :root {
+            ${tokenBlock}
+          }
+        `}
+        />
       </Group>
     </Column>
   );

@@ -94,6 +94,10 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
             surface: value.surface,
             lightMode: value.lightMode,
             tonalityMix: value.tonalityMix,
+            success: value.semantics.success,
+            warning: value.semantics.warning,
+            danger: value.semantics.danger,
+            info: value.semantics.info,
           });
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const onSwitchChange = useCallback(

@@ -2,6 +2,7 @@ import { anchors } from './primaryAnchorSteps';
 import { makeScaleLabels } from './labels';
 import Color from 'color';
 import { rgbToOklch, oklchToRgb } from './oklab';
+import { toRGBAString } from './helpers';
 
 export interface Swatch {
   label: string; // a0, a10, ...
@@ -9,17 +10,6 @@ export interface Swatch {
   textColor?: string; // computed accessible text color for this swatch
 }
 
-const toRGBAString = (hexOrColor: string | { r: number; g: number; b: number }, alpha: number) => {
-  if (typeof hexOrColor === 'string') {
-    try {
-      const c = Color(hexOrColor).rgb().object();
-      return `rgba(${c.r},${c.g},${c.b},${alpha})`;
-    } catch {
-      return `rgba(0,0,0,${alpha})`;
-    }
-  }
-  return `rgba(${hexOrColor.r},${hexOrColor.g},${hexOrColor.b},${alpha})`;
-};
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 // PRIMARY_LIGHT_TARGET:

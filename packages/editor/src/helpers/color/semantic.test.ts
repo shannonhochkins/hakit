@@ -1,10 +1,10 @@
-import { generateSemanticSwatches } from './semantic';
+import { makeSemanticSwatches } from './semantic';
 import { generateCssVariables } from './generateCssVariables';
 import { describe, it, expect } from 'bun:test';
 
-describe('generateSemanticSwatches', () => {
+describe('makeSemanticSwatches', () => {
   it('generates 4 semantic scales with default colors', () => {
-    const sem = generateSemanticSwatches({});
+    const sem = makeSemanticSwatches({});
     expect(Object.keys(sem)).toEqual(['success', 'warning', 'danger', 'info']);
     (Object.keys(sem) as (keyof typeof sem)[]).forEach(k => {
       expect(sem[k].length).toBe(4);
@@ -14,7 +14,7 @@ describe('generateSemanticSwatches', () => {
   });
 
   it('integrates with generateCssVariables', () => {
-    const sem = generateSemanticSwatches({});
+    const sem = makeSemanticSwatches({});
     const css = generateCssVariables(
       { primary: sem.success, surface: sem.warning, semantics: { danger: sem.danger, info: sem.info } },
       { prefix: 'clr' }

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'bun:test';
 import { generateColorSwatches } from '.';
 import Color from 'color';
+import { SEMANTIC_DEFAULTS } from './semantic';
 
 describe('text color generation', () => {
   type ColorInstance = ReturnType<typeof Color>;
@@ -18,7 +19,13 @@ describe('text color generation', () => {
     return L1 > L2 ? L1 / L2 : L2 / L1;
   }
   it('assigns textHex with at least 4.5 contrast for surface swatches when possible', () => {
-    const { surface } = generateColorSwatches({ primary: '#ff0000', surface: '#121212', lightMode: false, tonalityMix: 0 });
+    const { surface } = generateColorSwatches({
+      primary: '#ff0000',
+      surface: '#121212',
+      lightMode: false,
+      tonalityMix: 0,
+      ...SEMANTIC_DEFAULTS,
+    });
     for (const s of surface) {
       expect(s.textColor).toBeTruthy();
       const fg = Color(s.textColor!);
@@ -28,7 +35,13 @@ describe('text color generation', () => {
     }
   });
   it('provides textColor for primary swatches', () => {
-    const { primary } = generateColorSwatches({ primary: '#0482DE', surface: '#121212', lightMode: false, tonalityMix: 0 });
+    const { primary } = generateColorSwatches({
+      primary: '#0482DE',
+      surface: '#121212',
+      lightMode: false,
+      tonalityMix: 0,
+      ...SEMANTIC_DEFAULTS,
+    });
     expect(primary.every(p => !!p.textColor)).toBeTrue();
   });
 });

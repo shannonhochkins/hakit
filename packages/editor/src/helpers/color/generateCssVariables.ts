@@ -51,6 +51,7 @@ export function generateCssVariables(
 
   pushVars(primaryName, scales.primary);
   pushVars(surfaceName, scales.surface);
+
   if (scales.semantics) {
     for (const [name, arr] of Object.entries(scales.semantics)) {
       pushVars(name, arr);

@@ -293,7 +293,13 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
     const overrideStyles = props.styles?.css ?? '';
     let cssVariables = '';
     if (props.theme.override) {
-      const swatches = generateColorSwatches(props.theme.colors);
+      const swatches = generateColorSwatches({
+        ...props.theme.colors,
+        success: props.theme.colors.semantics.success,
+        warning: props.theme.colors.semantics.warning,
+        danger: props.theme.colors.semantics.danger,
+        info: props.theme.colors.semantics.info,
+      });
       cssVariables = generateCssVariables(swatches);
     }
 
