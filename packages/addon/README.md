@@ -4,6 +4,8 @@
 ![npm version](https://img.shields.io/npm/v/@hakit/addon)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 
+> WARNING: This package is still in active development, and not ready for public use.
+
 Create [hakit.dev](https://hakit.dev) compatible addon repositories with a single command.
 
 ## Quick Start
@@ -181,10 +183,9 @@ To publish a new stable version of the addon package:
    - Updated dependency versions
    ```
 
-3. **Build and test** the package:
+3. **Build** the package:
    ```bash
    npm run build
-   npm run test:script
    ```
 
 4. **Commit changes**:

@@ -27,6 +27,28 @@ type RemoteWithAddonId = Remote & {
 
 const resolvedEntryByName = new Map<string, string>();
 
+// Synthetic proxy remote so the MF Chrome extension can remap ANY remote URL to this placeholder.
+// The extension can override its "entry" at runtime; we just need a stable name present early.
+export const PROXY_REMOTE_NAME = '@hakit/dev-remote-proxy';
+// Placeholder entry (should be harmless if requested directly). Could be swapped by extension.
+export const PROXY_REMOTE_ENTRY = '/fake.json';
+// simple check to see if the user has a chrome extension and proxying the dev proxy
+const hasProxyMoxk = () => {
+  const localStorageValue = localStorage.getItem('__MF_DEVTOOLS__');
+  // if it's here, attempt to parse as json
+  try {
+    if (localStorageValue) {
+      const parsed = JSON.parse(localStorageValue) as {
+        overrides: Record<string, string>;
+      };
+      if (parsed.overrides && parsed.overrides[PROXY_REMOTE_NAME]) return true;
+    }
+  } catch {
+    // fail silently
+  }
+  return false;
+};
+
 const instance = getInstance() ?? createInstance({ name: 'host', remotes: [] });
 
 instance.registerPlugins([
@@ -57,8 +79,16 @@ function buildPreRemotes(userAddons: UserAddon[]): Array<RemoteWithAddonId> {
 async function initContainersEarly(remotesToInit: Array<RemoteWithAddonId>) {
   // Ensure the runtime knows about these remotes
   instance.registerRemotes(remotesToInit);
+  const hasMock = hasProxyMoxk();
   // Force-load a non-existent expose to trigger container init and fire beforeInitContainer
-  await Promise.all(remotesToInit.map(r => instance.loadRemote(`${r.name}/__init__`, { from: 'runtime' }).catch(() => null)));
+  await Promise.all(
+    remotesToInit.map(r => {
+      if (!hasMock && r.name === PROXY_REMOTE_NAME) {
+        return Promise.resolve(null);
+      }
+      return instance.loadRemote(`${r.name}/__init__`, { from: 'runtime' }).catch(() => null);
+    })
+  );
 }
 
 async function hydrateLiveManifestsFromOverrides(resolved: Map<string, string>, targetMap: Map<string, MfManifest>) {
@@ -172,15 +202,24 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
 
   // Early resolve of effective remote entries and hydrate live manifests
   const preRemotes = buildPreRemotes(userAddons);
+  // Always ensure proxy remote is included for early container init even if not in DB
+  preRemotes.push({ name: PROXY_REMOTE_NAME, entry: PROXY_REMOTE_ENTRY, addonId: PROXY_REMOTE_NAME });
   await initContainersEarly(preRemotes);
   await hydrateLiveManifestsFromOverrides(resolvedEntryByName, remoteManifest);
 
   const remotes: RemoteWithAddonId[] = await Promise.all(userAddons.map(userAddon => buildRemoteWithDbFallback(userAddon, remoteManifest)));
 
+  // Append proxy remote for processing (won't have DB record). Avoid duplicates.
+  if (!remotes.find(r => r.name === PROXY_REMOTE_NAME)) {
+    remotes.push({ name: PROXY_REMOTE_NAME, entry: PROXY_REMOTE_ENTRY, addonId: PROXY_REMOTE_NAME });
+  }
+
   for (const remote of remotes) {
     const remoteManifestData = remoteManifest.get(remote.name);
     if (!remoteManifestData) {
-      console.warn(`No manifest data found for remote "${remote.name}"`);
+      if (remote.name !== PROXY_REMOTE_NAME) {
+        console.warn(`No manifest data found for remote "${remote.name}"`);
+      }
       continue;
     }
     // type guard to ensure we have the correct type when iterating modules
