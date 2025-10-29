@@ -353,13 +353,6 @@ function Render(props: RenderProps<ContainerProps>) {
   return (
     <div className='Container'>
       <Content className='Container-content' />
-      <div
-        style={{
-          width: '200px',
-          height: '200px',
-          background: 'var(--clr-primary-a50',
-        }}
-      ></div>
     </div>
   );
 }
