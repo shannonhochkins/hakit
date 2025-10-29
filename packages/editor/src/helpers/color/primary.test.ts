@@ -3,8 +3,8 @@ import { makePrimarySwatches } from './primary';
 
 describe('makePrimarySwatches', () => {
   it('generates expected red primary scale for #ed0707', () => {
-    const swatches = makePrimarySwatches('#ed0707');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#ed0707');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(237,7,7,1)',
       'rgba(243,64,39,1)',
@@ -20,8 +20,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected blue primary scale for #0482DE', () => {
-    const swatches = makePrimarySwatches('#0482DE');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#0482DE');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(4,130,222,1)',
       'rgba(69,141,228,1)',
@@ -37,8 +37,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected green primary scale for #3BAB31', () => {
-    const swatches = makePrimarySwatches('#3BAB31');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#3BAB31');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(59,171,49,1)',
       'rgba(86,180,74,1)',
@@ -54,8 +54,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected yellow primary scale for #edbb07', () => {
-    const swatches = makePrimarySwatches('#edbb07');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#edbb07');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(237,187,7,1)',
       'rgba(240,194,58,1)',
@@ -71,8 +71,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected deep purple primary scale for #5407ed', () => {
-    const swatches = makePrimarySwatches('#5407ed');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#5407ed');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(84,7,237,1)',
       'rgba(107,56,239,1)',
@@ -88,8 +88,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected cyan primary scale for #07edcb', () => {
-    const swatches = makePrimarySwatches('#07edcb');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#07edcb');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(7,237,203,1)',
       'rgba(78,239,208,1)',
@@ -105,8 +105,8 @@ describe('makePrimarySwatches', () => {
   });
 
   it('generates expected purple primary scale for #db07ed', () => {
-    const swatches = makePrimarySwatches('#db07ed');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#db07ed');
+  expect(swatches).toHaveLength(10);
     expect(swatches.map(s => s.color)).toEqual([
       'rgba(219,7,237,1)',
       'rgba(229,63,236,1)',
@@ -123,8 +123,8 @@ describe('makePrimarySwatches', () => {
 
   it('propagates alpha channel across palette', () => {
     // #ed0707 with 80% alpha -> rgba(237,7,7,0.8)
-    const swatches = makePrimarySwatches('rgba(237,7,7,0.8)');
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('rgba(237,7,7,0.8)');
+  expect(swatches).toHaveLength(10);
     // All entries should end with ,0.8)
     for (const s of swatches) {
       expect(s.color.endsWith(',0.8)')).toBeTrue();
@@ -134,16 +134,16 @@ describe('makePrimarySwatches', () => {
   });
 
   it('supports light mode darkening toward black', () => {
-    const swatches = makePrimarySwatches('#ff0000', true);
-    expect(swatches).toHaveLength(10);
+  const swatches = makePrimarySwatches('#ff0000', true);
+  expect(swatches).toHaveLength(10);
     expect(swatches[0].color.startsWith('rgba(255,0,0')).toBeTrue();
     expect(swatches[9].color).toBe('rgba(0,0,0,1)');
   });
 
   it('light mode preserves alpha channel', () => {
-    const swatches = makePrimarySwatches('rgba(255,0,0,0.5)', true);
+  const swatches = makePrimarySwatches('rgba(255,0,0,0.5)', true);
     expect(swatches.every(s => s.color.endsWith(',0.5)'))).toBeTrue();
-    expect(swatches[9].color).toBe('rgba(0,0,0,0.5)');
+  expect(swatches[swatches.length - 1].color).toBe('rgba(0,0,0,0.5)');
   });
 
   // Tonality mix tests moved to integration (generateColorSwatches) but keep a placeholder

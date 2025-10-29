@@ -3,6 +3,21 @@ import { makeScaleLabels } from './labels';
 import Color from 'color';
 import { rgbToOklch, oklchToRgb } from './oklab';
 import { toRGBAString } from './helpers';
+import {
+  PRIMARY_SURFACE_SIZE,
+  PRIMARY_LIGHT_TARGET,
+  PRIMARY_DARK_TARGET,
+  PRIMARY_LIGHT_MODE_CHROMA_DROP,
+  PRIMARY_HUE_SHIFT_LIGHT_MODE_SCALE,
+  PRIMARY_GAUSSIAN_DENOMINATOR,
+  PRIMARY_SEMANTIC_HUE_SHIFT_SCALE,
+  PRIMARY_SEMANTIC_CHROMA_RET_DARK,
+  PRIMARY_SEMANTIC_CHROMA_RET_LIGHT,
+  PRIMARY_SEMANTIC_LIGHT_END,
+  PRIMARY_SEMANTIC_DARK_END,
+  PRIMARY_PROGRESS_NORMALIZATION,
+  SEMANTIC_PRIMARY_SIZE,
+} from './constants';
 
 export interface Swatch {
   label: string; // a0, a10, ...
@@ -11,45 +26,6 @@ export interface Swatch {
 }
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
-
-// PRIMARY_LIGHT_TARGET:
-// When we "add light" to the color we aim near this lightness (like aiming for a bright wall but not blinding).
-// Keeping it < 1 avoids pure white which kills hue completely.
-export const PRIMARY_LIGHT_TARGET = 0.98;
-
-// PRIMARY_DARK_TARGET:
-// When we "take away light" (light mode inverse) we move toward this darker floor instead of pure black to retain hue hints.
-export const PRIMARY_DARK_TARGET = 0.02;
-
-// PRIMARY_SEMANTIC_LIGHT_END / PRIMARY_SEMANTIC_DARK_END:
-// Semantic scales avoid extreme ends so they stay more usable for badges/pills.
-export const PRIMARY_SEMANTIC_LIGHT_END = 0.92;
-export const PRIMARY_SEMANTIC_DARK_END = 0.3;
-
-// PRIMARY_SEMANTIC_HUE_SHIFT_SCALE:
-// How strongly we let hue drift on semantic scales (smaller keeps base hue more intact).
-export const PRIMARY_SEMANTIC_HUE_SHIFT_SCALE = 0.3;
-
-// PRIMARY_PROGRESS_NORMALIZATION:
-// Anchor progress arrays peak below 1; we divide by this so math feels like full range 0..1.
-export const PRIMARY_PROGRESS_NORMALIZATION = 0.88;
-
-// PRIMARY_LIGHT_MODE_CHROMA_DROP:
-// How much chroma (colorfulness) we lose as we darken in light mode; higher number = faster greying.
-export const PRIMARY_LIGHT_MODE_CHROMA_DROP = 0.85;
-
-// PRIMARY_SEMANTIC_CHROMA_RET_LIGHT / DARK:
-// Chroma retention factors semantic mode (keep more color early so it reads as intent).
-export const PRIMARY_SEMANTIC_CHROMA_RET_LIGHT = 0.6; // during darkening
-export const PRIMARY_SEMANTIC_CHROMA_RET_DARK = 0.9; // during lightening
-
-// PRIMARY_HUE_SHIFT_LIGHT_MODE_SCALE:
-// Reduce hue shift strength in light mode to avoid wild swings.
-export const PRIMARY_HUE_SHIFT_LIGHT_MODE_SCALE = 0.5;
-
-// PRIMARY_GAUSSIAN_DENOMINATOR:
-// Controls how quickly anchor influence fades with hue distance. Smaller = sharper cutoff.
-export const PRIMARY_GAUSSIAN_DENOMINATOR = 40;
 
 /* ------------------------------------------------------------------
    PRIMARY (10) — adaptive OKLCH based scale
@@ -74,9 +50,6 @@ const toOKLCH = (c: ColorInstance): OKLCH => {
   return { l: o.l, c: o.c, h: o.h };
 };
 
-export const PRIMARY_SCALE_SIZE = 10;
-export const SEMANTIC_PRIMARY_SIZE = 4;
-
 export function makePrimarySwatches(
   color: string,
   lightMode = false,
@@ -89,7 +62,7 @@ export function makePrimarySwatches(
   }
 ): Swatch[] {
   const isSemantic = !!opts?.semantic;
-  const count = isSemantic ? SEMANTIC_PRIMARY_SIZE : PRIMARY_SCALE_SIZE;
+  const count = isSemantic ? SEMANTIC_PRIMARY_SIZE : PRIMARY_SURFACE_SIZE;
   let parsed: ColorInstance;
   try {
     parsed = Color(color);
@@ -128,9 +101,40 @@ export function makePrimarySwatches(
 
   const tints: { l: number; c: number; h: number }[] = [];
   if (!isSemantic) {
-    // Original 10-step base uses 8 intermediate tints (excluding a0 & a90 endcaps)
-    for (let i = 0; i < 8; i++) {
-      const blended = blendStep(i);
+    // Interpolate anchor arrays to support arbitrary count.
+    // We have original discrete indices 0..(origSteps-1) where origSteps = anchors[0].progress.length (8).
+    const origSteps = anchors[0].progress.length;
+    const intermediates = Math.max(0, count - 2);
+    for (let i = 0; i < intermediates; i++) {
+      const frac = intermediates <= 1 ? 0 : i / (intermediates - 1); // 0..1
+      // Map frac onto original index space [0, origSteps-1]
+      const rawIndex = frac * (origSteps - 1);
+      const i0 = Math.floor(rawIndex);
+      const i1 = Math.min(origSteps - 1, i0 + 1);
+      const localT = rawIndex - i0;
+      // Interpolated blended values
+      let wSum = 0,
+        prog = 0,
+        cRet = 0,
+        hShift = 0;
+      for (const a of anchors) {
+        const d = Math.min(Math.abs(baseH - a.hue), Math.abs(baseH - a.hue + 360), Math.abs(baseH - a.hue - 360));
+        const w = Math.exp(-((d / PRIMARY_GAUSSIAN_DENOMINATOR) ** 2));
+        wSum += w;
+        const p0 = a.progress[i0];
+        const p1 = a.progress[i1];
+        const c0 = a.chromaRet[i0];
+        const c1 = a.chromaRet[i1];
+        const h0 = a.hueShift[i0];
+        const h1 = a.hueShift[i1];
+        const p = p0 + (p1 - p0) * localT;
+        const cR = c0 + (c1 - c0) * localT;
+        const hS = h0 + (h1 - h0) * localT;
+        prog += p * w;
+        cRet += cR * w;
+        hShift += hS * w;
+      }
+      const blended = { progress: prog / wSum, chromaRet: cRet / wSum, hueShift: hShift / wSum };
       if (!lightMode) {
         const L = baseL + (PRIMARY_LIGHT_TARGET - baseL) * blended.progress;
         const C = baseC * blended.chromaRet;
@@ -138,7 +142,7 @@ export function makePrimarySwatches(
         tints.push({ l: L, c: C, h: H });
       } else {
         const inv = blended.progress;
-        const L = baseL * (1 - inv) + PRIMARY_DARK_TARGET * inv; // toward near-black floor constant
+        const L = baseL * (1 - inv) + PRIMARY_DARK_TARGET * inv;
         const C = baseC * (1 - inv * PRIMARY_LIGHT_MODE_CHROMA_DROP);
         const H = (baseH + blended.hueShift * PRIMARY_HUE_SHIFT_LIGHT_MODE_SCALE + 360) % 360;
         tints.push({ l: L, c: C, h: H });
@@ -175,7 +179,8 @@ export function makePrimarySwatches(
   }
 
   // Labels
-  const labels = !isSemantic ? makeScaleLabels(count) : Array.from({ length: count }, (_, i) => `a${i * 10}`); // semantic: a0,a10,a20,a30
+  // Generate labels; semantic keeps evenly distributed indices based on total count.
+  const labels = !isSemantic ? makeScaleLabels(count) : ['a0', 'a10', 'a20', 'a30'];
   const swatches: Swatch[] = [];
   for (let i = 0; i < count; i++) {
     if (!isSemantic && i === count - 1) {
