@@ -33,6 +33,7 @@ export const rootConfigs: [CustomRootConfigWithRemote<RootProps>] = [
       },
     },
     label: 'Root',
+    rootConfiguration: true,
     fields: {
       background: {
         type: 'object',

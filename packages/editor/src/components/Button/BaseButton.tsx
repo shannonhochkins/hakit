@@ -6,7 +6,7 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('BaseButton', styles);
 
 // Base props interface shared by all button types
-export interface BaseButtonProps extends React.ComponentPropsWithoutRef<'button'> {
+export interface BaseButtonProps extends React.ComponentPropsWithRef<'button'> {
   /** Size variant of the button */
   size?: 'xs' | 'sm' | 'md' | 'lg';
   /** Whether the button is in a loading state */

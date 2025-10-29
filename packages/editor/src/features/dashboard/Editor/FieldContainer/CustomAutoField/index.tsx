@@ -131,6 +131,7 @@ export function renderField(props: RenderFieldProps) {
         <ColorField
           label={props.fieldLabel}
           icon={props.icon}
+          hideControls={props.field.hideControls}
           helperText={props.field.description}
           readOnly={props.field.readOnly}
           id={id}

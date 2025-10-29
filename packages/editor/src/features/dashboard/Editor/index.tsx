@@ -29,7 +29,6 @@ function SyncUnsavedAndPuckData() {
       const data = appState.data;
       usePopupStore.getState().initializePopups(data);
     }
-    console.log('action received', action);
     // middleware to open popup when a popup component is selected from the outline or canvas
     if (action.type === 'setUi') {
       const itemSelector = (action.ui as Partial<UiState>)?.itemSelector;

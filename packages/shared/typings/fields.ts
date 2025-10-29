@@ -120,6 +120,22 @@ export type External = {
 export type Actions = Navigate | CallService | None | External | Popup;
 
 export type ActionTypes = Actions['type'];
+
+export type ThemeFields = {
+  override: boolean;
+  colors: {
+    primary: string;
+    surface: string;
+    lightMode: boolean;
+    tonalityMix: number;
+    semantics: {
+      success: string;
+      warning: string;
+      danger: string;
+      info: string;
+    };
+  };
+};
 export interface InternalComponentFields {
   interactions: {
     tap: Actions;
@@ -129,11 +145,13 @@ export interface InternalComponentFields {
   styles: {
     css: string;
   };
+  theme: ThemeFields;
 }
 
 export interface InternalRootComponentFields {
   content: Slot;
   popupContent: Slot;
+  theme: ThemeFields;
   styles: {
     css: string;
   };
@@ -227,7 +245,7 @@ export type FieldDefinition = {
   page: { type: 'page'; default: PageValue };
   pages: { type: 'pages'; default: PageValue[] };
   service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
-  color: { type: 'color' };
+  color: { type: 'color'; hideControls?: boolean };
   imageUpload: { type: 'imageUpload' };
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };

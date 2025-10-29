@@ -145,6 +145,7 @@ export const userConfig: CustomConfig<ComponentType> = {
   },
   root: {
     label: 'Root',
+    rootConfiguration: true,
     fields: {},
   },
 } as const;

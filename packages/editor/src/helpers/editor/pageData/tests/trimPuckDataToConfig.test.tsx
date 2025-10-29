@@ -636,6 +636,7 @@ describe('trimPuckDataToConfig', () => {
             return <></>;
           },
           label: 'Root',
+          rootConfiguration: true,
           fields: {
             title: {
               type: 'text',
@@ -1475,6 +1476,7 @@ describe('trimPuckDataToConfig', () => {
             return <></>;
           },
           label: 'Root',
+          rootConfiguration: true,
           fields: {
             pageTitle: {
               type: 'text',
@@ -1707,6 +1709,7 @@ describe('trimPuckDataToConfig', () => {
       categories: {},
       root: {
         label: 'Root',
+        rootConfiguration: true,
         defaultProps: {
           test: {
             background: {

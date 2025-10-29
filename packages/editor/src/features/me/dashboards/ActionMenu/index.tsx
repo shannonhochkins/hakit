@@ -1,7 +1,6 @@
-import { Menu, MenuItem } from '@components/Menu';
+import { Menu, MenuContent, MenuItem } from '@components/Menu';
 import { EyeIcon, EditIcon, FileTextIcon, PlusIcon, LayoutDashboardIcon } from 'lucide-react';
 
-// Types for ActionsMenu
 type DashboardMenuProps = {
   type: 'dashboard';
   id: string;
@@ -24,96 +23,100 @@ type PageMenuProps = {
   onDelete: (type: 'page', id: string, dashboardId: string) => void;
 };
 
-type ActionsMenuProps = {
+type ActionsMenuCommonProps = {
+  /** External anchor element coming from Dashboards */
   anchorEl: HTMLElement | null;
+  /** Controlled open coming from Dashboards */
   open: boolean;
+  /** When the menu closes, notify Dashboards to clear its local state */
   onClose: () => void;
-} & (DashboardMenuProps | PageMenuProps);
+};
 
-// Add the Menu component for actions
+type ActionsMenuProps = ActionsMenuCommonProps & (DashboardMenuProps | PageMenuProps);
+
 export const ActionMenu = (props: ActionsMenuProps) => {
-  const { anchorEl, open, onClose, type, id } = props;
+  const { onClose, open, anchorEl, type, id } = props;
 
   return (
     <Menu
-      anchorEl={anchorEl}
+      // Controlled open from parent
       open={open}
-      onClose={onClose}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
+      onOpenChange={(isOpen: boolean) => {
+        if (!isOpen) onClose();
       }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
+      // Anchor to external trigger element
+      anchorRef={{ current: anchorEl }}
+      // Make placement smart by default (works with arrow & flipping)
+      placement='auto'
+      // Close after selecting an item
+      closeOnSelect
+      // Keep widths independent for action menus (toggle to true if you want 1:1 width)
+      matchWidth={false}
     >
-      <MenuItem
-        onClick={() => {
-          if (type === 'dashboard') {
-            props.onDesign('dashboard', id);
-          } else {
-            props.onDesign('page', id, props.dashboardId);
-          }
-        }}
-        startIcon={<LayoutDashboardIcon size={16} />}
-      >
-        {type === 'dashboard' ? 'Design Dashboard' : 'Design Page'}
-      </MenuItem>
-      <MenuItem
-        onClick={() => {
-          if (type === 'dashboard') {
-            props.onView('dashboard', id);
-          } else {
-            props.onView('page', id, props.dashboardId);
-          }
-        }}
-        startIcon={<EyeIcon size={16} />}
-      >
-        {type === 'dashboard' ? 'View Dashboard' : 'View Page'}
-      </MenuItem>
-      <MenuItem
-        onClick={() => {
-          if (type === 'dashboard') {
-            props.onEdit('dashboard', id);
-          } else {
-            props.onEdit('page', id, props.dashboardId);
-          }
-        }}
-        startIcon={<EditIcon size={16} />}
-      >
-        {type === 'dashboard' ? 'Rename Dashboard' : 'Rename Page'}
-      </MenuItem>
-      <MenuItem
-        onClick={() => {
-          if (type === 'dashboard') {
-            props.onDuplicate('dashboard', id);
-          } else {
-            props.onDuplicate('page', id, props.dashboardId);
-          }
-        }}
-        startIcon={<FileTextIcon size={16} />}
-      >
-        {type === 'dashboard' ? 'Duplicate Dashboard' : 'Duplicate Page'}
-      </MenuItem>
-      {type === 'dashboard' && (
-        <MenuItem onClick={() => props.onCreatePage(id)} startIcon={<PlusIcon size={16} />}>
-          Add Page
-        </MenuItem>
-      )}
-      <MenuItem
-        onClick={() => {
-          if (type === 'dashboard') {
-            props.onDelete('dashboard', id);
-          } else {
-            props.onDelete('page', id, props.dashboardId);
-          }
-        }}
-        startIcon={<LayoutDashboardIcon size={16} />}
-        style={{ color: 'var(--color-error-500)' }}
-      >
-        {type === 'dashboard' ? 'Delete Dashboard' : 'Delete Page'}
-      </MenuItem>
+      <MenuContent>
+        <MenuItem
+          onClick={() => {
+            if (type === 'dashboard') {
+              props.onDesign('dashboard', id);
+            } else {
+              props.onDesign('page', id, props.dashboardId);
+            }
+          }}
+          startIcon={<LayoutDashboardIcon size={16} />}
+          label={type === 'dashboard' ? 'Design Dashboard' : 'Design Page'}
+        />
+
+        <MenuItem
+          onClick={() => {
+            if (type === 'dashboard') {
+              props.onView('dashboard', id);
+            } else {
+              props.onView('page', id, props.dashboardId);
+            }
+          }}
+          startIcon={<EyeIcon size={16} />}
+          label={type === 'dashboard' ? 'View Dashboard' : 'View Page'}
+        />
+
+        <MenuItem
+          onClick={() => {
+            if (type === 'dashboard') {
+              props.onEdit('dashboard', id);
+            } else {
+              props.onEdit('page', id, props.dashboardId);
+            }
+          }}
+          startIcon={<EditIcon size={16} />}
+          label={type === 'dashboard' ? 'Rename Dashboard' : 'Rename Page'}
+        />
+
+        <MenuItem
+          onClick={() => {
+            if (type === 'dashboard') {
+              props.onDuplicate('dashboard', id);
+            } else {
+              props.onDuplicate('page', id, props.dashboardId);
+            }
+          }}
+          startIcon={<FileTextIcon size={16} />}
+          label={type === 'dashboard' ? 'Duplicate Dashboard' : 'Duplicate Page'}
+        />
+
+        {type === 'dashboard' && <MenuItem label='Add page' onClick={() => props.onCreatePage(id)} startIcon={<PlusIcon size={16} />} />}
+
+        <MenuItem
+          onClick={() => {
+            if (type === 'dashboard') {
+              props.onDelete('dashboard', id);
+            } else {
+              props.onDelete('page', id, props.dashboardId);
+            }
+          }}
+          startIcon={<LayoutDashboardIcon size={16} />}
+          style={{ color: 'var(--color-error-500)' }}
+          label={type === 'dashboard' ? 'Delete Dashboard' : 'Delete Page'}
+        />
+      </MenuContent>
     </Menu>
   );
 };

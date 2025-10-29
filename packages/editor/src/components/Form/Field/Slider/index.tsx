@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styles from './SliderField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
+import { useDebouncer } from '@tanstack/react-pacer';
+import { DEFAULT_FIELD_DEBOUNCE_MS } from '@helpers/editor/pageData/constants';
 type SliderFieldSize = 'small' | 'medium' | 'large';
 
 type SliderFieldProps = {
@@ -16,6 +18,8 @@ type SliderFieldProps = {
   step?: number;
   value?: number;
   onChange?: (value: number) => void;
+  /** debounce delay in ms (defaults to shared constant) */
+  debounce?: number;
   disabled?: boolean;
   readOnly?: boolean;
   icon?: React.ReactNode;
@@ -51,6 +55,7 @@ export function SliderField({
   formatTooltipValue,
   hideTooltip = false,
   icon,
+  debounce = DEFAULT_FIELD_DEBOUNCE_MS,
 }: SliderFieldProps) {
   const [localValue, setLocalValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
@@ -67,11 +72,6 @@ export function SliderField({
   }, [disabled, readOnly]);
 
   const sliderRef = useRef<HTMLDivElement>(null);
-  // Update local value when prop changes
-  useEffect(() => {
-    setLocalValue(value);
-    localValueRef.current = value;
-  }, [value]);
 
   useEffect(() => {
     if (!localValueRef.current || hideTooltip) return;
@@ -86,7 +86,25 @@ export function SliderField({
       const tooltipValue = typeof formatTooltipValue === 'function' ? formatTooltipValue(roundedValue) : roundedValue;
       tooltipRef.current.setAttribute('data-title', `${tooltipValue}`);
     }
-  }, [value, min, max, step, formatTooltipValue, hideTooltip]);
+  }, [localValue, min, max, step, formatTooltipValue, hideTooltip]);
+
+  // Debounced change handler (similar pattern to ColorField)
+  const debouncedOnChange = useDebouncer(onChange || (() => {}), {
+    wait: debounce,
+    leading: false,
+    trailing: true,
+  });
+
+  // External prop change sync (no onChange trigger)
+  useEffect(() => {
+    if (value !== localValueRef.current) {
+      debouncedOnChange.cancel();
+      setLocalValue(value);
+      localValueRef.current = value;
+    }
+  }, [value, debouncedOnChange]);
+
+  useEffect(() => () => debouncedOnChange.cancel(), [debouncedOnChange]);
 
   // Handle mouse/touch events only when dragging
   useEffect(() => {
@@ -113,9 +131,9 @@ export function SliderField({
           if (newValue !== localValueRef.current) {
             setLocalValue(newValue);
             localValueRef.current = newValue;
-            if (onChange) {
-              onChange(newValue);
-            }
+            // debounce update
+            debouncedOnChange.cancel();
+            debouncedOnChange.maybeExecute(newValue);
           }
         }
         rafId = 0;
@@ -140,7 +158,7 @@ export function SliderField({
         cancelAnimationFrame(rafId);
       }
     };
-  }, [isDragging, min, max, step, disabled, readOnly, onChange]);
+  }, [isDragging, min, max, step, disabled, readOnly, debouncedOnChange]);
   const handleTrackClick = useCallback(
     (e: React.MouseEvent) => {
       if (disabled || readOnly || !sliderRef.current) return;
@@ -154,12 +172,11 @@ export function SliderField({
       if (newValue !== localValueRef.current) {
         setLocalValue(newValue);
         localValueRef.current = newValue;
-        if (onChange) {
-          onChange(newValue);
-        }
+        debouncedOnChange.cancel();
+        debouncedOnChange.maybeExecute(newValue);
       }
     },
-    [disabled, readOnly, min, max, step, onChange]
+    [disabled, readOnly, min, max, step, debouncedOnChange]
   );
 
   const handleThumbMouseDown = useCallback((e: React.MouseEvent) => {

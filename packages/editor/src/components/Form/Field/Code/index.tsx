@@ -144,9 +144,8 @@ export const CodeField = ({
                 }
                 // @ts-expect-error - TODO - Fix this
                 onChange(localValue);
-              } finally {
+              } catch {
                 console.error('Failed to save code field value');
-                // no-op
               }
             }}
           />

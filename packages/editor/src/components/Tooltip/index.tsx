@@ -28,6 +28,7 @@ export function Tooltip({ placement = 'top', title = null, children, style, basi
         data-tooltip-id={id}
         data-tooltip-place={placement}
         style={style}
+        key={rest.key}
         title={basic && title ? (typeof title === 'string' ? title : undefined) : undefined}
       >
         {children}

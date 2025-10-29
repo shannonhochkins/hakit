@@ -11,6 +11,8 @@ import styles from './FieldContainer.module.css';
 import { IconButton } from '@components/Button';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { AutoHeight } from '@components/AutoHeight';
+import { HelperText } from '@components/Form/Field/_shared/HelperText';
+import { Row } from '@components/Layout';
 
 const usePuck = createUsePuck();
 
@@ -149,6 +151,11 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
           </>
         }
       />
+      {field.description && isExpanded && (
+        <Row alignItems='flex-start' justifyContent='flex-start' gap='var(--space-2)' className={getClassName('helperTextRow')}>
+          <HelperText helperText={field.description} />
+        </Row>
+      )}
       <AutoHeight isOpen={isExpanded} duration={300} renderChildren>
         <FieldWrapper className='hakit-field-wrapper'>
           <div className={getClassName('fieldInput')}>

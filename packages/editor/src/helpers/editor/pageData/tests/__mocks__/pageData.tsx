@@ -357,6 +357,7 @@ export const userConfig: CustomPuckConfig<{
   },
   root: {
     label: 'Root',
+    rootConfiguration: true,
     fields: {
       '@hakit/default-root': {
         type: 'object',

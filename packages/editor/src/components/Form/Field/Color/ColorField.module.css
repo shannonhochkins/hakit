@@ -20,27 +20,14 @@
 }
 
 .popover {
-  border-radius: 9px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  background-color: #111;
+  border-radius: var(--radius-md);
+  background-color: var(--color-gray-800);
+  border: 1px solid var(--color-gray-600);
   padding: 6px;
   /* Pseudo-element for arrow */
 }
 
 .portalWrapper {
-  position: relative;
-  transform: translate3d(calc(-100% - 5px), -50%, 0);
+  z-index: var(--z-popover)
 }
 
-.popover:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 10px 0 10px 10px;
-  border-color: transparent transparent transparent #111;
-  transform: translateX(100%) translateY(calc(-50% - 10px));
-}
