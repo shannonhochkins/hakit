@@ -5,17 +5,17 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('EmptyState', styles);
 
 // React Component
-interface EmptyStateProps {
+interface EmptyStateProps extends React.ComponentPropsWithoutRef<'div'> {
   icon?: React.ReactNode;
   title: string;
   description: string;
   actions?: React.ReactNode;
-  className?: string;
+  leftAligned?: boolean;
 }
 
-export function EmptyState({ icon, title, description, actions, className }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, actions, leftAligned, className, ...rest }: EmptyStateProps) {
   return (
-    <div className={getClassName({ EmptyState: true }, className)}>
+    <div className={getClassName({ EmptyState: true, leftAligned }, className)} {...rest}>
       {icon && <div className={getClassName('icon')}>{icon}</div>}
       <h2 className={getClassName('title')}>{title}</h2>
       <p className={getClassName('description')}>{description}</p>

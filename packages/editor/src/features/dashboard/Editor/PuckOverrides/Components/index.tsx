@@ -5,6 +5,9 @@ import { Column } from '@components/Layout';
 import { InputField } from '@components/Form/Field/Input';
 import { useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
+import { EmptyState } from '@components/EmptyState';
+import { PrimaryButton } from '@components/Button';
+import { useNavigate } from '@tanstack/react-router';
 
 const cn = getClassNameFactory('Components', styles);
 
@@ -25,6 +28,7 @@ export const useComponentSearchStore = create<ComponentsStore>(set => ({
 }));
 
 export function Components({ children }: { children: React.ReactNode }): React.ReactElement {
+  const navigate = useNavigate();
   const searchTerm = useComponentSearchStore(state => state.searchTerm);
   const results = useComponentSearchStore(state => state.results);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -32,10 +36,6 @@ export function Components({ children }: { children: React.ReactNode }): React.R
   // Count rendered drawer items on each render when searching
   useEffect(() => {
     const { setResults } = useComponentSearchStore.getState();
-    if (!searchTerm) {
-      setResults(null);
-      return;
-    }
     // this is very dodgey, but until puck exposes a better api for information per component, this will have to do
     // for example, if a drawerItem exposed the id it would help us capture the correct information
     // Query all elements with data-component-name under this root
@@ -52,7 +52,7 @@ export function Components({ children }: { children: React.ReactNode }): React.R
         placeholder='Search components...'
         helperText={
           searchTerm && results !== null
-            ? `${results} RESULT${results > 1 ? 'S' : ''}`
+            ? `${results} RESULT${results === 1 ? '' : 'S'}`
             : `Search by component name to quickly find what you need.`
         }
         startAdornment={<Search size={16} />}
@@ -61,6 +61,30 @@ export function Components({ children }: { children: React.ReactNode }): React.R
           useComponentSearchStore.getState().setSearchTerm(e.target.value);
         }}
       />
+      {!results && (
+        <EmptyState
+          style={{
+            padding: 'var(--space-3) 0 0',
+          }}
+          leftAligned
+          title='No Components Found'
+          description='Try adjusting your search term to find the component you are looking for, or explore our component marketplace.'
+          actions={
+            <PrimaryButton
+              fullWidth
+              aria-label='Explore addons'
+              onClick={() =>
+                navigate({
+                  to: '/me/addons/explore',
+                })
+              }
+              startIcon={<Search size={16} />}
+            >
+              Explore Addons
+            </PrimaryButton>
+          }
+        />
+      )}
       <Column fullWidth alignItems='flex-start' justifyContent='flex-start'>
         {children}
       </Column>
