@@ -660,13 +660,6 @@ function Render(props: RenderProps<DefaultRootProps>) {
           <link href={googleFontsUrl} rel='stylesheet' />
         </>
       )}
-      <div
-        style={{
-          width: '200px',
-          height: '200px',
-          backgroundColor: 'var(--clr-primary-a10)',
-        }}
-      ></div>
       <div className='root-component' id={props.id}>
         <div className='root-component-background'></div>
       </div>

@@ -37,3 +37,18 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+
+/* Left Aligned Modifiers */
+.EmptyState--leftAligned {
+  text-align: left;
+  > .EmptyState-icon {
+    justify-content: flex-start;
+  }
+  > .EmptyState-description {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .EmptyState-actions {
+    justify-content: flex-start;
+  }
+}

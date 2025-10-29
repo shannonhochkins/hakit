@@ -1,12 +1,13 @@
 import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
 import { memo } from 'react';
-import { DrawerItem } from '../DrawerItem';
+import { DrawerItem } from '../Components/DrawerItem';
 import { FieldDefinition } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
 import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
 import isEqual from '@guanghechen/fast-deep-equal';
 import { ActionBar } from '../ActionBar';
+import { Components } from '../Components';
 
 type AllFieldRenderers = FieldRenderFunctions<
   Config<{
@@ -63,7 +64,6 @@ export const createPuckOverridesPlugin = (): Plugin<
   return {
     overrides: {
       actionBar: ActionBar,
-      drawerItem: DrawerItem,
       fieldLabel: ({ children }) => <>{children}</>,
       fields: ({ children }) => {
         return (
@@ -72,6 +72,8 @@ export const createPuckOverridesPlugin = (): Plugin<
           </RenderErrorBoundary>
         );
       },
+      components: Components,
+      drawerItem: DrawerItem,
       fieldTypes: {
         unit: FieldWrapper,
         switch: FieldWrapper,
