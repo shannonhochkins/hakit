@@ -249,7 +249,6 @@ export function AutocompleteField<T = string>({
         // guard against immediate focus reopen
         justClosedRef.current = true;
         setIsOpen(false);
-        justClosedRef.current = true;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             justClosedRef.current = false;

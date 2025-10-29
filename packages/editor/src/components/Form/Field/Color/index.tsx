@@ -33,7 +33,7 @@ interface ColorProps {
   size?: InputFieldSize;
   debounce?: number;
   onChange: (color: string) => void;
-  supportsGradient?: boolean;
+  hideControls?: boolean;
 }
 
 const COLOR_PICKER_WIDTH = 250;
@@ -52,7 +52,7 @@ export const ColorField = ({
   name,
   readOnly = false,
   debounce = DEFAULT_FIELD_DEBOUNCE_MS,
-  supportsGradient = true,
+  hideControls = false,
 }: ColorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { iframe } = usePuckIframeElements();
@@ -135,7 +135,7 @@ export const ColorField = ({
               })}
             >
               <div className={styles.popover}>
-                <GradientPickerWrapper value={value} onChange={onChange} debounce={debounce} supportsGradient={supportsGradient} />
+                <GradientPickerWrapper value={value} onChange={onChange} debounce={debounce} hideControls={hideControls} />
               </div>
             </div>
           </FloatingFocusManager>
@@ -149,7 +149,7 @@ interface GradientPickerWrapperProps {
   value: string;
   onChange: (color: string) => void;
   debounce: number;
-  supportsGradient?: boolean;
+  hideControls?: boolean;
 }
 
 const properties = [
@@ -179,7 +179,7 @@ const gradientPickerStyles = {
   },
 };
 
-function GradientPickerWrapper({ value, onChange, debounce, supportsGradient }: GradientPickerWrapperProps) {
+function GradientPickerWrapper({ value, onChange, debounce, hideControls }: GradientPickerWrapperProps) {
   const debouncedOnChange = useDebouncer(onChange, {
     wait: debounce,
     leading: false,
@@ -204,7 +204,7 @@ function GradientPickerWrapper({ value, onChange, debounce, supportsGradient }: 
     <GradientPicker
       hideAdvancedSliders
       hideColorGuide
-      hideControls={!supportsGradient}
+      hideControls={!hideControls}
       hidePresets
       width={COLOR_PICKER_WIDTH}
       height={COLOR_PICKER_HEIGHT}

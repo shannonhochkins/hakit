@@ -69,42 +69,12 @@ export function StyleguidePageTheme() {
         justifyContent='space-between'
         style={{ marginBottom: 'var(--space-2)', flexWrap: 'wrap', gap: 16 }}
       >
-        <ColorField
-          supportsGradient={false}
-          id='primaryColor'
-          label='Primary Color'
-          value={primaryColor}
-          onChange={val => setPrimaryColor(val)}
-        />
-        <ColorField
-          supportsGradient={false}
-          id='surfaceColor'
-          label='Surface Color'
-          value={surfaceColor}
-          onChange={val => setSurfaceColor(val)}
-        />
-        <ColorField
-          supportsGradient={false}
-          id='successColor'
-          label='Success Color'
-          value={successColor}
-          onChange={val => setSuccessColor(val)}
-        />
-        <ColorField
-          supportsGradient={false}
-          id='warningColor'
-          label='Warning Color'
-          value={warningColor}
-          onChange={val => setWarningColor(val)}
-        />
-        <ColorField
-          supportsGradient={false}
-          id='dangerColor'
-          label='Danger Color'
-          value={dangerColor}
-          onChange={val => setDangerColor(val)}
-        />
-        <ColorField supportsGradient={false} id='infoColor' label='Info Color' value={infoColor} onChange={val => setInfoColor(val)} />
+        <ColorField hideControls id='primaryColor' label='Primary Color' value={primaryColor} onChange={val => setPrimaryColor(val)} />
+        <ColorField hideControls id='surfaceColor' label='Surface Color' value={surfaceColor} onChange={val => setSurfaceColor(val)} />
+        <ColorField hideControls id='successColor' label='Success Color' value={successColor} onChange={val => setSuccessColor(val)} />
+        <ColorField hideControls id='warningColor' label='Warning Color' value={warningColor} onChange={val => setWarningColor(val)} />
+        <ColorField hideControls id='dangerColor' label='Danger Color' value={dangerColor} onChange={val => setDangerColor(val)} />
+        <ColorField hideControls id='infoColor' label='Info Color' value={infoColor} onChange={val => setInfoColor(val)} />
         <SwitchField
           id='lightMode'
           label='Light Mode'

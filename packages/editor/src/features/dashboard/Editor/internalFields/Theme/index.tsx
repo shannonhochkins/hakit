@@ -141,7 +141,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 icon={<Palette size={16} />}
                 helperText='Base color for primary actions and highlights'
                 value={value.primary}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, primary: v })}
               />
               <SwatchesRow swatches={swatches.primary} type='primary' />
@@ -153,7 +153,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 label='Surface Color'
                 helperText='Base color for surfaces and backgrounds'
                 value={value.surface}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, surface: v })}
               />
               <SwatchesRow swatches={swatches.surface} type='surface' />
@@ -184,7 +184,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 icon={<Palette size={16} />}
                 helperText='Color used for success messages and indicators'
                 value={value.semantics.success}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, semantics: { ...value.semantics, success: v } })}
               />
               <ColorField
@@ -194,7 +194,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 icon={<Palette size={16} />}
                 helperText='Color used for warning messages and indicators'
                 value={value.semantics.warning}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, semantics: { ...value.semantics, warning: v } })}
               />
               <ColorField
@@ -204,7 +204,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 icon={<Palette size={16} />}
                 helperText='Color used for danger/error messages and indicators'
                 value={value.semantics.danger}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, semantics: { ...value.semantics, danger: v } })}
               />
               <ColorField
@@ -214,7 +214,7 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 icon={<Palette size={16} />}
                 helperText='Color used for informational messages and indicators'
                 value={value.semantics.info}
-                supportsGradient={false}
+                hideControls
                 onChange={v => onChange({ ...value, semantics: { ...value.semantics, info: v } })}
               />
             </Column>
