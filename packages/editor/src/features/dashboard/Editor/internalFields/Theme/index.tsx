@@ -55,8 +55,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
   theme: {
     type: 'object',
     label: type === 'component' ? 'Theme Overrides' : 'Theme',
-    collapseOptions: {
-      startExpanded: false,
+    section: {
+      expanded: false,
     },
     description:
       type === 'component'

@@ -14,8 +14,8 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
   styles: {
     type: 'object',
     label: 'Global styles',
-    collapseOptions: {
-      startExpanded: false,
+    section: {
+      expanded: false,
     },
     description: 'Provide global CSS styles for the entire dashboard',
     objectFields: {
@@ -179,8 +179,8 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
   interactions: {
     type: 'object',
     label: 'Interactions',
-    collapseOptions: {
-      startExpanded: false,
+    section: {
+      expanded: false,
     },
     description: 'Provide interactions for the component',
     objectFields: {
@@ -195,8 +195,8 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
       hold: {
         label: 'Hold',
         description: 'Action to perform when the component is held',
-        collapseOptions: {
-          startExpanded: false,
+        section: {
+          expanded: false,
         },
         objectFields: {
           ...holdValue,
@@ -215,8 +215,8 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
       doubleTap: {
         label: 'Double Tap',
         description: 'Action to perform when the component is double tapped',
-        collapseOptions: {
-          startExpanded: false,
+        section: {
+          expanded: false,
         },
         objectFields: {
           ...doubleTapValue,
@@ -238,8 +238,8 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
   styles: {
     type: 'object',
     label: 'Style Overrides',
-    collapseOptions: {
-      startExpanded: false,
+    section: {
+      expanded: false,
     },
     description: 'Provide css updates to override the default styles of this component',
     objectFields: {

@@ -4,7 +4,7 @@ import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, RenderProps } from '@typings/puck';
 import { useMemo, memo } from 'react';
 import { attachPropsToElement } from './attachPropsToElement';
-import { generateEmotionCss } from './generateEmotionCss';
+import { generateEmotionCss, getSerializedStyles } from './generateEmotionCss';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
@@ -305,8 +305,9 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
 
     // Generate emotion CSS in iframe context where correct cache is active
     const emotionCss = generateEmotionCss({
-      componentStyles: [cssVariables, componentStyles].join('\n'),
+      componentStyles: [cssVariables, typeof componentStyles === 'string' ? componentStyles : ''],
       overrideStyles,
+      preSerializedStyles: getSerializedStyles(componentStyles),
     });
     if (emotionCss) {
       // Attach serialized styles under a dedicated key

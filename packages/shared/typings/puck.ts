@@ -75,7 +75,7 @@ export type CustomComponentConfig<Props extends DefaultComponentProps = DefaultC
   fields: FieldConfiguration<Props>;
   render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling
-  styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string;
+  styles?: (props: Props & InternalComponentFields & AdditionalRenderProps) => string | SerializedStyles;
   // defaultProps is intentionally omitted, we handle this on individual field definitions
 };
 

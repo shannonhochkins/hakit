@@ -94,8 +94,8 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   fields: {
     background: {
       type: 'object',
-      collapseOptions: {
-        startExpanded: false,
+      section: {
+        expanded: false,
       },
       label: 'Background options',
       description: 'General options for the main background',
@@ -269,8 +269,8 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     },
     typography: {
       type: 'object',
-      collapseOptions: {
-        startExpanded: false,
+      section: {
+        expanded: false,
       },
       label: 'Typography',
       description: 'Font and text styling options',
@@ -405,7 +405,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         --background-filter-contrast: ${background?.filterContrast ?? 1};
         --background-filter-saturate: ${background?.filterSaturate ?? 1};
         --background-filter-grayscale: ${background?.filterGrayscale ?? 0};
-        
+
         /* Typography Variables */
         --typography-font-family: ${fontFamily};
         --typography-heading-weight: ${typography?.headingWeight ?? 600};
@@ -414,7 +414,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         --typography-line-height: ${typography?.lineHeight ?? 1.5};
         --typography-letter-spacing: ${typography?.letterSpacing ?? 0}px;
       }
-      
+
       /* Root Component Styles */
       .root-component {
         position: absolute !important;
@@ -422,7 +422,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         z-index: -1;
         pointer-events: none;
       }
-      
+
       .root-component-background {
         width: 100%;
         height: 100%;
@@ -430,19 +430,16 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         background-repeat: var(--background-repeat, no-repeat);
         background-size: var(--background-size, cover);
         background-image: var(--background-image);
-        filter:
-          blur(var(--background-blur))
-          brightness(var(--background-filter-brightness, 1))
-          contrast(var(--background-filter-contrast, 1))
-          saturate(var(--background-filter-saturate, 1))
+        filter: blur(var(--background-blur)) brightness(var(--background-filter-brightness, 1))
+          contrast(var(--background-filter-contrast, 1)) saturate(var(--background-filter-saturate, 1))
           grayscale(var(--background-filter-grayscale, 0));
         overflow: hidden;
       }
-      
-      .root-component-background:after { 
-        content: none; 
+
+      .root-component-background:after {
+        content: none;
       }
-      
+
       .root-component-background:before {
         content: '';
         position: absolute;
@@ -455,58 +452,88 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       /* ============================================
          CSS Reset & Normalization
          ============================================ */
-      
+
       /* Box-sizing reset - makes width/height calculations intuitive */
-      *, *::before, *::after {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
       }
 
       /* Remove default margins on common elements */
-      html, body, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-      dl, dd, ol, ul, figure, hr, fieldset, legend {
+      html,
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      blockquote,
+      pre,
+      dl,
+      dd,
+      ol,
+      ul,
+      figure,
+      hr,
+      fieldset,
+      legend {
         margin: 0;
         padding: 0;
       }
 
       html {
-        
         /* Better font rendering on macOS/iOS */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        
+
         /* Prevent iOS text size adjust after orientation change */
         -webkit-text-size-adjust: 100%;
-        
+
         /* Enable smooth scrolling for anchor links */
         scroll-behavior: smooth;
       }
-      
+
       /* Global Typography Styles */
       body {
         font-family: var(--typography-font-family);
         font-size: var(--typography-base-font-size);
         line-height: var(--typography-line-height);
         letter-spacing: var(--typography-letter-spacing);
-        
+
         /* Better text rendering */
         text-rendering: optimizeLegibility;
-        
+
         /* Minimum height for full viewport coverage */
         min-height: 100vh;
       }
-      
-      h1, h2, h3, h4, h5, h6 {
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-heading-weight);
-        
+
         /* Better line-height for headings */
         line-height: 1.2;
-        
+
         /* Prevent orphans in headings */
         text-wrap: balance;
       }
-      
-      p, span, div, a, button, input, textarea, select {
+
+      p,
+      span,
+      div,
+      a,
+      button,
+      input,
+      textarea,
+      select {
         font-family: var(--typography-font-family);
         font-weight: var(--typography-body-weight);
       }
@@ -517,7 +544,8 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       /* Remove list styles by default (opt-in styling is more flexible) */
-      ul, ol {
+      ul,
+      ol {
         list-style: none;
       }
 
@@ -528,13 +556,20 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       /* Make images easier to work with */
-      img, picture, video, canvas, svg {
+      img,
+      picture,
+      video,
+      canvas,
+      svg {
         display: block;
         max-width: 100%;
       }
 
       /* Remove built-in form element styling */
-      input, button, textarea, select {
+      input,
+      button,
+      textarea,
+      select {
         background-color: transparent;
         border: none;
         outline: none;
@@ -547,21 +582,21 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       /* Remove spinners from number inputs */
-      input[type="number"]::-webkit-inner-spin-button,
-      input[type="number"]::-webkit-outer-spin-button {
+      input[type='number']::-webkit-inner-spin-button,
+      input[type='number']::-webkit-outer-spin-button {
         -webkit-appearance: none;
         margin: 0;
       }
-      input[type="number"] {
+      input[type='number'] {
         appearance: textfield;
         -moz-appearance: textfield;
       }
 
       /* Remove search input decorations */
-      input[type="search"]::-webkit-search-decoration,
-      input[type="search"]::-webkit-search-cancel-button,
-      input[type="search"]::-webkit-search-results-button,
-      input[type="search"]::-webkit-search-results-decoration {
+      input[type='search']::-webkit-search-decoration,
+      input[type='search']::-webkit-search-cancel-button,
+      input[type='search']::-webkit-search-results-button,
+      input[type='search']::-webkit-search-results-decoration {
         -webkit-appearance: none;
       }
 
@@ -572,13 +607,22 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       /* Improve consistency of monospace fonts */
-      pre, code, kbd, samp {
+      pre,
+      code,
+      kbd,
+      samp {
         font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
         font-size: 1em;
       }
 
       /* Prevent text overflow */
-      h1, h2, h3, h4, h5, h6, p {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
         overflow-wrap: break-word;
       }
 
@@ -591,7 +635,9 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       }
 
       /* Improve media defaults */
-      img, svg, video {
+      img,
+      svg,
+      video {
         height: auto;
       }
 

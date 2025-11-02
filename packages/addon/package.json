@@ -1,7 +1,7 @@
 {
   "name": "@hakit/addon",
   "description": "Create hakit.dev compatible addons with a single command",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",

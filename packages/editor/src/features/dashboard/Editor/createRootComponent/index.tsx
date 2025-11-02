@@ -86,8 +86,8 @@ export async function createRootComponent<P extends DefaultComponentProps>(
       mergedFields[rootConfig._remoteAddonId] = {
         type: 'object',
         label: rootConfig._remoteAddonName || rootConfig.label,
-        collapseOptions: {
-          startExpanded: true,
+        section: {
+          expanded: true,
         },
         // @ts-expect-error - impossible to type this correctly as it is a dynamic object
         objectFields: {
@@ -229,22 +229,20 @@ function Render<P extends DefaultComponentProps>({
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
   // gather all root config styles to apply globally
-  const allCustomStyles = processedConfigs
-    .map(rootConfig => {
-      const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
-        id,
-        _editMode: isEditing,
-        _editor: editorElements,
-        _dashboard: dashboard,
-      };
-      const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
-      if (rootConfig.styles) {
-        // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
-        return rootConfig.styles(propsForThisRoot);
-      }
-      return '';
-    })
-    .join('\n');
+  const allCustomStyles = processedConfigs.map(rootConfig => {
+    const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
+      id,
+      _editMode: isEditing,
+      _editor: editorElements,
+      _dashboard: dashboard,
+    };
+    const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
+    if (rootConfig.styles) {
+      // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
+      return rootConfig.styles(propsForThisRoot);
+    }
+    return '';
+  });
 
   const propsForRootMap = useMemo(() => {
     const map = new Map<string, Record<string, unknown>>();

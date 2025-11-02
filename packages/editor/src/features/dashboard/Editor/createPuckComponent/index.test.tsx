@@ -48,8 +48,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
         return data.options.hideClock === true;
       },
       description: 'General options for the navigation bar',
-      collapseOptions: {
-        startExpanded: true,
+      section: {
+        expanded: true,
       },
       objectFields: {
         hideClock: {
@@ -68,8 +68,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
       type: 'object',
       label: 'Clock Options',
       description: 'Options for the clock within the navigation bar',
-      collapseOptions: {
-        startExpanded: true,
+      section: {
+        expanded: true,
       },
       objectFields: {
         hideTime: {

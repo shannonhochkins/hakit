@@ -1,8 +1,9 @@
 import { css, type SerializedStyles } from '@emotion/react';
 
 export interface StyleStrings {
-  componentStyles: string | undefined;
+  componentStyles: string[];
   overrideStyles: string | undefined;
+  preSerializedStyles?: SerializedStyles;
 }
 
 /**
@@ -11,11 +12,17 @@ export interface StyleStrings {
  */
 export function generateEmotionCss(styles?: StyleStrings): SerializedStyles | undefined {
   if (!styles) return undefined;
-  const raw = [styles.componentStyles, styles.overrideStyles]
+  const raw = [...styles.componentStyles, styles.overrideStyles]
     .filter(Boolean)
     .map(s => s?.trim())
     .filter(Boolean)
     .join('\n');
-  if (!raw) return undefined;
-  return css(raw);
+  return css(raw, styles.preSerializedStyles);
+}
+
+export function getSerializedStyles(obj: unknown): SerializedStyles | undefined {
+  if (typeof obj === 'object' && obj !== null && 'name' in obj && 'styles' in obj) {
+    return obj as SerializedStyles;
+  }
+  return undefined;
 }

@@ -7,7 +7,7 @@ const getClassName = getClassNameFactory('MarkdownRenderer', styles);
 
 type MarkdownRendererProps = {
   children?: string | undefined;
-  options?: Pick<MarkdownPreviewProps, 'components' | 'rehypePlugins' | 'remarkPlugins'>;
+  options?: Pick<MarkdownPreviewProps, 'components' | 'rehypePlugins' | 'remarkPlugins' | 'urlTransform'>;
 };
 
 export function MarkdownRenderer({ children, options }: MarkdownRendererProps) {
@@ -32,8 +32,13 @@ export function MarkdownRenderer({ children, options }: MarkdownRendererProps) {
               <img {...props} />
             </span>
           ),
-          ...(options?.components || {}),
+          a: props => (
+            <a {...props} target='_blank' rel='noopener noreferrer'>
+              {props.children}
+            </a>
+          ),
         }}
+        urlTransform={options?.urlTransform}
         rehypePlugins={options?.rehypePlugins}
         remarkPlugins={options?.remarkPlugins}
       />

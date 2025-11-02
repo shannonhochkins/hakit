@@ -362,14 +362,14 @@ export const userConfig: CustomPuckConfig<{
       '@hakit/default-root': {
         type: 'object',
         label: '@hakit/editor',
-        collapseOptions: {
-          startExpanded: true,
+        section: {
+          expanded: true,
         },
         objectFields: {
           background: {
             type: 'object',
-            collapseOptions: {
-              startExpanded: true,
+            section: {
+              expanded: true,
             },
             label: 'Background options',
             description: 'General options for the main background',
@@ -620,8 +620,8 @@ export const userConfig: CustomPuckConfig<{
           },
           typography: {
             type: 'object',
-            collapseOptions: {
-              startExpanded: true,
+            section: {
+              expanded: true,
             },
             label: 'Typography',
             description: 'Font and text styling options',
@@ -793,8 +793,8 @@ export const userConfig: CustomPuckConfig<{
       styles: {
         type: 'object',
         label: 'Global styles',
-        collapseOptions: {
-          startExpanded: false,
+        section: {
+          expanded: false,
         },
         description: 'Provide global CSS styles for the entire dashboard',
         objectFields: {

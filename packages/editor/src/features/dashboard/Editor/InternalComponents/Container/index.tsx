@@ -225,7 +225,7 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
     flexWrap: {
       type: 'custom',
       label: 'Wrap Options',
-      default: 'nowrap',
+      default: 'wrap',
       description: 'Wrap behavior for container items',
       render({ value, onChange, id }) {
         return (
@@ -253,7 +253,7 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
     additionalLayout: {
       type: 'object',
       label: 'Additional Layout',
-      collapseOptions: { startExpanded: false },
+      section: { expanded: false },
       objectFields: {
         grow: {
           type: 'switch',
