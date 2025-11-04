@@ -161,9 +161,11 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   // Get latest versions for dependencies
   console.log(chalk.blue('📦 Fetching latest package versions...'));
 
-  const dependencies: string[] = ['react', 'react-dom'];
+  const dependencies: string[] = ['react', 'react-dom', '@hakit/core'];
 
-  const devDependencies = ['@hakit/addon', 'typescript', '@types/react', '@emotion/styled', '@emotion/react'];
+  const devDependencies = ['typescript', '@types/react', '@emotion/styled', '@emotion/react'];
+
+  const peerDependencies: string[] = ['@hakit/addon'];
 
   // Fetch latest versions
   packageJson.dependencies = {};
@@ -183,8 +185,18 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
     version: getLatestNpmVersion(dep),
   }));
 
+  console.log(chalk.gray('  Fetching peer dependency versions...'));
+  const peerDependencyPromises = peerDependencies.map(async dep => ({
+    name: dep,
+    version: getLatestNpmVersion(dep),
+  }));
+
   // Fetch all versions in parallel
-  const [depResults, devDepResults] = await Promise.all([Promise.all(dependencyPromises), Promise.all(devDependencyPromises)]);
+  const [depResults, devDepResults, peerDepResults] = await Promise.all([
+    Promise.all(dependencyPromises),
+    Promise.all(devDependencyPromises),
+    Promise.all(peerDependencyPromises),
+  ]);
 
   // Populate dependencies
   for (const { name, version } of depResults) {
@@ -195,6 +207,16 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
   for (const { name, version } of devDepResults) {
     packageJson.devDependencies[name] = version;
   }
+
+  // Populate peer dependencies
+  for (const { name, version } of peerDepResults) {
+    packageJson.peerDependencies[name] = version;
+  }
+
+  /// add node requirement for node20 minimum
+  packageJson.engines = {
+    node: '>=20.0.0',
+  };
 
   await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
 

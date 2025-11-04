@@ -9,6 +9,7 @@ import { createRootComponent } from '@features/dashboard/Editor/createRootCompon
 // import the internal components
 import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
 import { containerComponentConfig } from '@features/dashboard/Editor/InternalComponents/Container';
+import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;
@@ -29,11 +30,20 @@ const resolvedEntryByName = new Map<string, string>();
 
 // Synthetic proxy remote so the MF Chrome extension can remap ANY remote URL to this placeholder.
 // The extension can override its "entry" at runtime; we just need a stable name present early.
-export const PROXY_REMOTE_NAME = '@hakit/dev-remote-proxy';
-// Placeholder entry (should be harmless if requested directly). Could be swapped by extension.
-export const PROXY_REMOTE_ENTRY = '/fake.json';
+const PROXY_REMOTE_NAME = '@hakit/dev-remote-proxy';
+const PROXY_BLANK_URL = 'http://fake.com/mf-manifest.json';
+
+const EMPTY_CONTAINER = {
+  get: (req: string) => Promise.reject(new Error(`[dev-proxy] no exposes for '${req}'`)),
+  init: () => {},
+};
+
+// Put it on the global so 'global' type can find it
+// @ts-expect-error - global augmentation not needed for this
+window[PROXY_REMOTE_NAME] = EMPTY_CONTAINER; // or globalThis/self in workers
+
 // simple check to see if the user has a chrome extension and proxying the dev proxy
-const hasProxyMoxk = () => {
+export const getMockedProxies = () => {
   const localStorageValue = localStorage.getItem('__MF_DEVTOOLS__');
   // if it's here, attempt to parse as json
   try {
@@ -41,15 +51,28 @@ const hasProxyMoxk = () => {
       const parsed = JSON.parse(localStorageValue) as {
         overrides: Record<string, string>;
       };
-      if (parsed.overrides && parsed.overrides[PROXY_REMOTE_NAME]) return true;
+      if (parsed.overrides && parsed.overrides) return parsed.overrides;
     }
   } catch {
     // fail silently
   }
-  return false;
+  return null;
 };
 
 const instance = getInstance() ?? createInstance({ name: 'host', remotes: [] });
+
+instance.registerRemotes([
+  {
+    name: PROXY_REMOTE_NAME,
+    version: '0.0.0', // RemoteWithVersion branch -> no network
+    type: 'global', // look up on the global instead of fetching
+    entryGlobalName: PROXY_REMOTE_NAME,
+    shareScope: 'default',
+  },
+]);
+
+// reset on load
+setLocalStorageItem('proxied-components', {});
 
 instance.registerPlugins([
   {
@@ -57,8 +80,65 @@ instance.registerPlugins([
     // Called before a container is initialized; receives the resolved info
     async beforeInitContainer(ctx) {
       // ctx.remoteInfo.version is the manifest url
-      resolvedEntryByName.set(ctx.remoteInfo.name, ctx.remoteInfo.version ?? '');
+      if (!resolvedEntryByName.has(ctx.remoteInfo.name)) {
+        resolvedEntryByName.set(ctx.remoteInfo.name, ctx.remoteInfo.version ?? '');
+      }
       return ctx;
+    },
+    async loadSnapshot(ctx) {
+      if (ctx.moduleInfo.name === PROXY_REMOTE_NAME && !ctx.remoteSnapshot) {
+        // minimal shape that satisfies the runtime
+        return {
+          ...ctx,
+          remoteSnapshot: {
+            // we just need to return a valid url here via a snapshot, doesn't matter as it won't actually be used
+            remoteEntry: PROXY_BLANK_URL,
+            version: '0.0.0',
+          },
+        };
+      }
+      // fall through for real remotes
+      return ctx;
+    },
+    async beforeLoadRemoteSnapshot(ctx) {
+      if (ctx.moduleInfo.name !== PROXY_REMOTE_NAME) return ctx;
+      return;
+    },
+    // @ts-expect-error - This is a hack to supress errors with the runtime plugin fetching snapshots for something that
+    // doesn't exist for the dev proxy only
+    fetch(manifestUrl) {
+      if (manifestUrl !== PROXY_BLANK_URL) return; // let real remotes fetch as normal
+      const stubManifest = {
+        // minimal, but passes the runtime's assert and snapshot generator
+        name: PROXY_REMOTE_NAME,
+        version: '0.0.0',
+        type: 'global',
+        remoteEntry: PROXY_BLANK_URL, // url that does nothing
+        metaData: {
+          publicPath: '',
+          remoteEntry: {
+            // split the URL into path + name; joiner will do `${path}/${name}`
+            path: location.origin,
+            name: PROXY_BLANK_URL,
+            type: 'global',
+          },
+          types: {
+            path: '',
+            name: '',
+            zip: '',
+            api: '',
+          },
+          buildInfo: { buildVersion: '0.0.0' },
+          globalName: PROXY_REMOTE_NAME,
+        },
+        exposes: [], // array required; can be empty
+        shared: [], // array required; can be empty
+      };
+
+      return new Response(JSON.stringify(stubManifest), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
     },
   },
 ]);
@@ -78,15 +158,28 @@ function buildPreRemotes(userAddons: UserAddon[]): Array<RemoteWithAddonId> {
 
 async function initContainersEarly(remotesToInit: Array<RemoteWithAddonId>) {
   // Ensure the runtime knows about these remotes
-  instance.registerRemotes(remotesToInit);
-  const hasMock = hasProxyMoxk();
+  const proxies = getMockedProxies();
+  const remotesWithOverrides = remotesToInit.map(r => {
+    if (proxies && proxies[r.name]) {
+      return {
+        ...r,
+        entry: proxies[r.name],
+      };
+    }
+    return r;
+  });
+  // remove the proxy from this call as it's already registered
+  instance.registerRemotes(remotesWithOverrides.filter(r => r.name !== PROXY_REMOTE_NAME));
   // Force-load a non-existent expose to trigger container init and fire beforeInitContainer
   await Promise.all(
-    remotesToInit.map(r => {
-      if (!hasMock && r.name === PROXY_REMOTE_NAME) {
-        return Promise.resolve(null);
-      }
-      return instance.loadRemote(`${r.name}/__init__`, { from: 'runtime' }).catch(() => null);
+    remotesWithOverrides.map(r => {
+      console.log('Initializing remote container for', r.name);
+      return (
+        instance
+          .loadRemote(`${r.name}/__init__`, { from: 'runtime' })
+          // this will always fail, this is just to pre-capture information from the remote
+          .catch(() => null)
+      );
     })
   );
 }
@@ -97,7 +190,9 @@ async function hydrateLiveManifestsFromOverrides(resolved: Map<string, string>, 
       try {
         const res = await fetch(entryUrl, { cache: 'no-store' });
         if (!res.ok) return;
-        targetMap.set(name, (await res.json()) as MfManifest);
+        const manifest = (await res.json()) as MfManifest;
+        console.log(`Fetched live manifest for ${name} from override URL`, manifest);
+        targetMap.set(name, manifest);
       } catch (e) {
         console.debug(`Failed to fetch live manifest for ${name}`, e);
       }
@@ -153,8 +248,11 @@ async function processComponent<P extends object>({
     throw new Error(`Component from remote "${remote.name}" has no label`);
   }
   if (components[componentLabel]) {
-    // TODO - Potentially prefix component label with a UID and then trim for display?
-    console.warn(`Component "${componentLabel}" already exists`);
+    // @ts-expect-error - it does exist, see further down, intentionally not in the types to satisfy Puck
+    const componentWithRemote = components[componentLabel]._remoteAddonName;
+    console.warn(
+      `Component "${componentLabel}" already exists, attempted to load from remote "${remote.name}", already loaded via "${componentWithRemote}", skipping this instance.`
+    );
     return null;
   }
   components[componentLabel] = {
@@ -179,6 +277,8 @@ async function processComponent<P extends object>({
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData): Promise<CustomPuckConfig<DefaultComponentProps>> {
+  // reset when getting configuration
+  setLocalStorageItem('proxied-components', {});
   const components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>> = {};
   const rootConfigs: Array<CustomRootConfigWithRemote> = [];
   const categories: NonNullable<Config['categories']> = {};
@@ -199,33 +299,52 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
       excludedComponents.set(userAddon.addon.name, excludedForAddon);
     }
   });
+  const proxies = getMockedProxies();
 
   // Early resolve of effective remote entries and hydrate live manifests
   const preRemotes = buildPreRemotes(userAddons);
-  // Always ensure proxy remote is included for early container init even if not in DB
-  preRemotes.push({ name: PROXY_REMOTE_NAME, entry: PROXY_REMOTE_ENTRY, addonId: PROXY_REMOTE_NAME });
+  // Always ensure proxy remote is included for early container init
+  if (proxies && proxies[PROXY_REMOTE_NAME]) {
+    // we force push the proxy remote if it's defined in the proxies
+    resolvedEntryByName.set(PROXY_REMOTE_NAME, proxies[PROXY_REMOTE_NAME]);
+    preRemotes.push({ name: PROXY_REMOTE_NAME, entry: proxies[PROXY_REMOTE_NAME], addonId: PROXY_REMOTE_NAME });
+  }
   await initContainersEarly(preRemotes);
   await hydrateLiveManifestsFromOverrides(resolvedEntryByName, remoteManifest);
 
   const remotes: RemoteWithAddonId[] = await Promise.all(userAddons.map(userAddon => buildRemoteWithDbFallback(userAddon, remoteManifest)));
 
-  // Append proxy remote for processing (won't have DB record). Avoid duplicates.
-  if (!remotes.find(r => r.name === PROXY_REMOTE_NAME)) {
-    remotes.push({ name: PROXY_REMOTE_NAME, entry: PROXY_REMOTE_ENTRY, addonId: PROXY_REMOTE_NAME });
+  // insert the dev proxy remote at the START to prioritize it, only when it's proxied
+  if (proxies && proxies[PROXY_REMOTE_NAME]) {
+    remotes.unshift({ name: PROXY_REMOTE_NAME, entry: proxies[PROXY_REMOTE_NAME], addonId: PROXY_REMOTE_NAME });
   }
 
   for (const remote of remotes) {
     const remoteManifestData = remoteManifest.get(remote.name);
     if (!remoteManifestData) {
-      if (remote.name !== PROXY_REMOTE_NAME) {
-        console.warn(`No manifest data found for remote "${remote.name}"`);
-      }
+      console.warn(`No manifest data found for remote "${remote.name}"`);
       continue;
     }
     // type guard to ensure we have the correct type when iterating modules
     if (!remoteManifestData.metaData.publicPath) {
       console.warn(`Remote "${remote.name}" does not have publicPath defined in manifest metaData`);
       continue;
+    }
+    const isRemoteProxied = proxies && proxies[remote.name];
+    // get the current local storage value, append all the exposed module name to the array
+    try {
+      const currentProxied = (JSON.parse(getLocalStorageItem('proxied-components') || '{}') ?? {}) as Record<string, string>;
+      if (isRemoteProxied) {
+        remoteManifest.get(remote.name); // ensure we have the manifest loaded
+        remoteManifestData.exposes.forEach(module => {
+          if (!currentProxied[module.name]) {
+            currentProxied[module.name] = `${remote.name}/${module.name}`;
+          }
+        });
+        setLocalStorageItem('proxied-components', currentProxied);
+      }
+    } catch (e) {
+      console.error('Failed to parse proxied-components from localStorage', e);
     }
     for (const module of remoteManifestData.exposes) {
       // Skip loading components that are disabled in user preferences
@@ -245,7 +364,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
           return loadedModule;
         })
         .catch(e => {
-          console.error(`Failed to load remote "${remote.name}"`, e);
+          console.error(`Failed to load remote "${remote.name}" -> "${module.name}"`, e);
+          console.error(`Likely issue is a react issue whilst rendering a component from an external package.`);
         });
       // If the remote fails to load above, we just continue as we don't want to crash the entire dashboard
       // because of this, it could be a local host remote that's not running or available

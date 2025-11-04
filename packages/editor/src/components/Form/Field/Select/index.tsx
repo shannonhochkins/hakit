@@ -4,7 +4,6 @@ import styles from './SelectField.module.css';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
 import { FieldOption } from '@typings/fields';
-import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 
 import {
   useFloating,
@@ -135,17 +134,6 @@ export function SelectField<T extends FieldOption = FieldOption>({
   useEffect(() => {
     refs.setReference(containerRef.current);
   }, [refs]);
-
-  // --- Same-origin iframe click -> close (manual, per your ColorField) ---
-  const { iframe } = usePuckIframeElements();
-  useEffect(() => {
-    if (!isOpen) return;
-    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
-    if (!doc) return;
-    const handleInsideIframe = () => setIsOpen(false);
-    doc.addEventListener('pointerdown', handleInsideIframe, { passive: true });
-    return () => doc.removeEventListener('pointerdown', handleInsideIframe);
-  }, [isOpen, iframe]);
 
   // set modality (once)
   useEffect(() => {

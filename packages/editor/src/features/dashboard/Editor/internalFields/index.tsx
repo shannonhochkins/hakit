@@ -1,7 +1,7 @@
 import { Actions, FieldConfiguration, InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
 import { DOUBLE_TAP_DELAY, HOLD_DELAY } from '@hooks/usePressGestures';
 import { ServiceField } from '@components/Form/Field/Service';
-import { Entity } from '@components/Form/Field/Entity';
+import { EntityField } from '@components/Form/Field/Entity';
 import { computeDomain, SnakeOrCamelDomains } from '@hakit/core';
 import { Column } from '@components/Layout';
 import { MousePointerClick, TextSelect } from 'lucide-react';
@@ -76,7 +76,7 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
             const serviceData = value?.serviceData ?? {};
             return (
               <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: '0 var(--space-3)' }}>
-                <Entity
+                <EntityField
                   id='entity-service-entity'
                   name='entity'
                   label='Entity'

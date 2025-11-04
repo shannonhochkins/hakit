@@ -12,23 +12,28 @@ export default defineConfig(
   // Node build for tool / CLI code
   {
     entry: {
-      index: './src/index.ts',
-      'bin/index': './src/bin/index.ts',
-      'bundle/bundle': './src/bundle/bundle.ts',
-      'bundle/dev': './src/bundle/dev.ts',
-      'bundle/shared': './src/bundle/shared.ts',
-      'component/index': './src/component/index.ts',
+      index: './shared-components/index.tsx',
     },
     format: ['esm'],
-    platform: 'node',
-    target: 'node18',
+    platform: 'browser',
+    target: 'es2022',
     // No need to regenerate dts for these as index covers this
     dts: true,
     clean: false, // keep dist from first build
     splitting: false,
     sourcemap: false,
     minify: false,
-    outDir: 'dist',
+    outDir: 'dist/components',
     treeshake: false,
+    external: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react-is',
+      '@emotion/sheet',
+      '@emotion/cache',
+      '@emotion/serialize',
+      '@emotion/utils',
+    ],
   }
 );

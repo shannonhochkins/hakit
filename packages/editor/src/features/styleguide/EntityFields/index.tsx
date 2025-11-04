@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Column } from '@components/Layout';
 
-import { Entity } from '@components/Form/Field/Entity';
+import { EntityField } from '@components/Form/Field/Entity';
 import { EntityName } from '@hakit/core';
 import { Group } from '@components/Group';
 
@@ -14,7 +14,7 @@ export function StyleguideEntityFields() {
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
       <Group title='Entity Fields' justifyContent='start' alignItems='start'>
-        <Entity
+        <EntityField
           id='entity-field-1'
           name='entity-field-1'
           value={selectedEntity}
@@ -33,7 +33,7 @@ export function StyleguideEntityFields() {
             width: '33.33%',
           }}
         >
-          <Entity
+          <EntityField
             id='entity-field-2'
             name='entity-field-2'
             value={selectedEntity2}
@@ -50,7 +50,7 @@ export function StyleguideEntityFields() {
             width: '20%',
           }}
         >
-          <Entity
+          <EntityField
             id='entity-field-3'
             name='entity-field-3'
             value={selectedEntity3}
@@ -67,7 +67,7 @@ export function StyleguideEntityFields() {
             width: '200px',
           }}
         >
-          <Entity
+          <EntityField
             id='entity-field-4'
             name='entity-field-4'
             value={selectedEntity4}

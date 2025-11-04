@@ -34,7 +34,7 @@ function EntityRenderOption({ option }: { option: EntityOption }) {
   );
 }
 
-interface EntityProps {
+export interface EntityFieldProps {
   value?: EntityName;
   id: string;
   label?: React.ReactNode;
@@ -46,7 +46,7 @@ interface EntityProps {
   helperText?: string;
 }
 
-export function Entity({ value, onChange, id, name, filterOptions, readOnly, helperText, label, icon }: EntityProps) {
+export function EntityField({ value, onChange, id, name, filterOptions, readOnly, helperText, label, icon }: EntityFieldProps) {
   const { getAllEntities } = useHass();
 
   // Get entities once and memoize to prevent re-renders

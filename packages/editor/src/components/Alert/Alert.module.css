@@ -194,7 +194,9 @@
 
 
 /* list elements need additional margin button if they contain a mark, code, pre */
-.Alert-message :global(ul, ol) {
+/* Split combined :global selector into separate selectors to satisfy esbuild CSS parsing */
+.Alert-message :global(ul),
+.Alert-message :global(ol) {
   margin-bottom: var(--space-8);
 }
 

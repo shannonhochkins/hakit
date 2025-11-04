@@ -18,7 +18,7 @@ function IconRenderOption({ option }: { option: keyof typeof icons }) {
   );
 }
 
-type IconProps = Omit<SingleAutocompleteProps<keyof typeof icons>, 'options'> & {
+export type IconFieldProps = Omit<SingleAutocompleteProps<keyof typeof icons>, 'options'> & {
   icon?: React.ReactNode;
   readOnly?: boolean;
   helperText?: string;
@@ -26,7 +26,7 @@ type IconProps = Omit<SingleAutocompleteProps<keyof typeof icons>, 'options'> & 
 
 const iconNames = Object.keys(icons) as (keyof typeof icons)[];
 
-export function IconField({ value, onChange, id, name, readOnly, helperText, label, icon }: IconProps) {
+export function IconField({ value, onChange, id, name, readOnly, helperText, label, icon }: IconFieldProps) {
   const hasValue = useMemo(() => (String(value)?.trim() ?? '').length > 0, [value]);
 
   const matchedValue = useMemo(() => {

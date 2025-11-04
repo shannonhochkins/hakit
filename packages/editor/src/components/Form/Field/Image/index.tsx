@@ -8,7 +8,7 @@ import { Confirm } from '@components/Modal';
 import { Tooltip } from '@components/Tooltip';
 import { LinearProgress } from '@components/Loaders/LinearProgress';
 
-interface ImageProps extends Omit<InputFileProps, 'onChange' | 'type'> {
+export interface ImageFieldProps extends Omit<InputFileProps, 'onChange' | 'type'> {
   value: string;
   onChange: (value: string) => void;
 }
@@ -37,7 +37,7 @@ export const ImageField = ({
   icon,
   helperText,
   name,
-}: ImageProps) => {
+}: ImageFieldProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(!!value);
   const [error, setError] = useState<string | null>(null);

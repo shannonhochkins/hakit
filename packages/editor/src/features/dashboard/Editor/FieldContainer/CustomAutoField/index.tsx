@@ -2,7 +2,7 @@ import { AutoField, DefaultComponentProps } from '@measured/puck';
 import { FieldConfiguration, FieldValueByKind } from '@typings/fields';
 import { ColorField } from '@components/Form/Field/Color';
 import { SliderField } from '@components/Form/Field/Slider';
-import { Entity } from '@components/Form/Field/Entity';
+import { EntityField } from '@components/Form/Field/Entity';
 import { ServiceField } from '@components/Form/Field/Service';
 import { PageField } from '@components/Form/Field/Page';
 import { ImageField } from '@components/Form/Field/Image';
@@ -188,7 +188,7 @@ export function renderField(props: RenderFieldProps) {
       );
     case 'entity':
       return (
-        <Entity
+        <EntityField
           filterOptions={props.field.filterOptions}
           value={validateString(props.value, undefined)}
           label={props.fieldLabel}

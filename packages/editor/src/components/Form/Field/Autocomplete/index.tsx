@@ -42,7 +42,6 @@ import {
   autoUpdate,
   size as floatingSize,
 } from '@floating-ui/react';
-import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { HelperText } from '../_shared/HelperText';
 import { FieldLabel } from '../_shared/FieldLabel';
 const getClassName = getClassNameFactory('Autocomplete', styles);
@@ -259,17 +258,6 @@ export function AutocompleteField<T = string>({
     },
     [isDisabled, readOnly, multiple, selectedValues, equals, onChange]
   );
-
-  // Close when clicking inside same-origin preview iframe
-  const { iframe } = usePuckIframeElements();
-  useEffect(() => {
-    if (!isOpen) return;
-    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
-    if (!doc) return;
-    const close = () => setIsOpen(false);
-    doc.addEventListener('pointerdown', close, { passive: true });
-    return () => doc.removeEventListener('pointerdown', close);
-  }, [isOpen, iframe]);
 
   useEffect(() => {
     if (!isOpen || isDisabled || readOnly) return;
