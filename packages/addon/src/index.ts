@@ -26,3 +26,5 @@ export type FieldConfiguration<T extends DefaultComponentProps> = InternalFieldC
 export type ComponentConfig<T extends DefaultComponentProps> = CustomComponentConfig<T>;
 
 export type { PageValue, UnitFieldValue } from '@typings/fields';
+
+export type { DashboardPage, DashboardPageWithoutData } from './types/shims/hono-shim';

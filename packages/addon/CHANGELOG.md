@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.0.24] - 2025-11-04
+- Exporting "page" field type, and related Dashboard, DashboardWithoutData, and DashboardPage types for addon developers to use when building custom components that interact with pages in the dashboard configuration.
+
 ## [0.0.23] - 2025-11-04
 - More type cleanups, removing hono and api types from exported package, exporting mode components
 
