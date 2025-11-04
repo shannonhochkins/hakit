@@ -85,6 +85,8 @@ export function createComponent<P extends object>(
       services,
     });
 
+    console.log(config.label, 'fields', fields, defaultProps);
+
     // this is the config that will be used for puck
     return {
       ...config,
@@ -318,6 +320,10 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
 
   // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
   const renderedElement = config.render(fullProps);
+
+  if (config.autoWrapComponent === false) {
+    return renderedElement;
+  }
   return attachPropsToElement({
     element: renderedElement,
     ref: dragRef,

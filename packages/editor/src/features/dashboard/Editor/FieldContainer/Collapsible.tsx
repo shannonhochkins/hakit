@@ -79,7 +79,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   }, []);
 
   const onFieldsetClick = useCallback(
-    (e: React.MouseEvent<HTMLFieldSetElement | HTMLButtonElement>) => {
+    (e: React.MouseEvent<HTMLFieldSetElement | HTMLDivElement>) => {
       e.stopPropagation();
       if (field.type === 'object') {
         onToggleExpand();

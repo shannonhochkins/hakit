@@ -1,13 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { createElement, useMemo } from 'react';
 import { BaseButton, type BaseButtonProps } from './BaseButton';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './Fab.module.css';
+import { icons, LucideProps } from 'lucide-react';
 
 const getFabClassName = getClassNameFactory('Fab', styles);
 // Props interface for the FAB
-export interface FabProps extends Omit<BaseButtonProps, 'variant'> {
+export interface FabProps extends Omit<BaseButtonProps, 'variant' | 'startIcon' | 'endIcon' | 'startIconProps' | 'endIconProps'> {
   /** Icon to display in the center of the FAB */
-  icon: React.ReactNode;
+  icon: Exclude<React.ReactNode, 'string'> | keyof typeof icons;
+  /** Icon props to display in the center of the fab */
+  iconProps?: LucideProps;
   /** Color variant of the FAB */
   variant?: BaseButtonProps['variant'] | 'transparent';
   /** Whether the FAB should pulse to draw attention */
@@ -25,6 +28,7 @@ export interface FabProps extends Omit<BaseButtonProps, 'variant'> {
 // React component wrapper
 export const Fab = ({
   icon,
+  iconProps,
   loading,
   disabled,
   size = 'md',
@@ -75,6 +79,14 @@ export const Fab = ({
     };
   }, [style, borderRadius]);
 
+  const iconElement = useMemo(() => {
+    if (typeof icon === 'string' && icon in icons) {
+      const IconComponent = icons[icon as keyof typeof icons];
+      return createElement(IconComponent, iconProps);
+    }
+    return icon;
+  }, [icon, iconProps]);
+
   return (
     <BaseButton
       className={fabClassName}
@@ -87,7 +99,7 @@ export const Fab = ({
       active={active}
       {...props}
     >
-      {loading ? null : icon}
+      {loading ? null : iconElement}
       {children}
     </BaseButton>
   );

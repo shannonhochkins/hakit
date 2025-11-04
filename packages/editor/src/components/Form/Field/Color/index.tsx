@@ -203,7 +203,7 @@ function GradientPickerWrapper({ value, onChange, debounce, hideControls }: Grad
     <GradientPicker
       hideAdvancedSliders
       hideColorGuide
-      hideControls={!hideControls}
+      hideControls={hideControls}
       hidePresets
       width={COLOR_PICKER_WIDTH}
       height={COLOR_PICKER_HEIGHT}

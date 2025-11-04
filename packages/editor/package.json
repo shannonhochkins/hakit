@@ -15,7 +15,8 @@
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",
-    "preview": "rsbuild preview"
+    "preview": "rsbuild preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

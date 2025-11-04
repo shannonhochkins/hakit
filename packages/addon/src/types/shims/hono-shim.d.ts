@@ -1,18 +1,35 @@
 import { Data } from '@measured/puck';
 
-// src/types/shims/hono-shim.d.ts
-export type Dashboard = {
-  path: string;
+// Fallback local declaration; real type should merge from @typings/breakpoints when available.
+export interface BreakpointItem {
   id: string;
-  name: string;
-  pages: DashboardPage[];
-  thumbnail: string | null;
-  createdAt: string;
-  updatedAt: string;
-  dashboardId: string;
-};
+  title: string;
+  width: number;
+  disabled: boolean;
+  editable: boolean;
+  icon?: string;
+}
 
-export type DashboardPage = {
+// src/types/shims/hono-shim.d.ts
+// Base dashboard record (without pages) returned by some list endpoints
+export interface DashboardBase {
+  id: string;
+  name: string;
+  path: string;
+  userId?: string;
+  breakpoints: BreakpointItem[];
+  thumbnail: string | null;
+  data?: unknown;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Hydrated dashboard including pages (pages may be summary items without data hydrated)
+export interface Dashboard extends DashboardBase {
+  pages: DashboardPage[];
+}
+
+export interface DashboardPage {
   id: string;
   name: string;
   thumbnail: string | null;
@@ -20,8 +37,10 @@ export type DashboardPage = {
   createdAt: string;
   path: string;
   dashboardId: string;
-  data: Data;
-};
+  data?: Data | null; // optional when not hydrated
+}
+
+export type DashboardWithPageData = Dashboard & { pages: DashboardPage[] };
 
 export type DashboardPageWithoutData = Omit<DashboardPage, 'data'>;
 

@@ -33,29 +33,11 @@ export default createModuleFederationConfig({
       shareStrategy: 'loaded-first',
       requiredVersion: dependencies['@hakit/components'],
     },
-    '@measured/puck': {
-      singleton: true,
-      eager: true, // Host provides this
-      shareStrategy: 'loaded-first',
-      requiredVersion: dependencies['@measured/puck'],
-    },
     '@emotion/react': {
       singleton: true,
       eager: true, // Host provides this
       shareStrategy: 'loaded-first',
       requiredVersion: dependencies['@emotion/react'],
-    },
-    'monaco-editor': {
-      singleton: true,
-      eager: true,
-      shareStrategy: 'loaded-first',
-      requiredVersion: dependencies['monaco-editor'],
-    },
-    '@monaco-editor/react': {
-      singleton: true,
-      eager: true,
-      shareStrategy: 'loaded-first',
-      requiredVersion: dependencies['@monaco-editor/react'],
     },
     'home-assistant-js-websocket': {
       singleton: true,

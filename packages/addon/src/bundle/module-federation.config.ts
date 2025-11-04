@@ -48,25 +48,7 @@ export function createMFConfig(manifest: Manifest, packageJson: PackageJson): Pl
         requiredVersion: false,
         import: false,
       },
-      '@measured/puck': {
-        singleton: true,
-        eager: false,
-        requiredVersion: false,
-        import: false,
-      },
       '@emotion/react': {
-        singleton: true,
-        eager: false,
-        requiredVersion: false,
-        import: false,
-      },
-      '@monaco-editor/react': {
-        singleton: true,
-        eager: false,
-        requiredVersion: false,
-        import: false,
-      },
-      'monaco-editor': {
         singleton: true,
         eager: false,
         requiredVersion: false,

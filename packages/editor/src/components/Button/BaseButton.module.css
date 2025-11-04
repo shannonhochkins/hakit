@@ -397,8 +397,42 @@
   border-color: transparent;
 }
 
+
+.success {
+  --button-bg: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-hover: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-active: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
+  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+
+  --button-shadow: var(--shadow-success-base);
+  --button-shadow-hover: var(--shadow-success-hover);
+  --button-shadow-active: var(--shadow-success-active);
+  --button-shadow-focus: var(--shadow-success-focus);
+
+  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
+  --button-overlay-bg-active: linear-gradient(135deg, var(--color-success-700) 0%, var(--color-success-800) 100%);
+}
+
+.error {
+  --button-bg: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-hover: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-active: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
+  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+
+  --button-shadow: var(--shadow-error-base);
+  --button-shadow-hover: var(--shadow-error-hover);
+  --button-shadow-active: var(--shadow-error-active);
+  --button-shadow-focus: var(--shadow-error-focus);
+
+  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-700) 100%);
+  --button-overlay-bg-active: linear-gradient(135deg, var(--color-error-700) 0%, var(--color-error-800) 100%);
+}
+
+
 /* ClassNameFactory compatibility (BEM-like aliases) */
 .BaseButton { composes: baseButton; }
+.BaseButton--success { composes: success; }
+.BaseButton--error { composes: error; }
 .BaseButton--loading { composes: loading; }
 .BaseButton--fullWidth { composes: fullWidth; }
 .BaseButton--fullHeight { composes: fullHeight; }

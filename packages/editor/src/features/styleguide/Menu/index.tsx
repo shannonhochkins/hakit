@@ -6,7 +6,7 @@ import { MoreVertical } from 'lucide-react';
 import { useRef } from 'react';
 
 export function StyleguidePageMenu() {
-  const externalBtnRef = useRef<HTMLButtonElement | null>(null);
+  const externalBtnRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<MenuControllerRef | null>(null);
 
   return (

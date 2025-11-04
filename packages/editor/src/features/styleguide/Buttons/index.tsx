@@ -51,8 +51,8 @@ export function StyleguideButtons() {
 
       <Group title='Secondary Button - Basics'>
         <SecondaryButton aria-label='Secondary default'>Default Secondary</SecondaryButton>
-        <SecondaryButton aria-label='Secondary loading' loading>
-          Loading
+        <SecondaryButton aria-label='Secondary loading' loading variant='error'>
+          Loading error
         </SecondaryButton>
         <SecondaryButton aria-label='Secondary disabled' disabled>
           Disabled

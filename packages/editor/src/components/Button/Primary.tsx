@@ -13,15 +13,10 @@ export interface PrimaryButtonProps extends BaseButtonProps {
 export const PrimaryButton = ({ variant = 'primary', className, ...props }: PrimaryButtonProps) => {
   const computed = getPrimaryClassName(
     {
-      PrimaryButton: true,
-      success: variant === 'success',
-      error: variant === 'error',
+      PrimaryButton: variant === 'primary',
     },
     className
   );
 
-  // Map PrimaryButton variant to BaseButton variant for badge inheritance
-  const baseVariant = variant === 'success' || variant === 'error' ? variant : 'primary';
-
-  return <BaseButton className={computed} variant={baseVariant} {...props} />;
+  return <BaseButton className={computed} variant={variant} {...props} />;
 };

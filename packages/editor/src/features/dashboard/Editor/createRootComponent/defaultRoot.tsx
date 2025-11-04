@@ -410,7 +410,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         --typography-font-family: ${fontFamily};
         --typography-heading-weight: ${typography?.headingWeight ?? 600};
         --typography-body-weight: ${typography?.bodyWeight ?? 400};
-        --typography-base-font-size: ${typography?.baseFontSize ?? 16}px;
+        --font-size: ${typography?.baseFontSize ?? `16px`};
         --typography-line-height: ${typography?.lineHeight ?? 1.5};
         --typography-letter-spacing: ${typography?.letterSpacing ?? 0}px;
       }
@@ -499,7 +499,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       /* Global Typography Styles */
       body {
         font-family: var(--typography-font-family);
-        font-size: var(--typography-base-font-size);
+        font-size: var(--font-size);
         line-height: var(--typography-line-height);
         letter-spacing: var(--typography-letter-spacing);
 

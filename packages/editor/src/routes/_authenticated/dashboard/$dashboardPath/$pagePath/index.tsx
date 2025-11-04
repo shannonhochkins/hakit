@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Renderer } from '@features/dashboard/Renderer';
 import { PuckPreload } from '@features/dashboard/PuckPreload';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
-import { loadDashboardAndPageOrNotFound } from '../../loader';
+import { loadDashboardAndPageOrNotFound } from '@helpers/editor/routes/preload-data';
 import { NotFound } from '@features/404';
 
 export const Route = createFileRoute('/_authenticated/dashboard/$dashboardPath/$pagePath/')({
