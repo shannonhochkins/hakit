@@ -100,10 +100,10 @@ instance.registerPlugins([
       // fall through for real remotes
       return ctx;
     },
-    async beforeLoadRemoteSnapshot(ctx) {
-      if (ctx.moduleInfo.name !== PROXY_REMOTE_NAME) return ctx;
-      return;
-    },
+    // async beforeLoadRemoteSnapshot(ctx) {
+    //   if (ctx.moduleInfo.name !== PROXY_REMOTE_NAME) return ctx;
+    //   return;
+    // },
     // @ts-expect-error - This is a hack to supress errors with the runtime plugin fetching snapshots for something that
     // doesn't exist for the dev proxy only
     fetch(manifestUrl) {
@@ -173,7 +173,6 @@ async function initContainersEarly(remotesToInit: Array<RemoteWithAddonId>) {
   // Force-load a non-existent expose to trigger container init and fire beforeInitContainer
   await Promise.all(
     remotesWithOverrides.map(r => {
-      console.log('Initializing remote container for', r.name);
       return (
         instance
           .loadRemote(`${r.name}/__init__`, { from: 'runtime' })
@@ -191,7 +190,6 @@ async function hydrateLiveManifestsFromOverrides(resolved: Map<string, string>, 
         const res = await fetch(entryUrl, { cache: 'no-store' });
         if (!res.ok) return;
         const manifest = (await res.json()) as MfManifest;
-        console.log(`Fetched live manifest for ${name} from override URL`, manifest);
         targetMap.set(name, manifest);
       } catch (e) {
         console.debug(`Failed to fetch live manifest for ${name}`, e);

@@ -87,7 +87,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
         type: 'object',
         label: rootConfig._remoteAddonName || rootConfig.label,
         section: {
-          expanded: true,
+          expanded: false, // by default, we collapse all objects
         },
         // @ts-expect-error - impossible to type this correctly as it is a dynamic object
         objectFields: {

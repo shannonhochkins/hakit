@@ -39,7 +39,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   id,
 }: CollapsibleFieldComponentProps<Props>) {
   const addonId = 'addonId' in field ? (field.addonId as string) : undefined;
-  const [isExpanded, toggleExpanded] = useState(field.section ? (field.section?.expanded ?? false) : true);
+  const [isExpanded, toggleExpanded] = useState(field.section ? (field.section?.expanded ?? false) : false);
   const _icon = useMemo(() => field.icon ?? ICON_MAP[field.type], [field.icon, field.type]);
   const selectedItem = usePuck(state => state.selectedItem);
   const appState = usePuck(state => state.appState);

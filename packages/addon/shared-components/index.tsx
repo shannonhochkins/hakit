@@ -17,6 +17,7 @@ export {
   type InputFileProps,
   type InputTextareaProps,
 } from '@components/Form/Field/Input';
+export { PageField, type PageFieldProps } from '@components/Form/Field/Page';
 export { RadioField, type RadioFieldProps } from '@components/Form/Field/Radio';
 export { SwitchField, type SwitchFieldProps } from '@components/Form/Field/Switch';
 export { SliderField, type SliderFieldProps } from '@components/Form/Field/Slider';

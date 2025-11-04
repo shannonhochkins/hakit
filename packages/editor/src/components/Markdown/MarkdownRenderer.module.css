@@ -2,26 +2,6 @@
 .MarkdownRenderer {
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
-  --color-fg-default: var(--color-gray-200)
-  --color-fg-muted: var(--color-gray-400);
-  --color-fg-subtle: var(--color-gray-500);
-  --color-canvas-default: var(--color-surface);
-  --color-canvas-subtle: var(--color-surface-elevated);
-  --color-border-default: var(--color-border);
-  --color-border-muted: var(--color-gray-800);
-  --color-neutral-muted: var(--color-gray-500);
-  --color-accent-fg: var(--color-primary-500);
-  --color-accent-emphasis: var(--color-primary-300);
-  --color-attention-subtle: rgba(187, 128, 9, .15);
-  --color-danger-fg: var(--color-error-500);
-  --color-danger-emphasis: var(--color-error-300);
-  --color-attention-fg: var(--color-warning-500);
-  --color-attention-emphasis:  var(--color-warning-300);
-  --color-done-fg: var(--color-secondary-500);
-  --color-done-emphasis: var(--color-secondary-300);
-  --color-success-fg: var(--color-success-500);
-  --color-success-emphasis: var(--color-success-300);
-  --color-copied-active-bg: var(--color-gray-700);
 }
 
 .MarkdownRenderer :global(a) {
@@ -41,5 +21,3 @@
   max-width: 400px;
   max-height: 400px;
 }
-
-  

@@ -615,6 +615,33 @@ export const config: ComponentConfig<MyComponentProps> = {
 };
 ```
 
+### Using keyframes with styles function
+
+When using keyframes, you'll have to export them from `@emotion/react` and interpolate them into your styles via the `css` tagged template literal:
+
+```typescript
+import { keyframes, css } from '@emotion/react';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+export const config: ComponentConfig<MyComponentProps> = {
+  // ... fields ...
+  styles(props) {
+    // NOTE: Must use the `css` tagged template literal to interpolate keyframes
+    return css`
+      animation: ${fadeIn} 0.5s ease-in-out;
+    `;
+  },
+  render: Render,
+};
+```
 ## 🚨 Common Mistakes and Solutions
 
 | ❌ Problematic | ✅ Safe Alternative | Why |

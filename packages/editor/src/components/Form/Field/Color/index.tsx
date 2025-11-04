@@ -16,6 +16,7 @@ import {
   autoUpdate,
   offset,
 } from '@floating-ui/react';
+import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 
 type InputFieldSize = 'small' | 'medium' | 'large';
 export interface ColorFieldProps {
@@ -53,6 +54,7 @@ export const ColorField = ({
   hideControls = false,
 }: ColorFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { iframe } = usePuckIframeElements();
 
   const { refs, floatingStyles, context } = useFloating({
     middleware: [offset({ mainAxis: 20, crossAxis: 0 }), autoPlacement()],
@@ -72,6 +74,21 @@ export const ColorField = ({
   const role = useRole(context, { role: 'dialog' });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+  // When open, attach a listener inside the iframe document to close the popover
+  useEffect(() => {
+    if (!isOpen) return;
+    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!doc) return;
+
+    const handleInsideIframe = () => setIsOpen(false);
+    // pointerdown catches mouse + touch
+    doc.addEventListener('pointerdown', handleInsideIframe, { passive: true });
+
+    return () => {
+      doc.removeEventListener('pointerdown', handleInsideIframe);
+    };
+  }, [isOpen, iframe]);
 
   useEffect(() => {
     return () => setIsOpen(false);
