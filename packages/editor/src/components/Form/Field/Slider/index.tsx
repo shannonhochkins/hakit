@@ -6,7 +6,7 @@ import { useDebouncer } from '@tanstack/react-pacer';
 import { DEFAULT_FIELD_DEBOUNCE_MS } from '@helpers/editor/pageData/constants';
 type SliderFieldSize = 'small' | 'medium' | 'large';
 
-type SliderFieldProps = {
+export type SliderFieldProps = {
   id: string;
   name: string;
   label?: React.ReactNode;

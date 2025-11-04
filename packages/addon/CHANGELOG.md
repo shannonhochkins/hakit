@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.23] - 2025-11-04
+- More type cleanups, removing hono and api types from exported package, exporting mode components
+
+## [0.0.22] - 2025-11-04
+- Type cleanups and including readme descriptions
+
+## [0.0.21] - 2025-11-04
+- Extensive changes to the addon package, sharable components now exported via @hakit/addon/components, these aren't real components, and the host application will load these via module federation
+
+## [0.0.20] - 2025-11-03
+- Trying live reload disabling and polyfill for for node react
+
+## [0.0.19] - 2025-11-03
+- Adding missing package
+
+## [0.0.18] - 2025-11-03
+- Removed "code" field from exports, including monaco in the package causes unnecessary bloat
+
+## [0.0.17] - 2025-11-03
+- Added tree shaking support, exporting re-usable form fields, buttons, alerts
+
+## [0.0.16] - 2025-10-30
+- Updating object field, styles return type to better naming convention
+
+## [0.0.15] - 2025-10-30
+- Updating base port from 3000 to 5000 to avoid conflicts with main editor application in development mode.
+
+## [0.0.14] - 2025-10-29
+- Updating types
+
 ## [0.0.13] - 2025-08-05
 - Removing GIT_IGNORE from template output
 - Removing versions directory from GIT_IGNORE as these are intended to be tracked

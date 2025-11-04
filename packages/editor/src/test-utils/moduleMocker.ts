@@ -8,14 +8,16 @@ export class ModuleMocker {
   private mocks: MockResult[] = [];
 
   async mock(modulePath: string, renderMocks: () => Record<string, unknown>) {
-    const original = {
-      ...(await import(modulePath)),
-    };
+    let original: Record<string, unknown> = {};
+    try {
+      // Attempt to load the real module; if it doesn't exist (e.g. optional peer like 'leaflet'), ignore.
+      original = { ...(await import(modulePath)) };
+    } catch {
+      // Non-existent module: keep original empty so we can still register the mock.
+      original = {};
+    }
     const mocks = renderMocks();
-    const result = {
-      ...original,
-      ...mocks,
-    };
+    const result = { ...original, ...mocks };
     mock.module(modulePath, () => result);
     this.mocks.push({
       clear: () => {

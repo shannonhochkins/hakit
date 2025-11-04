@@ -35,7 +35,7 @@ function ServiceRenderOption({ option, domain }: { option: Option; domain: Snake
   );
 }
 
-interface ServiceFieldProps<T extends SnakeOrCamelDomains> {
+export interface ServiceFieldProps<T extends SnakeOrCamelDomains> {
   id: string;
   domain: T;
   name: string;

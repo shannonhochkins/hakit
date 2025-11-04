@@ -179,8 +179,8 @@ export const mockConfig = {
         styles: {
           type: 'object',
           label: 'Style Overrides',
-          collapseOptions: {
-            startExpanded: false,
+          section: {
+            expanded: false,
           },
           description: 'Provide css updates to override the default styles of this component',
           objectFields: {
@@ -235,14 +235,14 @@ export const mockConfig = {
           type: 'text',
           label: 'Text Field',
           default: 'This is a text field',
-          collapseOptions: {},
+          section: {},
           description: 'A simple text field for testing purposes',
         },
         styles: {
           type: 'object',
           label: 'Style Overrides',
-          collapseOptions: {
-            startExpanded: false,
+          section: {
+            expanded: false,
           },
           description: 'Provide css updates to override the default styles of this component',
           objectFields: {
@@ -424,8 +424,8 @@ export const mockConfig = {
         styles: {
           type: 'object',
           label: 'Style Overrides',
-          collapseOptions: {
-            startExpanded: false,
+          section: {
+            expanded: false,
           },
           description: 'Provide css updates to override the default styles of this component',
           objectFields: {
@@ -609,8 +609,8 @@ export const mockConfig = {
         styles: {
           type: 'object',
           label: 'Style Overrides',
-          collapseOptions: {
-            startExpanded: false,
+          section: {
+            expanded: false,
           },
           description: 'Provide css updates to override the default styles of this component',
           objectFields: {
@@ -669,8 +669,8 @@ export const mockConfig = {
       '@hakit/default-root': {
         type: 'object',
         label: '@hakit/editor',
-        collapseOptions: {
-          startExpanded: true,
+        section: {
+          expanded: true,
         },
         objectFields: {
           id: {
@@ -682,8 +682,8 @@ export const mockConfig = {
           },
           background: {
             type: 'object',
-            collapseOptions: {
-              startExpanded: true,
+            section: {
+              expanded: true,
             },
             label: 'Background options',
             description: 'General options for the main background',
@@ -924,8 +924,8 @@ export const mockConfig = {
           },
           typography: {
             type: 'object',
-            collapseOptions: {
-              startExpanded: true,
+            section: {
+              expanded: true,
             },
             label: 'Typography',
             description: 'Font and text styling options',
@@ -1119,8 +1119,8 @@ export const mockConfig = {
       styles: {
         type: 'object',
         label: 'Global styles',
-        collapseOptions: {
-          startExpanded: false,
+        section: {
+          expanded: false,
         },
         description: 'Provide global CSS styles for the entire dashboard',
         objectFields: {

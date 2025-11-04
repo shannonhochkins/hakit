@@ -2,6 +2,15 @@
  * Main export file for @hakit/addon
  * This file exports types and utilities that can be used by consumers
  */
+export type Dashboard = {
+  path: string;
+  id: string;
+  name: string;
+  thumbnail: string | null;
+  createdAt: string;
+  updatedAt: string;
+  dashboardId: string;
+};
 import { type ComponentData, type DefaultComponentProps } from '@measured/puck';
 import type { CustomComponentConfig } from '@typings/puck';
 

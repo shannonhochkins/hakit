@@ -25,6 +25,7 @@ import { Octokit } from '@octokit/rest';
 import { MarkdownRenderer } from '@components/Markdown/MarkdownRenderer';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './AddonDetail.module.css';
+import { createGitHubUrlTransform } from './transformer';
 
 const getClassName = getClassNameFactory('AddonDetail', styles);
 
@@ -56,6 +57,7 @@ async function fetchGitHubStats(githubUrl: string) {
     ]);
 
     const repoData = repoResponse.data;
+    const defaultBranch = repoData.default_branch || 'main';
 
     // Get total issue count from headers if available
     let openIssues = 0;
@@ -68,17 +70,23 @@ async function fetchGitHubStats(githubUrl: string) {
     }
 
     return {
+      defaultBranch,
       stars: repoData.stargazers_count || 0,
       openIssues,
+      owner,
+      repo: cleanRepo,
       repoUrl: `https://github.com/${owner}/${cleanRepo}`,
       issuesUrl: `https://github.com/${owner}/${cleanRepo}/issues`,
     };
   } catch (error) {
     console.error('Failed to fetch GitHub stats:', error);
     return {
+      defaultBranch: 'main',
       stars: 0,
       openIssues: 0,
+      repo: '',
       repoUrl: githubUrl,
+      owner: '',
       issuesUrl: `${githubUrl}/issues`,
     };
   }
@@ -199,6 +207,17 @@ export function AddonDetail({ addonId }: { addonId: string }) {
       connectAddonMutation.mutate();
     }
   };
+
+  const urlTransform = useMemo(
+    () =>
+      githubStats &&
+      createGitHubUrlTransform({
+        owner: githubStats.owner,
+        repo: githubStats.repo,
+        ref: githubStats.defaultBranch, // prefer a SHA for stable links
+      }),
+    [githubStats]
+  );
 
   // Loading state
   if (addonQuery.isLoading) {
@@ -362,7 +381,13 @@ export function AddonDetail({ addonId }: { addonId: string }) {
               <span style={{ marginLeft: 'var(--space-2)' }}>Loading README...</span>
             </Row>
           ) : (
-            <MarkdownRenderer>{readme || '# README\n\nNo README available for this addon.'}</MarkdownRenderer>
+            <MarkdownRenderer
+              options={{
+                urlTransform,
+              }}
+            >
+              {readme || '# README\n\nNo README available for this addon.'}
+            </MarkdownRenderer>
           )}
         </div>
       </div>

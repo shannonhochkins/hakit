@@ -19,8 +19,7 @@ import {
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 
 type InputFieldSize = 'small' | 'medium' | 'large';
-
-interface ColorProps {
+export interface ColorFieldProps {
   value: string;
   id: string;
   name?: string;
@@ -53,7 +52,7 @@ export const ColorField = ({
   readOnly = false,
   debounce = DEFAULT_FIELD_DEBOUNCE_MS,
   hideControls = false,
-}: ColorProps) => {
+}: ColorFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { iframe } = usePuckIframeElements();
 

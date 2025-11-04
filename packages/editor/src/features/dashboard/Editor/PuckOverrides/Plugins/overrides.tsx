@@ -72,7 +72,7 @@ export const createPuckOverridesPlugin = (): Plugin<
           </RenderErrorBoundary>
         );
       },
-      components: Components,
+      drawer: Components,
       drawerItem: DrawerItem,
       fieldTypes: {
         unit: FieldWrapper,

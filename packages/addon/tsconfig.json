@@ -7,11 +7,12 @@
     "esModuleInterop": true,
     "allowJs": true,
     "strict": true,
+    "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
     "outDir": "dist",
     "noEmit": false,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -28,9 +29,11 @@
       "@constants/*": ["../editor/src/constants/*"],
       "@constants": ["../editor/src/constants/index.ts"],
       "@components/*": ["../editor/src/components/*"],
-      "@server/*": ["../server/*"]
+      "@server/*": ["../server/*"],
+      "@shared/*": ["../shared/*"],
+      "@typings/hono": ["./src/types/shims/hono-shim.d.ts"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tmp", "templates", "../../typings/**/*"]
+  "include": ["src/**/*", "shared-components/**/*", "./tsup.config.ts"],
+  "exclude": ["node_modules", "dist", "tmp", "templates"]
 }

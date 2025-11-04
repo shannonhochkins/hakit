@@ -29,13 +29,18 @@ interface PopupStore {
 
 export function getPopupIdsInData(data: PuckPageData, userConfig: Config): Set<string> {
   const popupIds = new Set<string>();
-  walkTree(data, userConfig, content => {
-    content.forEach(item => {
-      if (item.type === 'Popup' && item.props.id) {
-        popupIds.add(item.props.id);
-      }
+  try {
+    walkTree(data, userConfig, content => {
+      content.forEach(item => {
+        if (item.type === 'Popup' && item.props.id) {
+          popupIds.add(item.props.id);
+        }
+      });
     });
-  });
+  } catch {
+    // possible this will fail early if the data contains a component name that does not exist in the userConfig
+    // this will be called automatically again after the trimPuckDataToConfig is called again.
+  }
   return popupIds;
 }
 
@@ -45,9 +50,7 @@ export const usePopupStore = create<PopupStore>(set => {
     // this must be called after we've set the puckPageData on the global store
     initializePopups: data => {
       const userConfig = useGlobalStore.getState().userConfig;
-      if (!userConfig) {
-        throw new Error('User config is not set in global store');
-      }
+      if (!userConfig) return;
       // walk the puck page data to find all popups
       const popupIds = getPopupIdsInData(data, userConfig as Config);
 

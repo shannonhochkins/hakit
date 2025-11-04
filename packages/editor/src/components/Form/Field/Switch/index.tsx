@@ -8,7 +8,7 @@ const getClassName = getClassNameFactory('Switch', styles);
 
 type SwitchFieldSize = 'small' | 'medium' | 'large';
 
-type SwitchFieldProps = {
+export type SwitchFieldProps = {
   id: string;
   label?: React.ReactNode;
   helperText?: React.ReactNode;

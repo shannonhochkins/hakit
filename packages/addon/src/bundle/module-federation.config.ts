@@ -60,6 +60,38 @@ export function createMFConfig(manifest: Manifest, packageJson: PackageJson): Pl
         requiredVersion: false,
         import: false,
       },
+      '@monaco-editor/react': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
+      'monaco-editor': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
+      'home-assistant-js-websocket': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
+      'lucide-react': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
+      '@hakit/addon/components': {
+        import: false, // <— critical: do not include in remote bundle
+        requiredVersion: false,
+        singleton: true,
+        shareScope: 'default',
+        shareKey: '@hakit/addon/components',
+        packageName: '@hakit/addon/components', // avoid tying to @hakit/addon package.json
+      },
     },
   };
 }

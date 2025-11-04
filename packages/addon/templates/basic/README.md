@@ -2,7 +2,7 @@
 
 DefaultProjectDescription
 
-Welcome to your new HAKIT component library! You're now ready to start designing components for [hakit.dev](https://hakit.dev). Create awesome custom components that Home Assistant users can easily add to their dashboards.
+Welcome to your new HAKIT component library! You're now ready to start designing components for [hakit.dev](https://hakit.dev). Create custom components that Home Assistant users can easily add to their dashboards.
 
 ## Learn More
 

@@ -25,7 +25,7 @@ interface DevOptions extends BuildOptions {
  * Main development function that starts the dev server
  */
 export async function startDevServer(options: DevOptions): Promise<void> {
-  const { debug, projectPath, port = 3000, host = 'localhost' } = options;
+  const { debug, projectPath, port = 5000, host = 'localhost' } = options;
   setDebugMode(debug);
 
   console.log(chalk.blue('🚀 Starting HAKIT editor development server...'));
@@ -124,7 +124,7 @@ program
   .name('@hakit/addon dev')
   .description('Start HAKIT editor development server with Module Federation')
   .option('--debug', 'Enable debug logging', false)
-  .option('-p, --port <port>', 'Port number for the development server', '3000')
+  .option('-p, --port <port>', 'Port number for the development server', '5000')
   .option('--host <host>', 'Host for the development server', 'localhost')
   .action(async options => {
     try {

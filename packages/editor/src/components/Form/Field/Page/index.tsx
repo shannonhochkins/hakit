@@ -24,7 +24,7 @@ type PageFieldMultiProps = CommonProps & {
   onChange: (value: PageValue[]) => void;
 };
 
-type PageFieldProps = PageFieldSingleProps | PageFieldMultiProps;
+export type PageFieldProps = PageFieldSingleProps | PageFieldMultiProps;
 
 type DashboardValue = DashboardPageWithoutData & {
   dashboardName: string;
@@ -214,22 +214,4 @@ export const PageField = memo(function Page({ value, multiple, min, max, onChang
       }}
     />
   );
-  // return (
-  //   <AutoField
-  //     name={name}
-  //     field={{
-  //       name: name,
-  //       type: 'select',
-  //       metadata: {
-  //         type: 'page',
-  //       },
-  //       label: label,
-  //       options: options,
-  //       description: 'Select the page to navigate to',
-  //     }}
-  //     onChange={handleChange}
-  //     // @ts-expect-error - TODO - fix this
-  //     value={singleValue}
-  //   />
-  // );
 });

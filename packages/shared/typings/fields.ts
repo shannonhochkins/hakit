@@ -259,16 +259,16 @@ export type FieldDefinition = {
   slot: PuckSlotField;
   object: ObjectField & {
     /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
-    collapseOptions?: {
+    section?: {
       /** Should the collapsable area start expanded @default true */
-      startExpanded?: boolean;
+      expanded?: boolean;
     };
   };
   array: ArrayField & {
     /** Make the current field collapsible by providing this object, and a default state if desired @default undefined */
-    collapseOptions?: {
+    section?: {
       /** Should the collapsable area start expanded @default true */
-      startExpanded?: boolean;
+      expanded?: boolean;
     };
   };
 };

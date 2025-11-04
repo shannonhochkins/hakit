@@ -80,6 +80,12 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       const fragmentProps = element.props as { children?: ReactNode };
       return <div {...createWrapperProps()}>{fragmentProps.children}</div>;
     }
+    // if the element.type is not a simple string (like 'div' or 'span'), it is a custom component
+    // we need to wrap it
+    if (typeof element.type !== 'string') {
+      logAutoWrap('Component returned a custom React component', 'div');
+      return <div {...createWrapperProps()}>{element}</div>;
+    }
 
     // Handle regular React elements - clone and add/merge the ref and CSS
     try {

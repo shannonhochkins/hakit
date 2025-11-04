@@ -69,8 +69,6 @@ export function ActionBar() {
       if (parentId) {
         const selector = getSelectorForId(parentId);
         if (selector) {
-          console.log('sending select parent action', { selector });
-
           dispatch({
             type: 'setUi',
             ui: {

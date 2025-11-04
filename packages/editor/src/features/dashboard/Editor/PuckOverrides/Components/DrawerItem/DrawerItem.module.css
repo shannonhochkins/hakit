@@ -5,10 +5,24 @@
   border-radius: var(--radius-md);
   cursor: move;
   transition: all 0.2s ease;
+  position: relative;
+  color: var(--color-text-primary);
+  &:active, &:hover, &:focus {
+    background-color: var(--color-border);
+    .DrawerItem-Icon {
+      color: currentColor;
+    }
+  }
 }
-
-.DrawerItem:hover {
-  background-color: var(--color-border);
+.DrawerItem-proxied {
+  background-color: var(--color-warning-800);
+  color: var(--color-warning-50);
+  .DrawerItem-Icon {
+    color: var(--color-warning-50);
+  }
+  &:hover, &:active, &:focus {
+    background-color: var(--color-warning-700);
+  }
 }
 
 .DrawerItem-Icon {
@@ -19,13 +33,10 @@
   transition: color 0.2s ease;
 }
 
-.DrawerItem:hover .DrawerItem-Icon {
-  color: var(--color-text-primary);
-}
-
 .DrawerItem-Name {
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: currentColor;
 }
+
 
 

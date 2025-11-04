@@ -63,23 +63,31 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
     "@guanghechen/fast-deep-equal": "^2.3.7",
+    "@hakit/components": "^5.1.6",
+    "@hakit/core": "^5.1.6",
     "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
+    "@measured/puck": "^0.20.2",
+    "@monaco-editor/react": "^4.7.0",
     "@octokit/rest": "^22.0.0",
     "@scalar/hono-api-reference": "^0.9.13",
     "@supabase/supabase-js": "^2.49.3",
     "classnames": "^2.5.1",
     "drizzle-orm": "^0.40.0",
     "drizzle-zod": "^0.7.0",
+    "home-assistant-js-websocket": "^9.5.0",
     "hono": "^4.7.2",
     "hono-openapi": "^0.4.8",
     "jszip": "^3.10.1",
+    "lucide-react": "^0.552.0",
     "postgres": "^3.4.5",
     "type-fest": "^4.41.0",
     "typescript-plugin-css-modules": "^5.2.0",
     "uuid": "^11.1.0",
     "zod": "^4.0.16",
-    "zod-validation-error": "^4.0.1"
+    "zod-validation-error": "^4.0.1",
+    "zustand": "^5.0.8"
   }
 }
