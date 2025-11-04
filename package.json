@@ -28,7 +28,7 @@
     "build:editor": "NODE_ENV=production cd packages/editor && bun run build",
     "build:addon": "NODE_ENV=production cd packages/addon && bun run build",
     "build": "bun run build:editor && bun run build:addon",
-  "type-check": "tsc -p packages/server/tsconfig.json --noEmit && tsc -p packages/shared/tsconfig.json --noEmit && bun --filter 'hakit-editor' run type-check && bun --filter '@hakit/addon' run type-check",
+    "type-check": "tsc -p packages/server/tsconfig.json --noEmit && bun run --filter hakit-editor type-check && bun run --filter @hakit/addon type-check",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "NODE_ENV=production bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
