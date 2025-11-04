@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.20] - 2025-11-04
+## [0.0.23] - 2025-11-04
+- More type cleanups, removing hono and api types from exported package, exporting mode components
+
+## [0.0.22] - 2025-11-04
+- Type cleanups and including readme descriptions
+
+## [0.0.21] - 2025-11-04
 - Extensive changes to the addon package, sharable components now exported via @hakit/addon/components, these aren't real components, and the host application will load these via module federation
 
 ## [0.0.20] - 2025-11-03

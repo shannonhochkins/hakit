@@ -1,7 +1,7 @@
 {
   "name": "@hakit/addon",
   "description": "Create hakit.dev compatible addons with a single command",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",
@@ -56,10 +56,8 @@
   },
   "scripts": {
     "dev": "tsup --watch",
-    "build:cli": "tsup",
-    "build:components": "tsup --config tsup-components.config.ts",
-    "postbuild:components": "rm ./dist/components/index.js && rm ./dist/components/index.css",
-    "build": "rm -rf dist && npm run build:cli && npm run build:components",
+    "prebuild": "bun ./scripts/pre-build.ts",
+    "build": "rm -rf dist && tsup",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "bun run build",
     "test:script": "bun run build && rm -rf tmp && mkdir tmp && cd tmp && node ../dist/bin/index.js"

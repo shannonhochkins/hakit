@@ -30,9 +30,10 @@
       "@constants": ["../editor/src/constants/index.ts"],
       "@components/*": ["../editor/src/components/*"],
       "@server/*": ["../server/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*"],
+      "@typings/hono": ["./src/types/shims/hono-shim.d.ts"]
     }
   },
-  "include": ["src/**/*", "shared-components/**/*"],
+  "include": ["src/**/*", "shared-components/**/*", "./tsup.config.ts"],
   "exclude": ["node_modules", "dist", "tmp", "templates"]
 }

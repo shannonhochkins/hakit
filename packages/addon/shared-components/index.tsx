@@ -1,8 +1,8 @@
-/** export reusable form fields for custom field types & potentially components
+/** export reusable form fields for custom field types & components, these components won't actually be part of the addon code
+ * Module federation will handle some magic there.
  *
  *
- *
- * IMPORTANT - These exports must match EXACTLY the same as packages/editor/src/components/hakit-addon-shared.tsx
+ * IMPORTANT - This file is copied into the addon directory when it builds the addon package
  */
 export { AutocompleteField, type AutocompleteFieldProps } from '@components/Form/Field/Autocomplete';
 export { ColorField, type ColorFieldProps } from '@components/Form/Field/Color';
@@ -21,6 +21,10 @@ export { RadioField, type RadioFieldProps } from '@components/Form/Field/Radio';
 export { SwitchField, type SwitchFieldProps } from '@components/Form/Field/Switch';
 export { SliderField, type SliderFieldProps } from '@components/Form/Field/Slider';
 export { UnitField, type UnitFieldProps } from '@components/Form/Field/Unit';
+export { EntityField, type EntityFieldProps } from '@components/Form/Field/Entity';
+export { ServiceField, type ServiceFieldProps } from '@components/Form/Field/Service';
+export { FieldLabel, type FieldLabelProps } from '@components/Form/Field/_shared/FieldLabel';
+export { HelperText, type HelperTextProps } from '@components/Form/Field/_shared/HelperText';
 /** Export reusable buttons */
 export * from '@components/Button';
 /** export alert components */

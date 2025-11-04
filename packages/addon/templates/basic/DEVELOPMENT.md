@@ -2,41 +2,46 @@
 
 This guide provides comprehensive information for developing addons for [hakit.dev](https://hakit.dev).
 
+> [!IMPORTANT]
+> Install the [Module Federation DevTools](https://chromewebstore.google.com/detail/module-federation/aeoilchhomapofiopejjlecddfldpeom) Chrome extension to facilitate local development and testing of your addons.
+
 
 ## Getting Started
 
-### Development Server
+### Development
 
-Start the development server and print out a manifest url to use with the [Module Federation DevTools](#module-federation-devtools):
-
-> Note: The dev flow will only work once the addon is installed in [hakit.dev](https://hakit.dev) at least once.
+Start the development by running:
 
 ```bash
 npm run dev
 ```
 
-Options available:
-- `--port <number>` - Change development port (default: 3000)
-- `--host <host>` - Change host (default: localhost)
-- `--debug` - Enable debug logging
+This will start a local development, which doesn't do anything until you connect it to [hakit.dev](https://hakit.dev) using the [Module Federation DevTools](#module-federation-devtools) chrome extension.
 
-Example:
-```bash
-npm run dev --port 3001 --host 0.0.0.0
-```
 
-### Building Components
+### Building Addon Package
 
 Build a versioned zip package of your components for distribution:
+
+1. Update your `package.json` version before building:
+```json
+{
+  "version": "1.2.3"
+}
+```
+
+> You should follow [Semantic Versioning](https://semver.org/) for version numbers.
+
+2. The build will create `versions/v1.2.3.zip` automatically after running:
 
 ```bash
 npm run build
 ```
 
-This creates a `.zip` file in the `versions/` directory that can be uploaded to [hakit.dev](https://hakit.dev).
+This creates a `.zip` file in the `versions/` directory, you must commit and push the `versions/` directory to your git repository so that [hakit.dev](https://hakit.dev) can access the built package when installing your addon.
 
-Options:
-- `--debug` - Enable debug logging during build
+To install your addon, simply navigate to [hakit.dev](https://hakit.dev/me/addons/install), and provide your github repository URL, example: `https://github.com/username/repo`, you don't need to provide the "version", it will automatically install the latest version available that's linked via the `package.json`.
+
 
 ### Creating New Components
 
@@ -48,13 +53,6 @@ npm run create-component
 
 This will prompt you for a component name and create the necessary files automatically.
 
-### Available Commands
-
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build and package components for distribution  
-- `npm run create-component` - Generate a new component
-- `npm run dev --help` - Show development server options
-- `npm run build --help` - Show build command options
 
 ### Project Structure
 
@@ -131,8 +129,8 @@ interface YourComponentNameProps {
 
 export function Render(props: RenderProps<YourComponentNameProps>) {
   return (
-    <div className={props.title} {...props}>
-      <h1>YourComponentName</h1>
+    <div>
+      <h1>YourComponentName - {props.title}</h1>
       <p>Your component implementation goes here.</p>
     </div>
   );
@@ -148,23 +146,30 @@ export const config: ComponentConfig<YourComponentNameProps> = {
       default: '',
     },
   },
+  styles() {
+    return `
+      color: red; 
+    `;
+  }
   render: Render,
 };
 
 ```
 
+> [!TIP]
+> Your Render function should export a single react component, if you export a Fragment, multiple elements, or a function component (<Component />), hakit will wrap it in a div automatically which may cause layout issues.
+
 ## Development Tips
 
 ### Module Federation DevTools
 
-Install the [Module Federation DevTools](https://chromewebstore.google.com/detail/module-federation/aeoilchhomapofiopejjlecddfldpeom) Chrome extension to debug and inspect your components during development.
+If you haven't already, install the [Module Federation DevTools](https://chromewebstore.google.com/detail/module-federation/aeoilchhomapofiopejjlecddfldpeom) Chrome extension.
 
-Once logged into [hakit.dev](https://hakit.dev), and your addon is installed at least once using the versioned zip, you can use the chrome extension above to dynamically replace the addon with your local development server manifest URL which you can retreive by running 
-```bash
-npm run dev
-```
 
-Then in the chrome extension, simply pick your addon from the dropdown menu and provide your manifest url and [hakit.dev](https://hakit.dev) will load your local development server instead of the installed version which is very useful for testing changes in real-time.
+
+Once logged into [hakit.dev](https://hakit.dev), then in the chrome extension, simply pick your addon from the dropdown menu and provide your manifest url and [hakit.dev](https://hakit.dev) will load your local development server instead of the installed version which is very useful for testing changes in real-time.
+
+> If you have not installed this addon yet, you can pick @hakit/dev-remote-proxy which is a dummy remote that will allow you to preview your components in the editor.
 
 
 ### @hakit/core Integration
@@ -180,7 +185,7 @@ export const SomeComponent: React.FC<{ entityId: EntityName }> = ({ entityId }) 
   const entity = useEntity(entityId);
 
   if (!entity) {
-    return <div>Entity not found: {entityId}</div>;
+    return null;
   }
 
   return (
@@ -192,30 +197,6 @@ export const SomeComponent: React.FC<{ entityId: EntityName }> = ({ entityId }) 
 };
 ```
 
-## Building and Packaging
-
-#### Build
-
-```bash
-npm run build
-```
-
-Options:
-- `--debug` - Enable debug logging during build
-
-This creates:
-- `versions/vX.X.X.zip` - Distributable package
-
-#### Version Management
-
-Update your `package.json` version before building:
-```json
-{
-  "version": "1.2.3"
-}
-```
-
-The build will create `versions/v1.2.3.zip` automatically.
 
 ### Package.json
 
@@ -230,18 +211,41 @@ The `package.json` file is processed during install, so things like the author, 
 }
 ```
 
-## Deployment
+### Available Commands
 
-### Package Distribution
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build and package components for distribution  
+- `npm run create-component` - Generate a new component
+- `npm run dev --help` - Show development server options
+- `npm run build --help` - Show build command options
 
-1. **Update version** in `package.json`
-2. **Build package**: `npm run build`
-3. **Upload** `versions/vX.X.X.zip` to [hakit.dev](https://hakit.dev)
-4. **Test** in live environment
 
-### Version Strategy
+#### Development Server
 
-- **Patch (1.0.1)**: Bug fixes, minor updates
-- **Minor (1.1.0)**: New features, non-breaking changes  
-- **Major (2.0.0)**: Breaking changes, major refactors
+```bash
+npm run dev
+```
 
+Options available:
+- `--port <number>` - Change development port (default: 5000)
+- `--host <host>` - Change host (default: localhost)
+- `--debug` - Enable debug logging
+
+Example:
+```bash
+npm run dev --port 3001 --host 0.0.0.0
+```
+
+#### Build
+
+```bash
+npm run build
+```
+
+Options available:
+- `--debug` - Enable debug logging during build
+
+Example:
+```bash
+npm run build --debug
+```

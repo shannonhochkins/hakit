@@ -2,6 +2,16 @@ import { Lock } from 'lucide-react';
 import styles from './FieldLabel.module.css';
 import { ReactNode } from 'react';
 
+export interface FieldLabelProps extends React.ComponentPropsWithRef<'div'> {
+  label?: ReactNode;
+  readOnly?: boolean;
+  icon?: React.ReactNode;
+  htmlFor?: string;
+  endAdornment?: ReactNode;
+  labelClassName?: string;
+  iconClassName?: string;
+}
+
 export function FieldLabel({
   label,
   readOnly,
@@ -13,18 +23,7 @@ export function FieldLabel({
   iconClassName,
   style,
   onClick,
-}: {
-  label?: ReactNode;
-  readOnly?: boolean;
-  icon?: React.ReactNode;
-  htmlFor?: string;
-  endAdornment?: ReactNode;
-  className?: string;
-  labelClassName?: string;
-  iconClassName?: string;
-  style?: React.CSSProperties;
-  onClick?: () => void;
-}) {
+}: FieldLabelProps) {
   if (!label) return null;
   return (
     <div className={`${styles.labelRow} ${className}`} style={style} onClick={onClick}>

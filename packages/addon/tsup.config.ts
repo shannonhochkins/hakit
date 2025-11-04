@@ -8,7 +8,7 @@ import { defineConfig } from 'tsup';
  * Both share dist; browser build marks React externals to allow consumer bundlers to tree-shake.
  */
 
-export default defineConfig(
+export default defineConfig([
   // Node build for tool / CLI code
   {
     entry: {
@@ -22,13 +22,42 @@ export default defineConfig(
     format: ['esm'],
     platform: 'node',
     target: 'node18',
-    // No need to regenerate dts for these as index covers this
     dts: true,
-    clean: false, // keep dist from first build
+    clean: false, // handled manually via build script in package json
     splitting: false,
     sourcemap: false,
     minify: false,
     outDir: 'dist',
     treeshake: false,
-  }
-);
+  },
+  // component addon
+  {
+    entry: {
+      index: './shared-components/index.tsx',
+    },
+    format: ['esm'],
+    platform: 'browser',
+    target: 'es2022',
+    dts: {
+      // IMPORTANT - The javascript for the addon components should not be part
+      // of the bundle, only the types, module federation will handle the javascript loading from the host
+      only: true,
+    },
+    clean: false, // handled manually via build script in package json
+    splitting: false,
+    sourcemap: false,
+    minify: false,
+    outDir: 'dist/components',
+    treeshake: false,
+    external: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react-is',
+      '@emotion/sheet',
+      '@emotion/cache',
+      '@emotion/serialize',
+      '@emotion/utils',
+    ],
+  },
+]);

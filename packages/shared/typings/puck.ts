@@ -7,8 +7,8 @@ import {
   Config,
 } from '@measured/puck';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import type { Dashboard } from './hono';
-import type { FieldConfiguration, FieldDefinition, InternalComponentFields } from './fields';
+import type { Dashboard } from '@typings/hono';
+import type { FieldConfiguration, FieldDefinition, InternalComponentFields } from '@typings/fields';
 import { SerializedStyles } from '@emotion/react';
 
 export type DefaultPropsCallbackData = {
