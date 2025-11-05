@@ -13,6 +13,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import '@measured/puck/puck.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
+import './theme.css';
 import { RouterProvider } from '@tanstack/react-router';
 import { ToastContainer } from 'react-toastify';
 

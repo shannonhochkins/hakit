@@ -23,10 +23,10 @@ function chooseText(bg: ColorInstance) {
 }
 
 export function makeSemanticSwatches({
-  success = SEMANTIC_DEFAULTS.success,
-  warning = SEMANTIC_DEFAULTS.warning,
-  danger = SEMANTIC_DEFAULTS.danger,
-  info = SEMANTIC_DEFAULTS.info,
+  success,
+  warning,
+  danger,
+  info,
   lightMode,
   hueShiftScale,
   endcapLightnessDark,
@@ -50,19 +50,19 @@ export function makeSemanticSwatches({
       endcapLightnessLight,
     });
   }
-  const successScale = makeSemantic(success);
-  const warningScale = makeSemantic(warning);
-  const dangerScale = makeSemantic(danger);
-  const infoScale = makeSemantic(info);
+  const successScale = success && makeSemantic(success);
+  const warningScale = warning && makeSemantic(warning);
+  const dangerScale = danger && makeSemantic(danger);
+  const infoScale = info && makeSemantic(info);
 
-  [successScale, warningScale, dangerScale, infoScale].forEach(scale => {
+  [successScale, warningScale, dangerScale, infoScale].filter(Boolean).forEach(scale => {
     for (const s of scale) s.textColor = chooseText(Color(s.color)).toString();
   });
 
   return {
-    success: successScale,
-    warning: warningScale,
-    danger: dangerScale,
-    info: infoScale,
+    success: successScale || undefined,
+    warning: warningScale || undefined,
+    danger: dangerScale || undefined,
+    info: infoScale || undefined,
   };
 }

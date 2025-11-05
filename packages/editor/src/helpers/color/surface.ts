@@ -27,7 +27,14 @@ function stepProgress(i: number, count: number): number {
   return Math.min(1, eased);
 }
 
-export function makeSurfaceSwatches(color: string, lightMode = false): Swatch[] {
+export function makeSurfaceSwatches(
+  color: string,
+  lightMode = false,
+  opts = {
+    lightModeDarkenSpan: LIGHT_MODE_DARKEN_SPAN,
+    darkModeLightenSpan: DARK_MODE_LIGHTEN_SPAN,
+  }
+): Swatch[] {
   const count = PRIMARY_SURFACE_SIZE;
   let parsed: ColorInstance;
   try {
@@ -50,7 +57,7 @@ export function makeSurfaceSwatches(color: string, lightMode = false): Swatch[] 
     } else {
       // Use incremental darken/lighten with small step to avoid overshooting to black/white.
       // Base per-step intensity influenced by overall curve; final multiplier modest.
-      const maxDelta = lightMode ? LIGHT_MODE_DARKEN_SPAN : DARK_MODE_LIGHTEN_SPAN; // total cumulative adjustment span
+      const maxDelta = lightMode ? opts.lightModeDarkenSpan : opts.darkModeLightenSpan; // total cumulative adjustment span
       const f = factor * maxDelta; // final desired overall adjustment proportion
       // We apply darken/lighten on the original color by f (color library treats darken as multiplying HSL lightness).
       c = lightMode ? baseColor.darken(f) : baseColor.lighten(f);

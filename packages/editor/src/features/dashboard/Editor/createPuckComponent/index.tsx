@@ -85,8 +85,6 @@ export function createComponent<P extends object>(
       services,
     });
 
-    console.log(config.label, 'fields', fields, defaultProps);
-
     // this is the config that will be used for puck
     return {
       ...config,

@@ -8,6 +8,8 @@ import { SwitchField } from '@components/Form/Field/Switch';
 import { SliderField } from '@components/Form/Field/Slider';
 import Color from 'color';
 import { Global } from '@emotion/react';
+import { InputField } from '@components/hakit-addon-shared';
+import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from '@helpers/color/constants';
 
 const count = 10;
 
@@ -22,6 +24,8 @@ export function StyleguidePageTheme() {
   const [selectedSurface, setSelectedSurface] = useState<number | null>(null);
   const [lightMode, setLightMode] = useState(false);
   const [tonalityMix, setTonalityMix] = useState(0); // 0..1
+  const [darkModeLightenSpan, setDarkModeLightenSpan] = useState(DARK_MODE_LIGHTEN_SPAN);
+  const [lightModeDarkenSpan, setLightModeDarkenSpan] = useState(LIGHT_MODE_DARKEN_SPAN);
 
   const swatches = useMemo(
     () =>
@@ -34,8 +38,23 @@ export function StyleguidePageTheme() {
         warning: warningColor,
         danger: dangerColor,
         info: infoColor,
+        surfaceOpts: {
+          darkModeLightenSpan,
+          lightModeDarkenSpan,
+        },
       }),
-    [primaryColor, surfaceColor, lightMode, tonalityMix, successColor, warningColor, dangerColor, infoColor]
+    [
+      primaryColor,
+      surfaceColor,
+      lightMode,
+      tonalityMix,
+      successColor,
+      warningColor,
+      dangerColor,
+      infoColor,
+      darkModeLightenSpan,
+      lightModeDarkenSpan,
+    ]
   );
 
   const selectedWidth = 20; // %
@@ -100,6 +119,22 @@ export function StyleguidePageTheme() {
           max={100}
           step={1}
           onChange={val => setTonalityMix((val as number) / 100)}
+        />
+        <InputField
+          id='surface-dark-mode-lighten-span'
+          label='Surface blend span'
+          type='number'
+          min={0}
+          step={0.01}
+          value={lightMode ? lightModeDarkenSpan : darkModeLightenSpan}
+          onChange={val => {
+            const num = Number(val.target.valueAsNumber);
+            if (lightMode) {
+              setLightModeDarkenSpan(num);
+            } else {
+              setDarkModeLightenSpan(num);
+            }
+          }}
         />
       </Row>
 
@@ -234,7 +269,7 @@ export function StyleguidePageTheme() {
               >
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>{name}</div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {scale.map(s => (
+                  {scale?.map(s => (
                     <div
                       key={s.label}
                       title={`${name}-${s.label}: ${s.color}`}
