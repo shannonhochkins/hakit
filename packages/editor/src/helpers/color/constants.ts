@@ -37,8 +37,7 @@ export const PRIMARY_HUE_SHIFT_LIGHT_MODE_SCALE = 0.5;
 // Controls how quickly anchor influence fades with hue distance. Smaller = sharper cutoff.
 export const PRIMARY_GAUSSIAN_DENOMINATOR = 40;
 
-export const PRIMARY_SURFACE_SIZE = 10;
-export const SEMANTIC_PRIMARY_SIZE = 4;
+export const SWATCH_COUNT = 10;
 
 // Iterative darken/lighten approach:
 // Dark mode: progressively lighten the base using Color.lighten(f) with a tuned factor curve.

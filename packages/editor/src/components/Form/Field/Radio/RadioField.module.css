@@ -8,8 +8,8 @@
   display: inline-flex;
   align-items: center;
   width: 100%;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   box-sizing: border-box;
@@ -44,7 +44,7 @@
   display: flex;
   align-items: center;
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   cursor: pointer;
   width: 100%;
 }
@@ -54,7 +54,7 @@
   width: var(--radio-size, 1.125rem); /* 18px */
   height: var(--radio-size, 1.125rem); /* 18px */
   margin-right: var(--space-2);
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--clr-surface-a60);
   border-radius: 50%;
   transition: all var(--transition-normal);
   flex-shrink: 0;
@@ -67,12 +67,12 @@
   width: calc(var(--radio-size, 1.125rem) - 0.5rem); /* Size - padding */
   height: calc(var(--radio-size, 1.125rem) - 0.5rem); /* Size - padding */
   border-radius: 50%;
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   transform: translate(-50%, -50%) scale(0);
   transition: transform var(--transition-normal);
 }
 .radioInput:checked + .radioLabel .radioButton {
-  border-color: var(--color-primary-500);
+  border-color: var(--clr-primary-a50);
 }
 .radioInput:checked + .radioLabel .radioButton::after {
   transform: translate(-50%, -50%) scale(1);
@@ -87,21 +87,21 @@
 }
 .helperText {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-top: var(--space-1);
 }
 /* Disabled state */
 .disabled .radioLabel {
-  color: var(--color-text-disabled);
+  color: var(--clr-text-a10);
   cursor: not-allowed;
 }
 .disabled .radioButton {
-  border-color: var(--color-border);
-  background-color: var(--color-surface-muted);
+  border-color: var(--clr-surface-a60);
+  background-color: var(--clr-surface-a30);
   opacity: 0.7;
 }
 .disabled .radioInput:checked + .radioLabel .radioButton::after {
-  background-color: var(--color-primary-300);
+  background-color: var(--clr-primary-a70);
 }
 
 /* Size-specific spacing */

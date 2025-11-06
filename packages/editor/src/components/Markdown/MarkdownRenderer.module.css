@@ -1,11 +1,11 @@
 /* Markdown Renderer */
 .MarkdownRenderer {
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   line-height: var(--line-height-relaxed);
 }
 
 .MarkdownRenderer :global(a) {
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
 }
 
 .MarkdownRenderer :global(.markdown-image-wrapper) {

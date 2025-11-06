@@ -180,9 +180,6 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
-        style={{
-          background: `var(--color-gray-800)`,
-        }}
         variant='transparent'
         aria-label='Select Parent Component'
         tooltipProps={{
@@ -200,9 +197,6 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
-        style={{
-          background: `var(--color-gray-800)`,
-        }}
         variant='transparent'
         aria-label='Move Up'
         disabled={disabled}
@@ -219,9 +213,6 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
-        style={{
-          background: `var(--color-gray-800)`,
-        }}
         variant='transparent'
         aria-label='Select Linked Component'
         tooltipProps={{
@@ -244,9 +235,6 @@ export function ActionBar() {
     return (
       <IconButton
         size='xs'
-        style={{
-          background: `var(--color-gray-800)`,
-        }}
         variant='transparent'
         aria-label='Move Down'
         disabled={disabled}
@@ -306,9 +294,6 @@ export function ActionBar() {
             <MenuAnchor>
               <IconButton
                 size='xs'
-                style={{
-                  background: `var(--color-gray-800)`,
-                }}
                 variant='transparent'
                 aria-label='Additional Actions'
                 aria-haspopup='menu'
@@ -336,9 +321,6 @@ export function ActionBar() {
               size='xs'
               variant='transparent'
               aria-label='Additional Actions'
-              style={{
-                background: `var(--color-gray-800)`,
-              }}
               aria-haspopup='menu'
               tooltipProps={{ basic: true }}
               icon={<EllipsisVertical size={16} />}

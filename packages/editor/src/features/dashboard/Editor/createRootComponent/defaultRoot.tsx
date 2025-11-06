@@ -3,6 +3,7 @@ import { CustomComponentConfig, RenderProps } from '@typings/puck';
 import { UnitFieldValue } from '@typings/fields';
 import { generateColorSwatches } from '@helpers/color';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
+import { properties, sharedCss } from '../../../../css-variables';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 interface BackgroundProps {
@@ -390,7 +391,9 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     const cssVariables = generateCssVariables(swatches);
 
     return `
+      ${properties}
       :root {
+        ${sharedCss}
         ${cssVariables}
         /* Background Variables */
         --background-image: ${bgImageUrl};

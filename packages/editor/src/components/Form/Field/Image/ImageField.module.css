@@ -53,7 +53,7 @@
 .stats span {
   font-size: var(--font-size-xs);
   padding-left: var(--space-1);
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
 }
 
 .linearProgress {

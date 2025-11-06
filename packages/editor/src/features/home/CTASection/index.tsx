@@ -10,7 +10,7 @@ const CTASectionContainer = styled.section`
 const BackgroundGradient = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--color-gray-950), var(--color-gray-900));
+  background: linear-gradient(to bottom, var(--clr-surface-a0), var(--clr-surface-a10));
   z-index: -10;
 `;
 
@@ -20,7 +20,12 @@ const BackgroundRadial = styled.div`
   left: 10%;
   right: 10%;
   bottom: 10%;
-  background: radial-gradient(ellipse 80% 80% at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 40%, transparent 70%);
+  background: radial-gradient(
+    ellipse 75% 75% at center,
+    color-mix(in srgb, var(--clr-primary-a0) 15%, transparent 85%) 0%,
+    color-mix(in srgb, var(--clr-primary-a0) 8%, transparent 92%) 40%,
+    transparent 70%
+  );
   z-index: -10;
 `;
 
@@ -33,10 +38,10 @@ const Container = styled.div`
 const CTACard = styled.div`
   max-width: 1280px;
   margin: 0 auto;
-  background: linear-gradient(135deg, var(--color-gray-900), var(--color-gray-800));
+  background: linear-gradient(135deg, var(--clr-surface-a10), var(--clr-surface-a20));
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--clr-surface-a60);
   box-shadow: var(--shadow-2xl);
   position: relative;
 `;
@@ -56,7 +61,7 @@ const TopRightGlow = styled.div`
   right: -96px;
   width: 192px;
   height: 192px;
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: color-mix(in srgb, var(--clr-primary-a0) 20%, transparent 80%);
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
 `;
@@ -67,7 +72,7 @@ const BottomLeftGlow = styled.div`
   left: -96px;
   width: 192px;
   height: 192px;
-  background-color: rgba(34, 211, 238, 0.2);
+  background-color: color-mix(in srgb, var(--clr-primary-a0) 20%, transparent 80%);
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
 `;
@@ -93,7 +98,7 @@ const CTAHeading = styled.h2`
 
 const CTADescription = styled.p`
   font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-12);
   max-width: 672px;
   margin-left: auto;
@@ -111,8 +116,8 @@ const PricingGrid = styled.div`
 `;
 
 const PricingCard = styled.div`
-  background: rgba(31, 41, 55, 0.5);
-  border: 1px solid var(--color-gray-700);
+  background: color-mix(in srgb, var(--clr-surface-a50) 20%, transparent 80%);
+  border: 1px solid var(--clr-surface-a30);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   transition: border-color var(--transition-normal);
@@ -121,18 +126,22 @@ const PricingCard = styled.div`
   height: 100%;
 
   &:hover {
-    border-color: rgba(96, 165, 250, 0.3);
+    border-color: color-mix(in srgb, var(--clr-primary-a0) 30%, transparent 70%);
   }
 `;
 
 const FeaturedCard = styled(PricingCard)`
-  background: linear-gradient(to bottom, rgba(31, 41, 55, 0.8), rgba(31, 41, 55, 0.5));
-  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--clr-primary-a20) 20%, transparent 80%),
+    color-mix(in srgb, var(--clr-primary-a20) 50%, transparent 5 0%)
+  );
+  border-color: color-mix(in srgb, var(--clr-primary-a40) 30%, transparent 70%);
   position: relative;
   box-shadow: var(--shadow-xl);
   box-shadow:
-    0 20px 25px -5px rgba(59, 130, 246, 0.1),
-    0 10px 10px -5px rgba(59, 130, 246, 0.04);
+    0 20px 25px -5px color-mix(in srgb, var(--clr-primary-a0) 10%, transparent 90%),
+    0 10px 10px -5px color-mix(in srgb, var(--clr-primary-a0) 6%, transparent 94%);
 `;
 
 const PopularBadge = styled.div`
@@ -146,7 +155,7 @@ const PopularBadge = styled.div`
 
 const PopularBadgeInner = styled.span`
   background: var(--gradient-primary);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   font-size: var(--font-size-sm);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
@@ -166,17 +175,17 @@ const PlanPrice = styled.div`
 
 const PricePeriod = styled.span`
   font-size: var(--font-size-lg);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 `;
 
 const PlanDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-4);
 `;
 
 const FeaturesList = styled.ul`
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -198,7 +207,8 @@ const FeaturedPlanButton = styled(PrimaryButton)`
   width: 100%;
   box-shadow: var(--shadow-lg);
   margin-top: auto;
-
+  overflow: hidden;
+  border-radius: var(--radius-md);
   &:hover {
     box-shadow: var(--shadow-primary-hover);
   }
@@ -210,13 +220,13 @@ const FooterLink = styled.div`
 `;
 
 const FooterLinkAnchor = styled.a`
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   text-decoration: none;
   font-size: var(--font-size-sm);
   transition: color var(--transition-normal);
 
   &:hover {
-    color: var(--color-primary-300);
+    color: var(--clr-primary-a70);
   }
 `;
 
@@ -245,7 +255,9 @@ export const CTASection = () => {
                   <FeatureItem>Basic Templates</FeatureItem>
                   <FeatureItem>Community Support</FeatureItem>
                 </FeaturesList>
-                <PlanButton aria-label=''>Start Free</PlanButton>
+                <PlanButton aria-label='' fullWidth>
+                  Start Free
+                </PlanButton>
               </PricingCard>
 
               <FeaturedCard>
@@ -264,7 +276,9 @@ export const CTASection = () => {
                   <FeatureItem>Priority Support</FeatureItem>
                   <FeatureItem>Custom Styling</FeatureItem>
                 </FeaturesList>
-                <FeaturedPlanButton aria-label=''>Start Pro Trial</FeaturedPlanButton>
+                <FeaturedPlanButton aria-label='' fullWidth>
+                  Start Pro Trial
+                </FeaturedPlanButton>
               </FeaturedCard>
 
               <PricingCard>
@@ -280,7 +294,9 @@ export const CTASection = () => {
                   <FeatureItem>Dedicated Support</FeatureItem>
                   <FeatureItem>API Access</FeatureItem>
                 </FeaturesList>
-                <PlanButton aria-label=''>Contact Sales</PlanButton>
+                <PlanButton aria-label='' fullWidth>
+                  Contact Sales
+                </PlanButton>
               </PricingCard>
             </PricingGrid>
 

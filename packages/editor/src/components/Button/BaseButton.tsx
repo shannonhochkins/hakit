@@ -97,8 +97,6 @@ const BaseButtonPrivate = ({
       fullHeight,
       autoWidth,
       active: !!active,
-      success: variant === 'success',
-      error: variant === 'error',
     },
     providedClassName
   );

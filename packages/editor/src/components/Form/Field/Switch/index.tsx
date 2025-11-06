@@ -61,6 +61,7 @@ export function SwitchField({
     {
       Switch: true,
       'container--isolated': isolated,
+      disabled: inputProps.disabled || readOnly,
     },
     className
   );

@@ -25,12 +25,12 @@
 .Issues-pageTitle {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
 }
 
 .Issues-pageSubtitle {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0;
 }
 
@@ -41,8 +41,8 @@
 }
 
 .Issues-list {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
+  border: 1px solid var(--clr-surface-a60);
+  background: var(--clr-surface-a40);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -51,7 +51,7 @@
   display: flex;
   width: 100%;
   gap: 0;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--clr-surface-a60);
 }
 
 .Issues-rowGrid:first-of-type {
@@ -63,7 +63,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  background: var(--color-success-500);;
+  background: var(--clr-success-a0);;
 }
 .Issues-statusCell--open {
   background: transparent
@@ -75,7 +75,7 @@
   cursor: pointer;
 }
 .Issues-detailsCell:hover {
-  background: var(--color-surface-elevated);
+  background: var(--clr-surface-a10);
 }
 
 .Issues-titleRow {
@@ -92,26 +92,26 @@
   gap: var(--space-2);
 }
 .Issues-titleText-type-bug {
-  color: var(--color-error-500);
+  color: var(--clr-error-a0);
 }
 .Issues-titleText-type-feature {
-  color: var(--color-primary-500);
+  color: var(--clr-primary-a50);
 }
 .Issues-titleText-type-enhancement {
-  color: var(--color-success-500);
+  color: var(--clr-success-a0);
 }
 .Issues-titleText-type-doc {
-  color: var(--color-warning-500);
+  color: var(--clr-warning-a50);
 }
 
 .Issues-titleText {
   margin: 0;
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .Issues-snippet {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-3);
 }
 
@@ -123,7 +123,7 @@
 
 .Issues-moreText {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 /* label chip handled by IssueLabel component */
 
@@ -132,6 +132,6 @@
   flex-wrap: wrap;
   gap: 16px;
   align-items: center;
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
 }

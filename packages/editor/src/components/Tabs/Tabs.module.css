@@ -13,7 +13,7 @@
 }
 
 .Tabs-list--borderBottom {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 .Tabs-list--fluid {
@@ -34,7 +34,7 @@
   border: none;
   border-radius: 0;
   padding: var(--space-3) var(--space-4);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   cursor: pointer;
   transition: color var(--transition-normal);
   position: relative;
@@ -45,12 +45,12 @@
 }
 
 .Tabs-control:hover {
-  color: var(--color-text-primary);
-  background: var(--color-gray-900);
+  color: var(--clr-on-surface-a0);
+  background: var(--clr-surface-a10);
 }
 
 .Tabs-control--active {
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .Tabs-control--active::after {
@@ -60,7 +60,7 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background: var(--color-primary-500);
+  background: var(--clr-primary-a50);
 }
 
 .Tabs-content {

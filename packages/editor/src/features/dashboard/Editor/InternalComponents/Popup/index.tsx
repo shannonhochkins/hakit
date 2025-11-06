@@ -105,7 +105,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
         width: var(--popup-width);
         max-width: 95%;
         transform: translate3d(-50%, -50%, 0);
-        color: var(--color-text-primary);
+        color: var(--clr-on-surface-a0);
         max-height: calc(100% - 4rem);
         height: auto;
         overflow: hidden;
@@ -113,10 +113,10 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
-        background-color: var(--color-surface-elevated);
+        background-color: var(--clr-surface-a10);
         z-index: ${containerZ};
         box-shadow: var(--shadow-2xl);
-        border: 1px solid var(--color-border);
+        border: 1px solid var(--clr-surface-a60);
         &[data-puck-component] {
           cursor: pointer;
         }
@@ -159,8 +159,8 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
           justify-content: space-between;
           padding: var(--space-4);
           flex-wrap: nowrap;
-          background-color: var(--color-surface);
-          border-bottom: 1px solid var(--color-border);
+          background-color: var(--clr-surface-a40);
+          border-bottom: 1px solid var(--clr-surface-a60);
         }
 
         /* Popup Title */
@@ -172,7 +172,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
           white-space: nowrap;
           text-overflow: ellipsis;
           max-width: 100%;
-          color: var(--color-text-primary);
+          color: var(--clr-on-surface-a0);
         }
 
         /* Popup Description */
@@ -180,7 +180,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
           margin: 0;
           font-weight: var(--font-weight-normal);
           font-size: var(--font-size-sm);
-          color: var(--color-text-secondary);
+          color: var(--clr-text-a10);
         }
         /* Popup Column */
         &-column {
@@ -211,7 +211,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
           width: 100%;
           height: 100%;
           cursor: pointer;
-          background: var(--color-surface-overlay);
+          background: color-mix(in srgb, var(--clr-surface-a0) 8%, transparent);
           z-index: ${backdropZ};
           backdrop-filter: blur(var(--blur-sm)) brightness(0.75);
         }

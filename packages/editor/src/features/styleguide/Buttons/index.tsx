@@ -51,8 +51,8 @@ export function StyleguideButtons() {
 
       <Group title='Secondary Button - Basics'>
         <SecondaryButton aria-label='Secondary default'>Default Secondary</SecondaryButton>
-        <SecondaryButton aria-label='Secondary loading' loading variant='error'>
-          Loading error
+        <SecondaryButton aria-label='Secondary loading' loading>
+          Loading
         </SecondaryButton>
         <SecondaryButton aria-label='Secondary disabled' disabled>
           Disabled
@@ -74,6 +74,15 @@ export function StyleguideButtons() {
         </SecondaryButton>
         <SecondaryButton aria-label='Secondary with start icon' startIcon={<Trash2Icon size={16} />}>
           Delete
+        </SecondaryButton>
+        <SecondaryButton aria-label='Secondary with end icon' endIcon={<CheckIcon size={16} />}>
+          Confirm
+        </SecondaryButton>
+        <SecondaryButton aria-label='Secondary with start icon - success' variant='success' startIcon={<Trash2Icon size={16} />}>
+          Success
+        </SecondaryButton>
+        <SecondaryButton aria-label='Secondary with end icon - error' variant='error' endIcon={<CheckIcon size={16} />}>
+          Error
         </SecondaryButton>
       </Group>
 
@@ -100,10 +109,16 @@ export function StyleguideButtons() {
         <Fab aria-label='Fab secondary' variant='secondary' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab transparent' variant='transparent' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab error' variant='error' icon={<PlusIcon size={18} />} />
+        <Fab aria-label='Fab success' variant='success' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab xs' size='xs' icon={<PlusIcon size={16} />} />
         <Fab aria-label='Fab sm' size='sm' icon={<PlusIcon size={16} />} />
         <Fab aria-label='Fab md' size='md' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab lg' size='lg' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab primary disabled' variant='primary' size='md' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab secondary disabled' variant='secondary' size='md' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab error disabled' variant='error' size='md' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab success disabled' variant='success' size='md' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab transparent disabled' variant='transparent' size='md' icon={<PlusIcon size={20} />} />
       </Group>
 
       <Group title='FAB - States & Options'>

@@ -5,7 +5,7 @@ import { PlayIcon } from 'lucide-react';
 const DemoSectionContainer = styled.section`
   position: relative;
   padding: var(--space-24) 0;
-  background: linear-gradient(to bottom, var(--color-gray-950), var(--color-gray-900));
+  background: linear-gradient(to bottom, var(--clr-surface-a0), var(--clr-surface-a10));
 `;
 
 const BackgroundOverlay = styled.div`
@@ -37,7 +37,7 @@ const MainHeading = styled.h2`
 
 const SubHeading = styled.p`
   font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   max-width: 768px;
   margin: 0 auto;
 `;
@@ -51,7 +51,7 @@ const VideoContainer = styled.div`
 const VideoBorderGradient = styled.div`
   position: absolute;
   inset: -4px;
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-400));
+  background: linear-gradient(135deg, var(--clr-primary-a50), var(--clr-surface-a40));
   border-radius: var(--radius-2xl);
   filter: blur(var(--blur-sm));
   opacity: 0.5;
@@ -59,9 +59,9 @@ const VideoBorderGradient = styled.div`
 
 const VideoWrapper = styled.div`
   position: relative;
-  background-color: var(--color-gray-900);
+  background-color: var(--clr-surface-a10);
   border-radius: var(--radius-2xl);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--clr-surface-a60);
   box-shadow: var(--shadow-2xl);
   overflow: hidden;
   aspect-ratio: 16 / 9;
@@ -77,7 +77,7 @@ const VideoOverlay = styled.div`
 
 const PlayButton = styled.button`
   background-color: rgba(59, 130, 246, 0.9);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   border: none;
   border-radius: var(--radius-full);
   width: 80px;
@@ -89,7 +89,7 @@ const PlayButton = styled.button`
   transition: all var(--transition-normal);
 
   &:hover {
-    background-color: var(--color-primary-600);
+    background-color: var(--clr-primary-a40);
     transform: scale(1.1);
   }
 `;
@@ -124,7 +124,7 @@ const StatsGrid = styled.div`
 
 const StatCard = styled.div`
   background: rgba(31, 41, 55, 0.3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   text-align: center;
@@ -133,12 +133,12 @@ const StatCard = styled.div`
 const StatNumber = styled.div`
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   margin-bottom: var(--space-2);
 `;
 
 const StatLabel = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0;
 `;
 

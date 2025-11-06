@@ -56,7 +56,7 @@ export function StyleguideAlerts() {
           severity='info'
           title='Custom Styled Alert'
           style={{
-            border: '2px dashed var(--color-primary-400)',
+            border: '2px dashed var(--clr-primary-a60)',
             borderRadius: 'var(--radius-xl)',
           }}
         >

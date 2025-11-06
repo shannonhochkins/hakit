@@ -14,7 +14,7 @@ const BackgroundBlur = styled.div`
   left: 0;
   width: 320px;
   height: 320px;
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   opacity: 0.1;
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
@@ -59,9 +59,9 @@ const ImageGradientBorder = styled.div`
 
 const ImageWrapper = styled.div`
   position: relative;
-  background-color: var(--color-gray-900);
+  background-color: var(--clr-surface-a10);
   border-radius: var(--radius-2xl);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--clr-surface-a60);
   box-shadow: var(--shadow-2xl);
   overflow: hidden;
 `;
@@ -89,7 +89,7 @@ const MainHeading = styled.h2`
 
 const Description = styled.p`
   font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-8);
 `;
 
@@ -109,13 +109,13 @@ const BenefitItem = styled.li`
 `;
 
 const CheckIcon = styled.div`
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   margin-top: var(--space-1);
   flex-shrink: 0;
 `;
 
 const BenefitText = styled.span`
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 `;
 
 const CTASection = styled.div`

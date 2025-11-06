@@ -137,7 +137,7 @@ export function MarkdownEditor({ value, onChange, onFullscreenToggle, ...props }
       minHeight={160}
       fullscreen={fullscreen}
       preview={preview}
-      style={{ width: '100%', background: 'var(--color-surface-inset)' }}
+      style={{ width: '100%', background: 'var(--clr-surface-a10)' }}
       onChange={val => onChange && onChange(val)}
       value={value}
       previewOptions={{

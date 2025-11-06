@@ -4,7 +4,7 @@ import Color from 'color';
 import { rgbToOklch, oklchToRgb } from './oklab';
 import { toRGBAString } from './helpers';
 import {
-  PRIMARY_SURFACE_SIZE,
+  SWATCH_COUNT,
   PRIMARY_LIGHT_TARGET,
   PRIMARY_DARK_TARGET,
   PRIMARY_LIGHT_MODE_CHROMA_DROP,
@@ -16,7 +16,6 @@ import {
   PRIMARY_SEMANTIC_LIGHT_END,
   PRIMARY_SEMANTIC_DARK_END,
   PRIMARY_PROGRESS_NORMALIZATION,
-  SEMANTIC_PRIMARY_SIZE,
 } from './constants';
 
 export interface Swatch {
@@ -33,7 +32,7 @@ const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
    1. Convert base to OKLCH.
    2. Generate lighter sequence by interpolating toward L=0.98, C decreases.
    3. Apply slight hue drift proportional to chroma loss (toward 20° for warm reds, 230° for cool blues).
-  4. Convert back to sRGB via OKLCH conversion; clamp.
+   4. Convert back to sRGB via OKLCH conversion; clamp.
    5. Keep first color exact base, last color pure white.
    This removes hard-coded calibration and works for arbitrary base hues.
 -------------------------------------------------------------------*/
@@ -62,7 +61,7 @@ export function makePrimarySwatches(
   }
 ): Swatch[] {
   const isSemantic = !!opts?.semantic;
-  const count = isSemantic ? SEMANTIC_PRIMARY_SIZE : PRIMARY_SURFACE_SIZE;
+  const count = SWATCH_COUNT;
   let parsed: ColorInstance;
   try {
     parsed = Color(color);
@@ -82,22 +81,7 @@ export function makePrimarySwatches(
   // Color stores alpha; default 1 if unspecified
   baseAlpha = parsed.alpha();
 
-  // Blend anchor arrays by hue distance using Gaussian weights.
-  function blendStep(stepIndex: number) {
-    let wSum = 0;
-    let prog = 0;
-    let cRet = 0;
-    let hShift = 0;
-    for (const a of anchors) {
-      const d = Math.min(Math.abs(baseH - a.hue), Math.abs(baseH - a.hue + 360), Math.abs(baseH - a.hue - 360));
-      const w = Math.exp(-((d / PRIMARY_GAUSSIAN_DENOMINATOR) ** 2)); // narrower spread for crisper transitions
-      wSum += w;
-      prog += a.progress[stepIndex] * w;
-      cRet += a.chromaRet[stepIndex] * w;
-      hShift += a.hueShift[stepIndex] * w;
-    }
-    return { progress: prog / wSum, chromaRet: cRet / wSum, hueShift: hShift / wSum };
-  }
+  // (Legacy helper blendStep removed; fractional blending now handled inline to support arbitrary counts.)
 
   const tints: { l: number; c: number; h: number }[] = [];
   if (!isSemantic) {
@@ -149,29 +133,50 @@ export function makePrimarySwatches(
       }
     }
   } else {
-    // Semantic mode: constrained lightness/chroma drift, fewer steps, no pure white/black endcaps.
+    // Semantic mode: produce (count-1) moderated steps between base and constrained endcaps.
+    // We avoid extreme white/black so hue/chroma remain recognizable.
     const hueScale = opts?.hueShiftScale ?? PRIMARY_SEMANTIC_HUE_SHIFT_SCALE;
-    const endcapLightDark = clamp01(opts?.endcapLightnessDark ?? PRIMARY_SEMANTIC_LIGHT_END); // less than 1 (avoid pure white)
-    const endcapLightLight = clamp01(opts?.endcapLightnessLight ?? PRIMARY_SEMANTIC_DARK_END); // avoid pure black
-    // Choose anchor indices for 3 intermediate steps (excluding base). Defaults spread across progression.
-    const stepIndices = opts?.semanticStepsIndices ?? [1, 3, 6];
-    for (let sIdx = 0; sIdx < stepIndices.length; sIdx++) {
-      const anchorIndex = stepIndices[sIdx];
-      const blended = blendStep(anchorIndex);
+    const targetLightL = clamp01(opts?.endcapLightnessDark ?? PRIMARY_SEMANTIC_LIGHT_END);
+    const targetDarkL = clamp01(opts?.endcapLightnessLight ?? PRIMARY_SEMANTIC_DARK_END);
+    const steps = count - 1; // excluding base
+    const origSteps = anchors[0].progress.length;
+    for (let i = 0; i < steps; i++) {
+      // Normalized fraction 0..1 across semantic progression
+      const frac = steps <= 1 ? 1 : (i + 1) / steps; // start at first tint beyond base
+      // Map frac onto anchor space (excluding index 0 to preserve base)
+      const rawIndex = frac * (origSteps - 1);
+      const anchorIndex = Math.min(origSteps - 1, Math.max(1, rawIndex));
+      // Blend using fractional anchor index by linear interpolation
+      const i0 = Math.floor(anchorIndex);
+      const i1 = Math.min(origSteps - 1, i0 + 1);
+      const localT = anchorIndex - i0;
+      let wSum = 0,
+        prog = 0,
+        cRet = 0,
+        hShift = 0;
+      for (const a of anchors) {
+        const d = Math.min(Math.abs(baseH - a.hue), Math.abs(baseH - a.hue + 360), Math.abs(baseH - a.hue - 360));
+        const w = Math.exp(-((d / PRIMARY_GAUSSIAN_DENOMINATOR) ** 2));
+        wSum += w;
+        const p = a.progress[i0] + (a.progress[i1] - a.progress[i0]) * localT;
+        const cR = a.chromaRet[i0] + (a.chromaRet[i1] - a.chromaRet[i0]) * localT;
+        const hS = a.hueShift[i0] + (a.hueShift[i1] - a.hueShift[i0]) * localT;
+        prog += p * w;
+        cRet += cR * w;
+        hShift += hS * w;
+      }
+      const blended = { progress: prog / wSum, chromaRet: cRet / wSum, hueShift: hShift / wSum };
+      const progressNorm = blended.progress / PRIMARY_PROGRESS_NORMALIZATION;
       if (!lightMode) {
-        // Lighten toward limited target
-        const targetL = endcapLightDark;
-        const progressNorm = blended.progress / PRIMARY_PROGRESS_NORMALIZATION; // approximate normalization
-        const L = baseL + (targetL - baseL) * progressNorm;
-        const C = baseC * (PRIMARY_SEMANTIC_CHROMA_RET_DARK * blended.chromaRet); // retain a bit more chroma
+        // Lighten toward moderated light target
+        const L = baseL + (targetLightL - baseL) * progressNorm;
+        const C = baseC * (PRIMARY_SEMANTIC_CHROMA_RET_DARK * blended.chromaRet);
         const H = (baseH + blended.hueShift * hueScale + 360) % 360;
         tints.push({ l: L, c: C, h: H });
       } else {
-        // Darken toward limited target
-        const targetL = endcapLightLight;
-        const progressNorm = blended.progress / PRIMARY_PROGRESS_NORMALIZATION;
-        const L = baseL * (1 - progressNorm) + targetL * progressNorm;
-        const C = baseC * (1 - progressNorm * PRIMARY_SEMANTIC_CHROMA_RET_LIGHT); // keep chroma longer
+        // Darken toward moderated dark target
+        const L = baseL * (1 - progressNorm) + targetDarkL * progressNorm;
+        const C = baseC * (1 - progressNorm * PRIMARY_SEMANTIC_CHROMA_RET_LIGHT);
         const H = (baseH + blended.hueShift * hueScale + 360) % 360;
         tints.push({ l: L, c: C, h: H });
       }
@@ -180,7 +185,7 @@ export function makePrimarySwatches(
 
   // Labels
   // Generate labels; semantic keeps evenly distributed indices based on total count.
-  const labels = !isSemantic ? makeScaleLabels(count) : ['a0', 'a10', 'a20', 'a30'];
+  const labels = makeScaleLabels(count);
   const swatches: Swatch[] = [];
   for (let i = 0; i < count; i++) {
     if (!isSemantic && i === count - 1) {
@@ -197,6 +202,7 @@ export function makePrimarySwatches(
     }
     // In semantic mode tints length == count-1; mapping still tint[i-1]
     const tint = tints[i - 1];
+    if (!tint) continue;
     const rgb = oklchToRgb({ l: clamp01(tint.l), c: Math.max(0, tint.c), h: tint.h });
     swatches.push({
       label: labels[i],

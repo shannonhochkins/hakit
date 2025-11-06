@@ -18,8 +18,8 @@
   flex-wrap: nowrap;
   gap: 0px;
 
-  --dot-bg: var(--color-gray-950);
-  --dot-color: var(--color-gray-600);
+  --dot-bg: var(--clr-surface-a0);
+  --dot-color: var(--clr-surface-a40);
   --dot-size: 1px;
   --dot-space: 22px;
   background:

@@ -1,8 +1,8 @@
 /* TableContainer */
 .TableContainer {
   width: 100%;
-  background-color: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a10);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -22,8 +22,8 @@
 /* TableHead */
 .TableHead {
   display: table-header-group;
-  background-color: var(--color-gray-800);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a20);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 /* TableBody - no special styling needed, just semantic wrapper */
@@ -39,7 +39,7 @@
   outline: 0;
   transition: background-color var(--transition-normal);
   cursor: default;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 .TableRow--clickable {
@@ -47,7 +47,7 @@
 }
 
 .TableRow--hover:hover {
-  background-color: var(--color-border-subtle);
+  background-color: var(--clr-surface-a60);
 }
 
 .TableRow:last-child {
@@ -57,7 +57,7 @@
 /* CollapsibleTableRow */
 .CollapsibleTableRow {
   transition: all var(--transition-normal);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
   cursor: default;
 }
 
@@ -70,19 +70,19 @@
 }
 
 .CollapsibleTableRow--clickable:hover {
-  background-color: var(--color-gray-750);
+  background-color: var(--clr-surface-a40);
 }
 
 /* ChildTableRow */
 .ChildTableRow {
-  background-color: var(--color-surface);
+  background-color: var(--clr-surface-a40);
   pointer-events: auto;
   cursor: default;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 .ChildTableRow:hover {
-  background-color: var(--color-surface);
+  background-color: var(--clr-surface-a40);
 }
 
 .ChildTableRow td:first-of-type {
@@ -96,7 +96,7 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background-color: var(--color-primary-200);
+  background-color: var(--clr-primary-a80);
 }
 
 .ChildTableRow:last-child {
@@ -108,7 +108,7 @@
   padding: var(--space-3) var(--space-6);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   display: table-cell;
   vertical-align: inherit;
   text-align: left;
@@ -117,8 +117,8 @@
   padding: var(--space-3) var(--space-6);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border);
+  color: var(--clr-on-surface-a0);
+  border-bottom: 1px solid var(--clr-surface-a60);
   width: 100%;
   min-width: 300px;
   cursor: pointer;
@@ -161,7 +161,7 @@
 }
 
 .TableHeaderCell--sortable:hover {
-  background-color: var(--color-gray-750);
+  background-color: var(--clr-surface-a40);
 }
 
 /* TableCell */
@@ -172,9 +172,9 @@
   vertical-align: inherit;
   border-bottom: 1px solid rgba(224, 224, 224, 1);
   text-align: left;
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
   width: 100%;
 }
 
@@ -203,7 +203,7 @@
 
 /* ExpandButton */
 .ExpandButton {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   padding: var(--space-1);
   transition: all var(--transition-normal);
   background: transparent;
@@ -216,8 +216,8 @@
 }
 
 .ExpandButton:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-border-subtle);
+  color: var(--clr-on-surface-a0);
+  background-color: var(--clr-surface-a60);
   transform: scale(1.1);
 }
 

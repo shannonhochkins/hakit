@@ -24,9 +24,9 @@ export interface CssVariableOptions {
 
 export function generateCssVariables(
   scales: {
-    primary: Swatch[];
-    surface: Swatch[];
-    semantics?: Record<string, Swatch[]>; // success, warning, danger, info
+    primary?: Swatch[];
+    surface?: Swatch[];
+    semantics?: Record<string, Swatch[] | undefined>; // success, warning, danger, info
   },
   options: CssVariableOptions = {}
 ): string {
@@ -34,7 +34,8 @@ export function generateCssVariables(
 
   const lines: string[] = [];
 
-  function pushVars(scaleName: string, swatches: Swatch[]) {
+  function pushVars(scaleName: string, swatches: Swatch[] | undefined) {
+    if (!swatches || swatches.length === 0) return;
     for (const s of swatches) {
       const base = formatter
         ? formatter({ scale: scaleName, label: s.label, isText: false, prefix })
@@ -49,14 +50,95 @@ export function generateCssVariables(
     }
   }
 
-  pushVars(primaryName, scales.primary);
-  pushVars(surfaceName, scales.surface);
+  if (scales.primary) pushVars(primaryName, scales.primary);
+  if (scales.surface) pushVars(surfaceName, scales.surface);
 
   if (scales.semantics) {
     for (const [name, arr] of Object.entries(scales.semantics)) {
-      pushVars(name, arr);
+      pushVars(name, arr || []);
     }
   }
 
   return lines.join('\n');
+}
+
+// Data structure for a single paired swatch (background + text/foreground)
+export interface CssVariablePairData {
+  background: string; // variable name without leading '--'
+  backgroundValue: string; // color value
+  text?: string; // variable name for text color (without '--') if present
+  textValue?: string; // color value for text if present
+  label: string; // original swatch label (e.g. a0, a10)
+  scale: string; // scale name (primary, surface, success, etc.)
+  prefix: string | null; // variable prefix eg 'clr'
+}
+
+// Generic mapped output: keys exactly match provided scale names.
+// Primary and surface names are configurable; semantics keys come from the semantics record.
+export type CssVariablesDataOutput<
+  PName extends string,
+  SName extends string,
+  Semantics extends Record<string, Swatch[] | undefined> | undefined,
+> = {
+  [K in PName]?: CssVariablePairData[];
+} & {
+  [K in SName]?: CssVariablePairData[];
+} & (Semantics extends Record<string, Swatch[] | undefined> ? { [K in keyof Semantics]?: CssVariablePairData[] } : Record<string, never>);
+
+/**
+ * Generate JSON representation of the same variables produced by generateCssVariables.
+ * Each scale key contains an ordered array of swatch data objects.
+ * Variable names exclude the leading `--` for easier consumption; prepend when needed.
+ */
+export function generateCssVariablesData<
+  Sem extends Record<string, Swatch[] | undefined> | undefined,
+  PName extends string = 'primary',
+  SName extends string = 'surface',
+>(
+  scales: {
+    primary?: Swatch[];
+    surface?: Swatch[];
+    semantics?: Sem;
+  },
+  options: CssVariableOptions & { primaryName?: PName; surfaceName?: SName } = {}
+): CssVariablesDataOutput<PName, SName, Sem> {
+  const { prefix = 'clr', primaryName = 'primary' as PName, surfaceName = 'surface' as SName, includeText = true, formatter } = options;
+
+  // Use a mutable record then assert final strict type.
+  const result: Record<string, CssVariablePairData[]> = {};
+
+  function addScale(scaleName: string, swatches: Swatch[]) {
+    if (!swatches.length) return;
+    const arr: CssVariablePairData[] = [];
+    for (const s of swatches) {
+      const backgroundVar = formatter
+        ? formatter({ scale: scaleName, label: s.label, isText: false, prefix })
+        : `--${prefix ? prefix + '-' : ''}${scaleName}-${s.label}`;
+      const item: CssVariablePairData = {
+        background: backgroundVar.replace(/^--/, ''),
+        backgroundValue: s.color,
+        label: s.label,
+        scale: scaleName,
+        prefix,
+      };
+      if (includeText && s.textColor) {
+        const textVar = formatter
+          ? formatter({ scale: scaleName, label: s.label, isText: true, prefix })
+          : `--${prefix ? prefix + '-' : ''}on-${scaleName}-${s.label}`;
+        item.text = textVar.replace(/^--/, '');
+        item.textValue = s.textColor;
+      }
+      arr.push(item);
+    }
+    result[scaleName] = arr;
+  }
+
+  if (scales.primary) addScale(primaryName, scales.primary);
+  if (scales.surface) addScale(surfaceName, scales.surface);
+  if (scales.semantics) {
+    for (const [name, arr] of Object.entries(scales.semantics)) {
+      addScale(name, arr || []);
+    }
+  }
+  return result as CssVariablesDataOutput<PName, SName, Sem>;
 }

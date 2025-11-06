@@ -2,9 +2,9 @@
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background-color: var(--color-surface-overlay);
+  background-color: color-mix(in srgb, var(--clr-surface-a0) 8%, transparent);
   backdrop-filter: blur(var(--blur-lg));
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 .HomeHeader-container {
@@ -70,7 +70,7 @@
 }
 
 .HomeHeader-navLink:hover {
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
 }
 
 .HomeHeader-getStartedContainer {
@@ -87,13 +87,13 @@
   display: block;
   background: none;
   border: none;
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   cursor: pointer;
   transition: color var(--transition-normal);
 }
 
 .HomeHeader-mobileMenuButton:hover {
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 @media (min-width: 768px) {
@@ -104,8 +104,8 @@
 
 .HomeHeader-mobileMenu {
   display: block;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a40);
+  border-bottom: 1px solid var(--clr-surface-a60);
 }
 
 @media (min-width: 768px) {
@@ -140,7 +140,7 @@
 }
 
 .HomeHeader-mobileNavLink:hover {
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
 }
 
 

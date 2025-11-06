@@ -19,8 +19,8 @@ const DiscordIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 const FooterContainer = styled.footer`
-  background-color: var(--color-gray-950);
-  border-top: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a0);
+  border-top: 1px solid var(--clr-surface-a60);
 `;
 
 const Container = styled.div`
@@ -54,7 +54,7 @@ const LogoWrapper = styled.div`
 `;
 
 const BrandDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-4);
 `;
 
@@ -64,11 +64,11 @@ const SocialLinks = styled.div`
 `;
 
 const SocialLink = styled.a`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   transition: color var(--transition-normal);
 
   &:hover {
-    color: var(--color-primary-400);
+    color: var(--clr-primary-a60);
   }
 `;
 
@@ -77,7 +77,7 @@ const FooterSection = styled.div``;
 const SectionTitle = styled.h3`
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-4);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 `;
 
 const LinksList = styled.ul`
@@ -92,21 +92,21 @@ const LinksList = styled.ul`
 const LinkItem = styled.li``;
 
 const FooterLink = styled.a`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   text-decoration: none;
   transition: color var(--transition-normal);
 
   &:hover {
-    color: var(--color-primary-400);
+    color: var(--clr-primary-a60);
   }
 `;
 
 const FooterBottom = styled.div`
   margin-top: var(--space-12);
   padding-top: var(--space-8);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--clr-surface-a60);
   text-align: center;
-  color: var(--color-text-disabled);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
 `;
 

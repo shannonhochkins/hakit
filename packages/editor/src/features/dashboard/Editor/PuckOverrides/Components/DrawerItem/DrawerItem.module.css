@@ -1,27 +1,27 @@
 .DrawerItem {
   gap: var(--space-3);
   padding: var(--space-2);
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
   border-radius: var(--radius-md);
   cursor: move;
   transition: all 0.2s ease;
   position: relative;
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   &:active, &:hover, &:focus {
-    background-color: var(--color-border);
+    background-color: var(--clr-surface-a70);
     .DrawerItem-Icon {
       color: currentColor;
     }
   }
 }
 .DrawerItem-proxied {
-  background-color: var(--color-warning-800);
-  color: var(--color-warning-50);
+  background-color: var(--clr-warning-a20);
+  color: var(--clr-warning-a80);
   .DrawerItem-Icon {
-    color: var(--color-warning-50);
+    color: var(--clr-warning-a80);
   }
   &:hover, &:active, &:focus {
-    background-color: var(--color-warning-700);
+    background-color: var(--clr-warning-a30);
   }
 }
 
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   transition: color 0.2s ease;
 }
 

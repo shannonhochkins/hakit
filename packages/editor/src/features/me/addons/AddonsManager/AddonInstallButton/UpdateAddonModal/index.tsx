@@ -129,7 +129,7 @@ export function UpdateAddonModal({ open, onClose, userAddon }: UpdateAddonModalP
 
         <div className={getClassName('versionComparison')}>
           <div className={getClassName('versionBadge', getClassName({ current: true }))}>Current: {userAddon.version.version}</div>
-          <ChevronRightIcon size={16} color='var(--color-text-muted)' />
+          <ChevronRightIcon size={16} color='var(--clr-text-a30)' />
           <div className={getClassName('versionBadge', getClassName({ new: true }))}>New: {userAddon.addon.latestVersion}</div>
         </div>
       </div>

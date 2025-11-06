@@ -233,7 +233,7 @@ export function AddonDetail({ addonId }: { addonId: string }) {
   if (addonQuery.error || !addon) {
     return (
       <Column className={getClassName('errorContainer')}>
-        <AlertCircleIcon size={48} style={{ color: 'var(--color-error-500)', marginBottom: 'var(--space-4)' }} />
+        <AlertCircleIcon size={48} style={{ color: 'var(--clr-error-a0)', marginBottom: 'var(--space-4)' }} />
         <h2 className={getClassName('errorTitle')}>Addon Not Found</h2>
         <p className={getClassName('errorDescription')}>{addonQuery.error?.message || 'The requested addon could not be found.'}</p>
         <SecondaryButton onClick={handleBack} startIcon={<ArrowLeftIcon size={16} />} aria-label='Back to explore components'>
