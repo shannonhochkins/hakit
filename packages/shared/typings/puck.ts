@@ -72,6 +72,15 @@ export type CustomComponentConfig<Props extends DefaultComponentProps = DefaultC
   label: string;
   /** If this configuration is a dashboard level configuration */
   rootConfiguration?: boolean;
+
+  /** if true, hakit will not automatically expose css and the drag ref to your returned element and you will have to do yourself
+   * @default true
+   * @note This is only needed when your component needs to return a fragment, portal, or function component, should only be used in advanced use-cases
+   * @warning It's important the dragRef is applied to the top-level element returned by your component, otherwise drag-and-drop functionality in the editor will not work correctly
+   * @example render(props) {
+   *  return <div ref={props._dragRef} css={props.css}>My Component</div>
+   */
+  autoWrapComponent?: boolean;
   fields: FieldConfiguration<Props>;
   render: PuckComponent<Props & InternalComponentFields & AdditionalRenderProps>;
   // Optional styles function that returns CSS string for component-scoped styling

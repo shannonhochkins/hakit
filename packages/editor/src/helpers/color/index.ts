@@ -1,3 +1,4 @@
+import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from './constants';
 import { chooseText, type ColorInstance, WHITE } from './helpers';
 import { makePrimarySwatches } from './primary';
 import { makeSemanticSwatches } from './semantic';
@@ -19,21 +20,29 @@ export function generateColorSwatches({
   info,
   lightMode,
   tonalityMix = 0,
+  surfaceOpts = {
+    lightModeDarkenSpan: LIGHT_MODE_DARKEN_SPAN,
+    darkModeLightenSpan: DARK_MODE_LIGHTEN_SPAN,
+  },
 }: {
-  primary: string;
-  surface: string;
-  success: string;
-  warning: string;
-  danger: string;
-  info: string;
+  primary?: string;
+  surface?: string;
+  success?: string;
+  warning?: string;
+  danger?: string;
+  info?: string;
   lightMode?: boolean;
   tonalityMix?: number;
+  surfaceOpts?: {
+    lightModeDarkenSpan: number;
+    darkModeLightenSpan: number;
+  };
 }) {
   const lm = !!lightMode;
   const mixInput = Math.max(0, Math.min(1, tonalityMix));
   const mix = mixInput * TONALITY_MAX_BLEND; // scale down so 1 => 50% actual blend
-  const primarySwatches = makePrimarySwatches(primary, lm);
-  const surfaceSwatches = makeSurfaceSwatches(surface, lm);
+  const primarySwatches = primary ? makePrimarySwatches(primary, lm) : [];
+  const surfaceSwatches = surface ? makeSurfaceSwatches(surface, lm, surfaceOpts) : [];
   const semanticSwatches = makeSemanticSwatches({
     lightMode,
     success,

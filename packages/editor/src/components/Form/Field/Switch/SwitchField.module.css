@@ -14,8 +14,8 @@
 .Switch-switchWrapper--isolated {
   width: 100%;
   min-height: var(--switch-container-height, 2.5rem); /* Match input field height */
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   box-sizing: border-box;
@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   cursor: pointer;
   width: 100%;
   min-height: inherit;
@@ -44,7 +44,7 @@
   display: inline-block;
   width: var(--switch-width, 2.25rem); /* 36px */
   height: var(--switch-height, 1.25rem); /* 20px */
-  background-color: var(--color-border);
+  background-color: var(--clr-surface-a60);
   border-radius: calc(var(--switch-height, 1.25rem) / 2); /* Half of height */
   transition: all var(--transition-normal);
   flex-shrink: 0;
@@ -57,16 +57,16 @@
   width: var(--switch-thumb-size, 1rem); /* 16px */
   height: var(--switch-thumb-size, 1rem); /* 16px */
   border-radius: 50%;
-  background-color: var(--color-surface);
+  background-color: var(--clr-primary-a30);
   transition: transform var(--transition-normal);
   box-shadow: var(--shadow-sm);
 }
 .Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton {
-  background-color: var(--color-primary-600);
+  background-color: var(--clr-primary-a10);
 }
 .Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton::after {
   transform: translateX(calc(var(--switch-width, 2.25rem) - var(--switch-thumb-size, 1rem) - 0.3rem)); /* Width - thumb size - padding */
-  background-color: var(--color-primary-100);
+  background-color: var(--clr-on-primary-a10);
 }
 .Switch-switchInput:focus + .Switch-switchLabel .Switch-switchButton {
   box-shadow: var(--shadow-primary-focus-sm);
@@ -74,19 +74,19 @@
 
 .Switch-labelText {
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   flex: 1;
 }
 /* Disabled state */
 .Switch-disabled .Switch-switchLabel {
-  color: var(--color-text-disabled);
+  color: var(--clr-text-a10);
   cursor: not-allowed;
 }
 .Switch-disabled .Switch-switchButton {
-  background-color: var(--color-border);
+  background-color: var(--clr-surface-a60);
   opacity: 0.7;
 }
 .Switch-disabled .Switch-switchInput:checked + .Switch-switchLabel .Switch-switchButton {
-  background-color: var(--color-primary-300);
+  background-color: var(--clr-surface-a90);
 }
 

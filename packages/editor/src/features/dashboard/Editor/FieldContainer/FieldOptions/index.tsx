@@ -52,7 +52,7 @@ export function FieldOptions({
   );
 
   return (
-    <Modal open={open} onClose={onClose} title={`${field.label} options`}>
+    <Modal open={open} onClose={onClose} title={`Field options`} description={`Configure options for the "${field.label}" field.`}>
       <Column fullWidth alignItems='flex-start' justifyContent='flex-start' gap='var(--space-4)' wrap='nowrap'>
         <SwitchField
           label='Responsive Mode'

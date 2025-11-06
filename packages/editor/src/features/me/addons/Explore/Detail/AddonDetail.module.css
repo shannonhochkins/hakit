@@ -11,7 +11,7 @@
 .AddonDetail-backButton {
   padding: var(--space-2);
   border-radius: var(--radius-md);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -19,20 +19,20 @@
 }
 
 .AddonDetail-backButton:hover {
-  color: var(--color-text-primary);
-  background-color: var(--color-surface-overlay);
+  color: var(--clr-on-surface-a0);
+  background-color: color-mix(in srgb, var(--clr-surface-a0) 8%, transparent);
 }
 
 .AddonDetail-pageTitle {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
 }
 
 .AddonDetail-addonOverview {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a40);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-lg);
   overflow: hidden;
   width: 100%;
@@ -58,14 +58,14 @@
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--color-surface-elevated);
+  background: var(--clr-surface-a10);
   flex-shrink: 0;
 }
 
 .AddonDetail-thumbnailPlaceholder {
   height: 100%;
   width: 100%;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .AddonDetail-addonInfo {
@@ -73,7 +73,7 @@
 }
 
 .AddonDetail-description {
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   margin: 0 0 var(--space-4) 0;
   line-height: var(--line-height-relaxed);
 }
@@ -86,24 +86,24 @@
 
 .AddonDetail-metaItem {
   gap: var(--space-2);
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
   align-items: center;
   justify-content: flex-start;
 }
 
 .AddonDetail-metaLabel {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .AddonDetail-metaValue {
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .AddonDetail-metaLink {
   gap: var(--space-2);
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
   text-decoration: none;
   transition: color var(--transition-normal);
@@ -113,7 +113,7 @@
 }
 
 .AddonDetail-metaLink:hover {
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .AddonDetail-actionsContainer {
@@ -124,22 +124,22 @@
 }
 
 .AddonDetail-readmeSection {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a40);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-lg);
   overflow: hidden;
   width: 100%;
 }
 
 .AddonDetail-readmeHeader {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--clr-surface-a60);
   padding: var(--space-4) var(--space-6);
 }
 
 .AddonDetail-readmeTitle {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
   cursor: pointer;
 }
@@ -150,7 +150,7 @@
 
 .AddonDetail-loadingContainer {
   padding: var(--space-8) var(--space-4);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .AddonDetail-errorContainer {
@@ -161,11 +161,11 @@
 .AddonDetail-errorTitle {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-2) 0;
 }
 
 .AddonDetail-errorDescription {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0 0 var(--space-4) 0;
 }

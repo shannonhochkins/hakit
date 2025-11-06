@@ -10,45 +10,45 @@
   align-items: center;
   width: 100%;
   min-height: 2.5rem; /* Ensure minimum height for 1:1 adornments */
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   box-sizing: border-box;
 }
 
 .inputWrapper:focus-within {
-  border-color: var(--color-primary-500);
+  border-color: var(--clr-primary-a50);
   box-shadow: var(--shadow-primary-focus-sm);
 }
 .inputWrapper.error {
-  border-color: var(--color-error-500);
+  border-color: var(--clr-error-a0);
 }
 .inputWrapper.error:focus-within {
-  border-color: var(--color-error-500);
+  border-color: var(--clr-error-a0);
   box-shadow: var(--shadow-error-focus-sm);
 }
 .inputWrapper.success {
-  border-color: var(--color-success-500);
+  border-color: var(--clr-success-a0);
 }
 .inputWrapper.success:focus-within {
-  border-color: var(--color-success-500);
+  border-color: var(--clr-success-a0);
   box-shadow: var(--shadow-success-focus-sm);
 }
 .inputWrapper.disabled {
-  background-color: var(--color-surface-muted);
+  background-color: var(--clr-surface-a30);
   cursor: not-allowed;
   min-height: 2.5rem; /* Ensure consistent height even when disabled */
 }
 .withPrefix .input::placeholder {
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 .input {
   flex: 1;
   padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   background: transparent;
   border: none;
   outline: none;
@@ -75,36 +75,36 @@
 .input:-webkit-autofill:hover,
 .input:-webkit-autofill:focus,
 .input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
-  -webkit-text-fill-color: var(--color-text-primary) !important;
-  background-color: var(--color-surface) !important;
+  -webkit-box-shadow: 0 0 0 30px var(--clr-surface-a40) inset !important;
+  -webkit-text-fill-color: var(--clr-on-surface-a0) !important;
+  background-color: var(--clr-surface-a30) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Ensure autocomplete styling works with different input states */
 .inputWrapper:focus-within .input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--clr-surface-a40) inset !important;
 }
 
 .inputWrapper.error .input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--clr-surface-a40) inset !important;
 }
 
 .inputWrapper.success .input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px var(--color-surface) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--clr-surface-a40) inset !important;
 }
 
 .inputWrapper.disabled .input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 30px var(--color-surface-muted) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--clr-surface-a30) inset !important;
 }
 .input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 .startAdornment, .endAdornment {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   flex-shrink: 0; /* Prevent adornments from shrinking */
   z-index: 1; /* Ensure adornments appear above input */
 }
@@ -112,7 +112,7 @@
 .valuePrefix, .valueSuffix {
   display: inline-flex;
   align-items: center;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
   padding: 0 var(--space-1);
 }
@@ -131,18 +131,18 @@
   height: 2.5rem; /* Fixed height matching input visual height */
   width: 2.5rem; /* 1:1 ratio */
   padding: var(--space-2);
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   border-width: 1px;
   border-style: solid;
-  border-color: var(--color-border);
+  border-color: var(--clr-surface-a60);
   box-sizing: border-box; /* Include border in size calculation */
 }
 
 .startAdornment.default {
   border-radius: var(--radius-md) 0 0 var(--radius-md);
-  border-right: 1px solid var(--color-border); /* Only right border */
+  border-right: 1px solid var(--clr-surface-a60); /* Only right border */
   border-left: none;
   border-top: none;
   border-bottom: none;
@@ -150,7 +150,7 @@
 
 .endAdornment.default {
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  border-left: 1px solid var(--color-border); /* Only left border */
+  border-left: 1px solid var(--clr-surface-a60); /* Only left border */
   border-right: none;
   border-top: none;
   border-bottom: none;
@@ -159,7 +159,7 @@
 /* Icon-specific styling for lucide-react icons */
 .startAdornment.icon, .endAdornment.icon {
   padding: var(--space-2);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 /* Custom adornment styling - no default background/border */
@@ -184,13 +184,13 @@
 .inputWrapper .errorIcon, .inputWrapper .successIcon {
   position: absolute;
   right: var(--space-3);
-  color: var(--color-error-500);
+  color: var(--clr-error-a0);
   pointer-events: none;
   z-index: 2;
 }
 
 .inputWrapper.success .successIcon {
-  color: var(--color-success-500);
+  color: var(--clr-success-a0);
 }
 
 /* Hide status icons when there's an end adornment */
@@ -221,7 +221,7 @@
 
 .charCount {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-left: auto;
 }
 .disabled {
@@ -229,7 +229,7 @@
   cursor: not-allowed;
 }
 .disabled .input {
-  background-color: var(--color-surface-muted);
+  background-color: var(--clr-surface-a30);
   cursor: not-allowed;
 }
 /* Size Variants */

@@ -113,7 +113,7 @@ export const ActionMenu = (props: ActionsMenuProps) => {
             }
           }}
           startIcon={<LayoutDashboardIcon size={16} />}
-          style={{ color: 'var(--color-error-500)' }}
+          style={{ color: 'var(--clr-error-a0)' }}
           label={type === 'dashboard' ? 'Delete Dashboard' : 'Delete Page'}
         />
       </MenuContent>

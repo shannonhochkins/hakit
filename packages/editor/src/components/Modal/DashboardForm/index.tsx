@@ -260,11 +260,24 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
         />
 
         <div className={getClassName('actions')}>
-          <SecondaryButton aria-label='Cancel' type='button' onClick={onClose}>
+          <SecondaryButton
+            aria-label='Cancel'
+            buttonProps={{
+              type: 'button',
+            }}
+            onClick={onClose}
+          >
             <XIcon size={16} />
             Cancel
           </SecondaryButton>
-          <PrimaryButton aria-label='Create Dashboard' type='submit' disabled={!validateForm() || isSubmitting} loading={isSubmitting}>
+          <PrimaryButton
+            aria-label='Create Dashboard'
+            buttonProps={{
+              type: 'submit',
+            }}
+            disabled={!validateForm() || isSubmitting}
+            loading={isSubmitting}
+          >
             {validateForm() ? <CheckIcon size={16} /> : null}
             {getSubmitLabel()}
           </PrimaryButton>

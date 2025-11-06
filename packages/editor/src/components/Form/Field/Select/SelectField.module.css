@@ -8,7 +8,7 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   margin-bottom: var(--space-1);
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
 }
 .inputWrapper {
   position: relative;
@@ -16,14 +16,14 @@
   align-items: center;
   width: 100%;
   min-height: 2.5rem;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   box-sizing: border-box;
 }
 .inputWrapper:focus-within {
-  border-color: var(--color-primary-500);
+  border-color: var(--clr-primary-a60);
   box-shadow: none;
 }
 .valueContainer {
@@ -37,7 +37,7 @@
   overflow: hidden;
 }
 .placeholder {
-  color: var(--color-gray-300);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
   line-clamp: 1;
   overflow: hidden;
@@ -49,7 +49,7 @@
   justify-content: center;
   flex-shrink: 0;
   z-index: 1;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-right: var(--space-2);
 }
 .endAdornment {
@@ -58,7 +58,7 @@
   justify-content: center;
   flex-shrink: 0;
   z-index: 1;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-left: var(--space-2);
 }
 .rightControls {
@@ -73,24 +73,24 @@
   height: 2.5rem;
   width: 2.5rem;
   padding: var(--space-2);
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   border-width: 1px;
   border-style: solid;
-  border-color: var(--color-border);
+  border-color: var(--clr-surface-a60);
   box-sizing: border-box;
 }
 .startAdornment.default {
   border-radius: var(--radius-md) 0 0 var(--radius-md);
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--clr-surface-a60);
   border-left: none;
   border-top: none;
   border-bottom: none;
 }
 .endAdornment.default {
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid var(--clr-surface-a60);
   border-right: none;
   border-top: none;
   border-bottom: none;
@@ -112,17 +112,17 @@
 .container.large .startAdornment.default, .container.large .endAdornment.default { height: 3rem; width: 3rem; }
 
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.chip { display: flex; align-items: center; background-color: var(--color-primary-100); border-radius: var(--radius-lg); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); color: var(--color-primary-700); }
+.chip { display: flex; align-items: center; background-color: var(--clr-primary-a90); border-radius: var(--radius-lg); padding: var(--space-1) var(--space-2); font-size: var(--font-size-xs); color: var(--clr-primary-a30); }
 .chipLabel { margin-right: var(--space-1); }
-.chipRemove { cursor: pointer; color: var(--color-primary-500); }
-.chipRemove:hover { color: var(--color-primary-700); }
+.chipRemove { cursor: pointer; color: var(--clr-primary-a50); }
+.chipRemove:hover { color: var(--clr-primary-a30); }
 
 .dropdown {
   overflow: hidden;
   z-index: var(--z-popover);
   max-height: 200px;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
 }
@@ -136,28 +136,28 @@
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   cursor: pointer;
   transition: background-color var(--transition-fast);
-  background-color: var(--color-surface);
+  background-color: var(--clr-surface-a30);
 }
 .option:hover {
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
 }
 .selectedOption {
-  background-color: var(--color-primary-900);
-  color: var(--color-primary-100);
+  background-color: var(--clr-primary-a10);
+  color: var(--clr-primary-a90);
 }
 .selectedOption:hover {
-  background-color: var(--color-primary-800);
+  background-color: var(--clr-primary-a20);
 }
 .highlightedOption {
-  background-color: var(--color-primary-700);
+  background-color: var(--clr-primary-a30);
 }
 .highlightedOption:hover {
-  background-color: var(--color-primary-600);
+  background-color: var(--clr-primary-a40);
 }
-.checkIcon { color: var(--color-primary-500); justify-self: center; }
+.checkIcon { color: var(--clr-primary-a50); justify-self: center; }
 
 .chevron {
   transition: transform var(--transition-normal);
@@ -166,10 +166,10 @@
   transform: rotate(180deg);
 }
 
-.error .inputWrapper { border-color: var(--color-error-500); }
+.error .inputWrapper { border-color: var(--clr-error-a0); }
 .error .inputWrapper:focus-within { box-shadow: var(--shadow-error-focus-sm); }
-.success .inputWrapper { border-color: var(--color-success-500); }
+.success .inputWrapper { border-color: var(--clr-success-a0); }
 .success .inputWrapper:focus-within { box-shadow: var(--shadow-success-focus-sm); }
 .disabled { opacity: 0.7; cursor: not-allowed; }
-.disabled .inputWrapper { background-color: var(--color-surface-muted); cursor: not-allowed; }
+.disabled .inputWrapper { background-color: var(--clr-surface-a30); cursor: not-allowed; }
 

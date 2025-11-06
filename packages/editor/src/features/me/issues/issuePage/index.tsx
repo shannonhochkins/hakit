@@ -67,13 +67,13 @@ export function IssuePage({ id }: { id: number }) {
           <Column gap='0.5rem' alignItems='flex-start' justifyContent='flex-start' wrap='wrap' fullWidth>
             <Row gap='0.5rem' alignItems='flex-start'>
               {open ? (
-                <Circle size={20} style={{ color: 'var(--color-success-500)', marginTop: 'var(--space-2)' }} />
+                <Circle size={20} style={{ color: 'var(--clr-success-a0)', marginTop: 'var(--space-2)' }} />
               ) : (
-                <CheckCircle2 size={20} style={{ color: 'var(--color-success-500)', marginTop: 'var(--space-2)' }} />
+                <CheckCircle2 size={20} style={{ color: 'var(--clr-success-a0)', marginTop: 'var(--space-2)' }} />
               )}
               <Column gap='0.5rem' alignItems='flex-start' justifyContent='flex-start'>
                 <h2 style={{ margin: 0 }}>{issue.title}</h2>
-                <Row alignItems='flex-start' gap='0.25rem' justifyContent='flex-start' style={{ color: 'var(--color-text-muted)' }}>
+                <Row alignItems='flex-start' gap='0.25rem' justifyContent='flex-start' style={{ color: 'var(--clr-text-a30)' }}>
                   <span>Opened by {issue.createdBy || issue.user?.login || 'Unknown'}</span>
                   <span>•</span>
                   <Tooltip title={toReadableDate(issue.created_at)}>
@@ -119,7 +119,7 @@ export function IssuePage({ id }: { id: number }) {
                     gap='0.5rem'
                     alignItems='center'
                     justifyContent='space-between'
-                    style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}
+                    style={{ color: 'var(--clr-text-a10)', marginBottom: 'var(--space-2)' }}
                   >
                     <strong>{c.createdBy || c.user?.login || 'Unknown'}</strong>
                     <Tooltip title={toReadableDate(c.created_at)}>

@@ -350,7 +350,7 @@ const ViewportControlsComponent = () => {
                 wrap='nowrap'
                 fullWidth
                 style={{
-                  backgroundColor: 'var(--color-gray-900)',
+                  backgroundColor: 'var(--clr-surface-a10)',
                   padding: 'var(--space-3)',
                   borderRadius: '8px',
                 }}

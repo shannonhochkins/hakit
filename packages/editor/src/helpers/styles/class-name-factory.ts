@@ -116,8 +116,8 @@ export function getClassNameFactory<R extends string, S extends Record<string, s
               matched = true;
             }
           }
+          // look for an exact match
 
-          // Throw error if no match found
           // Throw error if no match found
           if (!matched && Object.keys(stylesAny).length > 0) {
             throw new Error(

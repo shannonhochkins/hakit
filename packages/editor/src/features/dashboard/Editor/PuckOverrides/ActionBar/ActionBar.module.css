@@ -2,9 +2,9 @@
 .ActionBar {
   cursor: default;
   padding: var(--space-1);
-  background: var(--color-surface);
+  background: var(--clr-surface-a0);
   width: auto;
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   border-radius: var(--radius-lg);
   align-items: center;
   min-height: var(--space-4);
@@ -18,7 +18,7 @@
 
 .ActionBar-group {
   align-items: center;
-  border-inline-start: 0.5px solid var(--color-gray-750); /* Fractional value required due to scaling */
+  border-inline-start: 0.5px solid var(--clr-surface-a60); /* Fractional value required due to scaling */
   display: flex;
   gap: var(--space-1);
   height: 100%;

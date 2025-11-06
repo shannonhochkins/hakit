@@ -27,7 +27,7 @@ export type IconFieldProps = Omit<SingleAutocompleteProps<keyof typeof icons>, '
 const iconNames = Object.keys(icons) as (keyof typeof icons)[];
 
 export function IconField({ value, onChange, id, name, readOnly, helperText, label, icon }: IconFieldProps) {
-  const hasValue = useMemo(() => (String(value)?.trim() ?? '').length > 0, [value]);
+  const hasValue = useMemo(() => typeof value === 'string' && (String(value)?.trim() ?? '').length > 0, [value]);
 
   const matchedValue = useMemo(() => {
     return hasValue ? iconNames.find(option => option === value) : undefined;

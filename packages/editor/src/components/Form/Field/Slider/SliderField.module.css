@@ -24,12 +24,12 @@
 .label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
 }
 
 .valueDisplay {
   font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   font-weight: var(--font-weight-medium);
 }
 
@@ -39,8 +39,8 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a30);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
   box-sizing: border-box;
@@ -81,7 +81,7 @@
   transform: translateY(-50%);
   /* 10% fatter track */
   height: calc(var(--space-1) * 1.1);
-  background-color: var(--color-gray-700);
+  background-color: var(--clr-surface-a30);
   border-radius: var(--radius-sm);
 }
 
@@ -94,7 +94,7 @@
   transform: translateY(-50%);
   /* 10% fatter track */
   height: calc(var(--space-1) * 1.1);
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   border-radius: var(--radius-sm);
   transition: width var(--transition-fast);
 }
@@ -112,8 +112,8 @@
   /* 20% bigger thumb */
   width: calc(var(--space-4) * 1.2);
   height: calc(var(--space-4) * 1.2);
-  background-color: var(--color-primary-500);
-  border: 2px solid var(--color-surface);
+  background-color: var(--clr-primary-a50);
+  border: 2px solid var(--clr-surface-a40);
   border-radius: var(--radius-full);
   transform: translate(-50%, -50%);
   cursor: grab;
@@ -140,21 +140,21 @@
 
 /* State-specific styling */
 .error .track {
-  background-color: var(--color-error-500);
+  background-color: var(--clr-error-a0);
 }
 
 .error .thumb {
-  background-color: var(--color-error-500);
-  border-color: var(--color-error-500);
+  background-color: var(--clr-error-a0);
+  border-color: var(--clr-error-a0);
 }
 
 .success .track {
-  background-color: var(--color-success-500);
+  background-color: var(--clr-success-a0);
 }
 
 .success .thumb {
-  background-color: var(--color-success-500);
-  border-color: var(--color-success-500);
+  background-color: var(--clr-success-a0);
+  border-color: var(--clr-success-a0);
 }
 
 /* Disabled state */
@@ -170,8 +170,8 @@
 }
 
 .disabled .thumb {
-  background-color: var(--color-text-muted);
-  border-color: var(--color-text-muted);
+  background-color: var(--clr-text-a10);
+  border-color: var(--clr-text-a10);
   box-shadow: none;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .disabled .track {
-  background-color: var(--color-surface-muted);
+  background-color: var(--clr-surface-a30);
 }
 
 /* Read-only state */
@@ -192,8 +192,8 @@
 }
 
 .readOnly .thumb {
-  background-color: var(--color-text-muted);
-  border-color: var(--color-text-muted);
+  background-color: var(--clr-text-a10);
+  border-color: var(--clr-text-a10);
 }
 
 /* Size-specific styling */
@@ -259,7 +259,7 @@
   border-radius: 50% 50% 50% 0;
   left: 0;
   transform: translate(-50%, -0%) rotate(-45deg) scale(0);
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   white-space: nowrap;
   pointer-events: none;
   z-index: 2;
@@ -305,9 +305,9 @@
 
 /* match tooltip color to thumb state */
 .error .tooltip {
-  background-color: var(--color-error-500);
+  background-color: var(--clr-error-a0);
 }
 
 .success .tooltip {
-  background-color: var(--color-success-500);
+  background-color: var(--clr-success-a0);
 }

@@ -3,7 +3,7 @@ import { Editor } from '@features/dashboard/Editor';
 import { PuckPreload } from '@features/dashboard/PuckPreload';
 import { RecoveryPrompt } from '@features/dashboard/Editor/RecoveryPrompt';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
-import { loadDashboardAndPageOrNotFound } from '../../../loader';
+import { loadDashboardAndPageOrNotFound } from '@helpers/editor/routes/preload-data';
 import { NotFound } from '@features/404';
 
 export const Route = createFileRoute('/_authenticated/dashboard/$dashboardPath/$pagePath/edit/')({

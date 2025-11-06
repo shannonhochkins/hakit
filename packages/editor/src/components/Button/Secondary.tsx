@@ -11,9 +11,12 @@ export type SecondaryButtonProps = BaseButtonProps;
 export const SecondaryButton = (props: SecondaryButtonProps) => {
   const computed = getSecondaryClassName(
     {
-      SecondaryButton: true,
+      SecondaryButton: !props.variant || props.variant === 'secondary',
+      transparent: props.variant === 'transparent',
+      error: props.variant === 'error',
+      success: props.variant === 'success',
     },
     props.className
   );
-  return <BaseButton {...props} className={computed} variant='secondary' />;
+  return <BaseButton {...props} className={computed} variant={props.variant} />;
 };

@@ -20,6 +20,7 @@ import {
   validatePageValue,
   validatePageValueArray,
   validateJson,
+  validateStringWithLength,
 } from './valueValidation';
 import { IconField } from '@components/Form/Field/Icon';
 import { icons } from 'lucide-react';
@@ -393,7 +394,7 @@ export function renderField(props: RenderFieldProps) {
     case 'icon':
       return (
         <IconField
-          value={validateString(props.value, undefined) as keyof typeof icons}
+          value={validateStringWithLength(props.value, undefined, 1) as keyof typeof icons}
           onChange={props.onChange}
           id={id}
           name={props.name}

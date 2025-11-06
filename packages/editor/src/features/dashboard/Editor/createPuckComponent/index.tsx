@@ -300,6 +300,8 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
         danger: props.theme.colors.semantics.danger,
         info: props.theme.colors.semantics.info,
       });
+      // TODO - Potentially de-duplicate, the user may only change the primary color for example
+      // yet we'll be re-generating all other css variables under this scope
       cssVariables = generateCssVariables(swatches);
     }
 
@@ -318,6 +320,10 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
 
   // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
   const renderedElement = config.render(fullProps);
+
+  if (config.autoWrapComponent === false) {
+    return renderedElement;
+  }
   return attachPropsToElement({
     element: renderedElement,
     ref: dragRef,

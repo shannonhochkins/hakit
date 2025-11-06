@@ -1,7 +1,7 @@
 .Tooltip-element:global(.tooltip-element) {
-  background-color: var(--color-gray-800);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-gray-600);
+  background-color: var(--clr-surface-a20);
+  color: var(--clr-on-surface-a0);
+  border: 1px solid var(--clr-surface-a40);
   padding: var(--space-2);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-2xl);
@@ -13,6 +13,6 @@
 }
 
 .Tooltip-arrow:global(.tooltip-arrow) {
-  border-right: 1px solid var(--color-gray-600);
-  border-bottom: 1px solid var(--color-gray-600);
+  border-right: 1px solid var(--clr-surface-a40);
+  border-bottom: 1px solid var(--clr-surface-a40);
 }

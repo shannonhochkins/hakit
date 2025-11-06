@@ -25,8 +25,10 @@
   "scripts": {
     "dev": "concurrently --kill-others \"bun run dev:server\" \"bun --filter 'hakit-editor' dev\"",
     "prebuild": "bun run test && bun run type-check && bun run lint && bun run format",
-    "build": "NODE_ENV=production bun --filter 'hakit-editor' build",
-    "type-check": "cd packages/editor && tsc --noEmit && cd ../server && tsc --noEmit && cd ../addon && tsc --noEmit && cd ../shared && tsc --noEmit",
+    "build:editor": "NODE_ENV=production cd packages/editor && bun run build",
+    "build:addon": "NODE_ENV=production cd packages/addon && bun run build",
+    "build": "bun run build:editor && bun run build:addon",
+    "type-check": "tsc -p packages/server/tsconfig.json --noEmit && bun run --filter hakit-editor type-check && bun run --filter @hakit/addon type-check",
     "watch:build": "bun --filter 'hakit-editor' watch:build",
     "start": "NODE_ENV=production bun ./packages/server/index.ts",
     "dev:editor": "bun --filter 'hakit-editor' dev",
@@ -36,7 +38,8 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "rm -rf node_modules && rm -rf packages/editor/node_modules && rm -rf packages/addon/node_modules"
+    "clean": "rm -rf node_modules && rm -rf packages/editor/node_modules && rm -rf packages/addon/node_modules",
+    "generate-theme": "bun ./packages/editor/src/generate-theme.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

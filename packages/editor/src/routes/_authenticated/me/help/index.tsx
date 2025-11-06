@@ -11,7 +11,7 @@ const HelpContainer = styled.div`
 const PageTitle = styled.h1`
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-8) 0;
 `;
 
@@ -22,33 +22,33 @@ const HelpGrid = styled.div`
 `;
 
 const HelpCard = styled.div`
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a10);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   transition: all var(--transition-normal);
 
   &:hover {
-    border-color: var(--color-border-subtle);
+    border-color: var(--clr-surface-a60);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
 `;
 
 const HelpIcon = styled.div`
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   margin-bottom: var(--space-4);
 `;
 
 const HelpTitle = styled.h2`
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-2) 0;
 `;
 
 const HelpDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0 0 var(--space-4) 0;
 `;
 

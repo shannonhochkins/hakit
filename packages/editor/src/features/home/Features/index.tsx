@@ -14,7 +14,7 @@ const BackgroundBlur1 = styled.div`
   right: 0;
   width: 384px;
   height: 384px;
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   opacity: 0.1;
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
@@ -27,7 +27,7 @@ const BackgroundBlur2 = styled.div`
   left: 0;
   width: 256px;
   height: 256px;
-  background-color: var(--color-secondary-500);
+  background-color: var(--clr-surface-a50);
   opacity: 0.1;
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
@@ -57,7 +57,7 @@ const MainHeading = styled.h2`
 
 const SubHeading = styled.p`
   font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   max-width: 768px;
   margin: 0 auto;
 `;
@@ -76,15 +76,15 @@ const FeaturesGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a10);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   transition: all var(--transition-normal);
 
   &:hover {
-    background: var(--color-surface);
-    border-color: var(--color-border-subtle);
+    background: var(--clr-surface-a40);
+    border-color: var(--clr-surface-a60);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
   }
@@ -94,11 +94,11 @@ const FeatureTitle = styled.h3`
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--space-2);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 `;
 
 const FeatureDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   line-height: var(--line-height-relaxed);
 `;
 

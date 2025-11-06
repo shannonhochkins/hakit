@@ -1,11 +1,11 @@
 .helperText {
   font-size: var(--font-size-xs);
   line-height: var(--line-height-normal);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-top: var(--space-2);
   user-select: none;
   cursor: default;
 }
 .errorText {
-  color: var(--color-error-500);
+  color: var(--clr-error-a0);
 }

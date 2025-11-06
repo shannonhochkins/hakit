@@ -108,10 +108,16 @@ export function extendPuckDataWithDefaults<
 
     // Then merge defaults with existing values, root props are stored by remote id as the key, then the props
     for (const [remoteId, remoteDefaults] of Object.entries(defaultProps as Record<string, DefaultComponentProps>)) {
+      // Check if the remoteId exists in the current root props, and we're not actually an array
       if (remoteId in data.root.props && typeof data.root.props[remoteId] === 'object') {
         // Remote exists, deep merge defaults (base) with existing data (overlay)
         // merge creates a new object, so this is safe
-        newRootProps[remoteId] = merge(remoteDefaults, data.root.props[remoteId]);
+        if (Array.isArray(data.root.props[remoteId]) && Array.isArray(remoteDefaults)) {
+          // If both are arrays, return the data array first, else the defaults
+          newRootProps[remoteId] = data.root.props[remoteId].length > 0 ? data.root.props[remoteId] : remoteDefaults;
+        } else {
+          newRootProps[remoteId] = merge(remoteDefaults, data.root.props[remoteId]);
+        }
       } else {
         // Remote doesn't exist, use defaults as-is
         newRootProps[remoteId] = remoteDefaults;

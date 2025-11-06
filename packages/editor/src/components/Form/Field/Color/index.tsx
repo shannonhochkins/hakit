@@ -167,14 +167,14 @@ const gradientPickerStyles = {
   ...properties.reduce(
     (acc, prop) => {
       acc[prop] = {
-        background: 'var(--color-gray-800)',
+        background: 'var(--clr-surface-a20)',
       };
       return acc;
     },
     {} as Record<string, React.CSSProperties>
   ),
   rbgcpInput: {
-    background: 'var(--color-gray-900)',
+    background: 'var(--clr-surface-a10)',
   },
 };
 
@@ -203,7 +203,7 @@ function GradientPickerWrapper({ value, onChange, debounce, hideControls }: Grad
     <GradientPicker
       hideAdvancedSliders
       hideColorGuide
-      hideControls={!hideControls}
+      hideControls={hideControls}
       hidePresets
       width={COLOR_PICKER_WIDTH}
       height={COLOR_PICKER_HEIGHT}

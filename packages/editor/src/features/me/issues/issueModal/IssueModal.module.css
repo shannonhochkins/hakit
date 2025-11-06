@@ -8,15 +8,15 @@
   gap: var(--space-2);
   align-items: flex-start;
   border-radius: var(--radius-md);
-  background: var(--color-surface-inset);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a10);
+  border: 1px solid var(--clr-surface-a60);
   cursor: pointer;
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .IssueModal-loadingRow {
   padding: var(--space-2);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .IssueModal-alertWarning {
@@ -32,17 +32,17 @@
 }
 
 .IssueModal-resultBody {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
 }
 
 .IssueModal-descriptionLabel {
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-2);
 }
 
 .IssueModal-descriptionHelper {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
   margin-bottom: var(--space-2);
 }

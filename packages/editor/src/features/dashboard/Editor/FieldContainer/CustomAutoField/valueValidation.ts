@@ -9,6 +9,15 @@ export function validateString<T extends Primitive, F extends Primitive>(value: 
   return typeof value === 'string' ? value : fallback;
 }
 
+export function validateStringWithLength<T extends Primitive, F extends Primitive>(
+  value: T,
+  fallback: F,
+  minLength: number,
+  maxLength?: number
+): T | F {
+  return typeof value === 'string' && value.length >= minLength && value.length <= (maxLength ?? Infinity) ? value : fallback;
+}
+
 export function validateNumber<T extends Primitive, F extends Primitive>(value: T, fallback: F): T | F {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }

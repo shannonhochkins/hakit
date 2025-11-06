@@ -9,6 +9,9 @@ import { createRootComponent } from '@features/dashboard/Editor/createRootCompon
 // import the internal components
 import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
 import { containerComponentConfig } from '@features/dashboard/Editor/InternalComponents/Container';
+import { buttonComponentConfig } from '../Editor/InternalComponents/Button';
+
+import { iconButtonComponentConfig } from '../Editor/InternalComponents/IconButton';
 import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
 
 interface ComponentModule {
@@ -107,7 +110,7 @@ instance.registerPlugins([
     // @ts-expect-error - This is a hack to supress errors with the runtime plugin fetching snapshots for something that
     // doesn't exist for the dev proxy only
     fetch(manifestUrl) {
-      if (manifestUrl !== PROXY_BLANK_URL) return; // let real remotes fetch as normal
+      if (!manifestUrl?.includes(PROXY_BLANK_URL)) return; // let real remotes fetch as normal
       const stubManifest = {
         // minimal, but passes the runtime's assert and snapshot generator
         name: PROXY_REMOTE_NAME,
@@ -427,6 +430,21 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
       configs: [
         {
           config: containerComponentConfig,
+        },
+      ],
+    },
+    {
+      remote: {
+        name: '@hakit/buttons',
+        version: '0.0.0',
+        addonId: '@hakit/buttons',
+      },
+      configs: [
+        {
+          config: buttonComponentConfig,
+        },
+        {
+          config: iconButtonComponentConfig,
         },
       ],
     },

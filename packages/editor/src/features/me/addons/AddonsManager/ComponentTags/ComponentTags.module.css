@@ -1,8 +1,8 @@
 
 
 .ComponentTags {
-  background: var(--color-primary-900);
-  color: var(--color-primary-300);
+  background: var(--clr-primary-a10);
+  color: var(--clr-primary-a70);
   font-size: var(--font-size-xs);
   padding: calc(var(--space-1) / 2) var(--space-1);
   border-radius: var(--radius-sm);

@@ -233,7 +233,7 @@ export type FieldValueByKind = {
 export type FieldDefinition = {
   custom: { type: 'custom' };
   switch: { type: 'switch' };
-  icon: { type: 'icon'; default: keyof typeof icons };
+  icon: { type: 'icon'; default: keyof typeof icons | '' | undefined };
   text: TextField;
   number: NumberField;
   textarea: TextareaField;

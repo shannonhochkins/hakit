@@ -114,52 +114,52 @@
 
 /* Variants */
 .variantSecondary {
+  --gradient-angle: 160deg;
   /* Mirror BaseButton secondary (explicitly set to ensure consistency) */
-  --button-bg: var(--color-surface-elevated);
-  --button-bg-hover: var(--color-border-subtle);
-  --button-bg-active: var(--color-gray-700);
-  --button-bg-disabled: var(--color-gray-800);
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-surface-a0) 0%, var(--clr-surface-a20) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-surface-a0) 0%, var(--clr-surface-a20) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-surface-a0) 0%, var(--clr-surface-a20) 100%);
+  --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
-  --button-color: var(--color-text-primary);
+  --button-color: var(--clr-on-surface-a0);
 
-  --button-border: 1px solid var(--color-border);
-  --button-border-hover: 1px solid var(--color-gray-600);
-  --button-border-active: 1px solid var(--color-gray-600);
-  --button-border-disabled: 1px solid var(--color-gray-700);
+  --button-border: 1px solid var(--clr-surface-a40);
+  --button-border-hover: 1px solid var(--clr-surface-a40);
+  --button-border-active: 1px solid var(--clr-surface-a40);
+  --button-border-disabled: 1px solid var(--clr-surface-a30);
 
   --button-shadow: none;
   --button-shadow-hover: none;
   --button-shadow-active: none;
   --button-shadow-focus: var(--shadow-primary-focus);
 
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: transparent;
-  --button-overlay-bg-active: transparent;
+  transition: all var(--transition-normal), --gradient-angle var(--transition-normal);
+  &:hover:not(:disabled), &:active:not(:disabled) {
+    --gradient-angle: 0deg;
+  }
 }
 
 .variantTransparent {
   --button-bg: transparent;
   --button-bg-hover: transparent;
   --button-bg-active: transparent;
-  --button-color: var(--color-text-muted);
+  --button-color: var(--clr-text-a10);
   --button-border: none;
   --button-border-hover: none;
   --button-border-active: none;
   --button-shadow: none;
   --button-shadow-hover: var(--shadow-lg);
   --button-shadow-active: var(--shadow-lg);
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: rgba(255, 255, 255, 0.1);
-  --button-overlay-bg-active: rgba(255, 255, 255, 0.5);
 }
 
 .variantError {
-  --button-bg: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-hover: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-active: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+  --gradient-angle: 160deg;
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
+  --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
-  --button-color: var(--color-text-primary);
+  --button-color: var(--clr-on-surface-a0);
   --button-border: none;
   --button-border-hover: none;
   --button-border-active: none;
@@ -169,18 +169,21 @@
   --button-shadow-active: var(--shadow-error-active), var(--shadow-xl);
   --button-shadow-focus: var(--shadow-error-focus);
 
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-700) 100%);
-  --button-overlay-bg-active: linear-gradient(135deg, var(--color-error-700) 0%, var(--color-error-800) 100%);
+  transition: all var(--transition-normal), --gradient-angle var(--transition-normal);
+  &:hover:not(:disabled), &:active:not(:disabled) {
+    --gradient-angle: 0deg;
+  }
+
 }
 
 .variantPrimary {
-  --button-bg: var(--gradient-primary);
-  --button-bg-hover: var(--gradient-primary);
-  --button-bg-active: var(--gradient-primary);
-  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+  --gradient-angle: 160deg;
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a30) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a30) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a30) 100%);
+  --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
-  --button-color: var(--color-text-primary);
+  --button-color: var(--clr-on-surface-a0);
   --button-border: none;
   --button-border-hover: none;
   --button-border-active: none;
@@ -190,18 +193,20 @@
   --button-shadow-active: var(--shadow-primary-active), var(--shadow-xl);
   --button-shadow-focus: var(--shadow-primary-focus);
 
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: var(--gradient-primary-hover);
-  --button-overlay-bg-active: var(--gradient-primary-active);
+  transition: all var(--transition-normal), --gradient-angle var(--transition-normal);
+  &:hover:not(:disabled), &:active:not(:disabled) {
+    --gradient-angle: 0deg;
+  }
 }
 
 .variantSuccess {
-  --button-bg: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-hover: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-active: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
+  --gradient-angle: 160deg;
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-success-a0) 0%, var(--clr-success-a30) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-success-a0) 0%, var(--clr-success-a30) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-success-a0) 0%, var(--clr-success-a30) 100%);
+  --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
-  --button-color: var(--color-text-primary);
+  --button-color: var(--clr-on-surface-a0);
   --button-border: none;
   --button-border-hover: none;
   --button-border-active: none;
@@ -211,9 +216,11 @@
   --button-shadow-active: var(--shadow-success-active), var(--shadow-xl);
   --button-shadow-focus: var(--shadow-success-focus);
 
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: var(--gradient-success-hover);
-  --button-overlay-bg-active: var(--gradient-success-active);
+  transition: all var(--transition-normal), --gradient-angle var(--transition-normal);
+  &:hover:not(:disabled), &:active:not(:disabled) {
+    --gradient-angle: 0deg;
+  }
+
 }
 
 

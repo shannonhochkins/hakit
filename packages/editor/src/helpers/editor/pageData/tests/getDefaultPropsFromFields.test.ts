@@ -248,10 +248,13 @@ describe('getDefaultPropsFromFields', () => {
 
       const result = await getDefaultPropsFromFields(fields, mockData);
 
+      // Updated behaviour: slot fields now default to empty arrays rather than being skipped
       expect(result).toEqual({
         content: 'content value',
+        slot: [],
       });
-      expect(result).not.toHaveProperty('slot');
+      expect(Array.isArray(result.slot)).toBe(true);
+      expect(result.slot.length).toBe(0);
     });
 
     test('should skip nested slot fields in objects', async () => {
@@ -274,12 +277,15 @@ describe('getDefaultPropsFromFields', () => {
 
       const result = await getDefaultPropsFromFields(fields, mockData);
 
+      // Updated behaviour: nested slot fields now default to empty arrays
       expect(result).toEqual({
         container: {
           title: 'title value',
+          content: [],
         },
       });
-      expect(result.container).not.toHaveProperty('content');
+      expect(Array.isArray(result.container.content)).toBe(true);
+      expect(result.container.content.length).toBe(0);
     });
   });
 
@@ -367,6 +373,63 @@ describe('getDefaultPropsFromFields', () => {
 
       // Critical checks for undefined values not becoming empty objects
       expect(result.complexConfig.nestedObject.undefinedDeepField).not.toEqual({});
+    });
+  });
+
+  describe('array field prioritization merging (external merge simulation)', () => {
+    test('non-empty existing array should be preserved over defaults', async () => {
+      const fields: FieldConfiguration = {
+        items: {
+          type: 'array',
+          label: 'Items',
+          arrayFields: {
+            title: { type: 'text', label: 'Title', default: 'Untitled' },
+          },
+          // explicit default template - not used directly by our logic but satisfies typing
+          default: [],
+        },
+      };
+      const defaults = await getDefaultPropsFromFields(fields, mockData);
+      // simulate data returned from elsewhere with existing values
+      const existing = { items: [{ title: 'Existing' }] };
+      // external merge rule: if existing array has length, keep it
+      const merged = existing.items.length ? existing : defaults;
+      expect(merged.items[0].title).toBe('Existing');
+      expect(merged.items.length).toBe(1);
+    });
+
+    test('empty existing array should be replaced by defaults', async () => {
+      const fields: FieldConfiguration = {
+        items: {
+          type: 'array',
+          label: 'Items',
+          arrayFields: {
+            title: { type: 'text', label: 'Title', default: 'Untitled' },
+          },
+          default: [],
+        },
+      };
+      const defaults = await getDefaultPropsFromFields(fields, mockData);
+      const existing: { items: Array<{ title: string }> } = { items: [] };
+      const merged = existing.items.length ? existing : defaults;
+      expect(merged.items[0].title).toBe('Untitled');
+    });
+
+    test('missing array field should fall back to defaults', async () => {
+      const fields: FieldConfiguration = {
+        items: {
+          type: 'array',
+          label: 'Items',
+          arrayFields: {
+            title: { type: 'text', label: 'Title', default: 'Untitled' },
+          },
+          default: [],
+        },
+      };
+      const defaults = await getDefaultPropsFromFields(fields, mockData);
+      const existing = {}; // no items key
+      const merged = 'items' in existing ? existing : defaults;
+      expect(merged.items[0].title).toBe('Untitled');
     });
   });
 

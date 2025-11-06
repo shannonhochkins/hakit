@@ -6,9 +6,9 @@
   max-width: min(360px, 90vw);
   padding: 0;
 
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  background: var(--clr-surface-a40);
+  color: var(--clr-on-surface-a0);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-popover);
@@ -25,10 +25,10 @@
 }
 
 .arrow {
-  fill: var(--color-surface);
+  fill: var(--clr-surface-a40);
 }
 .arrow path {
-  stroke: var(--color-border);
+  stroke: var(--clr-surface-a60);
   stroke-width: 1px;
 }
 

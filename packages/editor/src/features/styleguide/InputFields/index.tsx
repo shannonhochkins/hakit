@@ -226,7 +226,7 @@ export function StyleguideInputFields() {
               <div
                 style={{
                   padding: 'var(--space-1) var(--space-2)',
-                  backgroundColor: 'var(--color-primary-500)',
+                  backgroundColor: 'var(--clr-primary-a50)',
                   borderRadius: 'var(--radius-sm)',
                   color: 'white',
                   fontSize: 'var(--font-size-xs)',
@@ -243,7 +243,7 @@ export function StyleguideInputFields() {
               <div
                 style={{
                   padding: 'var(--space-1) var(--space-2)',
-                  backgroundColor: 'var(--color-success-500)',
+                  backgroundColor: 'var(--clr-success-a0)',
                   borderRadius: 'var(--radius-sm)',
                   color: 'white',
                   fontSize: 'var(--font-size-xs)',

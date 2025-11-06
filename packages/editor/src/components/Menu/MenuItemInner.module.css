@@ -1,12 +1,12 @@
 .menuItem {
-  --item-bg: var(--color-surface);
-  --item-color: var(--color-text-primary);
-  --item-bg-hover: var(--color-surface-elevated);
-  --item-color-hover: var(--color-text-primary);
-  --item-bg-active: var(--color-gray-700);
-  --item-color-active: var(--color-text-primary);
+  --item-bg: var(--clr-surface-a40);
+  --item-color: var(--clr-on-surface-a0);
+  --item-bg-hover: var(--clr-primary-a10);
+  --item-color-hover: var(--clr-on-primary-a10);
+  --item-bg-active: var(--clr-surface-a30);
+  --item-color-active: var(--clr-on-surface-a0);
   --item-bg-disabled: transparent;
-  --item-color-disabled: var(--color-text-disabled);
+  --item-color-disabled: var(--clr-text-a30);
 
   display: flex;
   align-items: center;

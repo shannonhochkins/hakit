@@ -1,6 +1,6 @@
 .Header {
-  background-color: var(--color-gray-900);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a10);
+  border-bottom: 1px solid var(--clr-surface-a60);
   padding: 0 var(--space-4);
   display: flex;
   align-items: center;
@@ -42,7 +42,7 @@
 .Header-Divider {
   width: 1px;
   height: 20px;
-  background-color: var(--color-border);
+  background-color: var(--clr-surface-a60);
   margin: 0 var(--space-2);
   flex-grow: 0;
   flex-shrink: 0;

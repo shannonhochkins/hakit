@@ -26,7 +26,7 @@
 }
 
 .Spinner-spinnerPath {
-  stroke: var(--spinner-color, var(--color-gray-50));
+  stroke: var(--spinner-color, var(--clr-primary-a50));
   stroke-linecap: round;
   -webkit-animation: dash 1.5s ease-in-out infinite;
           animation: dash 1.5s ease-in-out infinite;
@@ -34,7 +34,7 @@
 
 /* Spinner track (background circle) */
 .Spinner-spinnerTrack {
-  stroke: var(--spinner-track-color, var(--color-gray-700));
+  stroke: var(--spinner-track-color, var(--clr-surface-a30));
   stroke-linecap: round;
 }
 

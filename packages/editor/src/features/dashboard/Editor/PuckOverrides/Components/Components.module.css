@@ -3,6 +3,10 @@
     width: 100%;
     display: none;
     margin-top:0;
+    margin-bottom: var(--space-3);
+    &:last-of-type {
+      margin-bottom: 0;
+    }
   }
   [class*="_ComponentList_"]:has([data-component-name]) {
     display: block;
@@ -12,9 +16,11 @@
     padding: var(--space-3) var(--space-2);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-normal);
+    background: var(--clr-surface-a50);
+    color: var(--clr-on-surface-a50);
     &:hover, &:active {
-      background: var(--color-primary-950);
-      color: var(--text-color-primary);
+      background: var(--clr-surface-a60);
+      color: var(--clr-on-surface-a60);
     }
   }
 }

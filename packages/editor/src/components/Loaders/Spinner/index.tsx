@@ -54,8 +54,8 @@ export function Spinner({ size = 20, thickness = 3, absolute = false, text = '',
         <AlertCircleIcon
           size={`${size * 3}px`}
           style={{
-            fill: 'color-mix(in srgb, var(--color-error-500) 10%, transparent)',
-            stroke: 'var(--color-error-700)',
+            fill: 'color-mix(in srgb, var(--clr-error-a0) 10%, transparent)',
+            stroke: 'var(--clr-error-a30)',
           }}
         />
       )}

@@ -212,7 +212,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
       title={
         <>
           {formTitle}
-          {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}> in {dashboard.name}</span>}
+          {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--clr-text-a10)' }}> in {dashboard.name}</span>}
         </>
       }
     >
@@ -263,11 +263,25 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
         />
 
         <div className={styles.formActions}>
-          <SecondaryButton aria-label='' type='button' onClick={handleClose} disabled={isSubmitting}>
+          <SecondaryButton
+            aria-label=''
+            buttonProps={{
+              type: 'button',
+            }}
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             <XIcon size={16} />
             Cancel
           </SecondaryButton>
-          <PrimaryButton aria-label='' type='submit' loading={isSubmitting} disabled={isInvalid}>
+          <PrimaryButton
+            aria-label=''
+            buttonProps={{
+              type: 'submit',
+            }}
+            loading={isSubmitting}
+            disabled={isInvalid}
+          >
             {!isInvalid && <CheckIcon size={16} />}
             {mode === 'new' ? 'Create Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Save Changes'}
           </PrimaryButton>
