@@ -20,7 +20,12 @@ const BackgroundRadial = styled.div`
   left: 10%;
   right: 10%;
   bottom: 10%;
-  background: radial-gradient(ellipse 80% 80% at center, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 40%, transparent 70%);
+  background: radial-gradient(
+    ellipse 75% 75% at center,
+    color-mix(in srgb, var(--clr-primary-a0) 15%, transparent 85%) 0%,
+    color-mix(in srgb, var(--clr-primary-a0) 8%, transparent 92%) 40%,
+    transparent 70%
+  );
   z-index: -10;
 `;
 
@@ -56,7 +61,7 @@ const TopRightGlow = styled.div`
   right: -96px;
   width: 192px;
   height: 192px;
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: color-mix(in srgb, var(--clr-primary-a0) 20%, transparent 80%);
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
 `;
@@ -67,7 +72,7 @@ const BottomLeftGlow = styled.div`
   left: -96px;
   width: 192px;
   height: 192px;
-  background-color: rgba(34, 211, 238, 0.2);
+  background-color: color-mix(in srgb, var(--clr-primary-a0) 20%, transparent 80%);
   border-radius: var(--radius-full);
   filter: blur(var(--blur-3xl));
 `;
@@ -111,7 +116,7 @@ const PricingGrid = styled.div`
 `;
 
 const PricingCard = styled.div`
-  background: rgba(31, 41, 55, 0.5);
+  background: color-mix(in srgb, var(--clr-surface-a50) 20%, transparent 80%);
   border: 1px solid var(--clr-surface-a30);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
@@ -121,18 +126,22 @@ const PricingCard = styled.div`
   height: 100%;
 
   &:hover {
-    border-color: rgba(96, 165, 250, 0.3);
+    border-color: color-mix(in srgb, var(--clr-primary-a0) 30%, transparent 70%);
   }
 `;
 
 const FeaturedCard = styled(PricingCard)`
-  background: linear-gradient(to bottom, rgba(31, 41, 55, 0.8), rgba(31, 41, 55, 0.5));
-  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--clr-primary-a20) 20%, transparent 80%),
+    color-mix(in srgb, var(--clr-primary-a20) 50%, transparent 5 0%)
+  );
+  border-color: color-mix(in srgb, var(--clr-primary-a40) 30%, transparent 70%);
   position: relative;
   box-shadow: var(--shadow-xl);
   box-shadow:
-    0 20px 25px -5px rgba(59, 130, 246, 0.1),
-    0 10px 10px -5px rgba(59, 130, 246, 0.04);
+    0 20px 25px -5px color-mix(in srgb, var(--clr-primary-a0) 10%, transparent 90%),
+    0 10px 10px -5px color-mix(in srgb, var(--clr-primary-a0) 6%, transparent 94%);
 `;
 
 const PopularBadge = styled.div`
@@ -198,7 +207,8 @@ const FeaturedPlanButton = styled(PrimaryButton)`
   width: 100%;
   box-shadow: var(--shadow-lg);
   margin-top: auto;
-
+  overflow: hidden;
+  border-radius: var(--radius-md);
   &:hover {
     box-shadow: var(--shadow-primary-hover);
   }
@@ -245,7 +255,9 @@ export const CTASection = () => {
                   <FeatureItem>Basic Templates</FeatureItem>
                   <FeatureItem>Community Support</FeatureItem>
                 </FeaturesList>
-                <PlanButton aria-label=''>Start Free</PlanButton>
+                <PlanButton aria-label='' fullWidth>
+                  Start Free
+                </PlanButton>
               </PricingCard>
 
               <FeaturedCard>
@@ -264,7 +276,9 @@ export const CTASection = () => {
                   <FeatureItem>Priority Support</FeatureItem>
                   <FeatureItem>Custom Styling</FeatureItem>
                 </FeaturesList>
-                <FeaturedPlanButton aria-label=''>Start Pro Trial</FeaturedPlanButton>
+                <FeaturedPlanButton aria-label='' fullWidth>
+                  Start Pro Trial
+                </FeaturedPlanButton>
               </FeaturedCard>
 
               <PricingCard>
@@ -280,7 +294,9 @@ export const CTASection = () => {
                   <FeatureItem>Dedicated Support</FeatureItem>
                   <FeatureItem>API Access</FeatureItem>
                 </FeaturesList>
-                <PlanButton aria-label=''>Contact Sales</PlanButton>
+                <PlanButton aria-label='' fullWidth>
+                  Contact Sales
+                </PlanButton>
               </PricingCard>
             </PricingGrid>
 
