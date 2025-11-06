@@ -43,7 +43,6 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
         applyCache();
       }
     };
-
     document.addEventListener('readystatechange', handleReadyStateChange);
 
     return () => {
