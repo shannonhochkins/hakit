@@ -43,13 +43,20 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
         applyCache();
       }
     };
-
     document.addEventListener('readystatechange', handleReadyStateChange);
 
     return () => {
       document.removeEventListener('readystatechange', handleReadyStateChange);
     };
   }, [document]);
+
+  useEffect(() => {
+    return () => {
+      // without resetting the cache, we'll be holding onto the incorrect document head
+      // So we reset whenever the component unmounts
+      useGlobalStore.getState().setEmotionCache(null);
+    };
+  }, []);
 
   if (emotionCache) {
     return (
