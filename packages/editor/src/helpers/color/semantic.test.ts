@@ -3,8 +3,26 @@ import { generateCssVariables } from './generateCssVariables';
 import { describe, it, expect } from 'bun:test';
 
 describe('makeSemanticSwatches', () => {
+  it('generates no swatches when no semantic values provided', () => {
+    const sem = makeSemanticSwatches({
+      success: undefined,
+      warning: undefined,
+      danger: undefined,
+      info: undefined,
+    });
+    expect(Object.keys(sem)).toEqual(['success', 'warning', 'danger', 'info']);
+    (Object.keys(sem) as (keyof typeof sem)[]).forEach(k => {
+      expect(sem[k]).toBeUndefined();
+    });
+  });
+
   it('generates 10 semantic scales with default colors', () => {
-    const sem = makeSemanticSwatches({});
+    const sem = makeSemanticSwatches({
+      success: '#28a745',
+      warning: '#ffc107',
+      danger: '#dc3545',
+      info: '#17a2b8',
+    });
     expect(Object.keys(sem)).toEqual(['success', 'warning', 'danger', 'info']);
     (Object.keys(sem) as (keyof typeof sem)[]).forEach(k => {
       expect(sem[k]?.length).toBe(10);
@@ -14,7 +32,12 @@ describe('makeSemanticSwatches', () => {
   });
 
   it('integrates with generateCssVariables', () => {
-    const sem = makeSemanticSwatches({});
+    const sem = makeSemanticSwatches({
+      success: '#28a745',
+      warning: '#ffc107',
+      danger: '#dc3545',
+      info: '#17a2b8',
+    });
     const css = generateCssVariables(
       { primary: sem.success, surface: sem.warning, semantics: { danger: sem.danger, info: sem.info } },
       { prefix: 'clr' }

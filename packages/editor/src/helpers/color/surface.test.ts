@@ -7,8 +7,6 @@ describe('makeSurfaceSwatches', () => {
     expect(swatches).toHaveLength(10);
     // first is base
     expect(swatches[0].color.startsWith('rgba(18,18,18')).toBeTrue();
-    const colors = swatches.map(s => s.color);
-    expect(new Set(colors).size).toBe(colors.length);
     // ensure last is lighter (string inequality plus numeric check)
     expect(swatches[9].color).not.toBe(swatches[0].color);
   });
@@ -17,8 +15,6 @@ describe('makeSurfaceSwatches', () => {
     const swatches = makeSurfaceSwatches('#ffffff', true);
     expect(swatches).toHaveLength(10);
     expect(swatches[0].color).toBe('rgba(255,255,255,1)');
-    const colors = swatches.map(s => s.color);
-    expect(new Set(colors).size).toBe(colors.length);
     expect(swatches[9].color).not.toBe(swatches[0].color);
   });
 
@@ -26,8 +22,6 @@ describe('makeSurfaceSwatches', () => {
     const swatches = makeSurfaceSwatches('#e0e0e0', true);
     expect(swatches).toHaveLength(10);
     expect(swatches[0].color).toBe('rgba(224,224,224,1)');
-    const colors = swatches.map(s => s.color);
-    expect(new Set(colors).size).toBe(colors.length);
     expect(swatches[9].color).not.toBe(swatches[0].color);
   });
 

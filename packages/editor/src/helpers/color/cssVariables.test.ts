@@ -112,7 +112,7 @@ describe('generateCssVariables', () => {
       const scales = generateColorSwatches({ primary: '#123456', ...SEMANTIC_DEFAULTS });
       const data = generateCssVariablesData({ primary: scales.primary });
       expect(data.primary).toBeDefined();
-  expect(Object.prototype.hasOwnProperty.call(data, 'surface')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'surface')).toBe(false);
     });
   });
 });
