@@ -6,7 +6,7 @@
 
 /* Icon Container */
 .EmptyState-icon {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-4);
   display: flex;
   justify-content: center;
@@ -16,13 +16,13 @@
 .EmptyState-title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-2) 0;
 }
 
 /* Description */
 .EmptyState-description {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0 0 var(--space-6) 0;
   max-width: 480px;
   margin-left: auto;

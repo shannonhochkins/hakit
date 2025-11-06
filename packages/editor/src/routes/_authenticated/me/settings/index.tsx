@@ -10,7 +10,7 @@ const SettingsContainer = styled.div`
 const PageTitle = styled.h1`
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-8) 0;
 `;
 
@@ -20,19 +20,19 @@ const ComingSoon = styled.div`
 `;
 
 const ComingSoonIcon = styled.div`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-4);
 `;
 
 const ComingSoonTitle = styled.h2`
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0 0 var(--space-2) 0;
 `;
 
 const ComingSoonDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0;
 `;
 

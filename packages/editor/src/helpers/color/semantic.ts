@@ -10,8 +10,6 @@ export const SEMANTIC_DEFAULTS = {
   info: '#21498A',
 } as const;
 
-export const SEMANTIC_COUNT = 4; // adjustable later if needed
-
 function chooseText(bg: ColorInstance) {
   let fg = WHITE;
   const cW = contrastRatio(WHITE, bg);

@@ -3,13 +3,13 @@ import { generateCssVariables } from './generateCssVariables';
 import { describe, it, expect } from 'bun:test';
 
 describe('makeSemanticSwatches', () => {
-  it('generates 4 semantic scales with default colors', () => {
+  it('generates 10 semantic scales with default colors', () => {
     const sem = makeSemanticSwatches({});
     expect(Object.keys(sem)).toEqual(['success', 'warning', 'danger', 'info']);
     (Object.keys(sem) as (keyof typeof sem)[]).forEach(k => {
-      expect(sem[k].length).toBe(4);
-      const labels = sem[k].map((s: { label: string }) => s.label);
-      expect(labels).toEqual(['a0', 'a10', 'a20', 'a30']);
+      expect(sem[k]?.length).toBe(10);
+      const labels = sem[k]?.map((s: { label: string }) => s.label);
+      expect(labels).toEqual(['a0', 'a10', 'a20', 'a30', 'a40', 'a50', 'a60', 'a70', 'a80', 'a90']);
     });
   });
 

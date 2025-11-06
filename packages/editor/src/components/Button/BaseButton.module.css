@@ -1,25 +1,24 @@
+
+
 .baseButton {
   /* CSS Variables for theming - can be overridden by variants */
-  --button-bg: var(--color-surface-elevated);
-  --button-bg-hover: var(--color-border-subtle);
-  --button-bg-active: var(--color-gray-700);
-  --button-bg-disabled: var(--color-gray-800);
-  --button-color: var(--color-text-primary);
-  --button-color-hover: var(--color-text-primary);
-  --button-color-active: var(--color-text-primary);
-  --button-color-disabled: var(--color-text-primary);
-  --button-border: 1px solid var(--color-border);
-  --button-border-hover: 1px solid var(--color-gray-600);
-  --button-border-active: 1px solid var(--color-gray-600);
-  --button-border-disabled: 1px solid var(--color-gray-700);
+  --button-bg: var(--clr-surface-a10);
+  --button-bg-hover: var(--clr-surface-a60);
+  --button-bg-active: var(--clr-surface-a30);
+  --button-bg-disabled: var(--clr-surface-a20);
+  --button-color: var(--clr-on-surface-a0);
+  --button-color-hover: var(--clr-on-surface-a0);
+  --button-color-active: var(--clr-on-surface-a0);
+  --button-color-disabled: var(--clr-on-surface-a0);
+  --button-border: 1px solid var(--clr-surface-a60);
+  --button-border-hover: 1px solid var(--clr-surface-a40);
+  --button-border-active: 1px solid var(--clr-surface-a40);
+  --button-border-disabled: 1px solid var(--clr-surface-a30);
   --button-shadow: none;
   --button-shadow-hover: none;
   --button-shadow-active: none;
   --button-shadow-focus: var(--shadow-primary-focus);
-  --button-spinner-color: var(--color-text-primary);
-  --button-overlay-bg: transparent;
-  --button-overlay-bg-hover: transparent;
-  --button-overlay-bg-active: transparent;
+  --button-spinner-color: var(--clr-on-surface-a0);
   --button-opacity-disabled: 0.6;
 
   /* Base layout and interaction */
@@ -52,25 +51,12 @@
 
   /* Performance optimizations */
   transform: translateZ(0);
-  will-change: transform, box-shadow;
+  will-change: transform, box-shadow, background;
   backface-visibility: hidden;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal), --gradient-angle 1s;
+
 }
 
-.baseButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--button-overlay-bg);
-  opacity: 0;
-  transition: all var(--transition-fast);
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-}
 
 .baseButton > * {
   position: relative;
@@ -78,25 +64,17 @@
 }
 
 .baseButton:hover:not(:disabled) {
+  --gradient-angle: 35deg;
   background: var(--button-bg-hover);
   color: var(--button-color-hover);
   border: var(--button-border-hover);
   box-shadow: var(--button-shadow-hover);
 }
 
-.baseButton:hover:not(:disabled)::before {
-  background: var(--button-overlay-bg-hover);
-  opacity: 1;
-}
 
 .baseButton:focus:not(:disabled) {
   outline: none;
   box-shadow: var(--button-shadow), var(--button-shadow-focus);
-}
-
-.baseButton:focus:not(:disabled)::before {
-  background: var(--button-overlay-bg-hover);
-  opacity: 1;
 }
 
 .baseButton:focus-visible:not(:disabled) {
@@ -104,21 +82,11 @@
   box-shadow: var(--button-shadow), var(--button-shadow-focus);
 }
 
-.baseButton:focus-visible:not(:disabled)::before {
-  background: var(--button-overlay-bg-hover);
-  opacity: 1;
-}
-
 .baseButton-active:not(:disabled) {
   background: var(--button-bg-active);
   color: var(--button-color-active);
   border: var(--button-border-active);
   box-shadow: var(--button-shadow-active);
-}
-
-.baseButton-active:not(:disabled)::before {
-  background: var(--button-overlay-bg-active);
-  opacity: 1;
 }
 
 .baseButton:disabled {
@@ -246,7 +214,7 @@
   line-height: 1;
   cursor: pointer;
   z-index: 10;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
   box-shadow: var(--shadow-primary-base);
   
   /* Default size (md) */
@@ -256,7 +224,7 @@
   min-height: 18px;
   padding: 2px 4px;
   font-size: var(--font-size-xs);
-  border: 2px solid var(--color-surface);
+  border: 2px solid var(--clr-surface-a40);
 }
 
 /* Badge size variants */
@@ -301,87 +269,88 @@
 }
 
 
+
 /* Badge variant - Primary (blue) */
 .badgePrimary {
-  background-color: var(--color-primary-500);
-  color: var(--color-white);
-  border-color: var(--color-primary-600);
+  background-color: var(--clr-primary-a50);
+  color: var(--clr-on-primary-a50);
+  border-color: var(--clr-primary-a40);
 }
 
 .badgePrimary:hover {
-  background-color: var(--color-primary-600);
+  background-color: var(--clr-primary-a40);
   transform: scale(1.1);
-  border-color: var(--color-primary-600)
+  border-color: var(--clr-primary-a40)
 }
 
 .badgePrimary:active {
-  background-color: var(--color-primary-700);
+  background-color: var(--clr-primary-a30);
   transform: scale(0.95);
-  border-color: var(--color-primary-700);
+  border-color: var(--clr-primary-a30);
 }
 
 /* Badge variant - Secondary (gray) */
 .badgeSecondary {
-  background-color: var(--color-gray-700);
-  color: var(--color-text-primary);
-  border-color: var(--color-gray-600);
+  background-color: var(--clr-surface-a30);
+  color: var(--clr-on-surface-a0);
+  border-color: var(--clr-surface-a40);
 }
 
 .badgeSecondary:hover {
-  background-color: var(--color-gray-600);
+  background-color: var(--clr-surface-a40);
   transform: scale(1.1);
-  border-color: var(--color-gray-600);
+  border-color: var(--clr-surface-a40);
 }
 
 .badgeSecondary:active {
-  background-color: var(--color-gray-800);
+  background-color: var(--clr-surface-a20);
   transform: scale(0.95);
-  border-color: var(--color-gray-800);
+  border-color: var(--clr-surface-a20);
 }
 
 /* Badge variant - Error (red) */
 .badgeError {
-  background-color: var(--color-error-500);
-  color: var(--color-white);
-  border-color: var(--color-error-600);
+  background-color: var(--clr-error-a0);
+  color: var(--clr-on-primary-a50);
+  border-color: var(--clr-error-a10);
 }
 
 .badgeError:hover {
-  background-color: var(--color-error-400);
+  background-color: var(--clr-error-a60);
   transform: scale(1.1);
-  border-color: var(--color-error-400);
+  border-color: var(--clr-error-a60);
 }
 
 .badgeError:active {
-  background-color: var(--color-error-600);
+  background-color: var(--clr-error-a10);
   transform: scale(0.95);
-  border-color: var(--color-error-600);
+  border-color: var(--clr-error-a10);
 }
 
 /* Badge variant - error */
 
 .badgeSuccess {
-  background-color: var(--color-success-500);
-  color: var(--color-white);
-  border-color: var(--color-success-600);
+  background-color: var(--clr-success-a0);
+  color: var(--clr-on-primary-a50);
+  border-color: var(--clr-success-a10);
 }
 
 .badgeSuccess:hover {
-  background-color: var(--color-success-400);
+  background-color: var(--clr-success-a60);
   transform: scale(1.1);
-  border-color: var(--color-success-400);
+  border-color: var(--clr-success-a60);
 }
 
 .badgeSuccess:active {
-  background-color: var(--color-success-600);
+  background-color: var(--clr-success-a10);
   transform: scale(0.95);
-  border-color: var(--color-success-600);
+  border-color: var(--clr-success-a10);
 }
 
 /* Badge variant - transparent */
 .badgeTransparent {
   background-color: transparent;
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   border-color: transparent;
 }
 
@@ -398,41 +367,8 @@
 }
 
 
-.success {
-  --button-bg: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-hover: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-active: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%);
-  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
-
-  --button-shadow: var(--shadow-success-base);
-  --button-shadow-hover: var(--shadow-success-hover);
-  --button-shadow-active: var(--shadow-success-active);
-  --button-shadow-focus: var(--shadow-success-focus);
-
-  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
-  --button-overlay-bg-active: linear-gradient(135deg, var(--color-success-700) 0%, var(--color-success-800) 100%);
-}
-
-.error {
-  --button-bg: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-hover: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-active: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%);
-  --button-bg-disabled: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-600) 100%);
-
-  --button-shadow: var(--shadow-error-base);
-  --button-shadow-hover: var(--shadow-error-hover);
-  --button-shadow-active: var(--shadow-error-active);
-  --button-shadow-focus: var(--shadow-error-focus);
-
-  --button-overlay-bg-hover: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-700) 100%);
-  --button-overlay-bg-active: linear-gradient(135deg, var(--color-error-700) 0%, var(--color-error-800) 100%);
-}
-
-
 /* ClassNameFactory compatibility (BEM-like aliases) */
 .BaseButton { composes: baseButton; }
-.BaseButton--success { composes: success; }
-.BaseButton--error { composes: error; }
 .BaseButton--loading { composes: loading; }
 .BaseButton--fullWidth { composes: fullWidth; }
 .BaseButton--fullHeight { composes: fullHeight; }

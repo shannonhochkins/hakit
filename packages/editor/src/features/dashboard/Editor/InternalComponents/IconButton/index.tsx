@@ -164,7 +164,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps> =
     return `
        .icon-button-label-${props.id} {
           font-size: 1rem;
-          color: var(--color-text-primary);
+          color: var(--clr-on-surface-a0);
        } 
     `;
   },

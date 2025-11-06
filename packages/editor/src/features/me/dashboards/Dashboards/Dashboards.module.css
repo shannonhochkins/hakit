@@ -37,12 +37,12 @@
 .Dashboards-pageTitle {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
 }
 
 .Dashboards-pageSubtitle {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0;
 }
 
@@ -60,7 +60,7 @@
   gap: var(--space-2);
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  background-color: var(--color-primary-500);
+  background-color: var(--clr-primary-a50);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   color: white;
@@ -99,7 +99,7 @@
   height: 40px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -117,7 +117,7 @@
   height: 32px;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a10);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -136,32 +136,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 /* Text Elements */
 .Dashboards-dashboardName {
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
 }
 
 .Dashboards-pageName {
   font-weight: var(--font-weight-normal);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   font-size: var(--font-size-sm);
 }
 
 .Dashboards-pathText {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .Dashboards-pagePathText {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   font-size: var(--font-size-xs);
 }
 
 .Dashboards-dateText {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .Dashboards-actionButtons {
@@ -173,7 +173,7 @@
 
 .Dashboards-pageCount {
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .Dashboards-pageCount--isEmpty {

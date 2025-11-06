@@ -44,8 +44,8 @@ main {
 /* Base styles for consistent typography */
 body {
   font-family: var(--font-family);
-  color: var(--color-text-primary);
-  background-color: var(--color-gray-950);
+  color: var(--clr-on-surface-a0);
+  background-color: var(--clr-surface-a0);
   margin: 0;
 }
 
@@ -160,6 +160,7 @@ button::-moz-focus-inner,
   box-sizing: border-box;
   ::-webkit-scrollbar-corner {
     background: rgba(0, 0, 0, 0.5);
+    background: color-mix(in srgb, var(--clr-surface-a0) 50%, transparent)
   }
 
   /* Works on Chrome, Edge, and Safari */
@@ -169,13 +170,13 @@ button::-moz-focus-inner,
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--color-gray-900);
+    background: var(--clr-surface-a10);
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--color-gray-400);
+    background-color: var(--clr-surface-a70);
     border-radius: 20px;
-    border: 3px solid var(--color-gray-900);
+    border: 3px solid var(--clr-surface-a10);
   }
 }
 
@@ -234,5 +235,5 @@ body, html {
 }
 
 :focus-visible {
-  outline: 1px solid var(--color-primary-400);
+  outline: 1px solid var(--clr-primary-a60);
 }

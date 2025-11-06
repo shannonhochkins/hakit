@@ -233,7 +233,7 @@ export function Issues() {
                       <Circle
                         size={20}
                         style={{
-                          color: 'var(--color-success-500)',
+                          color: 'var(--clr-success-a0)',
                         }}
                       />
                     ) : (
@@ -274,7 +274,7 @@ export function Issues() {
                       </Row>
                       {issue.area && (
                         <Row gap='0.25rem' alignItems='center' wrap='nowrap'>
-                          <span style={{ color: 'var(--color-text-secondary)' }}>{issue.area}</span>
+                          <span style={{ color: 'var(--clr-text-a10)' }}>{issue.area}</span>
                         </Row>
                       )}
                       <Row gap='0.25rem' alignItems='center'>
@@ -299,7 +299,7 @@ export function Issues() {
             <BaseButton aria-label='Previous Page' onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} size='xs'>
               Previous
             </BaseButton>
-            <span style={{ color: 'var(--color-text-secondary)' }}>Page {page}</span>
+            <span style={{ color: 'var(--clr-text-a10)' }}>Page {page}</span>
             <BaseButton aria-label='Next Page' onClick={() => setPage(p => p + 1)} disabled={data && data.items.length < perPage} size='xs'>
               Next
             </BaseButton>

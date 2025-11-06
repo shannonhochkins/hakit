@@ -212,7 +212,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
       title={
         <>
           {formTitle}
-          {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}> in {dashboard.name}</span>}
+          {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--clr-text-a10)' }}> in {dashboard.name}</span>}
         </>
       }
     >

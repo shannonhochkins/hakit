@@ -20,9 +20,9 @@
 
 /* Group hover and active states */
 .ResizeHandle-defaultHandle:hover {
-  color: var(--color-primary-500);
+  color: var(--clr-primary-a50);
 }
 
 .ResizeHandle-defaultHandle:active {
-  color: var(--color-secondary-400);
+  color: var(--clr-primary-a30);
 }

@@ -14,8 +14,8 @@ import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from '@helpers/color/c
 const count = 10;
 
 export function StyleguidePageTheme() {
-  const [primaryColor, setPrimaryColor] = useState('#ED0707');
-  const [surfaceColor, setSurfaceColor] = useState('#121212');
+  const [primaryColor, setPrimaryColor] = useState('#0630FF');
+  const [surfaceColor, setSurfaceColor] = useState('#0F0D16');
   const [successColor, setSuccessColor] = useState('#22946E');
   const [warningColor, setWarningColor] = useState('#A87A2A');
   const [dangerColor, setDangerColor] = useState('#9C2121');
@@ -23,7 +23,7 @@ export function StyleguidePageTheme() {
   const [selected, setSelected] = useState<number | null>(null);
   const [selectedSurface, setSelectedSurface] = useState<number | null>(null);
   const [lightMode, setLightMode] = useState(false);
-  const [tonalityMix, setTonalityMix] = useState(0); // 0..1
+  const [tonalityMix, setTonalityMix] = useState(0.1); // 0..1
   const [darkModeLightenSpan, setDarkModeLightenSpan] = useState(DARK_MODE_LIGHTEN_SPAN);
   const [lightModeDarkenSpan, setLightModeDarkenSpan] = useState(LIGHT_MODE_DARKEN_SPAN);
 
@@ -308,11 +308,11 @@ export function StyleguidePageTheme() {
             <summary style={{ cursor: 'pointer' }}>Show generated CSS variables</summary>
             <pre
               style={{
-                background: '#0E0E0E',
-                color: '#D6D6D6',
+                background: 'var(--clr-surface-a0)',
+                color: 'var(--clr-on-surface-a0)',
                 padding: 12,
                 borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid var(--clr-surface-a60)',
                 overflowX: 'auto',
               }}
             >

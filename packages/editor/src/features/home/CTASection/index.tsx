@@ -10,7 +10,7 @@ const CTASectionContainer = styled.section`
 const BackgroundGradient = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--color-gray-950), var(--color-gray-900));
+  background: linear-gradient(to bottom, var(--clr-surface-a0), var(--clr-surface-a10));
   z-index: -10;
 `;
 
@@ -33,10 +33,10 @@ const Container = styled.div`
 const CTACard = styled.div`
   max-width: 1280px;
   margin: 0 auto;
-  background: linear-gradient(135deg, var(--color-gray-900), var(--color-gray-800));
+  background: linear-gradient(135deg, var(--clr-surface-a10), var(--clr-surface-a20));
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--clr-surface-a60);
   box-shadow: var(--shadow-2xl);
   position: relative;
 `;
@@ -93,7 +93,7 @@ const CTAHeading = styled.h2`
 
 const CTADescription = styled.p`
   font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-12);
   max-width: 672px;
   margin-left: auto;
@@ -112,7 +112,7 @@ const PricingGrid = styled.div`
 
 const PricingCard = styled.div`
   background: rgba(31, 41, 55, 0.5);
-  border: 1px solid var(--color-gray-700);
+  border: 1px solid var(--clr-surface-a30);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   transition: border-color var(--transition-normal);
@@ -146,7 +146,7 @@ const PopularBadge = styled.div`
 
 const PopularBadgeInner = styled.span`
   background: var(--gradient-primary);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   font-size: var(--font-size-sm);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
@@ -166,17 +166,17 @@ const PlanPrice = styled.div`
 
 const PricePeriod = styled.span`
   font-size: var(--font-size-lg);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 `;
 
 const PlanDescription = styled.p`
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-bottom: var(--space-4);
 `;
 
 const FeaturesList = styled.ul`
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -210,13 +210,13 @@ const FooterLink = styled.div`
 `;
 
 const FooterLinkAnchor = styled.a`
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   text-decoration: none;
   font-size: var(--font-size-sm);
   transition: color var(--transition-normal);
 
   &:hover {
-    color: var(--color-primary-300);
+    color: var(--clr-primary-a70);
   }
 `;
 

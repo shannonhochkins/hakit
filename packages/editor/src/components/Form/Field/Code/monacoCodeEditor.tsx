@@ -150,12 +150,12 @@ export const MonacoCodeEditor = ({ value, language = 'css', onChange, onValidate
         domNode.innerText = 'HTML';
         break;
     }
-    domNode.style.background = 'var(--color-gray-500)';
+    domNode.style.background = 'var(--clr-surface-a50)';
     domNode.style.padding = '4px 8px';
     domNode.style.borderRadius = '6px';
     domNode.style.fontSize = '12px';
     domNode.style.fontFamily = 'monospace';
-    domNode.style.color = 'var(--color-gray-200)';
+    domNode.style.color = 'var(--clr-surface-a80)';
     const widget: editor.IOverlayWidget = {
       getId: () => widgetId,
       getDomNode: () => domNode,

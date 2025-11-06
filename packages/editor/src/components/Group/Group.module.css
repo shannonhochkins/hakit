@@ -1,9 +1,9 @@
 /* Group Container */
 .Group {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background-color: var(--clr-surface-a10);
+  border: 1px solid var(--clr-surface-a60);
   border-radius: var(--radius-lg);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   padding: 0 2rem;
   transition: var(--transition-normal);
   transition-property: height, padding, background-color;
@@ -36,7 +36,7 @@
 
 /* Title styling */
 .Group-title {
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
   display: flex;
   align-items: center;
@@ -47,7 +47,7 @@
 .Group--titleCollapsible::before {
   content: "-";
   display: inline-block;
-  color: var(--color-primary-400);
+  color: var(--clr-primary-a60);
   width: 1rem;
 }
 
@@ -57,7 +57,7 @@
 
 /* Description styling */
 .Group-description {
-  color: var(--color-text-secondary);
+  color: var(--clr-text-a10);
   font-size: 0.9rem;
   margin: 0.5rem 0 0;
   width: 100%;

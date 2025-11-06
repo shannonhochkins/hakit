@@ -21,16 +21,17 @@
 
 .labelText {
   font-weight: var(--font-weight-medium);
-  color: var(--color-gray-300);
+  color: var(--clr-text-a0);
   user-select: none;
   width: 100%;
 }
 .labelIcon {
   display: flex;
   padding-left: 0;
-  color: var(--color-gray-500);
+  color: var(--clr-primary-a40);
+  filter: saturate(50%);
 }
 .disabledIcon {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin-left: auto;
 }

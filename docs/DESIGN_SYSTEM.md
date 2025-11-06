@@ -4,33 +4,28 @@ This document outlines the design system and CSS variables used throughout the H
 
 ## 🎨 Color System
 
-### Primary Colors (Blues)
-- `--color-primary-50` to `--color-primary-900`: Complete blue scale
+### Primary Colors
+- `--clr-primary-a90` to `--clr-primary-a10`: Complete blue scale
 - Usage: Primary buttons, links, focus states, brand elements
 
-### Secondary Colors (Cyans)
-- `--color-secondary-50` to `--color-secondary-900`: Complete cyan scale
-- Usage: Accent colors, secondary elements, gradient combinations
+### Surface Colors
+- `--clr-surface-a90` to `--clr-surface-a0`: Complete gray scale
+- Usage: Backgrounds, popups, borders, surfaces
 
-### Neutral Colors (Grays)
-- `--color-gray-50` to `--color-gray-950`: Complete gray scale
-- Usage: Backgrounds, text, borders, surfaces
-
-### Semantic Colors
 ```css
---color-surface: Main background color
---color-surface-elevated: Elevated surfaces (cards, modals)
---color-surface-overlay: Semi-transparent overlays
---color-border: Standard border color
---color-border-subtle: Subtle borders
+--clr-surface-a0: Main background color
+--clr-surface-a20: Elevated surfaces (cards, modals)
+--clr-surface-a40: Overlays
+--clr-surface-a60: Standard border color
+--clr-surface-a60: Subtle borders
 ```
 
 ### Text Colors
 ```css
---color-text-primary: Primary text (white)
---color-text-secondary: Secondary text (gray-300)
---color-text-muted: Muted text (gray-400)
---color-text-disabled: Disabled text (gray-500)
+--clr-on-surface-a0: Primary text (white)
+--clr-text-a10: Secondary text (gray-300)
+--clr-text-a30: Muted text (gray-400)
+--clr-text-a30: Disabled text (gray-500)
 ```
 
 ## 🎭 Gradients
@@ -218,7 +213,7 @@ const ResponsiveGrid = styled.div`
 
 ### Do's
 - ✅ Always use CSS variables instead of hardcoded values
-- ✅ Use semantic color names (e.g., `--color-text-primary`)
+- ✅ Use semantic color names (e.g., `--clr-on-surface-a0`)
 - ✅ Follow the spacing scale for consistent layouts
 - ✅ Use the typography scale for consistent text sizing
 - ✅ Use responsive classes (`.mq-sm &`, `.mq-md &`) for breakpoints

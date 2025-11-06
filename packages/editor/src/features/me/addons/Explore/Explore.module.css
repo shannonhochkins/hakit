@@ -27,12 +27,12 @@
 .Explore-pageTitle {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  color: var(--clr-on-surface-a0);
   margin: 0;
 }
 
 .Explore-pageSubtitle {
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
   margin: 0;
 }
 
@@ -54,11 +54,11 @@
 .Explore-loadingState {
   text-align: center;
   padding: var(--space-8) var(--space-4);
-  color: var(--color-text-muted);
+  color: var(--clr-text-a10);
 }
 
 .Explore-errorState {
   text-align: center;
   padding: var(--space-8) var(--space-4);
-  color: var(--color-error-500);
+  color: var(--clr-error-a0);
 }

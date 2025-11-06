@@ -1,7 +1,7 @@
 .LinearProgress {
   width: 100%;
   height: 4px;
-  background-color: var(--color-surface-elevated);
+  background-color: var(--clr-surface-a0);
   border-radius: var(--radius-sm);
   overflow: hidden;
   position: relative;
@@ -21,9 +21,9 @@
   transition: width var(--transition-normal);
 }
 
-.LinearProgress--colorSecondary .bar { background: var(--color-surface-accent); }
-.LinearProgress--colorError .bar { background: linear-gradient(135deg, var(--color-error-500) 0%, var(--color-error-600) 100%); }
-.LinearProgress--colorSuccess .bar { background: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-600) 100%); }
+.LinearProgress--colorSecondary .bar { background: var(--clr-surface-a40); }
+.LinearProgress--colorError .bar { background: linear-gradient(135deg, var(--clr-error-a0) 0%, var(--clr-error-a10) 100%); }
+.LinearProgress--colorSuccess .bar { background: linear-gradient(135deg, var(--clr-success-a0) 0%, var(--clr-success-a10) 100%); }
 
 .buffer {
   position: absolute;

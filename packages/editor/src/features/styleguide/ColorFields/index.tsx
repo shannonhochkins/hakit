@@ -61,14 +61,14 @@ export function StyleguideColorFields() {
 
       <Group title='Color Fields - Special Colors' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <div>
-          <label style={{ display: 'block', marginBottom: 'var(--space-2)', color: 'var(--color-text-secondary)' }}>
+          <label style={{ display: 'block', marginBottom: 'var(--space-2)', color: 'var(--clr-text-a10)' }}>
             Gradient: {gradientColor}
           </label>
           <ColorField id='gradient-color' value={gradientColor} onChange={setGradientColor} />
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: 'var(--space-2)', color: 'var(--color-text-secondary)' }}>
+          <label style={{ display: 'block', marginBottom: 'var(--space-2)', color: 'var(--clr-text-a10)' }}>
             Transparent: {transparentColor}
           </label>
           <ColorField id='transparent-color' value={transparentColor} onChange={setTransparentColor} />
