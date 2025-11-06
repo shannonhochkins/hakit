@@ -14,7 +14,7 @@ import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from '@helpers/color/c
 const count = 10;
 
 export function StyleguidePageTheme() {
-  const [primaryColor, setPrimaryColor] = useState('#0630FF');
+  const [primaryColor, setPrimaryColor] = useState('#06A5FF');
   const [surfaceColor, setSurfaceColor] = useState('#0F0D16');
   const [successColor, setSuccessColor] = useState('#22946E');
   const [warningColor, setWarningColor] = useState('#A87A2A');

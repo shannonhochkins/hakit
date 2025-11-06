@@ -30,23 +30,23 @@
 --clr-on-error-a80: rgba(0,0,0,1);
 --clr-error-a90: rgba(255,255,255,1);
 --clr-on-error-a90: rgba(0,0,0,1);
---clr-primary-a0: rgba(6,48,255,1);
---clr-on-primary-a0: rgba(255,255,255,1);
---clr-primary-a10: rgba(58,77,255,1);
---clr-on-primary-a10: rgba(255,255,255,1);
---clr-primary-a20: rgba(87,101,255,1);
+--clr-primary-a0: rgba(6,165,255,1);
+--clr-on-primary-a0: rgba(0,0,0,1);
+--clr-primary-a10: rgba(79,172,255,1);
+--clr-on-primary-a10: rgba(0,0,0,1);
+--clr-primary-a20: rgba(110,181,255,1);
 --clr-on-primary-a20: rgba(0,0,0,1);
---clr-primary-a30: rgba(112,123,255,1);
+--clr-primary-a30: rgba(135,190,255,1);
 --clr-on-primary-a30: rgba(0,0,0,1);
---clr-primary-a40: rgba(136,144,255,1);
+--clr-primary-a40: rgba(157,199,255,1);
 --clr-on-primary-a40: rgba(0,0,0,1);
---clr-primary-a50: rgba(158,165,255,1);
+--clr-primary-a50: rgba(176,209,255,1);
 --clr-on-primary-a50: rgba(0,0,0,1);
---clr-primary-a60: rgba(181,186,255,1);
+--clr-primary-a60: rgba(195,218,255,1);
 --clr-on-primary-a60: rgba(0,0,0,1);
---clr-primary-a70: rgba(204,207,255,1);
+--clr-primary-a70: rgba(213,228,253,1);
 --clr-on-primary-a70: rgba(0,0,0,1);
---clr-primary-a80: rgba(227,227,252,1);
+--clr-primary-a80: rgba(231,238,251,1);
 --clr-on-primary-a80: rgba(0,0,0,1);
 --clr-primary-a90: rgba(255,255,255,1);
 --clr-on-primary-a90: rgba(0,0,0,1);
@@ -110,21 +110,21 @@
 --clr-on-info-a80: rgba(0,0,0,1);
 --clr-info-a90: rgba(255,255,255,1);
 --clr-on-info-a90: rgba(0,0,0,1);
---clr-surface-a0: rgba(15,14,29,1);
+--clr-surface-a0: rgba(15,18,29,1);
 --clr-on-surface-a0: rgba(255,255,255,1);
---clr-surface-a10: rgba(20,18,34,1);
+--clr-surface-a10: rgba(21,21,34,1);
 --clr-on-surface-a10: rgba(255,255,255,1);
---clr-surface-a20: rgba(24,21,39,1);
+--clr-surface-a20: rgba(25,24,39,1);
 --clr-on-surface-a20: rgba(255,255,255,1);
---clr-surface-a30: rgba(27,24,43,1);
+--clr-surface-a30: rgba(27,26,43,1);
 --clr-on-surface-a30: rgba(255,255,255,1);
---clr-surface-a40: rgba(30,27,46,1);
+--clr-surface-a40: rgba(31,28,46,1);
 --clr-on-surface-a40: rgba(255,255,255,1);
---clr-surface-a50: rgba(41,36,60,1);
+--clr-surface-a50: rgba(41,37,60,1);
 --clr-on-surface-a50: rgba(255,255,255,1);
---clr-surface-a60: rgba(49,43,73,1);
+--clr-surface-a60: rgba(50,44,73,1);
 --clr-on-surface-a60: rgba(255,255,255,1);
---clr-surface-a70: rgba(60,53,86,1);
+--clr-surface-a70: rgba(61,53,86,1);
 --clr-on-surface-a70: rgba(255,255,255,1);
 --clr-surface-a80: rgba(72,63,103,1);
 --clr-on-surface-a80: rgba(255,255,255,1);
@@ -261,10 +261,10 @@
 
 :root{
   /* === GRADIENTS === */
-  --gradient-primary: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a10) 100%);
-  --gradient-primary-hover: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a10) 100%);
-  --gradient-primary-active: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a10) 100%);
-  --gradient-text: linear-gradient(to right, var(--clr-primary-a50), var(--clr-primary-a30));
+  --gradient-primary: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a30) 100%);
+  --gradient-primary-hover: linear-gradient(var(--gradient-angle), var(--clr-primary-a30) 0%, var(--clr-primary-a50) 100%);
+  --gradient-primary-active: linear-gradient(var(--gradient-angle), var(--clr-primary-a50) 0%, var(--clr-primary-a70) 100%);
+  --gradient-text: linear-gradient(to right, var(--clr-primary-a0), var(--clr-primary-a50));
   --gradient-text-secondary: linear-gradient(to right, var(--clr-primary-a90), var(--clr-primary-a70));
 
   /* === SHADOWS (surface-based, composite color-mix for subtle darkening) === */

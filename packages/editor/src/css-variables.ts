@@ -15,7 +15,7 @@ export const sharedCss = `
   --gradient-primary: linear-gradient(var(--gradient-angle), var(--clr-primary-a0) 0%, var(--clr-primary-a30) 100%);
   --gradient-primary-hover: linear-gradient(var(--gradient-angle), var(--clr-primary-a30) 0%, var(--clr-primary-a50) 100%);
   --gradient-primary-active: linear-gradient(var(--gradient-angle), var(--clr-primary-a50) 0%, var(--clr-primary-a70) 100%);
-  --gradient-text: linear-gradient(to right, var(--clr-primary-a50), var(--clr-primary-a30));
+  --gradient-text: linear-gradient(to right, var(--clr-primary-a0), var(--clr-primary-a50));
   --gradient-text-secondary: linear-gradient(to right, var(--clr-primary-a90), var(--clr-primary-a70));
 
   /* === SHADOWS (surface-based, composite color-mix for subtle darkening) === */

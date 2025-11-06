@@ -5,7 +5,7 @@ import { dirname, join } from 'path';
 import { sharedCss, properties } from './css-variables';
 
 const lightMode = false;
-const PRIMARY_COLOR = `#0630FF`;
+const PRIMARY_COLOR = `#06A5FF`;
 const ERROR_COLOR = `#ED0707`;
 const SUCCESS_COLOR = `#22946E`;
 const WARNING_COLOR = `#A87A2A`;

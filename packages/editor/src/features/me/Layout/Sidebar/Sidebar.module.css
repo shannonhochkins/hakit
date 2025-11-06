@@ -118,11 +118,11 @@
 
 .Sidebar-navItemLink[data-status='active'] {
   color: var(--clr-on-surface-a0);
-  background-color: var(--clr-primary-a40);
+  background-color: var(--clr-primary-a10);
 }
 
 .Sidebar-navItemLink[data-status='active']:hover {
-  background-color: var(--clr-primary-a40);
+  background-color: var(--clr-primary-a30);
 }
 
 .Sidebar-chevronIcon {
