@@ -138,6 +138,14 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
     }
   }, [dashboard, page]);
 
+  useEffect(() => {
+    return () => {
+      // without resetting the cache, we'll be holding onto the incorrect document head
+      // So we reset whenever the component unmounts
+      useGlobalStore.getState().setEmotionCache(null);
+    };
+  }, []);
+
   if (!userConfig) {
     return <Spinner absolute text='Loading dashboard data' />;
   }
