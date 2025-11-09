@@ -34,10 +34,14 @@ export type PageValue = {
 
 export type SlotField = PuckSlotField;
 
-export type FieldOption = {
+// Unified FieldOption shape.
+export interface FieldOption {
   label: string;
   value: string | number | boolean | undefined | null | object;
-};
+  // Arbitrary metadata; consumers can store cssVar tokens, custom flags, etc.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  meta?: Record<string, any>;
+}
 // some puck types can clash with our own custom ones, so we need to exclude them
 type ExcludedPuckKeys = 'visible';
 
@@ -197,6 +201,7 @@ type FieldTypeOmitMap = {
   page: 'default';
   pages: 'default';
   service: 'default';
+  select: 'options';
 };
 
 // What each field actually stores/returns
@@ -237,7 +242,8 @@ export type FieldDefinition = {
   text: TextField;
   number: NumberField;
   textarea: TextareaField;
-  select: PuckSelectField & {
+  select: Omit<PuckSelectField, 'options'> & {
+    options: FieldOption[];
     renderOption?: (option: FieldOption) => string;
     renderValue?: (option: FieldOption) => string;
   };

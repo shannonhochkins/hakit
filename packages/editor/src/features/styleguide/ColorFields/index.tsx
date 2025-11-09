@@ -13,6 +13,8 @@ export function StyleguideColorFields() {
     'linear-gradient(90deg, RGB(31, 22, 195) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%)'
   );
   const [transparentColor, setTransparentColor] = useState('rgba(0, 0, 0, 0)');
+  const [cssVar, setCssVar] = useState('var(--clr-primary-a60)');
+  const [cssVarWithAlpha, setCssVarWithAlpha] = useState('color-mix(in srgb, var(--clr-primary-a40) 40%, transparent 60%)');
 
   return (
     <Column fullWidth alignItems='start' justifyContent='start' gap='var(--space-4)' style={{ padding: 'var(--space-4) 0' }}>
@@ -24,6 +26,7 @@ export function StyleguideColorFields() {
           value={basicColor}
           onChange={setBasicColor}
         />
+        <pre>Value: {basicColor}</pre>
       </Group>
       <Group title='Color Fields - Basic Colors' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <div
@@ -59,6 +62,22 @@ export function StyleguideColorFields() {
         </div>
       </Group>
 
+      <Group title='Css vars' alignItems='start' justifyContent='start' gap='var(--space-4)'>
+        <div>
+          <ColorField id='preselected-color' value={cssVar} onChange={setCssVar} />
+        </div>
+
+        <div>
+          <ColorField id='css-var-with-alpha' value={cssVarWithAlpha} onChange={setCssVarWithAlpha} />
+        </div>
+      </Group>
+
+      <Group title='No var picker' alignItems='start' justifyContent='start' gap='var(--space-4)'>
+        <div>
+          <ColorField id='no-var-color' value={basicColor} onChange={setBasicColor} includeThemeVariables={false} />
+        </div>
+      </Group>
+
       <Group title='Color Fields - Special Colors' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <div>
           <label style={{ display: 'block', marginBottom: 'var(--space-2)', color: 'var(--clr-text-a10)' }}>
@@ -73,6 +92,10 @@ export function StyleguideColorFields() {
           </label>
           <ColorField id='transparent-color' value={transparentColor} onChange={setTransparentColor} />
         </div>
+      </Group>
+
+      <Group title='Color Fields - Invalid Value' alignItems='start' justifyContent='start' gap='var(--space-4)'>
+        <ColorField id='gradient-color' value={'okhlab(0, 0, 0, 0)'} onChange={setGradientColor} />
       </Group>
     </Column>
   );

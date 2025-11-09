@@ -262,6 +262,8 @@ const ViewportControlsComponent = () => {
   const queries = getQueries(controlledBreakpointItems);
   const valueQueryHelper = getQueries([value]);
 
+  console.log('breakpointItems', breakpointItems);
+
   return (
     <Row className={getClassName('ViewportControls')} alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
       <Tooltip
@@ -333,14 +335,13 @@ const ViewportControlsComponent = () => {
             const previousWidth = index === 0 || !previousBreakpoint ? 0 : previousBreakpoint.width;
             const isWidthValue = previousWidth < item.width;
             const isTitleValid = item.title.length > 0;
-            const matchedIcon = Object.entries(BREAKPOINT_ICONS).find(
-              ([key]) =>
-                key === item.icon || key === getDefaultIconForBreakpoint(item.id)?.[0] || key === getDefaultIconForBreakpoint(item.id)
-            );
-            const value: FieldOption = {
-              label: matchedIcon?.[1]?.label || '',
-              value: matchedIcon?.[0],
-            };
+            const effectiveIconKey = item.icon ?? getDefaultIconForBreakpoint(item.id);
+            const matchedIcon = BREAKPOINT_ICONS[effectiveIconKey as IconKey];
+            const value: FieldOption = matchedIcon ? { label: matchedIcon.label, value: effectiveIconKey } : { label: '', value: '' };
+            const options: FieldOption[] = Object.keys(BREAKPOINT_ICONS).map(key => ({
+              label: BREAKPOINT_ICONS[key as IconKey].label,
+              value: key,
+            }));
             return (
               <Row
                 key={item.id}
@@ -350,7 +351,7 @@ const ViewportControlsComponent = () => {
                 wrap='nowrap'
                 fullWidth
                 style={{
-                  backgroundColor: 'var(--clr-surface-a10)',
+                  backgroundColor: 'var(--color-gray-900)',
                   padding: 'var(--space-3)',
                   borderRadius: '8px',
                 }}
@@ -369,7 +370,7 @@ const ViewportControlsComponent = () => {
                   size='small'
                   value={value}
                   disabled={item.disabled}
-                  options={Object.keys(BREAKPOINT_ICONS).map(key => ({ label: BREAKPOINT_ICONS[key as IconKey].label, value: key }))}
+                  options={options}
                   renderOption={option =>
                     option && BREAKPOINT_ICONS[option.value as IconKey] ? (
                       <Row gap='0.5rem' alignItems='center' justifyContent='flex-start' wrap='nowrap'>

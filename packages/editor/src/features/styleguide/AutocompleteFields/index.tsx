@@ -25,7 +25,20 @@ const countryOptions = [
   'China',
   'India',
   'Brazil',
+  'Mexico',
+  'Argentina',
+  'Colombia',
+  'Chile',
+  'Peru',
+  'Venezuela',
+  'Ecuador',
+  'Bolivia',
+  'Paraguay',
+  'Uruguay',
+  'Suriname',
 ] as const;
+// @ts-expect-error - just sort it mate
+countryOptions.sort((a, b) => a.localeCompare(b));
 
 const largeOptions = Array.from({ length: 1000 }, (_, i) => `Option ${i + 1}`);
 
@@ -93,6 +106,35 @@ export function StyleguideAutocompleteFields() {
         />
 
         <AutocompleteField id='no-data' label='No Data' options={[]} value={undefined} helperText='No data' />
+      </Group>
+
+      <Group title='Autocomplete Fields - Grouped Options' alignItems='start' justifyContent='start' gap='var(--space-4)' layout='column'>
+        <AutocompleteField
+          id='grouped-fruits'
+          label='Default Grouping label'
+          options={countryOptions}
+          value={countryValue}
+          onChange={setCountryValue}
+          helperText='Grouping via groupBy + custom header'
+          groupBy={opt => opt[0]}
+        />
+        <AutocompleteField
+          id='grouped-fruits'
+          label='Grouped by First Letter'
+          options={countryOptions}
+          value={countryValue}
+          onChange={setCountryValue}
+          helperText='Grouping via groupBy + custom header'
+          groupBy={opt => opt[0]}
+          renderGroupLabel={(group, groupOptions) => (
+            <div style={{ display: 'flex', flexDirection: 'column', padding: '4px 0' }}>
+              <strong style={{ fontSize: '0.65rem', letterSpacing: '0.5px', textTransform: 'uppercase', opacity: 0.7 }}>{group}</strong>
+              <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>
+                ({groupOptions.length} item{groupOptions.length === 1 ? '' : 's'})
+              </span>
+            </div>
+          )}
+        />
       </Group>
 
       <Group title='Autocomplete Fields - Sizes' alignItems='start' justifyContent='start' gap='var(--space-4)' layout='column'>
