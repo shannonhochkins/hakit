@@ -13,6 +13,7 @@ import { dashboardsQueryOptions } from '@services/dashboard';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardWithPageData } from '@typings/hono';
 import { usePopupStore } from '@hooks/usePopupStore';
+import { getLocalStorageItem } from '@hooks/useLocalStorage';
 
 interface DashboardProps {
   dashboard: DashboardWithPageData;
@@ -39,7 +40,7 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
     const {
       setUserConfig,
       setBreakPointItems,
-      activeBreakpoint,
+      activeBreakpoint: storeActiveBreakpoint,
       userConfig,
       setActiveBreakpoint,
       setPuckPageData,
@@ -65,6 +66,15 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
       dashboard.breakpoints && Array.isArray(dashboard.breakpoints) && dashboard.breakpoints.length > 0
         ? dashboard.breakpoints
         : DEFAULT_BREAKPOINTS;
+    let storageBreakpointId = getLocalStorageItem('selectedBreakpoint');
+    try {
+      if (storageBreakpointId) {
+        storageBreakpointId = JSON.parse(storageBreakpointId) as string;
+      }
+    } catch {
+      // ignore JSON parse errors here, may not be defined yet
+    }
+    const activeBreakpoint = storeActiveBreakpoint ?? storageBreakpointId ?? 'xlg';
     // if the current active breakpoint doesn't exist on the breakpoint items as an enabled item
     // set to the next highest enabled breakpoint
     // this is to avoid local storage values going out of sync with the data
@@ -77,6 +87,10 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
       const fallbackBreakpoint = nextHighestBreakpoint?.id ?? 'xlg';
       // Use store method which will sync to localStorage
       setActiveBreakpoint(fallbackBreakpoint);
+    }
+    // if the breakpoint item does exist, and there is no activeBreakpoint set, set it
+    else if (activeBreakpoint && breakpoints.find(bp => bp.id === activeBreakpoint && !bp.disabled)) {
+      setActiveBreakpoint(activeBreakpoint);
     }
     requestingExtraInformation.current = true;
     const getAllEntities = () => entities;
@@ -124,10 +138,10 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
         useGlobalStore.getState().resetPuckInformation();
       }
       const dashboardChanged = dashboard.id !== editingDashboardPage?.dashboardId;
-      // if the dashbord changed, we need reset the puckInformation, and refetch the dashboard
+      // if the dashboard changed, we need reset the puckInformation, and refetch the dashboard
       if (dashboardChanged) {
         debug('dashboard changed, resetting puckInformation and refetching dashboard');
-        useGlobalStore.getState().resetPuckInformation(true);
+        useGlobalStore.getState().resetPuckInformation();
       }
       // dashboard or page has changed
       debug(`dashboardChanged: ${dashboardChanged}, setting editing dashboard page`);

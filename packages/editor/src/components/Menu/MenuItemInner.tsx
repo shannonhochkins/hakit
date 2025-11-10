@@ -5,10 +5,11 @@ export interface MenuItemInnerProps extends React.ComponentPropsWithoutRef<'butt
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode; // new end icon region for chevrons or custom adornments
   'data-highlighted'?: string;
 }
 
-export function MenuItemInner({ onClick, disabled = false, startIcon, children, className, ...rest }: MenuItemInnerProps) {
+export function MenuItemInner({ onClick, disabled = false, startIcon, endIcon, children, className, ...rest }: MenuItemInnerProps) {
   const ref = useRef<HTMLButtonElement | null>(null);
   const [highlighted, setHighlighted] = useState(false);
 
@@ -54,6 +55,7 @@ export function MenuItemInner({ onClick, disabled = false, startIcon, children, 
     >
       {startIcon ? <span className={styles.menuItemIcon}>{startIcon}</span> : null}
       <span className={styles.menuItemLabel}>{children}</span>
+      {endIcon ? <span className={styles.menuItemIcon}>{endIcon}</span> : null}
     </button>
   );
 }

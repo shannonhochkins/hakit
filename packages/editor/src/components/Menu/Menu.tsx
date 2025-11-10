@@ -14,7 +14,6 @@ import React, {
   useLayoutEffect,
 } from 'react';
 import {
-  autoUpdate,
   flip,
   offset,
   shift,
@@ -146,7 +145,9 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     onOpenChange: setOpen,
     // Initial placement is only used when not in auto mode.
     placement: isAuto ? 'bottom-start' : (placement as Placement),
-    whileElementsMounted: autoUpdate,
+    // this will cause menus when opened if it has "expandable" menu item groups to potentially
+    // jump position whilst open which is bad UX
+    // whileElementsMounted: autoUpdate,
     strategy: 'fixed',
     middleware: [
       offset(ARROW_HEIGHT + GAP),

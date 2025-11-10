@@ -73,9 +73,21 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
       return;
     }
 
+    // path name must be less than 50 chars
+    if (path.length > 50) {
+      setPathError('Path must be less than 50 characters');
+      return;
+    }
+    // path name must be at least 2 chars
+    if (path.length < 2) {
+      setPathError('Path must be at least 2 characters');
+      return;
+    }
+
     // Uniqueness validation
     if (dashboards) {
-      const existingDashboard = dashboards.find(d => d.path === path && d.id !== dashboardId);
+      // if mode === 'duplicate', always check for duplicates
+      const existingDashboard = dashboards.find(d => d.path === path && (mode === 'duplicate' || d.id !== dashboardId));
       if (existingDashboard) {
         setPathError('A dashboard with this path already exists');
         return;
@@ -83,7 +95,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
     }
 
     setPathError('');
-  }, [path, dashboards, dashboardId, isOpen]);
+  }, [path, dashboards, dashboardId, isOpen, mode]);
 
   // Name validation
   useEffect(() => {

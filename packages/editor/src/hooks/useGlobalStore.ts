@@ -266,7 +266,7 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     editingDashboardPage: null,
     setEditingDashboardPage: (dashboardId: string, pageId: string) =>
       set(state => ({ ...state, editingDashboardPage: { dashboardId, pageId } })),
-    resetPuckInformation: (dashboardChanged: boolean = false) => {
+    resetPuckInformation: () => {
       set(state => ({
         ...state,
         puckPageData: null,
@@ -275,9 +275,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         componentBreakpointMap: {},
         userConfig: null,
         activeBreakpoint: undefined as unknown as BreakPoint,
-        dashboard: dashboardChanged ? null : state.dashboard,
-        dashboardWithoutData: dashboardChanged ? null : state.dashboardWithoutData,
         emotionCache: null,
+        // dashboard setting is handled by the "loader" for the edit/render routes
       }));
     },
   };

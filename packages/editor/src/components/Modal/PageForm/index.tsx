@@ -34,8 +34,8 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
   const [path, setPath] = useState('');
   const [thumbnail, setThumbnail] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [pathError, setPathError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string>('');
+  const [pathError, setPathError] = useState<string>('');
   const [pathTouched, setPathTouched] = useState(false);
 
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
@@ -44,105 +44,104 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
   const existingPage = dashboard?.pages.find(p => p.id === pageId);
   const queryClient = useQueryClient();
 
-  // Reset form when opening/closing or changing mode
+  // Initialize form when opening or mode/page changes
   useEffect(() => {
-    if (isOpen) {
-      if (mode === 'edit' && existingPage) {
-        setName(existingPage.name);
-        setPath(nameToPath(existingPage.name));
-        setThumbnail(existingPage.thumbnail || '');
-        setPathTouched(false);
-      } else if (mode === 'duplicate' && existingPage) {
-        setName(`${existingPage.name} (Copy)`);
-        setPath('');
-        setThumbnail(existingPage.thumbnail || '');
-        setPathTouched(false);
-      } else {
-        setName('');
-        setPath('');
-        setThumbnail('');
-        setPathTouched(false);
-      }
-      setNameError(null);
-      setPathError(null);
+    if (!isOpen) return;
+    if (mode === 'edit' && existingPage) {
+      setName(existingPage.name);
+      setPath(existingPage.path); // use existing page path directly
+      setThumbnail(existingPage.thumbnail || '');
+      setPathTouched(false);
+    } else if (mode === 'duplicate' && existingPage) {
+      setName(`${existingPage.name} (Copy)`);
+      setPath(`${existingPage.path}-copy`);
+      setThumbnail(existingPage.thumbnail || '');
+      setPathTouched(true); // user likely will edit the generated copy path
+    } else {
+      setName('');
+      setPath('');
+      setThumbnail('');
+      setPathTouched(false);
     }
+    // reset errors
+    setNameError('');
+    setPathError('');
   }, [isOpen, mode, existingPage]);
 
   // Auto-generate path from name when not touched
   useEffect(() => {
-    if (!pathTouched && name) {
+    if (!isOpen) return;
+    if (!pathTouched) {
       setPath(nameToPath(name));
     }
-  }, [name, pathTouched]);
+  }, [name, pathTouched, isOpen]);
 
-  const validateForm = useCallback(() => {
-    let isValid = true;
-
-    // Name validation
+  // Name validation effect
+  useEffect(() => {
+    if (!isOpen) return;
     if (!name.trim()) {
       setNameError('Page name is required');
-      isValid = false;
-    } else if (name.trim().length < 2) {
+      return;
+    }
+    if (name.trim().length < 2) {
       setNameError('Page name must be at least 2 characters');
-      isValid = false;
-    } else if (name.trim().length > 50) {
+      return;
+    }
+    if (name.trim().length > 50) {
       setNameError('Page name must be less than 50 characters');
-      isValid = false;
-    } else {
-      setNameError(null);
+      return;
     }
-
-    if (!dashboard) {
-      setNameError('Dashboard not found');
-      return false;
-    }
-
-    // Check for duplicate page names within the dashboard
-    const existingPageWithName = dashboard.pages.find(p => p.name.toLowerCase() === name.trim().toLowerCase() && p.id !== pageId);
-
-    if (existingPageWithName) {
-      setNameError('A page with this name already exists in this dashboard');
-      isValid = false;
-    }
-
-    // Path validation
-    if (path.length === 0) {
-      setPathError('');
-    } else {
-      // Format validation
-      const valid = /^[a-z0-9-]+$/.test(path);
-      if (!valid) {
-        setPathError('Only lowercase letters, numbers and dashes allowed');
-        isValid = false;
-      } else {
-        // Check for duplicate paths within the dashboard
-        const existingPageWithPath = dashboard.pages.find(p => nameToPath(p.name) === path && p.id !== pageId);
-
-        if (existingPageWithPath) {
-          setPathError('A page with this path already exists in this dashboard');
-          isValid = false;
-        } else {
-          setPathError(null);
-        }
+    if (dashboard) {
+      const duplicateName = dashboard.pages.find(p => p.name.toLowerCase() === name.trim().toLowerCase() && p.id !== pageId);
+      if (duplicateName) {
+        setNameError('A page with this name already exists in this dashboard');
+        return;
       }
     }
+    setNameError('');
+  }, [name, dashboard, pageId, isOpen]);
 
-    return isValid;
-  }, [name, path, dashboard, pageId]);
-
-  // Real-time validation
+  // Path validation effect
   useEffect(() => {
-    if ((name.trim() || path.trim()) && dashboard) {
-      validateForm();
+    if (!isOpen) return;
+    if (!path.trim()) {
+      setPathError('');
+      return;
     }
-  }, [name, path, dashboard, validateForm]);
+    const validFormat = /^[a-z0-9-]+$/.test(path);
+    if (!validFormat) {
+      setPathError('Only lowercase letters, numbers and dashes allowed');
+      return;
+    }
+    if (path.length < 2) {
+      setPathError('Page path must be at least 2 characters');
+      return;
+    }
+    if (path.length > 50) {
+      setPathError('Page path must be less than 50 characters');
+      return;
+    }
+    if (dashboard) {
+      // if mode === 'duplicate', always check for duplicates regardless of the id
+      const duplicatePath = dashboard.pages.find(p => p.path === path && (mode === 'duplicate' || p.id !== pageId));
+      if (duplicatePath) {
+        setPathError('A page with this path already exists in this dashboard');
+        return;
+      }
+    }
+    setPathError('');
+  }, [path, dashboard, pageId, isOpen, mode]);
+
+  const validateForm = useCallback(() => {
+    return isOpen && dashboard && name.trim().length > 0 && path.trim().length > 0 && !nameError && !pathError;
+  }, [isOpen, dashboard, name, path, nameError, pathError]);
+
+  // No separate real-time aggregate validation needed; individual effects handle errors.
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
@@ -224,8 +223,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
   }, [isSubmitting, onClose]);
 
   const formTitle = mode === 'new' ? 'Create New Page' : mode === 'duplicate' ? 'Duplicate Page' : 'Edit Page';
-
-  const isInvalid = !name.trim() || !path.trim() || !!nameError || !!pathError;
+  const isInvalid = !validateForm();
 
   const isTouchedAndEmpty = pathTouched && path.trim() === '';
   const errorHelperText = isTouchedAndEmpty ? 'Page path is required' : pathError;
@@ -234,11 +232,9 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
     <Modal
       open={isOpen}
       onClose={handleClose}
-      title={
-        <>
-          {formTitle}
-          {dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--clr-text-a10)' }}> in {dashboard.name}</span>}
-        </>
+      title={<>{formTitle}</>}
+      description={
+        dashboard && <span style={{ fontSize: '0.875rem', color: 'var(--clr-text-a10)' }}> in dashboard &quot;{dashboard.name}&quot;</span>
       }
     >
       <form

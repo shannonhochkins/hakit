@@ -1,6 +1,6 @@
 import { FeatureText } from '@components/FeatureText';
 import { Row } from '@components/Layout';
-import { ChevronDown, Copy, FolderPen, PlusIcon, Save, SaveAllIcon } from 'lucide-react';
+import { ChevronDown, Copy, FolderPen, Layers2, PlusIcon, Save, SaveAllIcon } from 'lucide-react';
 import styles from './LogoMenu.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { MenuItem, Menu, MenuContent, MenuAnchor } from '@components/Menu';
@@ -22,10 +22,17 @@ export function LogoMenu() {
   const navigate = useNavigate();
   const { hasUnsavedChanges, removeStoredData } = useUnsavedChanges();
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
-  const [newPageOpen, setOpenNewPage] = useState(false);
-  const [renamePageOpen, setRenamePageOpen] = useState(false);
-  const [renameDashboardOpen, setRenameDashboardOpen] = useState(false);
-  const [duplicatePageOpen, setDuplicatePageOpen] = useState(false);
+  type FormMode = 'new' | 'edit' | 'duplicate';
+  interface PageFormState {
+    mode: FormMode;
+    pageId?: string;
+  }
+  interface DashboardFormState {
+    mode: FormMode;
+  }
+
+  const [pageForm, setPageForm] = useState<PageFormState | null>(null);
+  const [dashboardForm, setDashboardForm] = useState<DashboardFormState | null>(null);
   const matchedPage = dashboard?.pages?.find(page => page.path === params.pagePath);
 
   const save = useCallback(async () => {
@@ -33,12 +40,12 @@ export function LogoMenu() {
     return await actions.save(params.pagePath, removeStoredData);
   }, [params.pagePath, removeStoredData]);
 
+  const closePageForm = useCallback(() => setPageForm(null), []);
+  const closeDashboardForm = useCallback(() => setDashboardForm(null), []);
   const onClose = useCallback(() => {
-    setOpenNewPage(false);
-    setRenamePageOpen(false);
-    setDuplicatePageOpen(false);
-    setRenameDashboardOpen(false);
-  }, []);
+    closePageForm();
+    closeDashboardForm();
+  }, [closePageForm, closeDashboardForm]);
 
   function handlePageFormSuccess(newPage: DashboardPageWithoutData) {
     navigate({
@@ -98,25 +105,43 @@ export function LogoMenu() {
               });
             }}
           />
-          <MenuItem label='Create new page' onClick={() => setOpenNewPage(true)} startIcon={<PlusIcon size={16} />} />
-          <MenuItem label='Rename dashboard' onClick={() => setRenameDashboardOpen(true)} startIcon={<FolderPen size={16} />} />
-          <MenuItem label='Rename current page' onClick={() => setRenamePageOpen(true)} startIcon={<FolderPen size={16} />} />
-          <MenuItem label='Duplicate current page' onClick={() => setDuplicatePageOpen(true)} startIcon={<Copy size={16} />} />
+          <MenuItem variant='group' label='Page Actions' startIcon={<Layers2 size={16} />}>
+            <MenuItem label='Create new page' onClick={() => setPageForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
+            <MenuItem
+              label='Rename current page'
+              onClick={() => matchedPage && setPageForm({ mode: 'edit', pageId: matchedPage.id })}
+              startIcon={<FolderPen size={16} />}
+            />
+            <MenuItem
+              label='Duplicate current page'
+              onClick={() => matchedPage && setPageForm({ mode: 'duplicate', pageId: matchedPage.id })}
+              startIcon={<Copy size={16} />}
+            />
+          </MenuItem>
+          <MenuItem variant='group' label='Dashboard Actions' startIcon={<Layers2 size={16} />}>
+            <MenuItem label='Create new dashboard' onClick={() => setDashboardForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
+            <MenuItem label='Rename dashboard' onClick={() => setDashboardForm({ mode: 'edit' })} startIcon={<FolderPen size={16} />} />
+            <MenuItem
+              label='Duplicate current dashboard'
+              onClick={() => setDashboardForm({ mode: 'duplicate' })}
+              startIcon={<Copy size={16} />}
+            />
+          </MenuItem>
         </MenuContent>
       </Menu>
       <PageForm
-        mode={renamePageOpen ? 'edit' : duplicatePageOpen ? 'duplicate' : 'new'}
+        mode={pageForm?.mode ?? 'new'}
         dashboardId={dashboard?.id}
-        pageId={renamePageOpen || duplicatePageOpen ? matchedPage?.id : undefined}
-        isOpen={newPageOpen || renamePageOpen || duplicatePageOpen}
-        onClose={onClose}
+        pageId={pageForm?.pageId}
+        isOpen={!!pageForm}
+        onClose={closePageForm}
         onSuccess={handlePageFormSuccess}
       />
       <DashboardForm
-        mode={'edit'}
+        mode={dashboardForm?.mode ?? 'new'}
         dashboardId={dashboard?.id}
-        isOpen={renameDashboardOpen}
-        onClose={onClose}
+        isOpen={!!dashboardForm}
+        onClose={closeDashboardForm}
         onSuccess={handleDashboardFormSuccess}
       />
     </>
