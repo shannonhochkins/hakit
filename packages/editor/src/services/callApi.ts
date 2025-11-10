@@ -1,7 +1,7 @@
 import { ClientResponse } from 'hono/client';
 import { Id, toast, ToastOptions } from 'react-toastify';
 import { formatErrorResponse } from '@server/helpers/formatErrorResponse';
-import { notFound } from '@tanstack/react-router';
+import { isNotFound, notFound } from '@tanstack/react-router';
 
 // dodgey helper to extract the 200 response out as this is the only response that can be returned
 type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200 | 201 | 204 | 202, 'json'> ? Data : never;
@@ -117,8 +117,8 @@ function safeToastPromise<T>(promise: Promise<T>, messages: ToastMessages, opts?
     })
     .catch((err: unknown) => {
       // Don't toast or swallow notFound errors – let router handle them.
-      if (err && typeof err === 'object' && 'isNotFound' in err) {
-        return; // early exit
+      if (isNotFound(err)) {
+        return; // early exit to allow router to handle 404 visuals
       }
       const errorMessage = err instanceof Error ? err.message : String(err);
       const message = typeof messages.error === 'function' ? messages.error(errorMessage) : messages.error || 'Something went wrong';

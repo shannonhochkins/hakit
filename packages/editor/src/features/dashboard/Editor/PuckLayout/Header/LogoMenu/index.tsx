@@ -106,26 +106,22 @@ export function LogoMenu() {
             }}
           />
           <MenuItem variant='group' label='Page Actions' startIcon={<Layers2 size={16} />}>
-            <MenuItem label='Create new page' onClick={() => setPageForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
+            <MenuItem label='Create new' onClick={() => setPageForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
             <MenuItem
-              label='Rename current page'
+              label='Rename'
               onClick={() => matchedPage && setPageForm({ mode: 'edit', pageId: matchedPage.id })}
               startIcon={<FolderPen size={16} />}
             />
             <MenuItem
-              label='Duplicate current page'
+              label='Duplicate'
               onClick={() => matchedPage && setPageForm({ mode: 'duplicate', pageId: matchedPage.id })}
               startIcon={<Copy size={16} />}
             />
           </MenuItem>
           <MenuItem variant='group' label='Dashboard Actions' startIcon={<Layers2 size={16} />}>
-            <MenuItem label='Create new dashboard' onClick={() => setDashboardForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
-            <MenuItem label='Rename dashboard' onClick={() => setDashboardForm({ mode: 'edit' })} startIcon={<FolderPen size={16} />} />
-            <MenuItem
-              label='Duplicate current dashboard'
-              onClick={() => setDashboardForm({ mode: 'duplicate' })}
-              startIcon={<Copy size={16} />}
-            />
+            <MenuItem label='Create new' onClick={() => setDashboardForm({ mode: 'new' })} startIcon={<PlusIcon size={16} />} />
+            <MenuItem label='Rename' onClick={() => setDashboardForm({ mode: 'edit' })} startIcon={<FolderPen size={16} />} />
+            <MenuItem label='Duplicate' onClick={() => setDashboardForm({ mode: 'duplicate' })} startIcon={<Copy size={16} />} />
           </MenuItem>
         </MenuContent>
       </Menu>
