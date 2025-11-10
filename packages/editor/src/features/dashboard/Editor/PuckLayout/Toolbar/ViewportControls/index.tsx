@@ -172,6 +172,7 @@ const ViewportControlsComponent = () => {
   );
 
   const activeViewport = useGlobalStore(state => state.activeBreakpoint);
+
   // Try to find in enabled options first, but fall back to all breakpoints if needed (for disabled but selected breakpoints)
   const value = useMemo(() => {
     const enabledValue = enabledOptions.find(item => item.id === activeViewport);

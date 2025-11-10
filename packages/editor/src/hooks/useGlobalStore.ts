@@ -105,7 +105,7 @@ export type PuckConfigurationStore = {
   setComponentBreakpointMap: (componentBreakpointModeMap: ComponentBreakpointModeMap) => void;
   // Actions object for centralized operations
   actions: {
-    save: (pagePath?: string, callback?: () => void) => Promise<void>;
+    save: (pagePath: string, callback?: () => void) => Promise<void>;
     createComponentInstance: <D extends DefaultComponentProps>(componentLabel: string) => ComponentData<D> | null;
   };
   editingDashboardPage: {
@@ -216,7 +216,7 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         };
         return newInstance;
       },
-      save: async (pagePath?: string, callback?: () => void) => {
+      save: async (pagePath: string, callback?: () => void) => {
         const { updateDashboardPageForUser, updateDashboardForUser } = await import('@services/dashboard');
         const state = get();
         const { unsavedPuckPageData, setUnsavedPuckPageData, dashboard, breakpointItems } = state;
@@ -266,7 +266,7 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
     editingDashboardPage: null,
     setEditingDashboardPage: (dashboardId: string, pageId: string) =>
       set(state => ({ ...state, editingDashboardPage: { dashboardId, pageId } })),
-    resetPuckInformation: (dashboardChanged: boolean = false) => {
+    resetPuckInformation: () => {
       set(state => ({
         ...state,
         puckPageData: null,
@@ -275,9 +275,8 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
         componentBreakpointMap: {},
         userConfig: null,
         activeBreakpoint: undefined as unknown as BreakPoint,
-        dashboard: dashboardChanged ? null : state.dashboard,
-        dashboardWithoutData: dashboardChanged ? null : state.dashboardWithoutData,
         emotionCache: null,
+        // dashboard setting is handled by the "loader" for the edit/render routes
       }));
     },
   };

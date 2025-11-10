@@ -33,6 +33,11 @@ export function EditorShortcuts() {
       return;
     }
     const { pagePath } = params;
+    if (!pagePath) {
+      // Page path is missing
+      toast.error('Cannot save: Page path not found.');
+      return;
+    }
     try {
       await actions.save(pagePath, removeStoredData);
     } catch (error) {

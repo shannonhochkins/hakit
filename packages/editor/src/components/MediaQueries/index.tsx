@@ -94,8 +94,6 @@ export function MediaQueries() {
     }
   }, [dashboardBreakpoints, editorMode]);
 
-  // const [selectedBreakpointId, setSelectedBreakpointId] = useLocalStorage<BreakPoint>('selectedBreakpoint', 'xlg');
-
   useEffect(() => {
     const updateBreakpointClass = () => {
       const width = window.innerWidth;

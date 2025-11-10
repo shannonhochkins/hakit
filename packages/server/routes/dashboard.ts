@@ -11,6 +11,7 @@ import type { PuckPageData } from '@typings/puck';
 import { serializeWithUndefined, deserializePageData } from '../../shared/helpers/customSerialize';
 import { formatErrorResponse } from '../helpers/formatErrorResponse';
 import { describeRoute } from 'hono-openapi';
+import { format404Response } from '../helpers/format404Response';
 
 // Predefined default pages
 const defaultPages = [
@@ -97,7 +98,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(dashboardTable.path, dashboardPath), eq(dashboardTable.userId, user.id)));
 
         if (!dashboard) {
-          throw new Error(`Dashboard not found with path ${dashboardPath}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath }), 404);
         }
 
         // Then get the pages separately (without data)
@@ -152,7 +153,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(dashboardTable.path, dashboardPath), eq(dashboardTable.userId, user.id)));
 
         if (!dashboard) {
-          throw new Error(`Dashboard not found with path ${dashboardPath}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath }), 404);
         }
 
         // Then get the pages separately
@@ -218,7 +219,7 @@ const dashboardRoute = new Hono()
         // we don't use dashboards at all here, as there's no connection to a page and a user
         // we just need to check that the dashboard exists for this user
         if (!dashboards.length) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-has-no-pages'), 404);
         }
         const [page] = await db
           .select()
@@ -226,7 +227,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(pagesTable.id, pageId), eq(pagesTable.dashboardId, id)));
 
         if (!page) {
-          throw new Error(`Page not found with id ${pageId}`);
+          return c.json(format404Response('page-not-found', { dashboardPath: id, pagePath: pageId }), 404);
         }
 
         return c.json(
@@ -340,7 +341,7 @@ const dashboardRoute = new Hono()
           .from(dashboardTable)
           .where(and(eq(dashboardTable.id, id), eq(dashboardTable.userId, user.id)));
         if (!dashboards.length) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath: id }), 404);
         }
         const [dashboard] = dashboards;
         await db.delete(pagesTable).where(and(eq(pagesTable.id, pageId), eq(pagesTable.dashboardId, dashboard.id)));
@@ -375,10 +376,10 @@ const dashboardRoute = new Hono()
         const { id, pageId } = c.req.valid('param');
 
         if (!id) {
-          throw new Error('No dashboard path provided');
+          throw new Error('No dashboard id provided');
         }
         if (!pageId) {
-          throw new Error('No page path provided');
+          throw new Error('No page id provided');
         }
         const dashboards = await db
           .select({
@@ -387,7 +388,7 @@ const dashboardRoute = new Hono()
           .from(dashboardTable)
           .where(and(eq(dashboardTable.id, id), eq(dashboardTable.userId, user.id)));
         if (!dashboards.length) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath: id }), 404);
         }
         const [dashboard] = dashboards;
         const [pageRecord] = await db
@@ -543,7 +544,7 @@ const dashboardRoute = new Hono()
           .from(dashboardTable)
           .where(and(eq(dashboardTable.id, id), eq(dashboardTable.userId, user.id)));
         if (!dashboards.length) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath: id }), 404);
         }
         const [dashboard] = dashboards;
         const defaultPage = await getAvailableDefaultPage(dashboard.id);
@@ -607,7 +608,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(dashboardTable.id, id), eq(dashboardTable.userId, user.id)));
 
         if (!originalDashboard) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath: id }), 404);
         }
 
         const originalPages = await db.select().from(pagesTable).where(eq(pagesTable.dashboardId, id));
@@ -693,7 +694,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(dashboardTable.id, id), eq(dashboardTable.userId, user.id)));
 
         if (!dashboard) {
-          throw new Error(`Dashboard not found with id ${id}`);
+          return c.json(format404Response('dashboard-not-found', { dashboardPath: id }), 404);
         }
 
         // Get the original page
@@ -703,7 +704,7 @@ const dashboardRoute = new Hono()
           .where(and(eq(pagesTable.id, pageId), eq(pagesTable.dashboardId, id)));
 
         if (!originalPage) {
-          throw new Error(`Page not found with id ${pageId}`);
+          return c.json(format404Response('page-not-found', { dashboardPath: id, pagePath: pageId }), 404);
         }
 
         // Create the duplicate page

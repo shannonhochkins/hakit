@@ -14,9 +14,9 @@ import React, {
   useLayoutEffect,
 } from 'react';
 import {
-  autoUpdate,
   flip,
   offset,
+  autoUpdate,
   shift,
   useFloating,
   useInteractions,
@@ -103,6 +103,8 @@ export type MenuProps = {
 
   // external anchor support
   anchorRef?: React.RefObject<HTMLElement | null>;
+  /** To stop menu's moving around in certain scenarios, we can stop the auto update functionality by providing this prop @default false */
+  disableAutoPositioning?: boolean;
 };
 
 export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
@@ -116,6 +118,7 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     matchWidth = true,
     iframeDocument = null,
     anchorRef,
+    disableAutoPositioning = false,
   },
   ref
 ) {
@@ -146,7 +149,7 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     onOpenChange: setOpen,
     // Initial placement is only used when not in auto mode.
     placement: isAuto ? 'bottom-start' : (placement as Placement),
-    whileElementsMounted: autoUpdate,
+    whileElementsMounted: !disableAutoPositioning ? autoUpdate : undefined,
     strategy: 'fixed',
     middleware: [
       offset(ARROW_HEIGHT + GAP),
@@ -298,8 +301,26 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     [open, setOpen, refs, floatingStyles, context, getReferenceProps, getFloatingProps, activeIndex, selectedIndex, onSelectIndex]
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      <Cleanup />
+      {children}
+    </Ctx.Provider>
+  );
 });
+
+function Cleanup() {
+  const { setActiveIndex, setVirtualPoint, setSelectedIndex } = useMenu();
+  // reset certain values on unmount in the menu store
+  useEffect(() => {
+    return () => {
+      setActiveIndex(null);
+      setSelectedIndex(null);
+      setVirtualPoint(null);
+    };
+  }, [setActiveIndex, setSelectedIndex, setVirtualPoint]);
+  return null;
+}
 
 /** Anchor the menu to any element (use with `asChild`) */
 export function MenuAnchor({ children }: { children: React.ReactElement }) {

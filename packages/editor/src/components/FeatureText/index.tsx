@@ -7,13 +7,14 @@ interface FeatureTextProps {
   primary?: ReactNode;
   secondary?: ReactNode;
   className?: string;
+  secondaryClassName?: string;
 }
 
-export function FeatureText({ primary, secondary, className }: FeatureTextProps) {
+export function FeatureText({ primary, secondary, className, secondaryClassName }: FeatureTextProps) {
   return (
     <>
       {primary && <span className={getClassName({ FeatureText: true }, className)}>{primary}</span>}
-      {secondary && <span className={getClassName({ FeatureText: true, secondary: true }, className)}>{secondary}</span>}
+      {secondary && <span className={getClassName({ FeatureText: true, secondary: true }, secondaryClassName)}>{secondary}</span>}
     </>
   );
 }

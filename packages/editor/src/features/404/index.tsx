@@ -4,8 +4,9 @@ import { ArrowLeftIcon, HomeIcon, LayoutDashboard } from 'lucide-react';
 import styles from './404.module.css';
 import { router } from '../../router';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
+import { NotFoundTypes } from '@typings/hono';
 
-const MESSAGE_BY_REASON = {
+const MESSAGE_BY_REASON: Record<NotFoundTypes, string> = {
   'dashboard-not-found': 'Dashboard not found.',
   'dashboard-has-no-pages': 'Dashboard has no pages.',
   'page-not-found': 'Dashboard page not found.',
@@ -13,13 +14,13 @@ const MESSAGE_BY_REASON = {
   'issue-not-found': 'Issue not found.',
 };
 
-const DESCRIPTION_BY_REASON = {
+const DESCRIPTION_BY_REASON: Record<NotFoundTypes, string> = {
   'dashboard-not-found': 'The dashboard "{dashboardPath}" does not exist.',
   'dashboard-has-no-pages': 'The dashboard you are looking for has no pages.',
   'page-not-found': 'The page "{pagePath}" does not exist in the dashboard "{dashboardPath}".',
   'not-found': "The page you're looking for doesn't exist or has been moved.",
   'issue-not-found': 'The issue you are looking for does not exist.',
-} as const;
+};
 
 export const NotFound = (props: NotFoundRouteProps) => {
   // const navigate = useNavigate();

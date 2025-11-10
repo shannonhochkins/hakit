@@ -1,29 +1,40 @@
 .menuItem {
   --item-bg: var(--clr-surface-a40);
-  --item-color: var(--clr-on-surface-a0);
-  --item-bg-hover: var(--clr-primary-a10);
-  --item-color-hover: var(--clr-on-primary-a10);
+  --item-color: var(--clr-on-surface-a40);
+  --item-bg-hover: var(--clr-surface-a50);
+  --item-color-hover: var(--clr-on-surface-a50);
   --item-bg-active: var(--clr-surface-a30);
-  --item-color-active: var(--clr-on-surface-a0);
+  --item-color-active: var(--clr-on-surface-a30);
   --item-bg-disabled: transparent;
   --item-color-disabled: var(--clr-text-a30);
+
 
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
   user-select: none;
   background: var(--item-bg);
   color: var(--item-color);
   border: 0;
   outline: none;
+  border-bottom: 1px solid var(--clr-surface-a60);
   text-align: left;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
-  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  &:first-of-type {
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+  &:last-of-type {
+    border-bottom:0;
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
 }
 
 .menuItem:hover,
@@ -57,4 +68,28 @@
   min-width: 0;
 }
 
+.menuGroupChildren {
+  --item-bg-nested: var(--clr-surface-a50);
+  --item-bg-hover-nested: var(--clr-surface-a60);
+  --item-bg-active-nested: var(--clr-surface-a40);
+  --item-color-nested: var(--clr-on-surface-a50);
+  --item-color-hover-nested: var(--clr-on-surface-a50);
+  --item-color-active-nested: var(--clr-on-surface-a50);
+  background-color: var(--item-bg-nested);
+  .menuItem {
+    background-color: var(--item-bg-nested);
+    font-size: var(--font-size-xs);
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  }
+  .menuItem:hover,
+  .menuItem[data-highlighted="true"] {
+    background: var(--item-bg-hover-nested);
+    color: var(--item-color-hover-nested);
+  }
+
+  .menuItem:active {
+    background: var(--item-bg-active-nested);
+    color: var(--item-color-active-nested);
+  }
+}
 
