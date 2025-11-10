@@ -298,8 +298,26 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     [open, setOpen, refs, floatingStyles, context, getReferenceProps, getFloatingProps, activeIndex, selectedIndex, onSelectIndex]
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      <Cleanup />
+      {children}
+    </Ctx.Provider>
+  );
 });
+
+function Cleanup() {
+  const { setActiveIndex, setVirtualPoint, setSelectedIndex } = useMenu();
+  // reset certain values on unmount in the menu store
+  useEffect(() => {
+    return () => {
+      setActiveIndex(null);
+      setSelectedIndex(null);
+      setVirtualPoint(null);
+    };
+  }, [setActiveIndex, setSelectedIndex, setVirtualPoint]);
+  return null;
+}
 
 /** Anchor the menu to any element (use with `asChild`) */
 export function MenuAnchor({ children }: { children: React.ReactElement }) {

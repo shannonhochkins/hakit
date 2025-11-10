@@ -1,7 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { CheckIcon, XIcon } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { dashboardsQueryOptions, createDashboardPage, updateDashboardPageForUser, duplicateDashboardPage } from '@services/dashboard';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  dashboardsQueryOptions,
+  createDashboardPage,
+  updateDashboardPageForUser,
+  duplicateDashboardPage,
+  dashboardByPathWithPageDataQueryOptions,
+  dashboardByPathQueryOptions,
+  dashboardPageQueryOptions,
+} from '@services/dashboard';
 import { nameToPath } from '@helpers/editor/routes/nameToPath';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
@@ -10,6 +18,7 @@ import { ImageField } from '@components/Form/Field/Image';
 import { Modal } from '@components/Modal';
 import { DashboardPageWithoutData } from '@typings/hono';
 import styles from './PageForm.module.css';
+import { toast } from 'react-toastify';
 
 interface PageFormProps {
   mode: 'new' | 'edit' | 'duplicate';
@@ -33,6 +42,7 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
   const dashboards = dashboardsQuery.data;
   const dashboard = dashboards?.find(d => d.id === dashboardId);
   const existingPage = dashboard?.pages.find(p => p.id === pageId);
+  const queryClient = useQueryClient();
 
   // Reset form when opening/closing or changing mode
   useEffect(() => {
@@ -181,12 +191,27 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
         );
       }
 
-      // Refetch dashboards to update the UI
-      dashboardsQuery.refetch();
+      // Invalidate query keys needed to reflect the new/updated page
+      if (dashboard) {
+        await queryClient.invalidateQueries({
+          queryKey: dashboardByPathQueryOptions(dashboard.path).queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: dashboardsQueryOptions.queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: dashboardByPathWithPageDataQueryOptions(dashboard.path).queryKey,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: dashboardPageQueryOptions(dashboard.path, result.path).queryKey,
+        });
+      } else {
+        toast.error('Dashboard not found. Please refresh and try again.');
+      }
       onSuccess(result);
     } catch (error) {
       console.error('Error saving page:', error);
-      // TODO: Show error toast
+      toast.error('Failed to save page. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -7,8 +7,10 @@ export async function loadDashboardAndPageOrNotFound(args: { queryClient: QueryC
   const { queryClient, dashboardPath, pagePath } = args;
   const { setDashboard, setDashboardWithoutData } = useGlobalStore.getState();
 
-  // Ensure dashboard (with pages + data) is in the cache (and fetched if missing)
-  const dashboard = await queryClient.ensureQueryData(dashboardByPathWithPageDataQueryOptions(dashboardPath));
+  // Force a network fetch to avoid returning stale cached data immediately after a mutation + navigation.
+  // ensureQueryData returns current cached value (even if stale) then kicks off a background revalidation.
+  // fetchQuery waits for the fresh result, which we need here for correctness.
+  const dashboard = await queryClient.fetchQuery(dashboardByPathWithPageDataQueryOptions(dashboardPath));
 
   if (!dashboard) {
     // Clear the dashboard if no data is returned

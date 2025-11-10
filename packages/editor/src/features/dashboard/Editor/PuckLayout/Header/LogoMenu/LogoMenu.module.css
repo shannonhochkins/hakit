@@ -1,0 +1,9 @@
+.LogoMenu {
+  background-color: transparent;
+  padding: var(--space-2);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  &:hover, &:focus, &:active {
+    background-color: var(--clr-surface-a40);
+  }
+}

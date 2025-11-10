@@ -1,6 +1,7 @@
 import { ClientResponse } from 'hono/client';
 import { Id, toast, ToastOptions } from 'react-toastify';
 import { formatErrorResponse } from '@server/helpers/formatErrorResponse';
+import { notFound } from '@tanstack/react-router';
 
 // dodgey helper to extract the 200 response out as this is the only response that can be returned
 type ExtractSuccessData<T> = T extends ClientResponse<infer Data, 200 | 201 | 204 | 202, 'json'> ? Data : never;
@@ -11,52 +12,59 @@ export type ToastMessages = {
   error?: string | ((err: string) => string);
 };
 
+interface ZodErrorLike {
+  name: string;
+}
+
 export async function callApi<T extends ClientResponse<unknown, number, 'json'>>(
   request: Promise<T>,
   toastMessages?: ToastMessages | false
 ): Promise<ExtractSuccessData<T>> {
-  // if the promise executor throws an error, it will be lost if not caught properly
-  // ensure all logic is caught in the promise executor if we're going to disable this rule
-  // eslint-disable-next-line no-async-promise-executor
-  const promise = new Promise<ExtractSuccessData<T>>(async (resolve, reject) => {
-    try {
-      const res = await request;
-      if (!res.ok) {
-        try {
-          const response = (await res.json()) as {
-            error?: string | { name: string; [key: string]: unknown };
-            message?: string;
-          };
-          if (response.error && response.message) {
-            return reject(`${response.error}: ${response.message}`);
-          }
-          if (response.error && typeof response.error === 'object' && response.error.name === 'ZodError') {
-            const error = formatErrorResponse('Invalid input', response.error);
-            return reject(`${error.error}: ${error.message}`);
-          }
-          return reject('Invalid error structure');
-        } catch (e) {
-          const { error, message } = formatErrorResponse('Server error', e);
-          // generic error
-          return reject(`${error}: ${message}`);
+  const corePromise = (async () => {
+    const res = await request;
+    if (!res.ok) {
+      let body = {} as {
+        error?: string | { name: string; [key: string]: unknown };
+        message?: string;
+      };
+      try {
+        body = (await res.json()) as {
+          error?: string | { name: string; [key: string]: unknown };
+          message?: string;
+        };
+      } catch {
+        // ignore JSON parse errors, treat as empty
+      }
+      if (res.status === 404) {
+        // Pass through any structured data so NotFound component can read reason, etc.
+        throw notFound({ data: body });
+      }
+      // Handle validation errors
+      if (typeof body === 'object' && body !== null) {
+        const maybeErr = body;
+        if (maybeErr.error && maybeErr.message && typeof maybeErr.error === 'string') {
+          throw new Error(`${maybeErr.error}: ${maybeErr.message}`);
+        }
+
+        if (maybeErr.error && typeof maybeErr.error === 'object' && maybeErr.error !== null && maybeErr.error.name === 'ZodError') {
+          const zodErr = formatErrorResponse('Invalid input', maybeErr.error as ZodErrorLike);
+          throw new Error(`${zodErr.error}: ${zodErr.message}`);
         }
       }
-      const data = (await res.json()) as ExtractSuccessData<T> & { error?: string };
-      if ('error' in data && data.error) {
-        // Throw an error so that React Query's error handling kicks in.
-        return reject(data.error);
-      }
-      return resolve(data as ExtractSuccessData<T>);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      reject(errorMessage);
+      throw new Error(`Request failed (${res.status})`);
     }
-  });
+    const data = (await res.json()) as ExtractSuccessData<T> & { error?: string };
+    if (data && 'error' in data && data.error) {
+      throw new Error(data.error);
+    }
+    return data as ExtractSuccessData<T>;
+  })();
+
   if (toastMessages === false) {
-    return await promise;
+    return corePromise;
   }
 
-  safeToastPromise(promise, {
+  safeToastPromise(corePromise, {
     pending: toastMessages?.pending,
     success: toastMessages?.success,
     error: err => {
@@ -66,7 +74,7 @@ export async function callApi<T extends ClientResponse<unknown, number, 'json'>>
       return toastMessages?.error || err || 'Something went wrong';
     },
   });
-  return await promise;
+  return corePromise;
 }
 
 function safeToastPromise<T>(promise: Promise<T>, messages: ToastMessages, opts?: ToastOptions): Promise<T> {
@@ -108,6 +116,10 @@ function safeToastPromise<T>(promise: Promise<T>, messages: ToastMessages, opts?
       }
     })
     .catch((err: unknown) => {
+      // Don't toast or swallow notFound errors – let router handle them.
+      if (err && typeof err === 'object' && 'isNotFound' in err) {
+        return; // early exit
+      }
       const errorMessage = err instanceof Error ? err.message : String(err);
       const message = typeof messages.error === 'function' ? messages.error(errorMessage) : messages.error || 'Something went wrong';
 

@@ -3,7 +3,7 @@ import { useListItem, useInteractions } from '@floating-ui/react';
 import { useMenu } from './Menu';
 import { MenuItemInner, MenuItemInnerProps } from './MenuItemInner';
 
-export type MenuItemProps = MenuItemInnerProps & { label: string };
+export type MenuItemProps = MenuItemInnerProps & { label?: string };
 
 export function MenuItem({ label, onClick, ...rest }: MenuItemProps) {
   const { onSelectIndex, activeIndex } = useMenu();

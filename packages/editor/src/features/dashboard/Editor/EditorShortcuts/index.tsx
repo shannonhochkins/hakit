@@ -34,7 +34,7 @@ export function EditorShortcuts() {
     }
     const { pagePath } = params;
     try {
-      await actions.save(pagePath, removeStoredData);
+      await actions.save(pagePath ?? '', removeStoredData);
     } catch (error) {
       console.error('Save failed:', error);
     }

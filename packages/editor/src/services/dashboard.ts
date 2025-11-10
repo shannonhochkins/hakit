@@ -192,12 +192,12 @@ export async function updateDashboardPageForUser(
   },
   toastMessage?: ToastMessages
 ) {
-  const data = serializeWithUndefined(page.data);
+  const data = page.data ? serializeWithUndefined(page.data) : undefined;
   const req = api.dashboard[':id'].page[':pageId'].$put({
     json: {
       path: page.path,
       name: page.name,
-      data: deserializePageData(data, false), // Serialize to string to preserve undefined as a string and convert back
+      data: data ? deserializePageData(data, false) : undefined, // Serialize to string to preserve undefined as a string and convert back
       thumbnail: page.thumbnail,
     },
     param: {
@@ -258,7 +258,7 @@ export const dashboardByPathWithPageDataQueryOptions = (dashboardPath?: Dashboar
 // get a dashboard page with data
 export const dashboardPageQueryOptions = (dashboardId: DashboardWithPageData['id'], pageId: DashboardPage['id']) =>
   queryOptions({
-    queryKey: ['get-dashboard-page-for-user', dashboardId, pageId],
+    queryKey: ['get-dashboard-page-for-user', dashboardId, pageId].filter(Boolean),
     queryFn: () => getDashboardPageForUser(dashboardId, pageId),
     retry: false,
     staleTime: Infinity,

@@ -1,5 +1,8 @@
 import { Data } from '@measured/puck';
 
+// NOTE - as this is a shim of the original hono types as we don't want to expose everything in the package
+// we need to create fallback types for some types, which may mean simply copying them from @typings if they are not available,
+
 // Fallback local declaration; real type should merge from @typings/breakpoints when available.
 export interface BreakpointItem {
   id: string;
@@ -43,6 +46,8 @@ export interface DashboardPage {
 export type DashboardWithPageData = Dashboard & { pages: DashboardPage[] };
 
 export type DashboardPageWithoutData = Omit<DashboardPage, 'data'>;
+
+export type NotFoundTypes = 'dashboard-not-found' | 'dashboard-has-no-pages' | 'page-not-found' | 'not-found' | 'issue-not-found';
 
 // Force this .d.ts to be a module even if only types are present
 export {};

@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CheckIcon, XIcon } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { createDashboard, dashboardsQueryOptions, updateDashboardForUser, duplicateDashboard } from '@services/dashboard';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  createDashboard,
+  dashboardsQueryOptions,
+  updateDashboardForUser,
+  duplicateDashboard,
+  dashboardByPathQueryOptions,
+  dashboardByPathWithPageDataQueryOptions,
+} from '@services/dashboard';
 import { nameToPath } from '@helpers/editor/routes/nameToPath';
 import { usePrevious } from '@hooks/usePrevious';
 import { PrimaryButton } from '@components/Button/Primary';
@@ -11,6 +18,7 @@ import { ImageField } from '@components/Form/Field/Image';
 import { Modal } from '@components/Modal';
 import styles from './DashboardForm.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
+import { toast } from 'react-toastify';
 
 const getClassName = getClassNameFactory('DashboardForm', styles);
 
@@ -20,12 +28,13 @@ interface DashboardFormProps {
   dashboardId?: string;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: ({ path, id, name }: { path?: string; id?: string; name: string }) => void;
 }
 
 export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }: DashboardFormProps) {
   const dashboardsQuery = useQuery(dashboardsQueryOptions);
   const dashboards = useMemo(() => dashboardsQuery.data, [dashboardsQuery.data]);
+  const queryClient = useQueryClient();
 
   const [name, setName] = useState<string>('');
   const [path, setPath] = useState<string>('');
@@ -43,13 +52,15 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
 
   // Auto-generate path from name
   useEffect(() => {
+    if (!isOpen) return; // only populate when modal is open
     if (previousName !== name && !pathTouched) {
       setPath(nameToPath(name));
     }
-  }, [name, path, pathTouched, previousName]);
+  }, [name, path, pathTouched, previousName, isOpen]);
 
   // Path validation
   useEffect(() => {
+    if (!isOpen) return; // only validate when modal is open
     if (path.length === 0) {
       setPathError('');
       return;
@@ -72,10 +83,11 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
     }
 
     setPathError('');
-  }, [path, dashboards, dashboardId]);
+  }, [path, dashboards, dashboardId, isOpen]);
 
   // Name validation
   useEffect(() => {
+    if (!isOpen) return; // only validate when modal is open
     if (name.length === 0) {
       setNameError('');
     } else if (name.length < 2) {
@@ -85,10 +97,14 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
     } else {
       setNameError('');
     }
-  }, [name]);
+  }, [name, isOpen]);
 
-  // Initialize form when dashboard changes
+  // Initialize form when dashboard/mode changes or when modal opens.
+  // Including isOpen handles cases where the component stays mounted but closes (state reset) and reopens
+  // with the same mode & currentDashboard reference (e.g. rename dashboard scenario). Without isOpen in deps
+  // the effect would not rerun and fields would remain blank.
   useEffect(() => {
+    if (!isOpen) return; // only populate when modal is open
     if (mode === 'edit' && currentDashboard) {
       setName(currentDashboard.name);
       setPath(currentDashboard.path);
@@ -105,7 +121,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
       setThumbnail(null);
       setPathTouched(false);
     }
-  }, [mode, currentDashboard]);
+  }, [isOpen, mode, currentDashboard]);
 
   // Reset form when closed
   useEffect(() => {
@@ -173,8 +189,25 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
           );
         }
 
-        dashboardsQuery.refetch();
-        onSuccess?.();
+        // Invalidate query keys needed to reflect the new/updated page
+        if (path) {
+          await queryClient.invalidateQueries({
+            queryKey: dashboardByPathQueryOptions(path).queryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: dashboardsQueryOptions.queryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: dashboardByPathWithPageDataQueryOptions(path).queryKey,
+          });
+        } else {
+          toast.error('Dashboard not found. Please refresh and try again.');
+        }
+        onSuccess?.({
+          path,
+          id: dashboardId,
+          name,
+        });
         onClose();
       } catch (error) {
         console.error('Error saving dashboard:', error);
@@ -182,7 +215,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
         setIsSubmitting(false);
       }
     },
-    [mode, name, path, thumbnail, dashboardId, currentDashboard, validateForm, isSubmitting, dashboardsQuery, onSuccess, onClose]
+    [validateForm, isSubmitting, mode, dashboardId, currentDashboard, onSuccess, onClose, name, path, thumbnail, queryClient]
   );
 
   if (!isOpen) return null;

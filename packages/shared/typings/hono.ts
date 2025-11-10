@@ -13,3 +13,5 @@ export type Dashboard = InferResponseType<ApiType['dashboard'][':dashboardPath']
 export type DashboardWithPageData = Omit<Dashboard, 'pages'> & {
   pages: DashboardPage[];
 };
+
+export type NotFoundTypes = 'dashboard-not-found' | 'dashboard-has-no-pages' | 'page-not-found' | 'not-found' | 'issue-not-found';
