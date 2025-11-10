@@ -66,7 +66,6 @@ type CommonAutocompleteProps<T> = {
   helperText?: string;
   error?: boolean;
   success?: boolean;
-  disabled?: boolean | ((options: ReadonlyArray<T>, value: T | T[] | undefined) => boolean);
   readOnly?: boolean;
   startAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
   endAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
@@ -98,6 +97,7 @@ export type SingleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   onChange?: (value: T) => void;
   onInputClick?: (e: React.MouseEvent) => void;
   renderValue?: (value: T) => React.ReactNode;
+  disabled?: boolean | ((options: ReadonlyArray<T>, value: T | undefined) => boolean);
 };
 
 export type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
@@ -106,6 +106,7 @@ export type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   onChange?: (value: T[]) => void;
   onInputClick?: (e: React.MouseEvent) => void;
   renderValue?: (values: T[]) => React.ReactNode;
+  disabled?: boolean | ((options: ReadonlyArray<T>, value: T[] | undefined) => boolean);
 };
 
 const isIconElement = (node: React.ReactNode): boolean => {
@@ -186,7 +187,7 @@ export function AutocompleteField<T = string>({
   );
 
   const noOptions = options.length === 0;
-  const isDisabled = typeof disabled === 'function' ? disabled(options, value) : disabled || noOptions;
+  const isDisabled = typeof disabled === 'function' ? disabled(options, value as (T & T[]) | undefined) : disabled || noOptions;
   const effectivePlaceholder = noOptions ? noOptionsText : placeholder;
 
   useEffect(() => {

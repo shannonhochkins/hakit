@@ -385,8 +385,9 @@ export const ColorField = ({
           placeholder={!disableThemeAutocomplete ? 'Select or type a color / gradient' : pickerResolvedValue}
           helperText={isValid ? helperText : `Value "${internalValue}" is not a valid color.`}
           noOptionsText={!disableThemeAutocomplete ? 'No colors available' : pickerResolvedValue}
-          disabled={() => {
-            if (!disableThemeAutocomplete) return false;
+          disabled={options => {
+            const noOptions = options.length === 0;
+            if (!disableThemeAutocomplete) return noOptions || disabled || false;
             return disabled ?? false;
           }}
           onInputClick={() => {
@@ -443,7 +444,6 @@ export const ColorField = ({
               });
               if (isEqual(swatches, matchedSwatches)) return;
               setMatchedSwatches(swatches);
-              // setMatchedSwatches(swatches);
             }
           }}
         />
