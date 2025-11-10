@@ -20,6 +20,30 @@ describe('colorFieldHelpers', () => {
     expect(opts[0]).toMatchObject({ label: '#ff0000', value: '#ff0000', meta: { custom: true } });
   });
 
+  test('should generate a full list of color options including custom', () => {
+    const opts = buildColorVariableGroups({ currentValue: 'var(--clr-primary-a50)' });
+    expect(opts).toMatchSnapshot();
+  });
+
+  test('should extract the color swatch and include inside meta when provided', () => {
+    const opts = buildColorVariableGroups({
+      currentValue: 'var(--clr-primary-a60)',
+      matchedSwatches: {
+        primary: [{ label: 'a60', color: '#3366ff' }],
+        surface: [],
+        semantics: {
+          danger: [],
+          warning: [],
+          info: [],
+          success: [],
+        },
+      },
+    });
+    const matchedOption = opts.find(o => o.value === 'var(--clr-primary-a60)');
+    expect(matchedOption).toBeDefined();
+    expect(matchedOption?.meta).toMatchObject({ cssVar: '--clr-primary-a60', swatch: { label: 'a60', color: '#3366ff' } });
+  });
+
   test('parseColorMix extracts token and alpha', () => {
     const mix = 'color-mix(in srgb, var(--clr-primary-a40) 75%, transparent 25%)';
     const parsed = parseColorMix(mix);

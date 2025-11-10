@@ -1,0 +1,1211 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`colorFieldHelpers should gnerate a full list of color options including custom 1`] = `
+[
+  {
+    "label": "Primary 0",
+    "meta": {
+      "cssVar": "--clr-primary-a0",
+      "group": "Primary",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a0)",
+  },
+  {
+    "label": "Primary 10",
+    "meta": {
+      "cssVar": "--clr-primary-a10",
+      "group": "Primary",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a10)",
+  },
+  {
+    "label": "Primary 20",
+    "meta": {
+      "cssVar": "--clr-primary-a20",
+      "group": "Primary",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a20)",
+  },
+  {
+    "label": "Primary 30",
+    "meta": {
+      "cssVar": "--clr-primary-a30",
+      "group": "Primary",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a30)",
+  },
+  {
+    "label": "Primary 40",
+    "meta": {
+      "cssVar": "--clr-primary-a40",
+      "group": "Primary",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a40)",
+  },
+  {
+    "label": "Primary 50",
+    "meta": {
+      "cssVar": "--clr-primary-a50",
+      "group": "Primary",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a50)",
+  },
+  {
+    "label": "Primary 60",
+    "meta": {
+      "cssVar": "--clr-primary-a60",
+      "group": "Primary",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a60)",
+  },
+  {
+    "label": "Primary 70",
+    "meta": {
+      "cssVar": "--clr-primary-a70",
+      "group": "Primary",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a70)",
+  },
+  {
+    "label": "Primary 80",
+    "meta": {
+      "cssVar": "--clr-primary-a80",
+      "group": "Primary",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a80)",
+  },
+  {
+    "label": "Primary 90",
+    "meta": {
+      "cssVar": "--clr-primary-a90",
+      "group": "Primary",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a90)",
+  },
+  {
+    "label": "Surface 0",
+    "meta": {
+      "cssVar": "--clr-surface-a0",
+      "group": "Surface",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a0)",
+  },
+  {
+    "label": "Surface 10",
+    "meta": {
+      "cssVar": "--clr-surface-a10",
+      "group": "Surface",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a10)",
+  },
+  {
+    "label": "Surface 20",
+    "meta": {
+      "cssVar": "--clr-surface-a20",
+      "group": "Surface",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a20)",
+  },
+  {
+    "label": "Surface 30",
+    "meta": {
+      "cssVar": "--clr-surface-a30",
+      "group": "Surface",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a30)",
+  },
+  {
+    "label": "Surface 40",
+    "meta": {
+      "cssVar": "--clr-surface-a40",
+      "group": "Surface",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a40)",
+  },
+  {
+    "label": "Surface 50",
+    "meta": {
+      "cssVar": "--clr-surface-a50",
+      "group": "Surface",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a50)",
+  },
+  {
+    "label": "Surface 60",
+    "meta": {
+      "cssVar": "--clr-surface-a60",
+      "group": "Surface",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a60)",
+  },
+  {
+    "label": "Surface 70",
+    "meta": {
+      "cssVar": "--clr-surface-a70",
+      "group": "Surface",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a70)",
+  },
+  {
+    "label": "Surface 80",
+    "meta": {
+      "cssVar": "--clr-surface-a80",
+      "group": "Surface",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a80)",
+  },
+  {
+    "label": "Surface 90",
+    "meta": {
+      "cssVar": "--clr-surface-a90",
+      "group": "Surface",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a90)",
+  },
+  {
+    "label": "Info 0",
+    "meta": {
+      "cssVar": "--clr-info-a0",
+      "group": "Info",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a0)",
+  },
+  {
+    "label": "Info 10",
+    "meta": {
+      "cssVar": "--clr-info-a10",
+      "group": "Info",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a10)",
+  },
+  {
+    "label": "Info 20",
+    "meta": {
+      "cssVar": "--clr-info-a20",
+      "group": "Info",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a20)",
+  },
+  {
+    "label": "Info 30",
+    "meta": {
+      "cssVar": "--clr-info-a30",
+      "group": "Info",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a30)",
+  },
+  {
+    "label": "Info 40",
+    "meta": {
+      "cssVar": "--clr-info-a40",
+      "group": "Info",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a40)",
+  },
+  {
+    "label": "Info 50",
+    "meta": {
+      "cssVar": "--clr-info-a50",
+      "group": "Info",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a50)",
+  },
+  {
+    "label": "Info 60",
+    "meta": {
+      "cssVar": "--clr-info-a60",
+      "group": "Info",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a60)",
+  },
+  {
+    "label": "Info 70",
+    "meta": {
+      "cssVar": "--clr-info-a70",
+      "group": "Info",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a70)",
+  },
+  {
+    "label": "Info 80",
+    "meta": {
+      "cssVar": "--clr-info-a80",
+      "group": "Info",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a80)",
+  },
+  {
+    "label": "Info 90",
+    "meta": {
+      "cssVar": "--clr-info-a90",
+      "group": "Info",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a90)",
+  },
+  {
+    "label": "Success 0",
+    "meta": {
+      "cssVar": "--clr-success-a0",
+      "group": "Success",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a0)",
+  },
+  {
+    "label": "Success 10",
+    "meta": {
+      "cssVar": "--clr-success-a10",
+      "group": "Success",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a10)",
+  },
+  {
+    "label": "Success 20",
+    "meta": {
+      "cssVar": "--clr-success-a20",
+      "group": "Success",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a20)",
+  },
+  {
+    "label": "Success 30",
+    "meta": {
+      "cssVar": "--clr-success-a30",
+      "group": "Success",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a30)",
+  },
+  {
+    "label": "Success 40",
+    "meta": {
+      "cssVar": "--clr-success-a40",
+      "group": "Success",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a40)",
+  },
+  {
+    "label": "Success 50",
+    "meta": {
+      "cssVar": "--clr-success-a50",
+      "group": "Success",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a50)",
+  },
+  {
+    "label": "Success 60",
+    "meta": {
+      "cssVar": "--clr-success-a60",
+      "group": "Success",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a60)",
+  },
+  {
+    "label": "Success 70",
+    "meta": {
+      "cssVar": "--clr-success-a70",
+      "group": "Success",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a70)",
+  },
+  {
+    "label": "Success 80",
+    "meta": {
+      "cssVar": "--clr-success-a80",
+      "group": "Success",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a80)",
+  },
+  {
+    "label": "Success 90",
+    "meta": {
+      "cssVar": "--clr-success-a90",
+      "group": "Success",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a90)",
+  },
+  {
+    "label": "Warning 0",
+    "meta": {
+      "cssVar": "--clr-warning-a0",
+      "group": "Warning",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a0)",
+  },
+  {
+    "label": "Warning 10",
+    "meta": {
+      "cssVar": "--clr-warning-a10",
+      "group": "Warning",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a10)",
+  },
+  {
+    "label": "Warning 20",
+    "meta": {
+      "cssVar": "--clr-warning-a20",
+      "group": "Warning",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a20)",
+  },
+  {
+    "label": "Warning 30",
+    "meta": {
+      "cssVar": "--clr-warning-a30",
+      "group": "Warning",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a30)",
+  },
+  {
+    "label": "Warning 40",
+    "meta": {
+      "cssVar": "--clr-warning-a40",
+      "group": "Warning",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a40)",
+  },
+  {
+    "label": "Warning 50",
+    "meta": {
+      "cssVar": "--clr-warning-a50",
+      "group": "Warning",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a50)",
+  },
+  {
+    "label": "Warning 60",
+    "meta": {
+      "cssVar": "--clr-warning-a60",
+      "group": "Warning",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a60)",
+  },
+  {
+    "label": "Warning 70",
+    "meta": {
+      "cssVar": "--clr-warning-a70",
+      "group": "Warning",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a70)",
+  },
+  {
+    "label": "Warning 80",
+    "meta": {
+      "cssVar": "--clr-warning-a80",
+      "group": "Warning",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a80)",
+  },
+  {
+    "label": "Warning 90",
+    "meta": {
+      "cssVar": "--clr-warning-a90",
+      "group": "Warning",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a90)",
+  },
+  {
+    "label": "Danger 0",
+    "meta": {
+      "cssVar": "--clr-danger-a0",
+      "group": "Danger",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a0)",
+  },
+  {
+    "label": "Danger 10",
+    "meta": {
+      "cssVar": "--clr-danger-a10",
+      "group": "Danger",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a10)",
+  },
+  {
+    "label": "Danger 20",
+    "meta": {
+      "cssVar": "--clr-danger-a20",
+      "group": "Danger",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a20)",
+  },
+  {
+    "label": "Danger 30",
+    "meta": {
+      "cssVar": "--clr-danger-a30",
+      "group": "Danger",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a30)",
+  },
+  {
+    "label": "Danger 40",
+    "meta": {
+      "cssVar": "--clr-danger-a40",
+      "group": "Danger",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a40)",
+  },
+  {
+    "label": "Danger 50",
+    "meta": {
+      "cssVar": "--clr-danger-a50",
+      "group": "Danger",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a50)",
+  },
+  {
+    "label": "Danger 60",
+    "meta": {
+      "cssVar": "--clr-danger-a60",
+      "group": "Danger",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a60)",
+  },
+  {
+    "label": "Danger 70",
+    "meta": {
+      "cssVar": "--clr-danger-a70",
+      "group": "Danger",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a70)",
+  },
+  {
+    "label": "Danger 80",
+    "meta": {
+      "cssVar": "--clr-danger-a80",
+      "group": "Danger",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a80)",
+  },
+  {
+    "label": "Danger 90",
+    "meta": {
+      "cssVar": "--clr-danger-a90",
+      "group": "Danger",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a90)",
+  },
+]
+`;
+
+exports[`colorFieldHelpers should generate a full list of color options including custom 1`] = `
+[
+  {
+    "label": "Primary 0",
+    "meta": {
+      "cssVar": "--clr-primary-a0",
+      "group": "Primary",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a0)",
+  },
+  {
+    "label": "Primary 10",
+    "meta": {
+      "cssVar": "--clr-primary-a10",
+      "group": "Primary",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a10)",
+  },
+  {
+    "label": "Primary 20",
+    "meta": {
+      "cssVar": "--clr-primary-a20",
+      "group": "Primary",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a20)",
+  },
+  {
+    "label": "Primary 30",
+    "meta": {
+      "cssVar": "--clr-primary-a30",
+      "group": "Primary",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a30)",
+  },
+  {
+    "label": "Primary 40",
+    "meta": {
+      "cssVar": "--clr-primary-a40",
+      "group": "Primary",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a40)",
+  },
+  {
+    "label": "Primary 50",
+    "meta": {
+      "cssVar": "--clr-primary-a50",
+      "group": "Primary",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a50)",
+  },
+  {
+    "label": "Primary 60",
+    "meta": {
+      "cssVar": "--clr-primary-a60",
+      "group": "Primary",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a60)",
+  },
+  {
+    "label": "Primary 70",
+    "meta": {
+      "cssVar": "--clr-primary-a70",
+      "group": "Primary",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a70)",
+  },
+  {
+    "label": "Primary 80",
+    "meta": {
+      "cssVar": "--clr-primary-a80",
+      "group": "Primary",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a80)",
+  },
+  {
+    "label": "Primary 90",
+    "meta": {
+      "cssVar": "--clr-primary-a90",
+      "group": "Primary",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-primary-a90)",
+  },
+  {
+    "label": "Surface 0",
+    "meta": {
+      "cssVar": "--clr-surface-a0",
+      "group": "Surface",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a0)",
+  },
+  {
+    "label": "Surface 10",
+    "meta": {
+      "cssVar": "--clr-surface-a10",
+      "group": "Surface",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a10)",
+  },
+  {
+    "label": "Surface 20",
+    "meta": {
+      "cssVar": "--clr-surface-a20",
+      "group": "Surface",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a20)",
+  },
+  {
+    "label": "Surface 30",
+    "meta": {
+      "cssVar": "--clr-surface-a30",
+      "group": "Surface",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a30)",
+  },
+  {
+    "label": "Surface 40",
+    "meta": {
+      "cssVar": "--clr-surface-a40",
+      "group": "Surface",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a40)",
+  },
+  {
+    "label": "Surface 50",
+    "meta": {
+      "cssVar": "--clr-surface-a50",
+      "group": "Surface",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a50)",
+  },
+  {
+    "label": "Surface 60",
+    "meta": {
+      "cssVar": "--clr-surface-a60",
+      "group": "Surface",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a60)",
+  },
+  {
+    "label": "Surface 70",
+    "meta": {
+      "cssVar": "--clr-surface-a70",
+      "group": "Surface",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a70)",
+  },
+  {
+    "label": "Surface 80",
+    "meta": {
+      "cssVar": "--clr-surface-a80",
+      "group": "Surface",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a80)",
+  },
+  {
+    "label": "Surface 90",
+    "meta": {
+      "cssVar": "--clr-surface-a90",
+      "group": "Surface",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-surface-a90)",
+  },
+  {
+    "label": "Info 0",
+    "meta": {
+      "cssVar": "--clr-info-a0",
+      "group": "Info",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a0)",
+  },
+  {
+    "label": "Info 10",
+    "meta": {
+      "cssVar": "--clr-info-a10",
+      "group": "Info",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a10)",
+  },
+  {
+    "label": "Info 20",
+    "meta": {
+      "cssVar": "--clr-info-a20",
+      "group": "Info",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a20)",
+  },
+  {
+    "label": "Info 30",
+    "meta": {
+      "cssVar": "--clr-info-a30",
+      "group": "Info",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a30)",
+  },
+  {
+    "label": "Info 40",
+    "meta": {
+      "cssVar": "--clr-info-a40",
+      "group": "Info",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a40)",
+  },
+  {
+    "label": "Info 50",
+    "meta": {
+      "cssVar": "--clr-info-a50",
+      "group": "Info",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a50)",
+  },
+  {
+    "label": "Info 60",
+    "meta": {
+      "cssVar": "--clr-info-a60",
+      "group": "Info",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a60)",
+  },
+  {
+    "label": "Info 70",
+    "meta": {
+      "cssVar": "--clr-info-a70",
+      "group": "Info",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a70)",
+  },
+  {
+    "label": "Info 80",
+    "meta": {
+      "cssVar": "--clr-info-a80",
+      "group": "Info",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a80)",
+  },
+  {
+    "label": "Info 90",
+    "meta": {
+      "cssVar": "--clr-info-a90",
+      "group": "Info",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-info-a90)",
+  },
+  {
+    "label": "Success 0",
+    "meta": {
+      "cssVar": "--clr-success-a0",
+      "group": "Success",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a0)",
+  },
+  {
+    "label": "Success 10",
+    "meta": {
+      "cssVar": "--clr-success-a10",
+      "group": "Success",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a10)",
+  },
+  {
+    "label": "Success 20",
+    "meta": {
+      "cssVar": "--clr-success-a20",
+      "group": "Success",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a20)",
+  },
+  {
+    "label": "Success 30",
+    "meta": {
+      "cssVar": "--clr-success-a30",
+      "group": "Success",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a30)",
+  },
+  {
+    "label": "Success 40",
+    "meta": {
+      "cssVar": "--clr-success-a40",
+      "group": "Success",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a40)",
+  },
+  {
+    "label": "Success 50",
+    "meta": {
+      "cssVar": "--clr-success-a50",
+      "group": "Success",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a50)",
+  },
+  {
+    "label": "Success 60",
+    "meta": {
+      "cssVar": "--clr-success-a60",
+      "group": "Success",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a60)",
+  },
+  {
+    "label": "Success 70",
+    "meta": {
+      "cssVar": "--clr-success-a70",
+      "group": "Success",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a70)",
+  },
+  {
+    "label": "Success 80",
+    "meta": {
+      "cssVar": "--clr-success-a80",
+      "group": "Success",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a80)",
+  },
+  {
+    "label": "Success 90",
+    "meta": {
+      "cssVar": "--clr-success-a90",
+      "group": "Success",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-success-a90)",
+  },
+  {
+    "label": "Warning 0",
+    "meta": {
+      "cssVar": "--clr-warning-a0",
+      "group": "Warning",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a0)",
+  },
+  {
+    "label": "Warning 10",
+    "meta": {
+      "cssVar": "--clr-warning-a10",
+      "group": "Warning",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a10)",
+  },
+  {
+    "label": "Warning 20",
+    "meta": {
+      "cssVar": "--clr-warning-a20",
+      "group": "Warning",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a20)",
+  },
+  {
+    "label": "Warning 30",
+    "meta": {
+      "cssVar": "--clr-warning-a30",
+      "group": "Warning",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a30)",
+  },
+  {
+    "label": "Warning 40",
+    "meta": {
+      "cssVar": "--clr-warning-a40",
+      "group": "Warning",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a40)",
+  },
+  {
+    "label": "Warning 50",
+    "meta": {
+      "cssVar": "--clr-warning-a50",
+      "group": "Warning",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a50)",
+  },
+  {
+    "label": "Warning 60",
+    "meta": {
+      "cssVar": "--clr-warning-a60",
+      "group": "Warning",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a60)",
+  },
+  {
+    "label": "Warning 70",
+    "meta": {
+      "cssVar": "--clr-warning-a70",
+      "group": "Warning",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a70)",
+  },
+  {
+    "label": "Warning 80",
+    "meta": {
+      "cssVar": "--clr-warning-a80",
+      "group": "Warning",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a80)",
+  },
+  {
+    "label": "Warning 90",
+    "meta": {
+      "cssVar": "--clr-warning-a90",
+      "group": "Warning",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-warning-a90)",
+  },
+  {
+    "label": "Danger 0",
+    "meta": {
+      "cssVar": "--clr-danger-a0",
+      "group": "Danger",
+      "step": 0,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a0)",
+  },
+  {
+    "label": "Danger 10",
+    "meta": {
+      "cssVar": "--clr-danger-a10",
+      "group": "Danger",
+      "step": 10,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a10)",
+  },
+  {
+    "label": "Danger 20",
+    "meta": {
+      "cssVar": "--clr-danger-a20",
+      "group": "Danger",
+      "step": 20,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a20)",
+  },
+  {
+    "label": "Danger 30",
+    "meta": {
+      "cssVar": "--clr-danger-a30",
+      "group": "Danger",
+      "step": 30,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a30)",
+  },
+  {
+    "label": "Danger 40",
+    "meta": {
+      "cssVar": "--clr-danger-a40",
+      "group": "Danger",
+      "step": 40,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a40)",
+  },
+  {
+    "label": "Danger 50",
+    "meta": {
+      "cssVar": "--clr-danger-a50",
+      "group": "Danger",
+      "step": 50,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a50)",
+  },
+  {
+    "label": "Danger 60",
+    "meta": {
+      "cssVar": "--clr-danger-a60",
+      "group": "Danger",
+      "step": 60,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a60)",
+  },
+  {
+    "label": "Danger 70",
+    "meta": {
+      "cssVar": "--clr-danger-a70",
+      "group": "Danger",
+      "step": 70,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a70)",
+  },
+  {
+    "label": "Danger 80",
+    "meta": {
+      "cssVar": "--clr-danger-a80",
+      "group": "Danger",
+      "step": 80,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a80)",
+  },
+  {
+    "label": "Danger 90",
+    "meta": {
+      "cssVar": "--clr-danger-a90",
+      "group": "Danger",
+      "step": 90,
+      "swatch": undefined,
+    },
+    "value": "var(--clr-danger-a90)",
+  },
+]
+`;

@@ -33,7 +33,6 @@ import { useGetPuck } from '@measured/puck';
 import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
 import { ColorSwatches, generateColorSwatches } from '@helpers/color';
 import isEqual from '@guanghechen/fast-deep-equal';
-import { resolve } from 'bun';
 
 const COLOR_PICKER_WIDTH = 250;
 const COLOR_PICKER_HEIGHT = 150;
@@ -125,6 +124,8 @@ function ExtractCurrentTheme({ onChange }: { onChange: (theme: InternalComponent
         onChange((appState.data.root.props as InternalComponentFields).theme);
         break;
       } else if (item?.props.theme.override) {
+        // if the current component has "override" set to true, use it's theme, else keep going
+        // until we reach the root
         onChange(item.props.theme as InternalComponentFields['theme']);
         break;
       }
