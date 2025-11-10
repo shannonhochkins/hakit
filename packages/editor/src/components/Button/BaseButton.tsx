@@ -43,9 +43,9 @@ export interface BaseButtonProps extends React.ComponentPropsWithRef<'div'> {
   /** Tooltip props for the badge */
   badgeTooltipProps?: Partial<TooltipProps>;
   /** Variant for styling (used for badge variant inheritance) */
-  variant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent';
   /** Badge variant override (defaults to button variant) */
-  badgeVariant?: 'primary' | 'secondary' | 'error' | 'success' | 'transparent';
+  badgeVariant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent';
   /** Wrapper style for the outer div */
   wrapperStyle?: React.CSSProperties;
   /** active state */
@@ -167,7 +167,7 @@ const BaseButtonPrivate = ({
                 badge: true,
                 badgePrimary: effectiveBadgeVariant === 'primary',
                 badgeSecondary: effectiveBadgeVariant === 'secondary',
-                badgeError: effectiveBadgeVariant === 'error',
+                badgeDanger: effectiveBadgeVariant === 'danger',
                 badgeSuccess: effectiveBadgeVariant === 'success',
                 badgeTransparent: effectiveBadgeVariant === 'transparent',
                 badgeSizeXs: size === 'xs',

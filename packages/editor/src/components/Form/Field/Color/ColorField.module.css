@@ -1,6 +1,9 @@
 
 .colorField {
   cursor: pointer;
+  [class*="statusIcon"] {
+    padding-right: var(--space-5);
+  }
 }
 
 .swatch {
@@ -31,3 +34,15 @@
   z-index: var(--z-popover)
 }
 
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.swatchSmall {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+}

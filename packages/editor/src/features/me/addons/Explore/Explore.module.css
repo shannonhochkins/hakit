@@ -60,5 +60,5 @@
 .Explore-errorState {
   text-align: center;
   padding: var(--space-8) var(--space-4);
-  color: var(--clr-error-a0);
+  color: var(--clr-danger-a0);
 }

@@ -25,6 +25,6 @@ export type FieldConfiguration<T extends DefaultComponentProps> = InternalFieldC
 // the component definition type
 export type ComponentConfig<T extends DefaultComponentProps> = CustomComponentConfig<T>;
 
-export type { PageValue, UnitFieldValue } from '@typings/fields';
+export type { PageValue, UnitFieldValue, ColorVar } from '@typings/fields';
 
 export type { DashboardPage, DashboardPageWithoutData } from './types/shims/hono-shim';

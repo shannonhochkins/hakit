@@ -66,7 +66,6 @@ type CommonAutocompleteProps<T> = {
   helperText?: string;
   error?: boolean;
   success?: boolean;
-  disabled?: boolean;
   readOnly?: boolean;
   startAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
   endAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
@@ -74,23 +73,40 @@ type CommonAutocompleteProps<T> = {
   size?: AutocompleteFieldSize;
   listItemSize?: number;
   name?: string;
+  noOptionsText?: string;
+  includeEndIcon?: boolean;
+
   // Renderers
   renderOption?: (option: T) => React.ReactNode;
   isOptionEqualToValue?: (option: T, value: T) => boolean;
+  /**
+   * Derive a grouping key for an option. Return a string to group the option under that header, or undefined for no group.
+   * This mimics MUI's groupBy but allows arbitrary logic (e.g. starts-with checks, category mapping, ranges, etc.).
+   */
+  groupBy?: (option: T) => string | undefined;
+  /**
+   * Custom renderer for a group header label. Receives the group string and the array of options in that group.
+   * If omitted, the raw group string is rendered.
+   */
+  renderGroupLabel?: (group: string, groupOptions: readonly T[]) => React.ReactNode;
 };
 
 export type SingleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   multiple?: false;
   value?: T;
   onChange?: (value: T) => void;
+  onInputClick?: (e: React.MouseEvent) => void;
   renderValue?: (value: T) => React.ReactNode;
+  disabled?: boolean | ((options: ReadonlyArray<T>, value: T | undefined) => boolean);
 };
 
 export type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   multiple: true;
   value?: T[];
   onChange?: (value: T[]) => void;
+  onInputClick?: (e: React.MouseEvent) => void;
   renderValue?: (values: T[]) => React.ReactNode;
+  disabled?: boolean | ((options: ReadonlyArray<T>, value: T[] | undefined) => boolean);
 };
 
 const isIconElement = (node: React.ReactNode): boolean => {
@@ -102,6 +118,10 @@ const isIconElement = (node: React.ReactNode): boolean => {
 
 const isProps = (val: unknown): val is AutocompleteFieldAdornmentProps =>
   typeof val === 'object' && val !== null && 'content' in (val as Record<string, unknown>);
+
+// Heuristic for {label, value} shaped options; used for default rendering & equality fallback
+const isOption = (o: unknown): o is { label: string; value: unknown } =>
+  !!o && typeof o === 'object' && 'label' in (o as Record<string, unknown>) && 'value' in (o as Record<string, unknown>);
 
 export type AutocompleteFieldProps<T = string> = SingleAutocompleteProps<T> | MultipleAutocompleteProps<T>;
 export function AutocompleteField<T = string>({
@@ -127,6 +147,11 @@ export function AutocompleteField<T = string>({
   renderValue,
   isOptionEqualToValue,
   listItemSize = 32,
+  includeEndIcon = true,
+  noOptionsText = 'No options available',
+  groupBy,
+  renderGroupLabel,
+  onInputClick,
 }: AutocompleteFieldProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -137,25 +162,33 @@ export function AutocompleteField<T = string>({
   const inputRef = useRef<HTMLInputElement>(null);
   const lastInteraction = useRef<'keyboard' | 'pointer' | null>(null);
   const justClosedRef = useRef(false);
+  const hasEndInputAdornment = typeof endAdornment === 'object' && isProps(endAdornment) && endAdornment.className?.includes('input');
 
   const renderOptionNode = useCallback(
     (option: T) => {
       if (renderOption) return renderOption(option);
       if (typeof (option as unknown) === 'string') return option as unknown as string;
+      if (isOption(option)) return option.label;
       throw new Error('Autocomplete: non-string options require renderOption to be provided.');
     },
     [renderOption]
   );
 
-  const equals = useCallback((a: T, b: T) => (isOptionEqualToValue ? isOptionEqualToValue(a, b) : a === b), [isOptionEqualToValue]);
+  const equals = useCallback(
+    (a: T, b: T) => {
+      if (isOption(a) && isOption(b)) return a.value === b.value;
+      return isOptionEqualToValue ? isOptionEqualToValue(a, b) : a === b;
+    },
+    [isOptionEqualToValue]
+  );
 
   const [selectedValues, setSelectedValues] = useState<T[]>(
     multiple ? (Array.isArray(value) ? value : []) : value !== undefined ? [value as T] : []
   );
 
   const noOptions = options.length === 0;
-  const isDisabled = disabled || noOptions;
-  const effectivePlaceholder = noOptions ? 'No options available' : placeholder;
+  const isDisabled = typeof disabled === 'function' ? disabled(options, value as (T & T[]) | undefined) : disabled || noOptions;
+  const effectivePlaceholder = noOptions ? noOptionsText : placeholder;
 
   useEffect(() => {
     if (multiple) setSelectedValues(Array.isArray(value) ? value : []);
@@ -170,6 +203,7 @@ export function AutocompleteField<T = string>({
       setFilteredOptions(
         options.filter(option => {
           if (typeof option === 'string') return option.toLowerCase().includes(q);
+          if (isOption(option)) return option.label.toLowerCase().includes(q) || String(option.value).toLowerCase().includes(q);
           return JSON.stringify(option).toLowerCase().includes(q);
         }) as T[]
       );
@@ -271,39 +305,74 @@ export function AutocompleteField<T = string>({
     return () => doc.removeEventListener('pointerdown', close);
   }, [isOpen, iframe]);
 
+  // ----- Grouping & Flattening -----
+  type FlattenedRow = { type: 'group'; group: string; options: T[] } | { type: 'option'; option: T; group?: string };
+  const flattenedOptions: FlattenedRow[] = React.useMemo(() => {
+    if (!groupBy) return filteredOptions.map(o => ({ type: 'option', option: o }));
+    const groupMap = new Map<string, T[]>();
+    const ungrouped: T[] = [];
+    for (const opt of filteredOptions) {
+      const g = groupBy(opt);
+      if (g) {
+        if (!groupMap.has(g)) groupMap.set(g, []);
+        groupMap.get(g)!.push(opt);
+      } else {
+        ungrouped.push(opt);
+      }
+    }
+    const rows: FlattenedRow[] = [];
+    for (const [g, opts] of groupMap.entries()) {
+      rows.push({ type: 'group', group: g, options: opts });
+      for (const o of opts) rows.push({ type: 'option', option: o, group: g });
+    }
+    for (const o of ungrouped) rows.push({ type: 'option', option: o });
+    return rows;
+  }, [filteredOptions, groupBy]);
+
   useEffect(() => {
     if (!isOpen || isDisabled || readOnly) return;
-
     const onDocKey = (e: KeyboardEvent) => {
-      // Allow typing in the input; if target is *your* input, we still want arrows & Enter to work.
-      // So we DO NOT early-return for inputs; we handle keys below explicitly.
       const key = e.key;
-
       if (key === 'ArrowDown') {
         e.preventDefault();
-        setHighlightedIndex(i => Math.min(i + 1, filteredOptions.length - 1));
+        setHighlightedIndex(i => {
+          let next = Math.min(i + 1, flattenedOptions.length - 1);
+          while (next < flattenedOptions.length && flattenedOptions[next].type === 'group') {
+            next = Math.min(next + 1, flattenedOptions.length - 1);
+          }
+          return next;
+        });
       } else if (key === 'ArrowUp') {
         e.preventDefault();
-        setHighlightedIndex(i => Math.max(i - 1, 0));
+        setHighlightedIndex(i => {
+          let prev = Math.max(i - 1, 0);
+          while (prev >= 0 && flattenedOptions[prev].type === 'group') {
+            prev = Math.max(prev - 1, 0);
+          }
+          return prev;
+        });
       } else if (key === 'Enter') {
         e.preventDefault();
-        if (highlightedIndex >= 0 && highlightedIndex < filteredOptions.length) {
-          handleOptionClick(filteredOptions[highlightedIndex]);
+        if (highlightedIndex >= 0 && highlightedIndex < flattenedOptions.length) {
+          const row = flattenedOptions[highlightedIndex];
+          if (row.type === 'option') handleOptionClick(row.option);
         }
       } else if (key === 'Escape') {
         e.preventDefault();
         setIsOpen(false);
       }
     };
-
     document.addEventListener('keydown', onDocKey);
     return () => document.removeEventListener('keydown', onDocKey);
-  }, [isOpen, isDisabled, readOnly, highlightedIndex, filteredOptions, handleOptionClick]);
+  }, [isOpen, isDisabled, readOnly, highlightedIndex, flattenedOptions, handleOptionClick, noOptionsText, inputValue]);
 
-  // Reset highlighted index when opening/closing
+  // Reset highlighted index when opening respecting groups
   useEffect(() => {
-    setHighlightedIndex(isOpen ? 0 : -1);
-  }, [isOpen]);
+    if (isOpen) {
+      const firstIndex = flattenedOptions.findIndex(r => r.type === 'option');
+      setHighlightedIndex(firstIndex);
+    } else setHighlightedIndex(-1);
+  }, [isOpen, flattenedOptions]);
 
   const handleRemoveValue = (valueToRemove: T, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -343,7 +412,7 @@ export function AutocompleteField<T = string>({
       Autocomplete: true,
       small: size === 'small',
       large: size === 'large',
-      error: error || (isOpen && filteredOptions.length === 0),
+      error: error || (isOpen && flattenedOptions.filter(r => r.type === 'option').length === 0),
       success,
       disabled: isDisabled,
       hasStartAdornment: !!startAdornment,
@@ -407,6 +476,7 @@ export function AutocompleteField<T = string>({
             onChange={onInputChange}
             onFocus={onInputFocus}
             onKeyDown={onInputKeyDown}
+            onClick={onInputClick}
             disabled={isDisabled}
             readOnly={readOnly}
             autoComplete='off'
@@ -416,7 +486,7 @@ export function AutocompleteField<T = string>({
         </div>
 
         <div className={getClassName('rightControls')}>
-          {!hasStatusIcon && (
+          {!hasStatusIcon && includeEndIcon && (
             <SearchIcon
               size={18}
               className={getClassName('searchIcon')}
@@ -441,6 +511,7 @@ export function AutocompleteField<T = string>({
             else if (isIconElement(content)) adornmentClass += ` ${getClassName('icon')}`;
             else adornmentClass += ` ${getClassName('default')}`;
             if (extraClass) adornmentClass += ` ${extraClass}`;
+            if (hasEndInputAdornment) adornmentClass = getClassName('endAdornment-input') + ` ${extraClass ?? ''}`;
             return (
               <div
                 className={adornmentClass}
@@ -467,7 +538,7 @@ export function AutocompleteField<T = string>({
         )}
 
         {/* Floating UI portal */}
-        {isOpen && filteredOptions.length > 0 && (
+        {isOpen && flattenedOptions.some(r => r.type === 'option') && (
           <FloatingPortal>
             <FloatingFocusManager context={context} modal={false} returnFocus={false} initialFocus={-1} guards={false}>
               <div
@@ -478,11 +549,11 @@ export function AutocompleteField<T = string>({
                 {...getFloatingProps({ className: getClassName('dropdown') })}
               >
                 <List
-                  height={Math.min(filteredOptions.length * listItemSize, 200)}
+                  height={Math.min(flattenedOptions.length * listItemSize, 200)}
                   width={'100%'}
-                  itemCount={filteredOptions.length}
+                  itemCount={flattenedOptions.length}
                   itemSize={listItemSize}
-                  itemData={{ options: filteredOptions, selectedValues, handleOptionClick, highlightedIndex }}
+                  itemData={{ rows: flattenedOptions, selectedValues, handleOptionClick, highlightedIndex }}
                   className={getClassName('optionsList')}
                 >
                   {({
@@ -492,9 +563,17 @@ export function AutocompleteField<T = string>({
                   }: {
                     index: number;
                     style: React.CSSProperties;
-                    data: { options: T[]; selectedValues: T[]; handleOptionClick: (o: T) => void; highlightedIndex: number };
+                    data: { rows: FlattenedRow[]; selectedValues: T[]; handleOptionClick: (o: T) => void; highlightedIndex: number };
                   }) => {
-                    const option = data.options[index];
+                    const row = data.rows[index];
+                    if (row.type === 'group') {
+                      return (
+                        <div key={`group-${row.group}-${index}`} style={style} role='presentation' className={getClassName('groupHeader')}>
+                          {renderGroupLabel ? renderGroupLabel(row.group, row.options) : row.group}
+                        </div>
+                      );
+                    }
+                    const option = row.option;
                     const isSelected = data.selectedValues.some((v: T) => equals(v, option));
                     const isHighlighted = index === data.highlightedIndex;
                     return (
@@ -519,8 +598,12 @@ export function AutocompleteField<T = string>({
       </div>
 
       <HelperText
-        helperText={filteredOptions.length === 0 ? `No results found matching "${inputValue}"` : helperText}
-        error={error || (isOpen && filteredOptions.length === 0)}
+        helperText={
+          flattenedOptions.filter(r => r.type === 'option').length === 0 && inputValue
+            ? `No results found matching "${inputValue}"`
+            : helperText
+        }
+        error={error || (isOpen && flattenedOptions.filter(r => r.type === 'option').length === 0)}
       />
     </div>
   );

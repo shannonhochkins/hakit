@@ -46,17 +46,17 @@
   }
 }
 
-.error {
+.danger {
    --gradient-angle: 160deg;
-  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
-  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
-  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
   --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
-  --button-shadow: var(--shadow-error-base);
-  --button-shadow-hover: var(--shadow-error-hover);
-  --button-shadow-active: var(--shadow-error-active);
-  --button-shadow-focus: var(--shadow-error-focus);
+  --button-shadow: var(--shadow-danger-base);
+  --button-shadow-hover: var(--shadow-danger-hover);
+  --button-shadow-active: var(--shadow-danger-active);
+  --button-shadow-focus: var(--shadow-danger-focus);
   transition: all var(--transition-normal), --gradient-angle var(--transition-slow);
   &:hover:not(:disabled), &:active:not(:disabled) {
     --gradient-angle: 200deg;
@@ -65,4 +65,4 @@
 /* ClassNameFactory compatibility */
 .PrimaryButton { composes: primary; }
 .PrimaryButton-success { composes: success; }
-.PrimaryButton-error { composes: error; }
+.PrimaryButton-danger { composes: danger; }

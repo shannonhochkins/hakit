@@ -15,8 +15,8 @@ export function StyleguideAlerts() {
         <Alert severity='success' title='Success'>
           This is a success alert indicating a successful operation.
         </Alert>
-        <Alert severity='error' title='Error'>
-          This is an error alert indicating something went wrong.
+        <Alert severity='danger' title='Error'>
+          This is a danger alert indicating something went wrong.
         </Alert>
       </Group>
 
@@ -24,7 +24,7 @@ export function StyleguideAlerts() {
         <Alert severity='info'>This is an informational alert without a title.</Alert>
         <Alert severity='warning'>This is a warning alert without a title.</Alert>
         <Alert severity='success'>This is a success alert without a title.</Alert>
-        <Alert severity='error'>This is an error alert without a title.</Alert>
+        <Alert severity='danger'>This is a danger alert without a title.</Alert>
       </Group>
 
       <Group title='Alert - With Rich Content'>
@@ -37,7 +37,7 @@ export function StyleguideAlerts() {
         <Alert severity='success' title='Mixed Content'>
           Success! Your <code>deployment</code> completed successfully. <mark>All tests passed</mark>.
         </Alert>
-        <Alert severity='error' title='Error Details'>
+        <Alert severity='danger' title='Error Details'>
           Error in <code>function validateInput()</code>. <mark>Invalid parameters</mark> provided.
         </Alert>
       </Group>
@@ -81,7 +81,7 @@ export function StyleguideAlerts() {
       </Group>
 
       <Group title='Alert - Complex Nested Content'>
-        <Alert severity='error' title='Complex Error Details'>
+        <Alert severity='danger' title='Complex Error Details'>
           <div>
             <p>Multiple issues detected:</p>
             <ul>
@@ -124,7 +124,7 @@ export function StyleguideAlerts() {
           Alert with empty title string.
         </Alert>
         <Alert severity='warning'>{null}</Alert>
-        <Alert severity='error' title='Empty Content'>
+        <Alert severity='danger' title='Empty Content'>
           {''}
         </Alert>
         <Alert severity='success' title='Special Characters'>

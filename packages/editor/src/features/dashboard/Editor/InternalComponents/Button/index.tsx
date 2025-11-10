@@ -10,8 +10,8 @@ import { Slot } from '@measured/puck';
 export type ButtonProps = {
   appearance: {
     type: 'primary' | 'secondary';
-    primaryVariant?: 'primary' | 'success' | 'error';
-    secondaryVariant?: 'secondary' | 'error' | 'success' | 'transparent';
+    primaryVariant?: 'primary' | 'success' | 'danger';
+    secondaryVariant?: 'secondary' | 'danger' | 'success' | 'transparent';
     size: 'xs' | 'sm' | 'md' | 'lg';
     startIcon?: string;
     startIconSize?: UnitFieldValue;

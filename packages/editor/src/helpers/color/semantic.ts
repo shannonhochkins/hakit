@@ -38,7 +38,12 @@ export function makeSemanticSwatches({
   hueShiftScale?: number;
   endcapLightnessDark?: number;
   endcapLightnessLight?: number;
-}) {
+}): {
+  success: Swatch[];
+  warning: Swatch[];
+  danger: Swatch[];
+  info: Swatch[];
+} {
   const lm = !!lightMode;
   function makeSemantic(color: string): Swatch[] {
     return makePrimarySwatches(color, lm, {
@@ -48,19 +53,22 @@ export function makeSemanticSwatches({
       endcapLightnessLight,
     });
   }
-  const successScale = success && makeSemantic(success);
-  const warningScale = warning && makeSemantic(warning);
-  const dangerScale = danger && makeSemantic(danger);
-  const infoScale = info && makeSemantic(info);
+  const successScale = success ? makeSemantic(success) : undefined;
+  const warningScale = warning ? makeSemantic(warning) : undefined;
+  const dangerScale = danger ? makeSemantic(danger) : undefined;
+  const infoScale = info ? makeSemantic(info) : undefined;
 
-  [successScale, warningScale, dangerScale, infoScale].filter(Boolean).forEach(scale => {
-    for (const s of scale) s.textColor = chooseText(Color(s.color)).toString();
-  });
+  for (const scale of [successScale, warningScale, dangerScale, infoScale]) {
+    if (!scale) continue; // explicit narrowing so scale is Swatch[]
+    for (const s of scale) {
+      s.textColor = chooseText(Color(s.color)).toString();
+    }
+  }
 
   return {
-    success: successScale || undefined,
-    warning: warningScale || undefined,
-    danger: dangerScale || undefined,
-    info: infoScale || undefined,
+    success: successScale || [],
+    warning: warningScale || [],
+    danger: dangerScale || [],
+    info: infoScale || [],
   };
 }

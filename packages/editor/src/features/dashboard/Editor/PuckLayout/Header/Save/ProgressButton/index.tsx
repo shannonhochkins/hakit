@@ -57,7 +57,7 @@ export function ProgressButton({ disabled = false, onClick, children, title, var
         tooltipProps={{
           placement: 'bottom',
         }}
-        variant={result === 'success' ? 'success' : result === 'error' ? 'error' : variant}
+        variant={result === 'success' ? 'success' : result === 'error' ? 'danger' : variant}
       >
         <div className={getClassName('ProgressButton-Content')}>{children}</div>
       </PrimaryButton>

@@ -11,8 +11,8 @@
 
 /* Label color variants */
 .IssueLabel-chip--bug {
-  background: var(--clr-error-a10);
-  color: var(--clr-error-a70);
+  background: var(--clr-danger-a10);
+  color: var(--clr-danger-a70);
 }
 
 .IssueLabel-chip--feature {

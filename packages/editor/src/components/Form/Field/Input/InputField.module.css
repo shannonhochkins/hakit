@@ -22,11 +22,11 @@
   box-shadow: var(--shadow-primary-focus-sm);
 }
 .inputWrapper.error {
-  border-color: var(--clr-error-a0);
+  border-color: var(--clr-danger-a0);
 }
 .inputWrapper.error:focus-within {
-  border-color: var(--clr-error-a0);
-  box-shadow: var(--shadow-error-focus-sm);
+  border-color: var(--clr-danger-a0);
+  box-shadow: var(--shadow-danger-focus-sm);
 }
 .inputWrapper.success {
   border-color: var(--clr-success-a0);
@@ -184,7 +184,7 @@
 .inputWrapper .errorIcon, .inputWrapper .successIcon {
   position: absolute;
   right: var(--space-3);
-  color: var(--clr-error-a0);
+  color: var(--clr-danger-a0);
   pointer-events: none;
   z-index: 2;
 }

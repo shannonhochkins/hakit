@@ -308,26 +308,26 @@
   border-color: var(--clr-surface-a20);
 }
 
-/* Badge variant - Error (red) */
-.badgeError {
-  background-color: var(--clr-error-a0);
+/* Badge variant - Danger (red) */
+.badgeDanger {
+  background-color: var(--clr-danger-a0);
   color: var(--clr-on-primary-a50);
-  border-color: var(--clr-error-a10);
+  border-color: var(--clr-danger-a10);
 }
 
-.badgeError:hover {
-  background-color: var(--clr-error-a60);
+.badgeDanger:hover {
+  background-color: var(--clr-danger-a60);
   transform: scale(1.1);
-  border-color: var(--clr-error-a60);
+  border-color: var(--clr-danger-a60);
 }
 
-.badgeError:active {
-  background-color: var(--clr-error-a10);
+.badgeDanger:active {
+  background-color: var(--clr-danger-a10);
   transform: scale(0.95);
-  border-color: var(--clr-error-a10);
+  border-color: var(--clr-danger-a10);
 }
 
-/* Badge variant - error */
+/* Badge variant - danger */
 
 .badgeSuccess {
   background-color: var(--clr-success-a0);
@@ -382,7 +382,7 @@
 .BaseButton-badge { composes: badge; }
 .BaseButton--badgePrimary { composes: badgePrimary; }
 .BaseButton--badgeSecondary { composes: badgeSecondary; }
-.BaseButton--badgeError { composes: badgeError; }
+.BaseButton--badgeDanger { composes: badgeDanger; }
 .BaseButton--badgeTransparent { composes: badgeTransparent; }
 .BaseButton--badgeSuccess { composes: badgeSuccess; }
 .BaseButton--badgeSizeXs { composes: badgeSizeXs; }

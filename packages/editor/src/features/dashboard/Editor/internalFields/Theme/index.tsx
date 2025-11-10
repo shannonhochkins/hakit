@@ -1,55 +1,11 @@
 import { ColorField } from '@components/Form/Field/Color';
 import { SliderField } from '@components/Form/Field/Slider';
 import { SwitchField } from '@components/Form/Field/Switch';
-import { Column, Row } from '@components/Layout';
+import { Column } from '@components/Layout';
 import { FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import Color from 'color';
 import { Blend, Lightbulb, LightbulbOff, PaintBucket, Palette } from 'lucide-react';
-import styles from './Theme.module.css';
-import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-import { generateColorSwatches } from '@helpers/color';
-import { generateCssVariables } from '@helpers/color/generateCssVariables';
-import { Tooltip } from '@components/Tooltip';
-import { type Swatch } from '@helpers/color/primary';
 import { useCallback } from 'react';
-const cn = getClassNameFactory('Theme', styles);
-function Swatch({ color }: { color: string }) {
-  return <div className={cn('swatch')} style={{ backgroundColor: color }} />;
-}
-
-function SwatchesRow({ swatches, type }: { swatches: Swatch[]; type: 'primary' | 'surface' }) {
-  return (
-    <Row fullWidth justifyContent='space-evenly' gap={'var(--space-1)'} style={{ padding: 'var(--space-1)' }}>
-      {swatches.map(s => {
-        const cssVar = generateCssVariables({
-          surface: [],
-          primary: [],
-          [type]: [s],
-        });
-        return (
-          <Tooltip
-            style={{
-              display: 'flex',
-            }}
-            title={
-              <pre
-                style={{
-                  margin: 0,
-                  fontSize: '0.55rem',
-                }}
-              >
-                {cssVar}
-              </pre>
-            }
-            key={s.label}
-          >
-            <Swatch key={s.label} color={s.color} />
-          </Tooltip>
-        );
-      })}
-    </Row>
-  );
-}
 
 export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{ theme: InternalRootComponentFields['theme'] }> => ({
   theme: {
@@ -89,16 +45,6 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
           return data.theme.override;
         },
         render({ value, onChange, id }) {
-          const swatches = generateColorSwatches({
-            primary: value.primary,
-            surface: value.surface,
-            lightMode: value.lightMode,
-            tonalityMix: value.tonalityMix,
-            success: value.semantics.success,
-            warning: value.semantics.warning,
-            danger: value.semantics.danger,
-            info: value.semantics.info,
-          });
           // eslint-disable-next-line react-hooks/rules-of-hooks
           const onSwitchChange = useCallback(
             (e: React.SyntheticEvent<HTMLInputElement>) => {
@@ -140,6 +86,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
               />
               <ColorField
                 id={`${id}-primary`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 name={`${id}-primary`}
                 label='Primary Color'
                 icon={<Palette size={16} />}
@@ -148,11 +96,12 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 hideControls
                 onChange={v => onChange({ ...value, primary: v })}
               />
-              <SwatchesRow swatches={swatches.primary} type='primary' />
 
               <ColorField
                 id={`${id}-surface`}
                 name={`${id}-surface`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 icon={<PaintBucket size={16} />}
                 label='Surface Color'
                 helperText='Base color for surfaces and backgrounds'
@@ -160,7 +109,6 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
                 hideControls
                 onChange={v => onChange({ ...value, surface: v })}
               />
-              <SwatchesRow swatches={swatches.surface} type='surface' />
               <SliderField
                 id={`${id}-tonalityMix`}
                 name={`${id}-tonalityMix`}
@@ -184,6 +132,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
               <ColorField
                 id={`${id}-semantics-success`}
                 name={`${id}-semantics-success`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 label='Success Color'
                 icon={<Palette size={16} />}
                 helperText='Color used for success messages and indicators'
@@ -193,6 +143,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
               />
               <ColorField
                 id={`${id}-semantics-warning`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 name={`${id}-semantics-warning`}
                 label='Warning Color'
                 icon={<Palette size={16} />}
@@ -203,6 +155,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
               />
               <ColorField
                 id={`${id}-semantics-danger`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 name={`${id}-semantics-danger`}
                 label='Danger Color'
                 icon={<Palette size={16} />}
@@ -213,6 +167,8 @@ export const getThemeFields = (type: 'root' | 'component'): FieldConfiguration<{
               />
               <ColorField
                 id={`${id}-semantics-info`}
+                disableThemeAutocomplete
+                isWithinEditorContext
                 name={`${id}-semantics-info`}
                 label='Info Color'
                 icon={<Palette size={16} />}

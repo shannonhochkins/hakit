@@ -7,5 +7,5 @@
   cursor: default;
 }
 .errorText {
-  color: var(--clr-error-a0);
+  color: var(--clr-danger-a0);
 }

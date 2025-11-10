@@ -739,7 +739,7 @@ describe('createRootComponent', () => {
     // @ts-expect-error - defaultProps exists at runtime but not in type definition
     const backgroundDefaults = result.defaultProps.background;
     expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
-    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
     expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
     expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
     expect(backgroundDefaults).toHaveProperty('blur', 25);
@@ -1005,7 +1005,7 @@ describe('createRootComponent', () => {
     expect(backgroundDefaults).toHaveProperty('backgroundSizeCustom', '');
     expect(backgroundDefaults).toHaveProperty('backgroundPosition', 'center center');
     expect(backgroundDefaults).toHaveProperty('backgroundRepeat', 'no-repeat');
-    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
     expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
     expect(backgroundDefaults).toHaveProperty('blur', 25);
     expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
@@ -1040,7 +1040,7 @@ describe('createRootComponent', () => {
 
     // Verify defaultRootConfig defaults are preserved
     expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
-    expect(backgroundDefaults).toHaveProperty('overlayColor', '#4254c5');
+    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
     expect(backgroundDefaults).toHaveProperty('blur', 25);
     expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
 

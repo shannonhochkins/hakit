@@ -6,7 +6,7 @@ import { sharedCss, properties } from './css-variables';
 
 const lightMode = false;
 const PRIMARY_COLOR = `#06A5FF`;
-const ERROR_COLOR = `#ED0707`;
+const DANGER_COLOR = `#ED0707`;
 const SUCCESS_COLOR = `#22946E`;
 const WARNING_COLOR = `#A87A2A`;
 const INFO_COLOR = `#21498A`;
@@ -18,8 +18,8 @@ const primarySwatches = generateColorSwatches({
   lightMode,
 });
 // maps to pucks red color
-const errorSwatches = generateColorSwatches({
-  primary: ERROR_COLOR,
+const dangerSwatches = generateColorSwatches({
+  primary: DANGER_COLOR,
   lightMode,
 });
 // maps to pucks green color
@@ -74,8 +74,8 @@ const buildPuckVars = (scaleName: string, name: string, swatches: ReturnType<typ
 };
 
 const ourVariables = [
-  generateCssVariables(errorSwatches, {
-    primaryName: 'error',
+  generateCssVariables(dangerSwatches, {
+    primaryName: 'danger',
   }),
   generateCssVariables(primarySwatches, {
     primaryName: 'primary',
@@ -101,7 +101,7 @@ const ourVariables = [
 
 const puckVariables = [
   buildPuckVars('rose', 'primary', primarySwatches.primary),
-  buildPuckVars('red', 'error', errorSwatches.primary),
+  buildPuckVars('red', 'danger', dangerSwatches.primary),
   buildPuckVars('green', 'success', successSwatches.primary),
   buildPuckVars('yellow', 'warning', warningSwatches.primary),
   buildPuckVars('azure', 'info', infoSwatches.primary),

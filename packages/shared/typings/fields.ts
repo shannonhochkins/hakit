@@ -34,10 +34,14 @@ export type PageValue = {
 
 export type SlotField = PuckSlotField;
 
-export type FieldOption = {
+// Unified FieldOption shape.
+export interface FieldOption {
   label: string;
   value: string | number | boolean | undefined | null | object;
-};
+  // Arbitrary metadata; consumers can store cssVar tokens, custom flags, etc.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  meta?: Record<string, any>;
+}
 // some puck types can clash with our own custom ones, so we need to exclude them
 type ExcludedPuckKeys = 'visible';
 
@@ -197,7 +201,18 @@ type FieldTypeOmitMap = {
   page: 'default';
   pages: 'default';
   service: 'default';
+  select: 'options';
+  color: 'default';
 };
+
+type ColorGroup = 'primary' | 'surface' | 'info' | 'success' | 'warning' | 'danger';
+type ColorStep = '0' | '10' | '20' | '30' | '40' | '50' | '60' | '80' | '90';
+
+// Build all combinations inside var()
+type KnownColorVars = `var(--clr-${ColorGroup}-a${ColorStep})`;
+
+// Allow known values with IntelliSense + custom ones if needed
+export type ColorVar = KnownColorVars | (string & {}) | undefined;
 
 // What each field actually stores/returns
 export type FieldValueByKind = {
@@ -237,7 +252,8 @@ export type FieldDefinition = {
   text: TextField;
   number: NumberField;
   textarea: TextareaField;
-  select: PuckSelectField & {
+  select: Omit<PuckSelectField, 'options'> & {
+    options: FieldOption[];
     renderOption?: (option: FieldOption) => string;
     renderValue?: (option: FieldOption) => string;
   };
@@ -245,7 +261,7 @@ export type FieldDefinition = {
   page: { type: 'page'; default: PageValue };
   pages: { type: 'pages'; default: PageValue[] };
   service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
-  color: { type: 'color'; hideControls?: boolean };
+  color: { type: 'color'; hideControls?: boolean; default: ColorVar };
   imageUpload: { type: 'imageUpload' };
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };

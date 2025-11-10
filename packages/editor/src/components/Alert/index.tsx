@@ -5,7 +5,7 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 
 const getClassName = getClassNameFactory('Alert', styles);
 
-type AlertSeverity = 'info' | 'warning' | 'success' | 'error';
+type AlertSeverity = 'info' | 'warning' | 'success' | 'danger';
 
 interface AlertProps {
   children: React.ReactNode;
@@ -33,7 +33,7 @@ const getSeverityIcon = (severity: AlertSeverity) => {
       return <AlertTriangle {...iconProps} />;
     case 'success':
       return <CheckCircle {...iconProps} />;
-    case 'error':
+    case 'danger':
       return <AlertCircle {...iconProps} />;
     default:
       return <Info {...iconProps} />;
@@ -51,7 +51,7 @@ export function Alert({ children, severity = 'info', title, className, onClick, 
           severityInfo: severity === 'info',
           severityWarning: severity === 'warning',
           severitySuccess: severity === 'success',
-          severityError: severity === 'error',
+          severityDanger: severity === 'danger',
         },
         className
       )}

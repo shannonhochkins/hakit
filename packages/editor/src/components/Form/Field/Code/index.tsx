@@ -133,7 +133,7 @@ export const CodeField = ({
             style={{
               flex: 1,
             }}
-            variant={error || !jsonValid ? 'error' : 'primary'}
+            variant={error || !jsonValid ? 'danger' : 'primary'}
             aria-label='Save'
             icon={<SaveIcon size={18} />}
             onClick={() => {
