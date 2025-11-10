@@ -202,7 +202,17 @@ type FieldTypeOmitMap = {
   pages: 'default';
   service: 'default';
   select: 'options';
+  color: 'default';
 };
+
+type ColorGroup = 'primary' | 'surface' | 'info' | 'success' | 'warning' | 'danger';
+type ColorStep = '0' | '10' | '20' | '30' | '40' | '50' | '60' | '80' | '90';
+
+// Build all combinations inside var()
+type KnownColorVars = `var(--clr-${ColorGroup}-a${ColorStep})`;
+
+// Allow known values with IntelliSense + custom ones if needed
+export type ColorVar = KnownColorVars | (string & {});
 
 // What each field actually stores/returns
 export type FieldValueByKind = {
@@ -251,7 +261,7 @@ export type FieldDefinition = {
   page: { type: 'page'; default: PageValue };
   pages: { type: 'pages'; default: PageValue[] };
   service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
-  color: { type: 'color'; hideControls?: boolean };
+  color: { type: 'color'; hideControls?: boolean; default: ColorVar };
   imageUpload: { type: 'imageUpload' };
   unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };
