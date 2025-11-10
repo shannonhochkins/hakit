@@ -154,9 +154,9 @@
 
 .variantError {
   --gradient-angle: 160deg;
-  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
-  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
-  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-error-a0) 0%, var(--clr-error-a30) 100%);
+  --button-bg: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
+  --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
+  --button-bg-active: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
   --button-bg-disabled: linear-gradient(var(--gradient-angle), var(--clr-surface-a50) 0%, var(--clr-surface-a40) 100%);
 
   --button-color: var(--clr-on-surface-a0);

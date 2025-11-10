@@ -22,7 +22,7 @@
 }
 
 .LinearProgress--colorSecondary .bar { background: var(--clr-surface-a40); }
-.LinearProgress--colorError .bar { background: linear-gradient(135deg, var(--clr-error-a0) 0%, var(--clr-error-a10) 100%); }
+.LinearProgress--colorError .bar { background: linear-gradient(135deg, var(--clr-danger-a0) 0%, var(--clr-danger-a10) 100%); }
 .LinearProgress--colorSuccess .bar { background: linear-gradient(135deg, var(--clr-success-a0) 0%, var(--clr-success-a10) 100%); }
 
 .buffer {

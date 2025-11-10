@@ -5,7 +5,7 @@ import styles from './ColorField.module.css';
 // Autocomplete now serves as the primary input replacing InputField
 import { AutocompleteField } from '../Autocomplete';
 import { InputField, InputFieldProps } from '../Input';
-import type { FieldOption } from '@shared/typings/fields';
+import type { FieldOption, InternalComponentFields } from '@shared/typings/fields';
 import {
   buildColorVariableGroups,
   isCssVariableValue,
@@ -29,6 +29,10 @@ import {
   offset,
 } from '@floating-ui/react';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
+import { useGetPuck } from '@measured/puck';
+import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
+import { ColorSwatches, generateColorSwatches } from '@helpers/color';
+import isEqual from '@guanghechen/fast-deep-equal';
 
 // Validate color values including:
 // - hex (#rgb, #rgba, #rrggbb, #rrggbbaa)
@@ -70,15 +74,42 @@ export interface ColorFieldProps {
   readOnly?: boolean;
   className?: string;
   disabled?: boolean;
-  /** When true, include theme CSS variables in the autocomplete options; when false, hide options (freeform + picker only). */
-  includeThemeVariables?: boolean;
+  /** When true, the theme CSS variables in the autocomplete options will not be included @default false */
+  disableThemeAutocomplete?: boolean;
   debounce?: number;
   onChange: (color: string) => void;
   hideControls?: boolean;
+
+  /** INTERNAL USE ONLY - Enabling this in the wrong environment will cause this field to throw an error */
+  isWithinEditorContext?: boolean;
 }
 
 const COLOR_PICKER_WIDTH = 250;
 const COLOR_PICKER_HEIGHT = 150;
+
+function ExtractCurrentTheme({ onChange }: { onChange: (theme: InternalComponentFields['theme']) => void }) {
+  const breadcrumbs = useBreadcrumbs(Infinity);
+  const getPuck = useGetPuck();
+  const { getItemBySelector, appState } = getPuck();
+
+  // loop over the breadcrumbs in reverse to start at the currently selected item,
+  // then move up to the item with id root (last item)
+  for (let i = breadcrumbs.length - 1; i >= 0; i--) {
+    const crumb = breadcrumbs[i];
+    const isRoot = crumb.id === 'root';
+    const item = crumb.selector ? getItemBySelector(crumb.selector) : null;
+    if (isRoot) {
+      onChange((appState.data.root.props as InternalComponentFields).theme);
+    } else {
+      if (item?.props.theme.override) {
+        onChange(item.props.theme as InternalComponentFields['theme']);
+        // now stop the loop as we have an override on the current item or one of it's parents
+        break;
+      }
+    }
+  }
+  return null;
+}
 
 export const ColorField = ({
   value = 'transparent',
@@ -94,11 +125,13 @@ export const ColorField = ({
   readOnly = false,
   debounce = DEFAULT_FIELD_DEBOUNCE_MS,
   hideControls = false,
-  includeThemeVariables = true,
+  disableThemeAutocomplete = false,
+  isWithinEditorContext = false,
 }: ColorFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalValue, setInternalValue] = useState<string>(value);
   const [isValid, setIsValid] = useState<boolean>(() => isValidColorValue(value));
+  const [matchedSwatches, setMatchedSwatches] = useState<ColorSwatches | null>(null);
   // alpha slider value (0-100) if working with solid colors or color-mix
   const [alphaPct, setAlphaPct] = useState<number>(() => {
     // Use original incoming value (not yet mutated by internal state) for initialization
@@ -125,8 +158,8 @@ export const ColorField = ({
   const parsedMix = useMemo(() => parseColorMix(internalValue), [internalValue]);
   const baseVarForGrouping = parsedMix ? `var(${parsedMix.token})` : internalValue;
   const colorOptions: FieldOption[] = useMemo(
-    () => (includeThemeVariables ? buildColorVariableGroups(baseVarForGrouping) : []),
-    [includeThemeVariables, baseVarForGrouping]
+    () => (!disableThemeAutocomplete ? buildColorVariableGroups({ currentValue: baseVarForGrouping, matchedSwatches }) : []),
+    [disableThemeAutocomplete, baseVarForGrouping, matchedSwatches]
   );
   const click = useClick(context, { enabled: !disabled });
   const dismiss = useDismiss(context, {
@@ -261,19 +294,19 @@ export const ColorField = ({
     [alphaPct, onChange]
   );
 
-  const renderOptionNode = useCallback((opt: unknown) => {
-    const fo = opt as FieldOption;
+  const renderOptionNode = useCallback((opt: FieldOption) => {
+    const fo = opt;
     return (
       <div className={styles.optionRow}>
-        <span className={styles.swatchSmall} style={{ background: fo.value as string }} />
+        <span className={styles.swatchSmall} style={{ background: fo?.meta?.swatch?.color ?? (fo.value as string) }} />
         <span>{fo.label}</span>
       </div>
     );
   }, []);
 
   const renderValueNode = useCallback(
-    (opt: unknown) => {
-      const fo = opt as FieldOption | undefined;
+    (opt: FieldOption) => {
+      const fo = opt;
       if (fo) return fo.label;
       if (mixMatch) {
         const found = colorOptions.find(o => o.meta?.cssVar === mixMatch.token);
@@ -316,16 +349,16 @@ export const ColorField = ({
           value={resolvedSelectedOption as FieldOption | undefined}
           onChange={o => handleAutocompleteChange(o as FieldOption | undefined)}
           label={label}
-          placeholder={includeThemeVariables ? 'Select or type a color / gradient' : pickerResolvedValue}
+          placeholder={!disableThemeAutocomplete ? 'Select or type a color / gradient' : pickerResolvedValue}
           helperText={isValid ? helperText : `Value "${internalValue}" is not a valid color.`}
-          noOptionsText={includeThemeVariables ? 'No colors available' : pickerResolvedValue}
+          noOptionsText={!disableThemeAutocomplete ? 'No colors available' : pickerResolvedValue}
           disabled={() => {
-            if (includeThemeVariables) return false;
+            if (!disableThemeAutocomplete) return false;
             return disabled ?? false;
           }}
           onInputClick={() => {
             // open the picker
-            if (includeThemeVariables) return;
+            if (!disableThemeAutocomplete) return;
             setIsOpen(true);
           }}
           readOnly={readOnly}
@@ -382,7 +415,25 @@ export const ColorField = ({
           }}
         />
       }
-
+      {isWithinEditorContext && (
+        <ExtractCurrentTheme
+          onChange={theme => {
+            if (theme) {
+              const swatches = generateColorSwatches({
+                primary: theme.colors.primary,
+                surface: theme.colors.surface,
+                info: theme.colors.semantics.info,
+                success: theme.colors.semantics.success,
+                warning: theme.colors.semantics.warning,
+                danger: theme.colors.semantics.danger,
+              });
+              if (isEqual(swatches, matchedSwatches)) return;
+              setMatchedSwatches(swatches);
+              // setMatchedSwatches(swatches);
+            }
+          }}
+        />
+      )}
       {isOpen && (
         <FloatingPortal /* optional: id="gg-floating-root" or root={someElement} */>
           <FloatingFocusManager context={context} modal={false}>

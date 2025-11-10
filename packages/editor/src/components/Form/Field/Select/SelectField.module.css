@@ -166,7 +166,7 @@
   transform: rotate(180deg);
 }
 
-.error .inputWrapper { border-color: var(--clr-error-a0); }
+.error .inputWrapper { border-color: var(--clr-danger-a0); }
 .error .inputWrapper:focus-within { box-shadow: var(--shadow-error-focus-sm); }
 .success .inputWrapper { border-color: var(--clr-success-a0); }
 .success .inputWrapper:focus-within { box-shadow: var(--shadow-success-focus-sm); }

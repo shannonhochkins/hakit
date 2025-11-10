@@ -12,7 +12,9 @@ describe('makeSemanticSwatches', () => {
     });
     expect(Object.keys(sem)).toEqual(['success', 'warning', 'danger', 'info']);
     (Object.keys(sem) as (keyof typeof sem)[]).forEach(k => {
-      expect(sem[k]).toBeUndefined();
+      const isArray = Array.isArray(sem[k]);
+      expect(isArray).toBe(true);
+      expect(sem[k]?.length).toBe(0);
     });
   });
 

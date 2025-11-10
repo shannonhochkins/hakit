@@ -10,13 +10,13 @@ import {
 
 describe('colorFieldHelpers', () => {
   test('buildColorVariableGroups includes custom non-theme variable', () => {
-    const opts = buildColorVariableGroups('var(--clr-nonexistent-x99)');
+    const opts = buildColorVariableGroups({ currentValue: 'var(--clr-nonexistent-x99)' });
     console.log('opts[0]', opts[0]);
     expect(opts[0]).toMatchObject({ label: '--clr-nonexistent-x99', meta: { custom: true }, value: 'var(--clr-nonexistent-x99)' });
   });
 
   test('buildColorVariableGroups includes custom raw color', () => {
-    const opts = buildColorVariableGroups('#ff0000');
+    const opts = buildColorVariableGroups({ currentValue: '#ff0000' });
     expect(opts[0]).toMatchObject({ label: '#ff0000', value: '#ff0000', meta: { custom: true } });
   });
 

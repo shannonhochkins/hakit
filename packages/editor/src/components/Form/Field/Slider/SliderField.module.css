@@ -140,12 +140,12 @@
 
 /* State-specific styling */
 .error .track {
-  background-color: var(--clr-error-a0);
+  background-color: var(--clr-danger-a0);
 }
 
 .error .thumb {
-  background-color: var(--clr-error-a0);
-  border-color: var(--clr-error-a0);
+  background-color: var(--clr-danger-a0);
+  border-color: var(--clr-danger-a0);
 }
 
 .success .track {
@@ -305,7 +305,7 @@
 
 /* match tooltip color to thumb state */
 .error .tooltip {
-  background-color: var(--clr-error-a0);
+  background-color: var(--clr-danger-a0);
 }
 
 .success .tooltip {

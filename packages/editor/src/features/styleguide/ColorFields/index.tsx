@@ -74,7 +74,7 @@ export function StyleguideColorFields() {
 
       <Group title='No var picker' alignItems='start' justifyContent='start' gap='var(--space-4)'>
         <div>
-          <ColorField id='no-var-color' value={basicColor} onChange={setBasicColor} includeThemeVariables={false} />
+          <ColorField id='no-var-color' value={basicColor} onChange={setBasicColor} disableThemeAutocomplete />
         </div>
       </Group>
 

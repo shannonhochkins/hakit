@@ -33,11 +33,11 @@ export const sharedCss = `
   --shadow-primary-focus-sm: 0 0 0 2px color-mix(in srgb, color-mix(in srgb, var(--clr-primary-a30) 100%, black 25%) 100%, transparent 70%);
 
   /* Error Button Shadows (composite darken + transparency) */
-  --shadow-error-base: 0 1px 7px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-error-a10) 100%, black 20%) 100%, transparent 80%);
-  --shadow-error-hover: 0 2px 10px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-error-a10) 100%, black 25%) 100%, transparent 75%);
-  --shadow-error-active: 0 2px 4px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-error-a0) 100%, black 30%) 100%, transparent 70%);
-  --shadow-error-focus: 0 0 0 3px color-mix(in srgb, color-mix(in srgb, var(--clr-error-a30) 100%, black 35%) 100%, transparent 60%);
-  --shadow-error-focus-sm: 0 0 0 2px color-mix(in srgb, color-mix(in srgb, var(--clr-error-a30) 100%, black 25%) 100%, transparent 70%);
+  --shadow-error-base: 0 1px 7px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-danger-a10) 100%, black 20%) 100%, transparent 80%);
+  --shadow-error-hover: 0 2px 10px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-danger-a10) 100%, black 25%) 100%, transparent 75%);
+  --shadow-error-active: 0 2px 4px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-danger-a0) 100%, black 30%) 100%, transparent 70%);
+  --shadow-error-focus: 0 0 0 3px color-mix(in srgb, color-mix(in srgb, var(--clr-danger-a30) 100%, black 35%) 100%, transparent 60%);
+  --shadow-error-focus-sm: 0 0 0 2px color-mix(in srgb, color-mix(in srgb, var(--clr-danger-a30) 100%, black 25%) 100%, transparent 70%);
 
   /* Success Button Shadows (composite darken + transparency) */
   --shadow-success-base: 0 1px 7px 0 color-mix(in srgb, color-mix(in srgb, var(--clr-success-a10) 100%, black 20%) 100%, transparent 80%);

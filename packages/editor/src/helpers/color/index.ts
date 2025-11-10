@@ -1,6 +1,6 @@
 import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from './constants';
 import { chooseText, type ColorInstance, WHITE } from './helpers';
-import { makePrimarySwatches } from './primary';
+import { makePrimarySwatches, Swatch } from './primary';
 import { makeSemanticSwatches } from './semantic';
 import { makeSurfaceSwatches } from './surface';
 import Color from 'color';
@@ -10,6 +10,17 @@ import Color from 'color';
 // Think of mixing paint: this cap means "at most half a cup of primary paint gets mixed into the surface bucket".
 // So internal blend factor = userMix * TONALITY_MAX_BLEND.
 export const TONALITY_MAX_BLEND = 0.3;
+
+export interface ColorSwatches {
+  primary: Swatch[];
+  surface: Swatch[];
+  semantics: {
+    success: Swatch[];
+    warning: Swatch[];
+    danger: Swatch[];
+    info: Swatch[];
+  };
+}
 
 export function generateColorSwatches({
   primary,
@@ -37,7 +48,7 @@ export function generateColorSwatches({
     lightModeDarkenSpan: number;
     darkModeLightenSpan: number;
   };
-}) {
+}): ColorSwatches {
   const lm = !!lightMode;
   const mixInput = Math.max(0, Math.min(1, tonalityMix));
   const mix = mixInput * TONALITY_MAX_BLEND; // scale down so 1 => 50% actual blend

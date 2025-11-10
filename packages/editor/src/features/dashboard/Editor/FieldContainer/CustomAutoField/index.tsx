@@ -130,6 +130,7 @@ export function renderField(props: RenderFieldProps) {
     case 'color':
       return (
         <ColorField
+          isWithinEditorContext
           label={props.fieldLabel}
           icon={props.icon}
           hideControls={props.field.hideControls}

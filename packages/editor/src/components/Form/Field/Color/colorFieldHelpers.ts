@@ -1,27 +1,49 @@
+import { ColorSwatches } from '@helpers/color';
+import { Swatch } from '@helpers/color/primary';
 import type { FieldOption } from '@shared/typings/fields';
 
 // Theme variable groups and steps
-const GROUPS: { key: string; label: string; prefix: string }[] = [
+const GROUPS = [
   { key: 'primary', label: 'Primary', prefix: '--clr-primary-a' },
   { key: 'surface', label: 'Surface', prefix: '--clr-surface-a' },
   { key: 'info', label: 'Info', prefix: '--clr-info-a' },
   { key: 'success', label: 'Success', prefix: '--clr-success-a' },
   { key: 'warning', label: 'Warning', prefix: '--clr-warning-a' },
-  { key: 'error', label: 'Error', prefix: '--clr-error-a' },
-];
+  { key: 'danger', label: 'Danger', prefix: '--clr-danger-a' },
+] as const;
 const STEPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
 
-export function buildColorVariableGroups(currentValue?: string): FieldOption[] {
+export function buildColorVariableGroups({
+  currentValue,
+  matchedSwatches,
+}: {
+  currentValue?: string;
+  matchedSwatches?: ColorSwatches | null;
+}): FieldOption[] {
   const out: FieldOption[] = [];
   const canonicalVars: string[] = [];
   GROUPS.forEach(g => {
     STEPS.forEach(step => {
       const cssVar = `${g.prefix}${step}`;
+      const value = `var(${cssVar})`;
+      let swatch: Swatch | undefined;
+      if ((g.key === 'danger' || g.key === 'warning' || g.key === 'info' || g.key === 'success') && matchedSwatches) {
+        const matchedGroup = matchedSwatches.semantics?.[g.key]?.find(swatch => swatch.label === String(`a${step}`));
+        swatch = matchedGroup;
+      }
+      if (g.key === 'primary' || g.key === 'surface') {
+        const primarySurfaceGroup = matchedSwatches?.[g.key];
+        if (Array.isArray(primarySurfaceGroup)) {
+          const matchedGroup = primarySurfaceGroup.find(swatch => swatch.label === String(`a${step}`));
+          swatch = matchedGroup;
+        }
+      }
+
       canonicalVars.push(cssVar);
       out.push({
         label: `${g.label} ${step}`,
-        value: `var(${cssVar})`,
-        meta: { cssVar, group: g.label, step },
+        value,
+        meta: { cssVar, group: g.label, step, swatch },
       });
     });
   });

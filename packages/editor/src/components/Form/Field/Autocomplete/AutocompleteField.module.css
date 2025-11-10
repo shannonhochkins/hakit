@@ -276,14 +276,14 @@
   margin-right: var(--space-1);
 }
 .errorIcon {
-  color: var(--clr-error-a0);
+  color: var(--clr-danger-a0);
 }
 .successIcon {
   color: var(--clr-success-a0);
 }
 /* States */
 .error .inputWrapper {
-  border-color: var(--clr-error-a0);
+  border-color: var(--clr-danger-a0);
 }
 .error .inputWrapper:focus-within {
   box-shadow: var(--shadow-error-focus-sm);

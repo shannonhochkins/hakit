@@ -310,21 +310,21 @@
 
 /* Badge variant - Error (red) */
 .badgeError {
-  background-color: var(--clr-error-a0);
+  background-color: var(--clr-danger-a0);
   color: var(--clr-on-primary-a50);
-  border-color: var(--clr-error-a10);
+  border-color: var(--clr-danger-a10);
 }
 
 .badgeError:hover {
-  background-color: var(--clr-error-a60);
+  background-color: var(--clr-danger-a60);
   transform: scale(1.1);
-  border-color: var(--clr-error-a60);
+  border-color: var(--clr-danger-a60);
 }
 
 .badgeError:active {
-  background-color: var(--clr-error-a10);
+  background-color: var(--clr-danger-a10);
   transform: scale(0.95);
-  border-color: var(--clr-error-a10);
+  border-color: var(--clr-danger-a10);
 }
 
 /* Badge variant - error */

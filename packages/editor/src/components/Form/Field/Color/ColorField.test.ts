@@ -33,14 +33,12 @@ describe('isValidColorValue', () => {
 
   it('accepts valid color values', () => {
     for (const v of valid) {
-      console.log('isValidColorValue', v);
       expect(isValidColorValue(v)).toBe(true);
     }
   });
 
   it('rejects invalid color values', () => {
     for (const v of invalid) {
-      console.log('isValidColorValue', v);
       expect(isValidColorValue(v)).toBe(false);
     }
   });
