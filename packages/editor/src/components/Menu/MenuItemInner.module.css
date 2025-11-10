@@ -22,7 +22,6 @@
   border: 0;
   outline: none;
   border-bottom: 1px solid var(--clr-surface-a60);
-  outline: none;
   text-align: left;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);

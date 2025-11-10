@@ -15,6 +15,15 @@ import { toast } from 'react-toastify';
 
 const getClassName = getClassNameFactory('LogoMenu', styles);
 
+type FormMode = 'new' | 'edit' | 'duplicate';
+interface PageFormState {
+  mode: FormMode;
+  pageId?: string;
+}
+interface DashboardFormState {
+  mode: FormMode;
+}
+
 export function LogoMenu() {
   const params = useParams({
     from: '/_authenticated/dashboard/$dashboardPath/$pagePath/edit/',
@@ -22,14 +31,6 @@ export function LogoMenu() {
   const navigate = useNavigate();
   const { hasUnsavedChanges, removeStoredData } = useUnsavedChanges();
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
-  type FormMode = 'new' | 'edit' | 'duplicate';
-  interface PageFormState {
-    mode: FormMode;
-    pageId?: string;
-  }
-  interface DashboardFormState {
-    mode: FormMode;
-  }
 
   const [pageForm, setPageForm] = useState<PageFormState | null>(null);
   const [dashboardForm, setDashboardForm] = useState<DashboardFormState | null>(null);
@@ -81,7 +82,7 @@ export function LogoMenu() {
 
   return (
     <>
-      <Menu>
+      <Menu disableAutoPositioning>
         <MenuAnchor>
           <Row gap={'var(--space-2)'} alignItems='center' justifyContent='center' className={getClassName('LogoMenu')}>
             <div>

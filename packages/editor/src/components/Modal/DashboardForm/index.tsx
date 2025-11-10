@@ -213,7 +213,7 @@ export function DashboardForm({ mode, dashboardId, isOpen, onClose, onSuccess }:
             queryKey: dashboardByPathWithPageDataQueryOptions(path).queryKey,
           });
         } else {
-          toast.error('Dashboard not found. Please refresh and try again.');
+          toast.error('Dashboard path is missing. Please enter a valid path and try again.');
         }
         onSuccess?.({
           path,

@@ -16,6 +16,7 @@ import React, {
 import {
   flip,
   offset,
+  autoUpdate,
   shift,
   useFloating,
   useInteractions,
@@ -102,6 +103,8 @@ export type MenuProps = {
 
   // external anchor support
   anchorRef?: React.RefObject<HTMLElement | null>;
+  /** To stop menu's moving around in certain scenarios, we can stop the auto update functionality by providing this prop @default false */
+  disableAutoPositioning?: boolean;
 };
 
 export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
@@ -115,6 +118,7 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     matchWidth = true,
     iframeDocument = null,
     anchorRef,
+    disableAutoPositioning = false,
   },
   ref
 ) {
@@ -145,9 +149,7 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     onOpenChange: setOpen,
     // Initial placement is only used when not in auto mode.
     placement: isAuto ? 'bottom-start' : (placement as Placement),
-    // this will cause menus when opened if it has "expandable" menu item groups to potentially
-    // jump position whilst open which is bad UX
-    // whileElementsMounted: autoUpdate,
+    whileElementsMounted: !disableAutoPositioning ? autoUpdate : undefined,
     strategy: 'fixed',
     middleware: [
       offset(ARROW_HEIGHT + GAP),

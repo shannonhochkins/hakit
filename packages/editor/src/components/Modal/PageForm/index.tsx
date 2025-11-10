@@ -192,22 +192,26 @@ export function PageForm({ mode = 'new', dashboardId, pageId, isOpen, onClose, o
 
       // Invalidate query keys needed to reflect the new/updated page
       if (dashboard) {
-        await queryClient.invalidateQueries({
-          queryKey: dashboardByPathQueryOptions(dashboard.path).queryKey,
-        });
-        await queryClient.invalidateQueries({
-          queryKey: dashboardsQueryOptions.queryKey,
-        });
-        await queryClient.invalidateQueries({
-          queryKey: dashboardByPathWithPageDataQueryOptions(dashboard.path).queryKey,
-        });
-        await queryClient.invalidateQueries({
-          queryKey: dashboardPageQueryOptions(dashboard.path, result.path).queryKey,
-        });
+        if (result) {
+          await queryClient.invalidateQueries({
+            queryKey: dashboardByPathQueryOptions(dashboard.path).queryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: dashboardsQueryOptions.queryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: dashboardByPathWithPageDataQueryOptions(dashboard.path).queryKey,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: dashboardPageQueryOptions(dashboard.path, result.path).queryKey,
+          });
+          onSuccess(result);
+        } else {
+          toast.error('Failed to save page. No result returned from API.');
+        }
       } else {
         toast.error('Dashboard not found. Please refresh and try again.');
       }
-      onSuccess(result);
     } catch (error) {
       console.error('Error saving page:', error);
       toast.error('Failed to save page. Please try again.');
