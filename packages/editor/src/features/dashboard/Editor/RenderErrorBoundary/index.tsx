@@ -16,7 +16,7 @@ export const fallback = ({ prefix, ref, styles }: Fallback): ErrorBoundaryProps 
         ref={ref}
         className={`error-boundary-alert`}
         title={prefix}
-        severity='error'
+        severity='danger'
         onClick={() => resetErrorBoundary()}
         style={styles}
       >
@@ -24,7 +24,7 @@ export const fallback = ({ prefix, ref, styles }: Fallback): ErrorBoundaryProps 
         <div style={{ marginTop: '0.5rem' }}>
           <PrimaryButton
             aria-label='Retry render'
-            variant='error'
+            variant='danger'
             size='sm'
             onClick={e => {
               e.stopPropagation();

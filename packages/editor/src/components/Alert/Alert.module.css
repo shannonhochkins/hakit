@@ -28,7 +28,7 @@
   border-color: color-mix(in srgb, var(--clr-success-a0) 30%, transparent);
 }
 
-.Alert--severityError {
+.Alert--severityDanger {
   background-color: color-mix(in srgb, var(--clr-danger-a0) 15%, transparent);
   border-color: color-mix(in srgb, var(--clr-danger-a0) 30%, transparent);
 }
@@ -65,7 +65,7 @@
   color: var(--clr-success-a60);
 }
 
-.Alert-icon--severityError {
+.Alert-icon--severityDanger {
   color: var(--clr-danger-a60);
 }
 
@@ -108,7 +108,7 @@
   color: var(--clr-success-a60);
 }
 
-.Alert-title--severityError {
+.Alert-title--severityDanger {
   color: var(--clr-danger-a60);
 }
 
@@ -143,7 +143,7 @@
   color: var(--clr-success-a70) !important;
 }
 
-.Alert--severityError .Alert-message :global(mark) {
+.Alert--severityDanger .Alert-message :global(mark) {
   padding: var(--space-1) !important;
   border-radius: var(--radius-sm) !important;
   font-weight: var(--font-weight-medium) !important;
@@ -182,7 +182,7 @@
   color: var(--clr-success-a70) !important;
 }
 
-.Alert--severityError .Alert-message :global(code) {
+.Alert--severityDanger .Alert-message :global(code) {
   padding: var(--space-1) var(--space-2) !important;
   border-radius: var(--radius-sm) !important;
   font-family: var(--font-family-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace) !important;

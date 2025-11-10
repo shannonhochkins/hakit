@@ -409,7 +409,7 @@ export function renderField(props: RenderFieldProps) {
     default:
       // Helper function for exhaustive type checking for invalid use of field types
       return (
-        <Alert severity='error'>
+        <Alert severity='danger'>
           Unsupported field type: &quot;{(props as { field: { type?: string } }).field.type ?? 'unknown'}&quot;
         </Alert>
       );

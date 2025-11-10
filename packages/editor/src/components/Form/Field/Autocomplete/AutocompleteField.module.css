@@ -286,7 +286,7 @@
   border-color: var(--clr-danger-a0);
 }
 .error .inputWrapper:focus-within {
-  box-shadow: var(--shadow-error-focus-sm);
+  box-shadow: var(--shadow-danger-focus-sm);
 }
 .success .inputWrapper {
   border-color: var(--clr-success-a0);

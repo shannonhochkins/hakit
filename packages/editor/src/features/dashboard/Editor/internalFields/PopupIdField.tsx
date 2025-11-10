@@ -174,7 +174,7 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
           </SecondaryButton>
           <IconButton
             disabled={!hasPopupLinked}
-            variant='error'
+            variant='danger'
             icon={<Trash size={18} />}
             onClick={handleRemovePopup}
             aria-label='Delete Popup'

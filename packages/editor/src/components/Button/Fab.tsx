@@ -52,7 +52,7 @@ export const Fab = ({
       sizeLg: size === 'lg',
       variantSecondary: variant === 'secondary',
       variantTransparent: variant === 'transparent',
-      variantError: variant === 'error',
+      variantDanger: variant === 'danger',
       variantPrimary: !variant || variant === 'primary',
       variantSuccess: variant === 'success',
       pulse: pulse && !loading,

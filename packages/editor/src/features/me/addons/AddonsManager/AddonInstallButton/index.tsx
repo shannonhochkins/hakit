@@ -161,7 +161,7 @@ export function AddonInstallButton({ addon, size = 'sm', onClick }: AddonInstall
     <>
       <PrimaryButton
         size={size}
-        variant={hasUpdate ? 'success' : isAddonConnected() ? 'error' : 'primary'}
+        variant={hasUpdate ? 'success' : isAddonConnected() ? 'danger' : 'primary'}
         startIcon={getButtonIcon()}
         onClick={handleAddonToggle}
         disabled={isPending}
@@ -169,7 +169,7 @@ export function AddonInstallButton({ addon, size = 'sm', onClick }: AddonInstall
       >
         {getButtonText()}
       </PrimaryButton>
-      {hasUpdate && <IconButton onClick={uninstallAddon} aria-label='Uninstall' icon={<TrashIcon size={16} />} variant='error' />}
+      {hasUpdate && <IconButton onClick={uninstallAddon} aria-label='Uninstall' icon={<TrashIcon size={16} />} variant='danger' />}
 
       {showUpdateModal && userAddon && <UpdateAddonModal open={showUpdateModal} onClose={onClose} userAddon={userAddon} />}
     </>

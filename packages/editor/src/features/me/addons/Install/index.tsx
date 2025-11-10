@@ -254,7 +254,7 @@ export function Install() {
             <Alert
               title={installationStatus.message}
               severity={
-                installationStatus.status === 'error' ? 'error' : installationStatus.status === 'already-installed' ? 'warning' : 'success'
+                installationStatus.status === 'error' ? 'danger' : installationStatus.status === 'already-installed' ? 'warning' : 'success'
               }
             >
               {installationStatus.status === 'installing' && (
@@ -292,7 +292,7 @@ export function Install() {
                     ? 'success'
                     : installationStatus.status === 'already-installed'
                       ? 'primary'
-                      : 'error'
+                      : 'danger'
                 }
                 onClick={() => {
                   if (installationStatus.status === 'complete' || installationStatus.status === 'already-installed') {

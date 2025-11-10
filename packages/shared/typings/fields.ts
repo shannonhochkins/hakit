@@ -212,7 +212,7 @@ type ColorStep = '0' | '10' | '20' | '30' | '40' | '50' | '60' | '80' | '90';
 type KnownColorVars = `var(--clr-${ColorGroup}-a${ColorStep})`;
 
 // Allow known values with IntelliSense + custom ones if needed
-export type ColorVar = KnownColorVars | (string & {});
+export type ColorVar = KnownColorVars | (string & {}) | undefined;
 
 // What each field actually stores/returns
 export type FieldValueByKind = {

@@ -13,7 +13,7 @@ export const SecondaryButton = (props: SecondaryButtonProps) => {
     {
       SecondaryButton: !props.variant || props.variant === 'secondary',
       transparent: props.variant === 'transparent',
-      error: props.variant === 'error',
+      danger: props.variant === 'danger',
       success: props.variant === 'success',
     },
     props.className

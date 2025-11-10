@@ -11,7 +11,7 @@ export function StyleguideButtons() {
         <PrimaryButton aria-label='Primary success' variant='success'>
           Success Primary
         </PrimaryButton>
-        <PrimaryButton aria-label='Primary error' variant='error'>
+        <PrimaryButton aria-label='Primary error' variant='danger'>
           Error Primary
         </PrimaryButton>
       </Group>
@@ -81,7 +81,7 @@ export function StyleguideButtons() {
         <SecondaryButton aria-label='Secondary with start icon - success' variant='success' startIcon={<Trash2Icon size={16} />}>
           Success
         </SecondaryButton>
-        <SecondaryButton aria-label='Secondary with end icon - error' variant='error' endIcon={<CheckIcon size={16} />}>
+        <SecondaryButton aria-label='Secondary with end icon - error' variant='danger' endIcon={<CheckIcon size={16} />}>
           Error
         </SecondaryButton>
       </Group>
@@ -90,7 +90,7 @@ export function StyleguideButtons() {
         <IconButton aria-label='IconButton active' icon={<PlusIcon size={16} />} active />
         <IconButton aria-label='IconButton secondary' icon={<PlusIcon size={16} />} />
         <IconButton aria-label='IconButton primary' icon={<PlusIcon size={16} />} variant='primary' />
-        <IconButton aria-label='IconButton error' icon={<PlusIcon size={16} />} variant='error' />
+        <IconButton aria-label='IconButton error' icon={<PlusIcon size={16} />} variant='danger' />
         <IconButton aria-label='IconButton transparent' icon={<PlusIcon size={16} />} variant='transparent' />
         <IconButton aria-label='IconButton active' icon={<PlusIcon size={16} />} active />
         <IconButton aria-label='IconButton loading' icon={<PlusIcon size={16} />} loading />
@@ -108,7 +108,7 @@ export function StyleguideButtons() {
         <Fab aria-label='Fab primary' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab secondary' variant='secondary' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab transparent' variant='transparent' icon={<PlusIcon size={18} />} />
-        <Fab aria-label='Fab error' variant='error' icon={<PlusIcon size={18} />} />
+        <Fab aria-label='Fab error' variant='danger' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab success' variant='success' icon={<PlusIcon size={18} />} />
         <Fab aria-label='Fab xs' size='xs' icon={<PlusIcon size={16} />} />
         <Fab aria-label='Fab sm' size='sm' icon={<PlusIcon size={16} />} />
@@ -116,7 +116,7 @@ export function StyleguideButtons() {
         <Fab aria-label='Fab lg' size='lg' icon={<PlusIcon size={20} />} />
         <Fab disabled aria-label='Fab primary disabled' variant='primary' size='md' icon={<PlusIcon size={20} />} />
         <Fab disabled aria-label='Fab secondary disabled' variant='secondary' size='md' icon={<PlusIcon size={20} />} />
-        <Fab disabled aria-label='Fab error disabled' variant='error' size='md' icon={<PlusIcon size={20} />} />
+        <Fab disabled aria-label='Fab error disabled' variant='danger' size='md' icon={<PlusIcon size={20} />} />
         <Fab disabled aria-label='Fab success disabled' variant='success' size='md' icon={<PlusIcon size={20} />} />
         <Fab disabled aria-label='Fab transparent disabled' variant='transparent' size='md' icon={<PlusIcon size={20} />} />
       </Group>
@@ -169,7 +169,7 @@ export function StyleguideButtons() {
           icon={<MailIcon size={16} />}
           badge={<span>3</span>}
           badge-aria-label='3 unread messages'
-          variant='error'
+          variant='danger'
           badgeProps={{
             onClick: e => {
               console.debug('Icon button badge clicked', e);
@@ -213,7 +213,7 @@ export function StyleguideButtons() {
           badge={<span>!</span>}
           size='xs'
           badge-aria-label='Important notification'
-          variant='error'
+          variant='danger'
         />
         <Fab
           aria-label='FAB with badge'

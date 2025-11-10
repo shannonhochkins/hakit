@@ -404,7 +404,7 @@ export const ColorField = ({
           error={!isValid}
           groupBy={opt => {
             const lbl = opt.label.toLowerCase();
-            const match = ['primary', 'surface', 'info', 'warning', 'success', 'error'].find(k => lbl.startsWith(k));
+            const match = ['primary', 'surface', 'info', 'warning', 'success', 'danger'].find(k => lbl.startsWith(k));
             return match ? match.charAt(0).toUpperCase() + match.slice(1) : opt.meta?.group;
           }}
           renderGroupLabel={group => (

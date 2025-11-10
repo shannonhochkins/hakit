@@ -364,6 +364,7 @@ export function AutocompleteField<T = string>({
     document.addEventListener('keydown', onDocKey);
     return () => document.removeEventListener('keydown', onDocKey);
   }, [isOpen, isDisabled, readOnly, highlightedIndex, flattenedOptions, handleOptionClick, noOptionsText, inputValue]);
+
   // Reset highlighted index when opening respecting groups
   useEffect(() => {
     if (isOpen) {
@@ -371,8 +372,6 @@ export function AutocompleteField<T = string>({
       setHighlightedIndex(firstIndex);
     } else setHighlightedIndex(-1);
   }, [isOpen, flattenedOptions]);
-
-  // (Replaced by grouped reset logic above.)
 
   const handleRemoveValue = (valueToRemove: T, e: React.MouseEvent) => {
     e.stopPropagation();

@@ -167,7 +167,7 @@
 }
 
 .error .inputWrapper { border-color: var(--clr-danger-a0); }
-.error .inputWrapper:focus-within { box-shadow: var(--shadow-error-focus-sm); }
+.error .inputWrapper:focus-within { box-shadow: var(--shadow-danger-focus-sm); }
 .success .inputWrapper { border-color: var(--clr-success-a0); }
 .success .inputWrapper:focus-within { box-shadow: var(--shadow-success-focus-sm); }
 .disabled { opacity: 0.7; cursor: not-allowed; }

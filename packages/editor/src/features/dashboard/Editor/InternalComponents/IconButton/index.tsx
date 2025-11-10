@@ -9,7 +9,7 @@ import { Column } from '@components/Layout';
  * ======================= */
 export type IconButtonProps = {
   appearance: {
-    variant?: 'secondary' | 'error' | 'success' | 'transparent' | 'primary';
+    variant?: 'secondary' | 'danger' | 'success' | 'transparent' | 'primary';
     size: 'xs' | 'sm' | 'md' | 'lg';
     icon?: string;
     iconSize?: UnitFieldValue;

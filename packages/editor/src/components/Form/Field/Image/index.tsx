@@ -164,7 +164,7 @@ export const ImageField = ({
                 <PrimaryButton
                   size='xs'
                   aria-label='Remove image'
-                  variant='error'
+                  variant='danger'
                   onClick={() => setConfirmDelete(true)}
                   className={styles.deleteButton}
                 >

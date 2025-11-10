@@ -152,7 +152,7 @@
   --button-shadow-active: var(--shadow-lg);
 }
 
-.variantError {
+.variantDanger {
   --gradient-angle: 160deg;
   --button-bg: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
   --button-bg-hover: linear-gradient(var(--gradient-angle), var(--clr-danger-a0) 0%, var(--clr-danger-a30) 100%);
@@ -164,10 +164,10 @@
   --button-border-hover: none;
   --button-border-active: none;
 
-  --button-shadow: var(--shadow-error-base), var(--shadow-lg);
-  --button-shadow-hover: var(--shadow-error-hover), var(--shadow-xl);
-  --button-shadow-active: var(--shadow-error-active), var(--shadow-xl);
-  --button-shadow-focus: var(--shadow-error-focus);
+  --button-shadow: var(--shadow-danger-base), var(--shadow-lg);
+  --button-shadow-hover: var(--shadow-danger-hover), var(--shadow-xl);
+  --button-shadow-active: var(--shadow-danger-active), var(--shadow-xl);
+  --button-shadow-focus: var(--shadow-danger-focus);
 
   transition: all var(--transition-normal), --gradient-angle var(--transition-normal);
   &:hover:not(:disabled), &:active:not(:disabled) {
@@ -240,7 +240,7 @@
 .Fab--sizeLg { composes: sizeLg; }
 .Fab--variantSecondary { composes: variantSecondary; }
 .Fab--variantTransparent { composes: variantTransparent; }
-.Fab--variantError { composes: variantError; }
+.Fab--variantDanger { composes: variantDanger; }
 .Fab--variantPrimary { composes: variantPrimary; }
 .Fab--variantSuccess { composes: variantSuccess; }
 
