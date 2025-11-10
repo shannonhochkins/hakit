@@ -170,7 +170,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
           type: 'color',
           label: 'Overlay Color',
           description: 'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
-          default: '#4254c5',
+          default: 'var(--clr-primary-a10)',
         },
         overlayBlendMode: {
           type: 'select',

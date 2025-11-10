@@ -1,5 +1,5 @@
 import GradientPicker, { useColorPicker } from 'react-best-gradient-color-picker';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import Color from 'color';
 import styles from './ColorField.module.css';
 // Autocomplete now serves as the primary input replacing InputField
@@ -33,6 +33,29 @@ import { useGetPuck } from '@measured/puck';
 import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
 import { ColorSwatches, generateColorSwatches } from '@helpers/color';
 import isEqual from '@guanghechen/fast-deep-equal';
+import { resolve } from 'bun';
+
+const COLOR_PICKER_WIDTH = 250;
+const COLOR_PICKER_HEIGHT = 150;
+
+// Lightweight object created once (no per-render reallocation)
+const GRADIENT_PICKER_STYLES: Record<string, React.CSSProperties> = (() => {
+  const properties = [
+    'body',
+    'rbgcpControlBtn',
+    'rbgcpControlIcon',
+    'rbgcpControlIconBtn',
+    'rbgcpControlBtnWrapper',
+    'rbgcpColorModelDropdown',
+    'rbgcpEyedropperCover',
+    'rbgcpControlInput',
+    'rbgcpInputLabel',
+  ] as const;
+  const base: Record<string, React.CSSProperties> = {};
+  for (const p of properties) base[p] = { background: 'var(--clr-surface-a20)' };
+  base.rbgcpInput = { background: 'var(--clr-surface-a10)' };
+  return base;
+})();
 
 // Validate color values including:
 // - hex (#rgb, #rgba, #rrggbb, #rrggbbaa)
@@ -84,30 +107,30 @@ export interface ColorFieldProps {
   isWithinEditorContext?: boolean;
 }
 
-const COLOR_PICKER_WIDTH = 250;
-const COLOR_PICKER_HEIGHT = 150;
-
+/*********************************
+ * Theme extraction (converted to effect-based to avoid extra renders)
+ *********************************/
 function ExtractCurrentTheme({ onChange }: { onChange: (theme: InternalComponentFields['theme']) => void }) {
   const breadcrumbs = useBreadcrumbs(Infinity);
   const getPuck = useGetPuck();
-  const { getItemBySelector, appState } = getPuck();
 
-  // loop over the breadcrumbs in reverse to start at the currently selected item,
-  // then move up to the item with id root (last item)
-  for (let i = breadcrumbs.length - 1; i >= 0; i--) {
-    const crumb = breadcrumbs[i];
-    const isRoot = crumb.id === 'root';
-    const item = crumb.selector ? getItemBySelector(crumb.selector) : null;
-    if (isRoot) {
-      onChange((appState.data.root.props as InternalComponentFields).theme);
-    } else {
-      if (item?.props.theme.override) {
+  useEffect(() => {
+    const { getItemBySelector, appState } = getPuck();
+    // Iterate once per breadcrumbs change; call onChange at most once
+    for (let i = breadcrumbs.length - 1; i >= 0; i--) {
+      const crumb = breadcrumbs[i];
+      const isRoot = crumb.id === 'root';
+      const item = crumb.selector ? getItemBySelector(crumb.selector) : null;
+      if (isRoot) {
+        onChange((appState.data.root.props as InternalComponentFields).theme);
+        break;
+      } else if (item?.props.theme.override) {
         onChange(item.props.theme as InternalComponentFields['theme']);
-        // now stop the loop as we have an override on the current item or one of it's parents
         break;
       }
     }
-  }
+  }, [breadcrumbs, getPuck, onChange]);
+
   return null;
 }
 
@@ -278,7 +301,7 @@ export const ColorField = ({
   const handleAutocompleteChange = useCallback(
     (o: FieldOption | undefined) => {
       if (!o) return;
-      const val = o.value as string;
+      const val = String(o.value);
       if (/^var\(--[^)]+\)$/.test(val) && alphaPct < 100) {
         const token = val.slice(4, -1);
         const mix = `color-mix(in srgb, var(${token}) ${alphaPct}%, transparent ${100 - alphaPct}%)`;
@@ -295,19 +318,17 @@ export const ColorField = ({
   );
 
   const renderOptionNode = useCallback((opt: FieldOption) => {
-    const fo = opt;
     return (
       <div className={styles.optionRow}>
-        <span className={styles.swatchSmall} style={{ background: fo?.meta?.swatch?.color ?? (fo.value as string) }} />
-        <span>{fo.label}</span>
+        <span className={styles.swatchSmall} style={{ background: opt?.meta?.swatch?.color ?? (opt.value as string) }} />
+        <span>{opt.label}</span>
       </div>
     );
   }, []);
 
   const renderValueNode = useCallback(
     (opt: FieldOption) => {
-      const fo = opt;
-      if (fo) return fo.label;
+      if (opt) return opt.label;
       if (mixMatch) {
         const found = colorOptions.find(o => o.meta?.cssVar === mixMatch.token);
         if (found) return found.label;
@@ -337,6 +358,19 @@ export const ColorField = ({
     return internalValue;
   }, [isCssVar, internalValue]);
 
+  const mainSwatchColor = useMemo(() => {
+    if (isMixVar) {
+      const { cssVar, swatch } = resolvedSelectedOption?.meta ?? {};
+      return internalValue?.replace(`var(${cssVar})`, swatch?.color ?? '');
+    } else if (isCssVar) {
+      const { swatch } = resolvedSelectedOption?.meta ?? {};
+      return swatch?.color;
+    }
+    return internalValue;
+  }, [isMixVar, isCssVar, resolvedSelectedOption, internalValue]);
+
+  console.log('mainSwatchColor', mainSwatchColor);
+
   return (
     <>
       {
@@ -346,8 +380,8 @@ export const ColorField = ({
           icon={icon}
           size={size}
           options={colorOptions}
-          value={resolvedSelectedOption as FieldOption | undefined}
-          onChange={o => handleAutocompleteChange(o as FieldOption | undefined)}
+          value={resolvedSelectedOption}
+          onChange={o => handleAutocompleteChange(o)}
           label={label}
           placeholder={!disableThemeAutocomplete ? 'Select or type a color / gradient' : pickerResolvedValue}
           helperText={isValid ? helperText : `Value "${internalValue}" is not a valid color.`}
@@ -368,10 +402,9 @@ export const ColorField = ({
           includeEndIcon={false}
           error={!isValid}
           groupBy={opt => {
-            const o = opt as FieldOption;
-            const lbl = o.label.toLowerCase();
+            const lbl = opt.label.toLowerCase();
             const match = ['primary', 'surface', 'info', 'warning', 'success', 'error'].find(k => lbl.startsWith(k));
-            return match ? match.charAt(0).toUpperCase() + match.slice(1) : o.meta?.group;
+            return match ? match.charAt(0).toUpperCase() + match.slice(1) : opt.meta?.group;
           }}
           renderGroupLabel={group => (
             <div style={{ paddingLeft: 'var(--space-2)', fontSize: 'var(--font-size-xs)', fontWeight: 600 }}>{group}</div>
@@ -381,7 +414,7 @@ export const ColorField = ({
               ref={refs.setReference}
               {...getReferenceProps()}
               className={styles.swatch}
-              style={{ background: internalValue }}
+              style={{ background: mainSwatchColor }}
               aria-haspopup='dialog'
               aria-expanded={isOpen}
               aria-controls={isOpen ? `${id}-color-popover` : undefined}
@@ -391,25 +424,7 @@ export const ColorField = ({
           endAdornment={{
             className: 'input',
             content: (
-              <InputField
-                id={`alpha-${id}`}
-                name={`alpha-${name || id}`}
-                type='number'
-                min={0}
-                max={100}
-                size={size}
-                value={alphaPct}
-                disabled={isGradientValue}
-                onChange={e => handleAlphaChange(Math.min(100, Math.max(0, parseInt(e.target.value, 10) || 0)))}
-                aria-label='Alpha percentage'
-                onMouseDown={e => e.stopPropagation()}
-                onClick={e => e.stopPropagation()}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                }}
-              />
+              <AlphaInput id={id} name={name} size={size} value={alphaPct} disabled={isGradientValue} onChange={handleAlphaChange} />
             ),
             variant: 'default',
           }}
@@ -467,6 +482,9 @@ export const ColorField = ({
   );
 };
 
+/*********************************
+ * Gradient Picker wrapper (debounced)
+ *********************************/
 interface GradientPickerWrapperProps {
   value: string;
   onChange: (color: string) => void;
@@ -474,41 +492,10 @@ interface GradientPickerWrapperProps {
   hideControls?: boolean;
 }
 
-const properties = [
-  'body',
-  'rbgcpControlBtn',
-  'rbgcpControlIcon',
-  'rbgcpControlIconBtn',
-  'rbgcpControlBtnWrapper',
-  'rbgcpColorModelDropdown',
-  'rbgcpEyedropperCover',
-  'rbgcpControlInput',
-  'rbgcpInputLabel',
-] as const;
+const GradientPickerWrapper = memo(({ value, onChange, debounce, hideControls }: GradientPickerWrapperProps) => {
+  const debouncedOnChange = useDebouncer(onChange, { wait: debounce, leading: false, trailing: true });
 
-const gradientPickerStyles = {
-  ...properties.reduce(
-    (acc, prop) => {
-      acc[prop] = {
-        background: 'var(--clr-surface-a20)',
-      };
-      return acc;
-    },
-    {} as Record<string, React.CSSProperties>
-  ),
-  rbgcpInput: {
-    background: 'var(--clr-surface-a10)',
-  },
-};
-
-function GradientPickerWrapper({ value, onChange, debounce, hideControls }: GradientPickerWrapperProps) {
-  const debouncedOnChange = useDebouncer(onChange, {
-    wait: debounce,
-    leading: false,
-    trailing: true,
-  });
-
-  const _onChange = useCallback(
+  const onChangeStable = useCallback(
     (next: string) => {
       debouncedOnChange.cancel();
       debouncedOnChange.maybeExecute(next);
@@ -516,11 +503,7 @@ function GradientPickerWrapper({ value, onChange, debounce, hideControls }: Grad
     [debouncedOnChange]
   );
 
-  useEffect(() => {
-    return () => {
-      debouncedOnChange.cancel();
-    };
-  }, [debouncedOnChange]);
+  useEffect(() => () => debouncedOnChange.cancel(), [debouncedOnChange]);
 
   return (
     <GradientPicker
@@ -531,8 +514,51 @@ function GradientPickerWrapper({ value, onChange, debounce, hideControls }: Grad
       width={COLOR_PICKER_WIDTH}
       height={COLOR_PICKER_HEIGHT}
       value={value}
-      onChange={_onChange}
-      style={gradientPickerStyles}
+      onChange={onChangeStable}
+      style={GRADIENT_PICKER_STYLES}
     />
   );
+});
+GradientPickerWrapper.displayName = 'GradientPickerWrapper';
+
+/*********************************
+ * Alpha input (pure, memoized)
+ *********************************/
+interface AlphaInputProps {
+  id: string;
+  name?: string;
+  size: InputFieldProps['size'];
+  value: number;
+  disabled?: boolean;
+  onChange: (next: number) => void;
 }
+
+const AlphaInput = memo(({ id, name, size, value, disabled, onChange }: AlphaInputProps) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = parseInt(e.target.value, 10);
+      const clamped = Number.isFinite(raw) ? Math.min(100, Math.max(0, raw)) : 0;
+      onChange(clamped);
+    },
+    [onChange]
+  );
+
+  return (
+    <InputField
+      id={`alpha-${id}`}
+      name={`alpha-${name || id}`}
+      type='number'
+      min={0}
+      max={100}
+      size={size}
+      value={value}
+      disabled={disabled}
+      onChange={handleChange}
+      aria-label='Alpha percentage'
+      onMouseDown={e => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
+      style={{ background: 'transparent', border: 'none', padding: 0 }}
+    />
+  );
+});
+AlphaInput.displayName = 'AlphaInput';
