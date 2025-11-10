@@ -1,6 +1,6 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
-exports[`colorFieldHelpers should gnerate a full list of color options including custom 1`] = `
+exports[`colorFieldHelpers should generate a full list of color options including custom 1`] = `
 [
   {
     "label": "Primary 0",

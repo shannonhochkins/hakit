@@ -66,7 +66,7 @@ type CommonAutocompleteProps<T> = {
   helperText?: string;
   error?: boolean;
   success?: boolean;
-  disabled?: boolean | ((options: ReadonlyArray<T>, value: T) => boolean);
+  disabled?: boolean | ((options: ReadonlyArray<T>, value: T | T[] | undefined) => boolean);
   readOnly?: boolean;
   startAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
   endAdornment?: React.ReactNode | AutocompleteFieldAdornmentProps;
@@ -186,7 +186,7 @@ export function AutocompleteField<T = string>({
   );
 
   const noOptions = options.length === 0;
-  const isDisabled = typeof disabled === 'function' ? disabled(options, selectedValues[0]) : disabled || noOptions;
+  const isDisabled = typeof disabled === 'function' ? disabled(options, value) : disabled || noOptions;
   const effectivePlaceholder = noOptions ? noOptionsText : placeholder;
 
   useEffect(() => {

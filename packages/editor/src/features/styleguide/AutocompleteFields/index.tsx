@@ -36,9 +36,7 @@ const countryOptions = [
   'Paraguay',
   'Uruguay',
   'Suriname',
-] as const;
-// @ts-expect-error - just sort it mate
-countryOptions.sort((a, b) => a.localeCompare(b));
+].sort((a, b) => a.localeCompare(b));
 
 const largeOptions = Array.from({ length: 1000 }, (_, i) => `Option ${i + 1}`);
 

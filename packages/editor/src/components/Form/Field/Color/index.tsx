@@ -370,8 +370,6 @@ export const ColorField = ({
     return internalValue;
   }, [isMixVar, isCssVar, resolvedSelectedOption, internalValue]);
 
-  console.log('mainSwatchColor', mainSwatchColor);
-
   return (
     <>
       {

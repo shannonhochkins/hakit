@@ -262,8 +262,6 @@ const ViewportControlsComponent = () => {
   const queries = getQueries(controlledBreakpointItems);
   const valueQueryHelper = getQueries([value]);
 
-  console.log('breakpointItems', breakpointItems);
-
   return (
     <Row className={getClassName('ViewportControls')} alignItems='flex-start' justifyContent='flex-start' wrap='nowrap'>
       <Tooltip

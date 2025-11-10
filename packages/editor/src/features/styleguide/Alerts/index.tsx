@@ -16,7 +16,7 @@ export function StyleguideAlerts() {
           This is a success alert indicating a successful operation.
         </Alert>
         <Alert severity='danger' title='Error'>
-          This is an danger alert indicating something went wrong.
+          This is a danger alert indicating something went wrong.
         </Alert>
       </Group>
 
@@ -24,7 +24,7 @@ export function StyleguideAlerts() {
         <Alert severity='info'>This is an informational alert without a title.</Alert>
         <Alert severity='warning'>This is a warning alert without a title.</Alert>
         <Alert severity='success'>This is a success alert without a title.</Alert>
-        <Alert severity='danger'>This is an danger alert without a title.</Alert>
+        <Alert severity='danger'>This is a danger alert without a title.</Alert>
       </Group>
 
       <Group title='Alert - With Rich Content'>
