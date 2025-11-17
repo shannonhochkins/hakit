@@ -47,7 +47,7 @@ export interface EntityFieldProps {
 }
 
 export function EntityField({ value, onChange, id, name, filterOptions, readOnly, helperText, label, icon }: EntityFieldProps) {
-  const { getAllEntities } = useHass();
+  const { getAllEntities } = useHass.getState().helpers;
 
   // Get entities once and memoize to prevent re-renders
   const entities = useMemo(() => getAllEntities(), [getAllEntities]);
