@@ -86,7 +86,7 @@
     "lucide-react": "^0.552.0",
     "prompts": "^2.4.2",
     "@measured/puck": "^0.20.1",
-    "@hakit/core": "^5.1.6",
+    "@hakit/core": "^6.0.0",
     "@emotion/react": "^11.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
