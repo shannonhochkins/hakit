@@ -71,8 +71,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@guanghechen/fast-deep-equal": "^2.3.7",
-    "@hakit/components": "^5.1.6",
-    "@hakit/core": "^5.1.6",
+    "@hakit/components": "^6.0.0",
+    "@hakit/core": "^6.0.0",
     "@hono/zod-validator": "^0.7.2",
     "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
     "@measured/puck": "^0.20.2",
