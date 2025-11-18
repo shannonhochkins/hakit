@@ -8,6 +8,107 @@ describe('getDefaultPropsFromFields', () => {
 
   beforeEach(() => {
     mockData = {
+      services: {},
+      entities: {
+        'automation.doorbell_rings': {
+          entity_id: 'automation.doorbell_rings',
+          state: 'on',
+          attributes: {
+            id: '1657327013037',
+            last_triggered: '2025-09-30T08:23:01.337925+00:00',
+            mode: 'single',
+            current: 0,
+            friendly_name: 'Doorbell rings - turn on lights',
+          },
+          context: {
+            id: '01KA8M7TDXPFN1DGES1MNNYYRB',
+            parent_id: null,
+            user_id: null,
+          },
+          last_changed: '2025-11-17T10:02:18.429Z',
+          last_updated: '2025-11-17T10:02:18.429Z',
+        },
+        'sun.sun': {
+          entity_id: 'sun.sun',
+          state: 'above_horizon',
+          attributes: {
+            next_dawn: '2025-11-18T18:13:44.062089+00:00',
+            next_dusk: '2025-11-18T09:04:30.860710+00:00',
+            next_midnight: '2025-11-18T13:39:24+00:00',
+            next_noon: '2025-11-18T01:39:09+00:00',
+            next_rising: '2025-11-18T18:41:44.671677+00:00',
+            next_setting: '2025-11-18T08:36:29.896823+00:00',
+            elevation: 70.87,
+            azimuth: 46.53,
+            rising: true,
+            friendly_name: 'Sun',
+          },
+          context: {
+            id: '01KAA6GAQFTY7Q5HK881AHHKE0',
+            parent_id: null,
+            user_id: null,
+          },
+          last_changed: '2025-11-17T18:42:15.248Z',
+          last_updated: '2025-11-18T00:40:46.063Z',
+        },
+
+        'light.all_office_downlights': {
+          entity_id: 'light.all_office_downlights',
+          state: 'off',
+          attributes: {
+            min_color_temp_kelvin: 2700,
+            max_color_temp_kelvin: 6500,
+            min_mireds: 153,
+            max_mireds: 370,
+            effect_list: [
+              'A Style',
+              'Beautiful',
+              'Birthday',
+              'Christmas',
+              'Colorful',
+              'Default',
+              'Dream',
+              'F Style',
+              'Forest',
+              'Halloween',
+              'Leisure 1',
+              'Leisure 2',
+              'Meeting',
+              'Mode Color',
+              'Mode Scene',
+              'Music',
+              'Night 1',
+              'Night 2',
+              'Rainbow',
+              'Read 1',
+              'Read 2',
+              'Soft',
+              'Wedding Anniversary',
+              'Working',
+            ],
+            supported_color_modes: ['color_temp', 'hs'],
+            effect: null,
+            color_mode: null,
+            brightness: null,
+            color_temp_kelvin: null,
+            color_temp: null,
+            hs_color: null,
+            rgb_color: null,
+            xy_color: null,
+            entity_id: ['light.light_office_downlight_2', 'light.light_office_downlight_3', 'light.light_office_downlight_1'],
+            icon: 'mdi:light-recessed',
+            friendly_name: 'All Office Downlights',
+            supported_features: 4,
+          },
+          context: {
+            id: '01KA8M8MH37H36YHDRMM2GR306',
+            parent_id: null,
+            user_id: null,
+          },
+          last_changed: '2025-11-17T10:02:45.155Z',
+          last_updated: '2025-11-17T10:02:45.155Z',
+        },
+      },
       // Mock the callback data structure used in the function
     } as DefaultPropsCallbackData;
   });
@@ -452,7 +553,7 @@ describe('getDefaultPropsFromFields', () => {
               type: 'imageUpload',
               label: 'Background Image',
               description: 'The entity to display in the button card',
-              default: undefined, // THIS IS THE SUSPECT!
+              default: undefined,
             },
             backgroundColor: {
               type: 'color',
@@ -504,6 +605,203 @@ describe('getDefaultPropsFromFields', () => {
       expect(result.background.backgroundImage).toBe(undefined);
 
       expect(result.background.backgroundImage).not.toEqual({});
+    });
+  });
+
+  describe('entity field defaults', () => {
+    test('should set entity field default using provided function', async () => {
+      const fields: FieldConfiguration = {
+        lightEntity: {
+          type: 'entity',
+          label: 'Light Entity',
+          default: options => {
+            const found = options.find(entity => entity.entity_id === 'light.all_office_downlights');
+            return found ? found.entity_id : undefined;
+          },
+        },
+      };
+
+      const result = await getDefaultPropsFromFields(fields, mockData);
+
+      expect(result.lightEntity).toBe('light.all_office_downlights');
+    });
+
+    test('should return undefined if entity not found in options', async () => {
+      const fields: FieldConfiguration = {
+        nonExistentEntity: {
+          type: 'entity',
+          label: 'Non Existent Entity',
+          default: options => {
+            const found = options.find(entity => entity.entity_id === 'light.non_existent');
+            return found ? found.entity_id : undefined;
+          },
+        },
+      };
+
+      const result = await getDefaultPropsFromFields(fields, mockData);
+
+      expect(result.nonExistentEntity).toBeUndefined();
+    });
+
+    test('should return undefined if entity does exist but filterOption excludes it', async () => {
+      const fields: FieldConfiguration = {
+        filteredEntity: {
+          type: 'entity',
+          label: 'Filtered Entity',
+          filterOption: entity => entity.entity_id.startsWith('sensor.'),
+          default: options => {
+            const found = options.find(entity => entity.entity_id === 'light.all_office_downlights');
+            return found ? found.entity_id : undefined;
+          },
+        },
+      };
+
+      const result = await getDefaultPropsFromFields(fields, mockData);
+
+      expect(result.filteredEntity).toBeUndefined();
+    });
+
+    test('should find option when filterOption matches', async () => {
+      const fields: FieldConfiguration = {
+        filteredEntity: {
+          type: 'entity',
+          label: 'Filtered Entity',
+          filterOption: entity => entity.entity_id.startsWith('light.'),
+          default: options => {
+            const found = options.find(entity => entity.entity_id === 'light.all_office_downlights');
+            return found ? found.entity_id : undefined;
+          },
+        },
+      };
+
+      const result = await getDefaultPropsFromFields(fields, mockData);
+
+      expect(result.filteredEntity).toBe('light.all_office_downlights');
+    });
+  });
+
+  describe('nested entity field defaults', () => {
+    test('should resolve entity defaults inside objectFields', async () => {
+      const fields: FieldConfiguration = {
+        wrapper: {
+          type: 'object',
+          label: 'Wrapper',
+          objectFields: {
+            lightEntity: {
+              type: 'entity',
+              label: 'Light Entity',
+              default: (options: Array<{ entity_id: string }>) => {
+                const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                return found ? found.entity_id : undefined;
+              },
+            },
+            filteredEntity: {
+              type: 'entity',
+              label: 'Filtered Entity',
+              filterOption: (e: { entity_id: string }) => e.entity_id.startsWith('sensor.'),
+              default: (options: Array<{ entity_id: string }>) => {
+                const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                return found ? found.entity_id : undefined;
+              },
+            },
+          },
+        },
+      };
+
+      const result = await getDefaultPropsFromFields(fields, mockData);
+      expect(result.wrapper.lightEntity).toBe('light.all_office_downlights');
+      expect(result.wrapper.filteredEntity).toBeUndefined();
+    });
+
+    test('should resolve entity defaults inside deeply nested objectFields', async () => {
+      const fields: FieldConfiguration = {
+        outer: {
+          type: 'object',
+          label: 'Outer',
+          objectFields: {
+            inner: {
+              type: 'object',
+              label: 'Inner',
+              objectFields: {
+                lightEntity: {
+                  type: 'entity',
+                  label: 'Light Entity',
+                  default: (options: Array<{ entity_id: string }>) => {
+                    const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                    return found ? found.entity_id : undefined;
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const result = await getDefaultPropsFromFields(fields, mockData);
+      expect(result.outer.inner.lightEntity).toBe('light.all_office_downlights');
+    });
+
+    test('should resolve entity defaults inside arrayFields', async () => {
+      const fields: FieldConfiguration = {
+        itemList: {
+          type: 'array',
+          label: 'Item List',
+          arrayFields: {
+            lightEntity: {
+              type: 'entity',
+              label: 'Light Entity',
+              default: (options: Array<{ entity_id: string }>) => {
+                const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                return found ? found.entity_id : undefined;
+              },
+            },
+            filteredEntity: {
+              type: 'entity',
+              label: 'Filtered Entity',
+              filterOption: (e: { entity_id: string }) => e.entity_id.startsWith('sensor.'),
+              default: (options: Array<{ entity_id: string }>) => {
+                const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                return found ? found.entity_id : undefined;
+              },
+            },
+          },
+          default: [],
+        },
+      };
+      const result = await getDefaultPropsFromFields(fields, mockData);
+      expect(Array.isArray(result.itemList)).toBe(true);
+      expect(result.itemList.length).toBe(1);
+      expect(result.itemList[0].lightEntity).toBe('light.all_office_downlights');
+      expect(result.itemList[0].filteredEntity).toBeUndefined();
+    });
+
+    test('should resolve entity defaults inside arrayFields containing object with entity', async () => {
+      const fields: FieldConfiguration = {
+        complexArray: {
+          type: 'array',
+          label: 'Complex Array',
+          arrayFields: {
+            group: {
+              type: 'object',
+              label: 'Group',
+              objectFields: {
+                lightEntity: {
+                  type: 'entity',
+                  label: 'Light Entity',
+                  default: (options: Array<{ entity_id: string }>) => {
+                    const found = options.find((e: { entity_id: string }) => e.entity_id === 'light.all_office_downlights');
+                    return found ? found.entity_id : undefined;
+                  },
+                },
+              },
+            },
+          },
+          default: [],
+        },
+      };
+      const result = await getDefaultPropsFromFields(fields, mockData);
+      expect(Array.isArray(result.complexArray)).toBe(true);
+      expect(result.complexArray.length).toBe(1);
+      expect(result.complexArray[0].group.lightEntity).toBe('light.all_office_downlights');
     });
   });
 });

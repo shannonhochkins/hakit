@@ -1,5 +1,4 @@
 import type { EntityName, FilterByDomain } from '@hakit/core';
-import { HassEntities, HassEntity } from 'home-assistant-js-websocket';
 import { PuckContext } from '@measured/puck';
 import { CustomComponentConfig } from '@typings/puck';
 export interface NavigationProps {
@@ -31,11 +30,6 @@ function NavigationBar({ clockOptions, options }: NavigationProps & { ref: PuckC
       })}
     </div>
   );
-}
-
-function filterEntitiesByDomains(entities: HassEntity[] | HassEntities, ...domains: string[]) {
-  const values = Array.isArray(entities) ? entities : Object.values(entities);
-  return values.filter(entity => domains.includes(entity.entity_id.split('.')[0]));
 }
 
 export const definition: CustomComponentConfig<NavigationProps> = {
@@ -99,8 +93,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
           type: 'entity',
           description: 'The entity to use for the time, entity ID must contain the word "time"',
           label: 'Time Entity',
-          filterOptions(entities) {
-            return filterEntitiesByDomains(entities, 'sensor').filter(entity => entity.entity_id.includes('time'));
+          filterOption(entity) {
+            return entity.entity_id.startsWith('sensor.') && entity.entity_id.includes('time');
           },
           default: options => {
             const defaultEntity = options.find(entity => entity.entity_id === 'sensor.time');
@@ -148,8 +142,8 @@ export const definition: CustomComponentConfig<NavigationProps> = {
           type: 'entity',
           label: 'Date Entity',
           description: 'The entity to use for the date, entity ID must contain the word "date"',
-          filterOptions(entities) {
-            return filterEntitiesByDomains(entities, 'sensor').filter(entity => entity.entity_id.includes('date'));
+          filterOption(entity) {
+            return entity.entity_id.startsWith('sensor.') && entity.entity_id.includes('date');
           },
           default: options => {
             const defaultEntity = options.find(entity => entity.entity_id === 'sensor.date');

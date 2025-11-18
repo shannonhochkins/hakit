@@ -268,7 +268,7 @@ export type FieldDefinition = {
   code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
   entity: {
     type: 'entity';
-    filterOptions?: (entities: HassEntity[]) => HassEntity[];
+    filterOption?: (entity: HassEntity) => boolean;
     default: (options: HassEntity[]) => Promise<EntityName | undefined | string> | EntityName | undefined | string;
   };
   hidden: { type: 'hidden' };

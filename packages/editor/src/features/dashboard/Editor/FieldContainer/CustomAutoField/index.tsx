@@ -191,7 +191,7 @@ export function renderField(props: RenderFieldProps) {
     case 'entity':
       return (
         <EntityField
-          filterOptions={props.field.filterOptions}
+          filterOption={props.field.filterOption}
           value={validateString(props.value, undefined)}
           label={props.fieldLabel}
           icon={props.icon}

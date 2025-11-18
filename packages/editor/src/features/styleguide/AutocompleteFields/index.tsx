@@ -282,6 +282,39 @@ export function StyleguideAutocompleteFields() {
           onChange={setLargeValue}
         />
       </Group>
+
+      <Group
+        title='AutoComplete - Advanced searching on keys and larger item sizes'
+        alignItems='start'
+        justifyContent='start'
+        gap='var(--space-4)'
+        layout='column'
+      >
+        <AutocompleteField
+          id='performance-small'
+          label='Small Dataset'
+          options={objectFruitOptions.map(opt => ({
+            ...opt,
+            description: opt.label?.includes('e') ? 'Contains the letter e' : null,
+          }))}
+          searchKeys={['description', 'label', 'value']}
+          getOptionSize={option => (option.description ? 52 : 32)}
+          value={{
+            ...objectValue,
+            description: objectValue.label?.includes('e') ? 'Contains the letter e' : null,
+          }}
+          renderValue={option => option.label}
+          renderOption={option => (
+            <Column gap='var(--space-2)' alignItems='flex-start'>
+              <span>{option.label}</span>
+              {option.description ? (
+                <small style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{option.description}</small>
+              ) : null}
+            </Column>
+          )}
+          onChange={setObjectValue}
+        />
+      </Group>
     </Column>
   );
 }

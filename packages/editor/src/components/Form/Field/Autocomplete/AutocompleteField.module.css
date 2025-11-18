@@ -54,6 +54,10 @@
   overflow: hidden;
   left: 0;
   right: 0;
+  padding-left: var(--space-4);
+}
+.hasStartAdornment .placeholder {
+  padding-left: var(--space-1)
 }
 .hasStartAdornment .valueContainer { padding-left: 0; }
 .startAdornment {
@@ -193,17 +197,17 @@
   border-radius: var(--radius-lg);
   padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-xs);
-  color: var(--clr-primary-a30);
+  color: var(--clr-on-primary-a90);
 }
 .chipLabel {
   margin-right: var(--space-1);
 }
 .chipRemove {
   cursor: pointer;
-  color: var(--clr-primary-a50);
+  color: var(--clr-surface-a10);
 }
 .chipRemove:hover {
-  color: var(--clr-primary-a30);
+  color: var(--clr-surface-a40);
 }
 .dropdown {
   z-index: var(--z-popover);
@@ -249,17 +253,20 @@
 
 }
 .selectedOption {
-  background-color: var(--clr-primary-a10);
-  color: var(--clr-primary-a90);
+  background-color: var(--clr-primary-a90);
+  color: var(--clr-on-primary-a90);
 }
 .selectedOption:hover {
-  background-color: var(--clr-primary-a20);
+  background-color: var(--clr-primary-a80);
+  color: var(--clr-on-primary-a80);
 }
 .highlightedOption {
-  background-color: var(--clr-primary-a30);
+  background-color: var(--clr-primary-a60);
+  color: var(--clr-on-primary-a80); 
 }
 .highlightedOption:hover {
-  background-color: var(--clr-primary-a40);
+  background-color: var(--clr-primary-a50);
+  color: var(--clr-on-primary-a50);
 }
 .checkIcon {
   color: var(--clr-primary-a90);

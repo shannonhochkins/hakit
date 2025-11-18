@@ -3,15 +3,16 @@
   align-items: center;
   justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 1rem;
+  gap: var(--space-4);
   width: 100%;
+  --entity-field-icon-size: 24px;
 }
 
 .icon {
   display: flex;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: var(--entity-field-icon-size);
+  height: var(--entity-field-icon-size);
 }
 
 .details {
@@ -19,17 +20,24 @@
   flex-direction: column;
   align-items: flex-start;
   flex: 1 1 auto;
+  gap: calc(var(--space-1) / 2)
 }
 
 .name {
   font-size: 0.9rem;
-  white-space: nowrap;
+  display: inline-block;
+  max-width: 100%;          
+  overflow: hidden;         
+  white-space: nowrap;      
+  text-overflow: ellipsis;  
 }
 
-.id {
+.labels {
   font-size: 0.8rem;
-  opacity: 0.7;
-  white-space: nowrap;
+  color: var(--clr-text-a30);
+  display: inline-block;
+  max-width: 100%;          
+  overflow: hidden;         
+  white-space: nowrap;      
+  text-overflow: ellipsis;  
 }
-
-
