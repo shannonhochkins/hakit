@@ -4,7 +4,7 @@ export interface ElementSize {
   width: number;
   height: number;
 }
-
+// UNUSED!
 export function useElementSizeChange(ref: RefObject<HTMLElement | null>, onChange: (size: ElementSize) => void) {
   useEffect(() => {
     const element = ref.current;

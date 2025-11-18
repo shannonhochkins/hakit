@@ -105,6 +105,9 @@ export type MenuProps = {
   anchorRef?: React.RefObject<HTMLElement | null>;
   /** To stop menu's moving around in certain scenarios, we can stop the auto update functionality by providing this prop @default false */
   disableAutoPositioning?: boolean;
+
+  /** Called whenever the menu closes internally (not just via props) */
+  onClose?: () => void;
 };
 
 export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
@@ -119,6 +122,7 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     iframeDocument = null,
     anchorRef,
     disableAutoPositioning = false,
+    onClose,
   },
   ref
 ) {
@@ -300,6 +304,14 @@ export const Menu = forwardRef<MenuControllerRef, MenuProps>(function Menu(
     }),
     [open, setOpen, refs, floatingStyles, context, getReferenceProps, getFloatingProps, activeIndex, selectedIndex, onSelectIndex]
   );
+
+  const prevOpenRef = useRef(open);
+  useEffect(() => {
+    if (prevOpenRef.current && !open && onClose) {
+      onClose();
+    }
+    prevOpenRef.current = open;
+  }, [open, onClose]);
 
   return (
     <Ctx.Provider value={value}>

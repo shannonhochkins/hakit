@@ -1,10 +1,9 @@
-import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { createUsePuck, type DefaultComponentProps } from '@measured/puck';
-import { Code, Settings } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';
-import { IconButton } from '@components/Button/IconButton';
 import { FieldWrapper } from './FieldWrapper';
 import { Row } from '@components/Layout';
 import { CodeField } from '@components/Form/Field/Code';
@@ -48,11 +47,10 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
   const appState = usePuck(state => state.appState);
   const uiState = usePuck(state => state.appState.ui);
   const itemOrRoot = selectedItem ?? appState.data.root;
-  const [fieldOptionsOpen, setFieldOptionsOpen] = useState(false);
   const selectedItemOrRootProps = useMemo(() => itemOrRoot?.props, [itemOrRoot]);
 
   // Use the shared hook for breakpoint configuration
-  const { responsiveMode, isBreakpointModeEnabled } = useFieldBreakpointConfig(field, name);
+  const { responsiveMode, isBreakpointModeEnabled, toggleBreakpointMode } = useFieldBreakpointConfig(field, name);
 
   const onChange = useCallback(
     (value: unknown) => {
@@ -113,32 +111,42 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     return field.visible ?? true;
   }, [selectedItemOrRootProps, appState, field, addonId]);
 
-  const fieldOptions = useMemo(
-    () => (
-      <IconButton
-        aria-label='Field options'
-        icon={<Settings size={16} />}
-        onClick={() => {
-          setFieldOptionsOpen(true);
-        }}
-        variant='transparent'
-        size='xs'
-        tooltipProps={{
-          placement: 'left',
-        }}
-      />
-    ),
-    []
-  );
+  const onResponsiveToggleChange = useCallback(() => {
+    onChange(value);
+  }, [onChange, value]);
+
+  const onResetToDefault = useCallback(() => {
+    // should reset breakpoint mode, template mode, and field value back to the default
+    const defaultValue = field.default;
+    puckOnChange(
+      defaultValue,
+      // @ts-expect-error - Types are wrong in internal types for puck, uiState is required
+      uiState
+    );
+    // reset template mode back to default
+    handleTemplateToggle(false);
+    // reset breakpoint mode back to default
+    if (isBreakpointModeEnabled) {
+      toggleBreakpointMode();
+    }
+  }, [field, puckOnChange, uiState, handleTemplateToggle, isBreakpointModeEnabled, toggleBreakpointMode]);
 
   const fieldLabel = useMemo(
     () => (
       <Row fullWidth alignItems='center' justifyContent='space-between' gap='0.5rem'>
         <span>{field.label ?? ''}</span>
-        {fieldOptions}
+        <FieldOptions
+          field={field}
+          name={name}
+          allowTemplates={allowTemplates}
+          templateMode={templateMode}
+          onResetToDefault={onResetToDefault}
+          onResponsiveToggleChange={onResponsiveToggleChange}
+          onTemplateToggleChange={handleTemplateToggle}
+        />
       </Row>
     ),
-    [field.label, fieldOptions]
+    [field, name, allowTemplates, templateMode, handleTemplateToggle, onResponsiveToggleChange, onResetToDefault]
   );
 
   const onRemoveBreakpoint = useCallback(
@@ -154,14 +162,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
     },
     [uiState, puckOnChange]
   );
-
-  const onResponsiveToggleChange = useCallback(() => {
-    onChange(value);
-  }, [onChange, value]);
-
-  const onCloseFieldOptions = useCallback(() => {
-    setFieldOptionsOpen(false);
-  }, []);
 
   const fieldsetClassName = useMemo(() => {
     return `hakit-field ${field.className ?? ''} ${field.type ? `field-${field.type}` : ''} ${
@@ -201,16 +201,6 @@ export function StandardFieldWrapper<Props extends DefaultComponentProps>({
         isBreakpointModeEnabled={isBreakpointModeEnabled}
         responsiveMode={responsiveMode}
         onRemoveBreakpoint={onRemoveBreakpoint}
-      />
-      <FieldOptions
-        open={fieldOptionsOpen}
-        field={field}
-        name={name}
-        allowTemplates={allowTemplates}
-        templateMode={templateMode}
-        onResponsiveToggleChange={onResponsiveToggleChange}
-        onTemplateToggleChange={handleTemplateToggle}
-        onClose={onCloseFieldOptions}
       />
     </Fieldset>
   );
