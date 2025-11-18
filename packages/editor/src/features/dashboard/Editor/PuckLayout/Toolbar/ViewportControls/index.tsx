@@ -454,7 +454,7 @@ const ViewportControlsComponent = () => {
                     aria-label={`Status ${item.id}`}
                     label='Status'
                     size='small'
-                    isolated={false}
+                    withContainer={false}
                     checked={!item.disabled}
                     onChange={event => onStatusChange(item.id, (event.target as HTMLInputElement).checked)}
                   />

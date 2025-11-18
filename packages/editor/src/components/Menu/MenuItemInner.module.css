@@ -21,7 +21,6 @@
   color: var(--item-color);
   border: 0;
   outline: none;
-  border-bottom: 1px solid var(--clr-surface-a60);
   text-align: left;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
@@ -31,7 +30,6 @@
     border-top-right-radius: var(--radius-lg);
   }
   &:last-of-type {
-    border-bottom:0;
     border-bottom-left-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-lg);
   }
@@ -59,7 +57,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
+  min-width: 1rem;
   height: 1rem;
 }
 

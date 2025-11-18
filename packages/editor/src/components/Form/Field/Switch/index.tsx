@@ -19,7 +19,7 @@ export type SwitchFieldProps = {
   icon?: React.ReactNode;
   readOnly?: boolean;
   /** should the switch be wrapped in a container matching other input styles @default true */
-  isolated?: boolean;
+  withContainer?: boolean;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'checked' | 'size'>;
 
 // Define size-specific CSS custom properties
@@ -54,19 +54,19 @@ export function SwitchField({
   name,
   icon,
   readOnly,
-  isolated = true,
+  withContainer = true,
   ...inputProps
 }: SwitchFieldProps) {
   const containerClasses = getClassName(
     {
       Switch: true,
-      'container--isolated': isolated,
+      'container--isolated': withContainer,
       disabled: inputProps.disabled || readOnly,
     },
     className
   );
   const switchWrapperClasses = getClassName('switchWrapper', {
-    isolated: isolated,
+    isolated: withContainer,
   });
 
   return (

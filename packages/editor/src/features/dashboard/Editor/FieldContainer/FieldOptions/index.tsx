@@ -1,27 +1,26 @@
 import { SwitchField } from '@components/Form/Field/Switch';
-import { Column } from '@components/Layout';
-import { Modal } from '@components/Modal';
 import { FieldConfiguration } from '@typings/fields';
-import { CodeXml, Touchpad } from 'lucide-react';
+import { InfoIcon, RotateCcw, Settings } from 'lucide-react';
 import { useFieldBreakpointConfig } from '@hooks/useFieldBreakpointConfig';
 import { useCallback, useEffect, useRef } from 'react';
+import { Menu, MenuAnchor, MenuContent, MenuDivider, MenuItem } from '@components/Menu';
+import { IconButton } from '@components/Button';
+import { Tooltip } from '@components/Tooltip';
 
 export function FieldOptions({
-  open,
   field,
-  onClose,
   name,
   allowTemplates,
   onResponsiveToggleChange,
   onTemplateToggleChange,
+  onResetToDefault,
   templateMode,
 }: {
-  open: boolean;
   field: Exclude<FieldConfiguration[string], { type: 'slot' | 'hidden' | 'object' | 'array' | 'hidden' }>;
-  onClose: () => void;
   name: string;
   onResponsiveToggleChange: (value: boolean) => void;
   onTemplateToggleChange: (value: boolean) => void;
+  onResetToDefault: () => void;
   templateMode: boolean;
   allowTemplates: boolean;
 }) {
@@ -41,8 +40,7 @@ export function FieldOptions({
 
   // Handle breakpoint mode toggle
   const handleBreakpointModeToggle = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const checked = event.target.checked;
+    (checked: boolean) => {
       if (checked !== isBreakpointModeEnabled) {
         pendingToggleRef.current = true;
         toggleBreakpointMode();
@@ -52,34 +50,81 @@ export function FieldOptions({
   );
 
   return (
-    <Modal open={open} onClose={onClose} title={`Field options`} description={`Configure options for the "${field.label}" field.`}>
-      <Column fullWidth alignItems='flex-start' justifyContent='flex-start' gap='var(--space-4)' wrap='nowrap'>
-        <SwitchField
-          label='Responsive Mode'
-          checked={isBreakpointModeEnabled}
-          onChange={handleBreakpointModeToggle}
+    <Menu>
+      <MenuAnchor>
+        <IconButton
+          aria-label='Field options'
+          icon={<Settings size={16} />}
+          variant='transparent'
+          size='xs'
+          tooltipProps={{
+            placement: 'left',
+          }}
+        />
+      </MenuAnchor>
+      <MenuContent>
+        <MenuItem
+          label='Device Values'
           disabled={!responsiveMode}
-          icon={<Touchpad size={16} />}
-          helperText={
-            responsiveMode
-              ? 'Enable responsive mode for this field, this will allow you to configure different values for this field at different breakpoints.'
-              : 'This field does not allow responsive values to be set. This is configured by the field definition.'
+          onClick={() => handleBreakpointModeToggle(!isBreakpointModeEnabled)}
+          startIcon={
+            <Tooltip
+              style={{
+                display: 'flex',
+              }}
+              title={
+                responsiveMode
+                  ? 'Enable device values to set different values for each configured device.'
+                  : "This field doesn't support device-specific values. It's fixed by the field's configuration."
+              }
+            >
+              <InfoIcon size={16} />
+            </Tooltip>
           }
-          id='responsive-mode'
-          name='responsive-mode'
+          endIcon={
+            <SwitchField
+              size='small'
+              withContainer={false}
+              checked={isBreakpointModeEnabled}
+              disabled={!responsiveMode}
+              id='responsive-mode'
+            />
+          }
         />
         {allowTemplates && (
-          <SwitchField
-            label='Template Mode'
-            checked={templateMode}
-            onChange={e => onTemplateToggleChange(e.target.checked)}
-            icon={<CodeXml size={16} />}
-            helperText='Enable template mode for this field, this will allow you to use home assistant templates for this field value'
-            id='template-mode'
-            name='template-mode'
+          <MenuItem
+            startIcon={
+              <Tooltip
+                style={{
+                  display: 'flex',
+                }}
+                title='Use a Home Assistant template to dynamically set this field’s value.'
+              >
+                <InfoIcon size={16} />
+              </Tooltip>
+            }
+            onClick={() => onTemplateToggleChange(!templateMode)}
+            label='Template Value'
+            endIcon={<SwitchField size='small' withContainer={false} checked={templateMode} id='template-mode' />}
           />
         )}
-      </Column>
-    </Modal>
+        <MenuDivider />
+        <MenuItem
+          label='Reset to Default'
+          onClick={onResetToDefault}
+          startIcon={
+            <Tooltip
+              title='Reset this field to its default value'
+              style={{
+                display: 'flex',
+              }}
+            >
+              <InfoIcon size={16} />
+            </Tooltip>
+          }
+          endIcon={<RotateCcw size={16} />}
+        />
+      </MenuContent>
+    </Menu>
   );
 }

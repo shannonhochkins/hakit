@@ -1,0 +1,5 @@
+.menuDivider {
+  height: 1px;
+  background-color: var(--clr-surface-a60);
+  margin: var(--space-1) 0;
+}

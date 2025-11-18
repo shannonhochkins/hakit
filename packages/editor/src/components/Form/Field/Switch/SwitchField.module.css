@@ -57,7 +57,7 @@
   width: var(--switch-thumb-size, 1rem); /* 16px */
   height: var(--switch-thumb-size, 1rem); /* 16px */
   border-radius: 50%;
-  background-color: var(--clr-primary-a30);
+  background-color: var(--clr-primary-a80);
   transition: transform var(--transition-normal);
   box-shadow: var(--shadow-sm);
 }

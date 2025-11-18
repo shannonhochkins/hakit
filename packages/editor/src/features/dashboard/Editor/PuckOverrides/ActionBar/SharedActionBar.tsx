@@ -1,10 +1,11 @@
 import { createUsePuck, useGetPuck, walkTree } from '@measured/puck';
-import { Box, Copy, EllipsisVertical, Trash, X } from 'lucide-react';
+import { Box, Copy, EllipsisVertical, RotateCcw, Trash, X } from 'lucide-react';
 import { useCallback } from 'react';
 import { IconButton } from '@components/Button';
-import { Menu, MenuAnchor, MenuContent, MenuItem } from '@components/Menu';
+import { Menu, MenuAnchor, MenuContent, MenuDivider, MenuItem } from '@components/Menu';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { ContainerProps } from '../../InternalComponents/Container';
+import { toast } from 'react-toastify';
 
 const usePuck = createUsePuck();
 
@@ -78,6 +79,35 @@ export function SharedActionBar() {
     [getPuck]
   );
 
+  const resetComponentToDefaults = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.stopPropagation();
+      const { appState, config, getItemBySelector, dispatch } = getPuck();
+      const selected = appState.ui.itemSelector;
+      const item = selected ? getItemBySelector(selected) : null;
+      const type = item?.type;
+      const componentConfig = type ? config.components[type] : null;
+      if (!item || !type || !componentConfig?.defaultProps || !selected?.zone) {
+        toast.error('Unable to reset component to defaults.');
+        return;
+      }
+      dispatch({
+        type: 'replace',
+        destinationIndex: selected.index,
+        destinationZone: selected.zone,
+        data: {
+          type: type,
+          props: {
+            ...componentConfig.defaultProps,
+            // Preserve the id of the existing component
+            id: item.props.id,
+          },
+        },
+      });
+    },
+    [getPuck]
+  );
+
   return (
     <Menu>
       <MenuAnchor>
@@ -94,6 +124,9 @@ export function SharedActionBar() {
         <MenuItem onClick={wrapInContainer} label='Wrap in Container' startIcon={<Box size={16} />} />
         <MenuItem label='Delete' onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete} />
         <MenuItem label='Duplicate' onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate} />
+        <MenuDivider />
+        <MenuItem label='Reset to defaults' onClick={resetComponentToDefaults} startIcon={<RotateCcw size={16} />} />
+        <MenuDivider />
         <MenuItem label='Deselect' onClick={deselect} startIcon={<X size={16} />} />
       </MenuContent>
     </Menu>

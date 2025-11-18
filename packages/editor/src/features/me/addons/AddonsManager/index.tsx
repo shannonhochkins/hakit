@@ -308,7 +308,7 @@ export function AddonsManager() {
                               <TableCell>
                                 <div className={getClassName('statusContainer')}>
                                   <SwitchField
-                                    isolated={false}
+                                    withContainer={false}
                                     id={`${component.name}-${index}`}
                                     name={`${component.name}-${index}`}
                                     checked={component.enabled ?? true}
