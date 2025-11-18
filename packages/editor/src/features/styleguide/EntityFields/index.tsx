@@ -18,7 +18,7 @@ export function StyleguideEntityFields() {
           id='entity-field-1'
           name='entity-field-1'
           value={selectedEntity}
-          filterOptions={entities => entities.filter(entity => entity.entity_id?.startsWith('light'))}
+          filterOption={entity => entity.entity_id?.startsWith('light')}
           onChange={(entityId, entity) => {
             console.debug('Selected entity:', entityId, entity);
             setSelectedEntity(entityId);

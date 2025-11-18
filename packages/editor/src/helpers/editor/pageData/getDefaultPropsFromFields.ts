@@ -35,6 +35,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps 
 ): Promise<P> {
   const result: DefaultComponentProps = {};
   const fields = _fields as FieldConfiguration<DummyFields>;
+  const entities = Object.values(data.entities);
   // intentionally re-casting so we can get the correct types whilst checking, key names don't matter here, only the value types.
 
   for (const [fieldName, fieldDef] of Object.entries(fields)) {
@@ -49,10 +50,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps 
     }
 
     if (fieldDef.type === 'entity') {
-      const options =
-        typeof fieldDef.filterOptions === 'function'
-          ? await fieldDef.filterOptions(Object.values(data.entities))
-          : Object.values(data.entities);
+      const options = typeof fieldDef.filterOption === 'function' ? entities.filter(fieldDef.filterOption) : entities;
       // if the user hasn't provided a default function, we can't use the entity field
       if (typeof fieldDef.default !== 'function') {
         continue;
@@ -65,10 +63,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps 
       if (fieldDef.objectFields && typeof fieldDef.objectFields === 'object') {
         for (const [nestedFieldName, nestedFieldDef] of Object.entries(fieldDef.objectFields)) {
           if (nestedFieldDef.type === 'entity') {
-            const options =
-              typeof nestedFieldDef.filterOptions === 'function'
-                ? await nestedFieldDef.filterOptions(Object.values(data.entities))
-                : Object.values(data.entities);
+            const options = typeof nestedFieldDef.filterOption === 'function' ? entities.filter(nestedFieldDef.filterOption) : entities;
             if (typeof nestedFieldDef.default !== 'function') {
               continue;
             }
@@ -98,9 +93,7 @@ export async function getDefaultPropsFromFields<P extends DefaultComponentProps 
         for (const [key, nestedArrayField] of Object.entries(fieldDef.arrayFields)) {
           if (nestedArrayField?.type === 'entity') {
             const options =
-              typeof nestedArrayField?.filterOptions === 'function'
-                ? await nestedArrayField.filterOptions(Object.values(data.entities))
-                : Object.values(data.entities);
+              typeof nestedArrayField?.filterOption === 'function' ? entities.filter(nestedArrayField.filterOption) : entities;
             nestedArrayDefaults[key] = await nestedArrayField.default(options);
             nestedArrayField.default = nestedArrayDefaults[key];
           } else {

@@ -24,8 +24,8 @@
  * - startAdornment / endAdornment: ReactNode or { content, variant, className }
  * - Default end adornment is a Chevron; Search icon is always shown
  */
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { VariableSizeList as List } from 'react-window';
 import { ChevronDownIcon, XIcon, SearchIcon, AlertCircleIcon, CheckCircleIcon } from 'lucide-react';
 import styles from './AutocompleteField.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
@@ -75,9 +75,21 @@ type CommonAutocompleteProps<T> = {
   name?: string;
   noOptionsText?: string;
   includeEndIcon?: boolean;
+  /** Explicit keys on the option object to search across (else all enumerable keys of first object option are used). Only valid when T is object-like. */
+  searchKeys?: T extends object ? readonly Extract<keyof T, string>[] : never;
+  /** Custom filter function. If provided overrides default search + searchKeys. */
+  filterOption?: (query: string, option: T) => boolean;
+  /** Provide a function returning size (height in px) for an option row (excluding group headers). */
+  getOptionSize?: (option: T) => number | undefined;
+  // group header rows use listItemSize
 
   // Renderers
-  renderOption?: (option: T) => React.ReactNode;
+  /**
+   * Render an option row. The second argument provides metadata such as the current dropdown/list width
+   * (in pixels) so that consumers can apply dynamic truncation / ellipsis styling if needed.
+   * It is optional to preserve backward compatibility with existing (option: T) => ReactNode signatures.
+   */
+  renderOption?: (option: T, meta?: { listWidth: number }) => React.ReactNode;
   isOptionEqualToValue?: (option: T, value: T) => boolean;
   /**
    * Derive a grouping key for an option. Return a string to group the option under that header, or undefined for no group.
@@ -152,6 +164,9 @@ export function AutocompleteField<T = string>({
   groupBy,
   renderGroupLabel,
   onInputClick,
+  searchKeys,
+  filterOption,
+  getOptionSize,
 }: AutocompleteFieldProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -195,20 +210,90 @@ export function AutocompleteField<T = string>({
     else setSelectedValues(value !== undefined ? [value as T] : []);
   }, [value, multiple]);
 
+  // Derive search keys automatically (first non-null object) if none provided
+  const derivedSearchKeys = useMemo(() => {
+    // If options are primitive (string/number/boolean), no derived keys.
+    const hasObject = options.some(o => typeof o === 'object' && o !== null && !Array.isArray(o));
+    if (!hasObject) return [] as string[];
+    if (Array.isArray(searchKeys) && searchKeys.length) return searchKeys.map(k => k as string);
+    const firstObj = options.find(o => typeof o === 'object' && o !== null && !Array.isArray(o));
+    if (firstObj) return Object.keys(firstObj as Record<string, unknown>);
+    return [] as string[];
+  }, [searchKeys, options]);
+
   useEffect(() => {
     const q = inputValue.trim().toLowerCase();
     if (!q) {
       setFilteredOptions(options as T[]);
-    } else {
-      setFilteredOptions(
-        options.filter(option => {
-          if (typeof option === 'string') return option.toLowerCase().includes(q);
-          if (isOption(option)) return option.label.toLowerCase().includes(q) || String(option.value).toLowerCase().includes(q);
-          return JSON.stringify(option).toLowerCase().includes(q);
-        }) as T[]
-      );
+      return;
     }
-  }, [inputValue, options]);
+    const next: T[] = [];
+    for (const option of options) {
+      let match = false;
+      if (filterOption) {
+        match = filterOption(q, option as T);
+      } else if (typeof option === 'string') {
+        match = option.toLowerCase().includes(q);
+      } else if (isOption(option)) {
+        match = option.label.toLowerCase().includes(q) || String(option.value).toLowerCase().includes(q);
+        if (!match && derivedSearchKeys.length) {
+          for (const key of derivedSearchKeys) {
+            if (key === 'label' || key === 'value') continue; // already covered
+            const val = option[key as keyof typeof option];
+            if (val == null) continue;
+            if (typeof val === 'string') {
+              if (val.toLowerCase().includes(q)) {
+                match = true;
+                break;
+              }
+            } else if (typeof val === 'number' || typeof val === 'boolean') {
+              if (String(val).toLowerCase().includes(q)) {
+                match = true;
+                break;
+              }
+            } else if (Array.isArray(val)) {
+              for (const item of val) {
+                if (typeof item === 'string' && item.toLowerCase().includes(q)) {
+                  match = true;
+                  break;
+                }
+              }
+              if (match) break;
+            }
+          }
+        }
+      } else if (derivedSearchKeys.length && typeof option === 'object' && option !== null && !Array.isArray(option)) {
+        for (const key of derivedSearchKeys) {
+          const val = option[key as keyof typeof option];
+          if (val == null) continue;
+          if (typeof val === 'string') {
+            if (val.toLowerCase().includes(q)) {
+              match = true;
+              break;
+            }
+          } else if (typeof val === 'number' || typeof val === 'boolean') {
+            if (String(val).toLowerCase().includes(q)) {
+              match = true;
+              break;
+            }
+          } else if (Array.isArray(val)) {
+            for (const item of val) {
+              if (typeof item === 'string' && item.toLowerCase().includes(q)) {
+                match = true;
+                break;
+              }
+            }
+            if (match) break;
+          }
+        }
+      } else {
+        // last resort minimal stringify (avoid full object cost)
+        if (typeof option !== 'object') match = String(option).toLowerCase().includes(q);
+      }
+      if (match) next.push(option);
+    }
+    setFilteredOptions(next);
+  }, [inputValue, options, filterOption, derivedSearchKeys]);
 
   // auto close if nothing to show
   useEffect(() => {
@@ -329,6 +414,32 @@ export function AutocompleteField<T = string>({
     return rows;
   }, [filteredOptions, groupBy]);
 
+  // Pre-render base option content (excluding dynamic selection/highlight classes) to reduce work per scroll repaint.
+  const baseOptionContent = useMemo(() => {
+    return flattenedOptions.map(row => (row.type === 'option' ? renderOptionNode(row.option) : null));
+  }, [flattenedOptions, renderOptionNode]);
+
+  // Memoize individual row sizes and overall capped dropdown height to avoid recomputing on every render.
+  // Previously height was computed inline and itemSize performed branching each call. Here we precompute once per dependency change.
+  const { rowSizes, totalHeight } = useMemo(() => {
+    const sizes: number[] = [];
+    let accumulated = 0;
+    for (let i = 0; i < flattenedOptions.length; i++) {
+      const row = flattenedOptions[i];
+      let size: number;
+      if (row.type === 'group') size = listItemSize;
+      else if (getOptionSize) {
+        const custom = getOptionSize(row.option);
+        size = typeof custom === 'number' && custom > 0 ? custom : listItemSize;
+      } else size = listItemSize;
+      sizes.push(size);
+      if (accumulated < 240) {
+        accumulated += size;
+      }
+    }
+    return { rowSizes: sizes, totalHeight: Math.min(accumulated, 240) };
+  }, [flattenedOptions, listItemSize, getOptionSize]);
+
   useEffect(() => {
     if (!isOpen || isDisabled || readOnly) return;
     const onDocKey = (e: KeyboardEvent) => {
@@ -336,6 +447,11 @@ export function AutocompleteField<T = string>({
       if (key === 'ArrowDown') {
         e.preventDefault();
         setHighlightedIndex(i => {
+          // starting from -1: move to first option
+          if (i === -1) {
+            const first = flattenedOptions.findIndex(r => r.type === 'option');
+            return first === -1 ? -1 : first;
+          }
           let next = Math.min(i + 1, flattenedOptions.length - 1);
           while (next < flattenedOptions.length && flattenedOptions[next].type === 'group') {
             next = Math.min(next + 1, flattenedOptions.length - 1);
@@ -345,6 +461,13 @@ export function AutocompleteField<T = string>({
       } else if (key === 'ArrowUp') {
         e.preventDefault();
         setHighlightedIndex(i => {
+          if (i === -1) {
+            // from -1 going up: choose last option
+            for (let idx = flattenedOptions.length - 1; idx >= 0; idx--) {
+              if (flattenedOptions[idx].type === 'option') return idx;
+            }
+            return -1;
+          }
           let prev = Math.max(i - 1, 0);
           while (prev >= 0 && flattenedOptions[prev].type === 'group') {
             prev = Math.max(prev - 1, 0);
@@ -352,8 +475,8 @@ export function AutocompleteField<T = string>({
           return prev;
         });
       } else if (key === 'Enter') {
-        e.preventDefault();
         if (highlightedIndex >= 0 && highlightedIndex < flattenedOptions.length) {
+          e.preventDefault();
           const row = flattenedOptions[highlightedIndex];
           if (row.type === 'option') handleOptionClick(row.option);
         }
@@ -364,15 +487,12 @@ export function AutocompleteField<T = string>({
     };
     document.addEventListener('keydown', onDocKey);
     return () => document.removeEventListener('keydown', onDocKey);
-  }, [isOpen, isDisabled, readOnly, highlightedIndex, flattenedOptions, handleOptionClick, noOptionsText, inputValue]);
+  }, [isOpen, isDisabled, readOnly, highlightedIndex, flattenedOptions, handleOptionClick]);
 
-  // Reset highlighted index when opening respecting groups
+  // Only reset when closing; opening leaves it at -1 until user navigates.
   useEffect(() => {
-    if (isOpen) {
-      const firstIndex = flattenedOptions.findIndex(r => r.type === 'option');
-      setHighlightedIndex(firstIndex);
-    } else setHighlightedIndex(-1);
-  }, [isOpen, flattenedOptions]);
+    if (!isOpen) setHighlightedIndex(-1);
+  }, [isOpen]);
 
   const handleRemoveValue = (valueToRemove: T, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -549,11 +669,12 @@ export function AutocompleteField<T = string>({
                 {...getFloatingProps({ className: getClassName('dropdown') })}
               >
                 <List
-                  height={Math.min(flattenedOptions.length * listItemSize, 200)}
+                  height={totalHeight}
                   width={'100%'}
                   itemCount={flattenedOptions.length}
-                  itemSize={listItemSize}
+                  itemSize={index => rowSizes[index]}
                   itemData={{ rows: flattenedOptions, selectedValues, handleOptionClick, highlightedIndex }}
+                  overscanCount={2}
                   className={getClassName('optionsList')}
                 >
                   {({
@@ -575,7 +696,7 @@ export function AutocompleteField<T = string>({
                     }
                     const option = row.option;
                     const isSelected = data.selectedValues.some((v: T) => equals(v, option));
-                    const isHighlighted = index === data.highlightedIndex;
+                    const isHighlighted = index === highlightedIndex; // local state for visual highlight (keyboard only)
                     return (
                       <div
                         key={index}
@@ -583,10 +704,10 @@ export function AutocompleteField<T = string>({
                         role='option'
                         aria-selected={isSelected}
                         className={`${getClassName('option')} ${isSelected ? getClassName('selectedOption') : ''} ${isHighlighted ? getClassName('highlightedOption') : ''}`}
-                        onMouseEnter={() => setHighlightedIndex(index)}
                         onClick={() => data.handleOptionClick(option)}
+                        // Intentionally no onMouseEnter here to prevent pointer hover re-renders.
                       >
-                        {renderOptionNode(option)}
+                        {baseOptionContent[index]}
                       </div>
                     );
                   }}
