@@ -20,12 +20,7 @@ function EntityRenderOption({ option, showEntityIdPicker }: { option: EntityList
       >
         <div className={styles.name}>{option.primary}</div>
         {showEntityIdPicker
-          ? option.stateObj?.entity_id && (
-              <span className={styles.labels}>
-                {option.domain_name ? `${option.domain_name} ▸ ` : ''}
-                {option.stateObj.entity_id}
-              </span>
-            )
+          ? option.stateObj?.entity_id && <span className={styles.labels}>{option.stateObj.entity_id}</span>
           : option.secondary && (
               <span className={styles.labels}>
                 {option.domain_name ? `${option.domain_name} ▸ ` : ''}
@@ -67,17 +62,15 @@ export function EntityField({
   includeDomains,
   excludeDomains,
 }: EntityFieldProps) {
-  const areas = useHass(s => s.areas);
-  const floors = useHass(s => s.floors);
-  const devices = useHass(s => s.devices);
-  const entityRegistryDisplayEntries = useHass(s => s.entitiesRegistryDisplay);
-  const entities = useHass(s => s.entities);
-  const connection = useHass(s => s.connection);
+  // get a snapshot, we don't want to re-render on every hass state change
+  const { areas, floors, devices, entitiesRegistryDisplay, entities } = useHass.getState();
   const userPrefsRequestedRef = useRef(false);
   const [showEntityIdPicker, setShowEntityIdPicker] = useState(false);
 
   // Fetch user display preferences once when connection becomes available.
   useEffect(() => {
+    // connection will be ready at this point, but to safe guard it we check again
+    const connection = useHass.getState().connection;
     if (!connection || userPrefsRequestedRef.current) return;
     userPrefsRequestedRef.current = true;
     connection
@@ -94,11 +87,11 @@ export function EntityField({
         // allow retry if it fails for transient reasons
         userPrefsRequestedRef.current = false;
       });
-  }, [connection]);
+  }, []);
   // really need to convert this method to use destructured params
   const options = getEntities(
     entities,
-    entityRegistryDisplayEntries,
+    entitiesRegistryDisplay,
     devices,
     areas,
     floors,

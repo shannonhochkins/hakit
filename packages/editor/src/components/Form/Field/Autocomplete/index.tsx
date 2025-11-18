@@ -1,28 +1,65 @@
 /* eslint-disable react/prop-types */
 /**
- * AutocompleteField
+ * AutocompleteField – High-level Architecture & Design Notes
+ * ----------------------------------------------------------
+ * Purpose:
+ *   A generic, design-system aligned autocomplete component supporting:
+ *   - Single & multi-selection
+ *   - Virtualized rendering (react-window) for large option sets
+ *   - Optional grouping with custom group labels
+ *   - Custom option rendering with width metadata for responsive truncation
+ *   - Shallow, configurable search with searchKeys & custom filter override
+ *   - Adornments (start/end) & status indicators (error/success)
+ *   - Accessibility-focused keyboard navigation & focus modality detection
+ *   - Resilient equality heuristics for common {label, value} option shapes
  *
- * Generic, design-system aligned autocomplete with virtualization and adornments.
+ * Performance Strategies:
+ *   - Virtualization via VariableSizeList to avoid rendering every option.
+ *   - Pre-rendered base option nodes (baseOptionContent) to minimize rerenders during scroll.
+ *   - Memoized row size computation (rowSizes + totalHeight) bounding dropdown height.
+ *   - Shallow search (avoids deep recursive traversal) – O(n * k) where k is number of inspected keys.
+ *   - ResizeObserver used externally (meta injected to renderOption) so consumers can implement dynamic truncation without layout thrash here.
  *
- * Generics and modes
- * - Single mode (default):
- *   value?: T
- *   onChange?: (value: T) => void
- *   renderValue?: (value: T) => React.ReactNode
- * - Multiple mode:
- *   multiple: true
- *   value?: T[]
- *   onChange?: (value: T[]) => void
- *   renderValue?: (values: T[]) => React.ReactNode
+ * Extensibility Points:
+ *   - renderOption(option, { listWidth }) for custom row markup.
+ *   - filterOption(query, option) to entirely override internal search.
+ *   - groupBy(option) + renderGroupLabel(group, groupOptions) for categorized lists.
+ *   - getOptionSize(option) for variable row heights (e.g., rich media or multi-line labels).
+ *   - isOptionEqualToValue(a, b) for bespoke identity semantics beyond default {label,value}.
  *
- * Options
- * - options: ReadonlyArray<T>
- * - renderOption?: (option: T) => React.ReactNode (preferred)
- * - isOptionEqualToValue?: (option: T, value: T) => boolean
+ * Search Model:
+ *   - If explicit searchKeys provided, only those keys + (label/value when present) are scanned.
+ *   - If none provided & first object-like option exists, all enumerable shallow keys are used.
+ *   - Primitive arrays within a scanned key are shallowly inspected (string containment only).
+ *   - filterOption short-circuits internal logic entirely.
  *
- * Adornments
- * - startAdornment / endAdornment: ReactNode or { content, variant, className }
- * - Default end adornment is a Chevron; Search icon is always shown
+ * Virtualization Model:
+ *   - flattenedOptions mixes group headers + option rows; react-window drives rendering via itemSize.
+ *   - OverscanCount kept low (2) balancing scroll performance vs off-screen pre-render cost.
+ *
+ * Accessibility:
+ *   - Focus modality tracking distinguishes keyboard vs pointer to auto-open only on keyboard focus.
+ *   - Arrow key navigation skips group headers; highlightedIndex separate from selection.
+ *   - Appropriate ARIA roles: listbox + option, with aria-selected for chosen options.
+ *
+ * Error/Success Indicators:
+ *   - Visual states update container classes & helper text; icon adornments suppressed when status icons visible.
+ *
+ * Future Enhancements (non-breaking ideas):
+ *   - Optional async loading (show spinner row, handle incremental append).
+ *   - Debounced search to mitigate rapid queries on large sets.
+ *   - Cache lowercase string representations for repeat searches (especially when options stable).
+ *   - Type-ahead auto-complete for first matching option.
+ *   - Optional fuzzy matching (e.g., fuse.js) behind filterOption.
+ *   - Multi-column layout or grid virtualization for complex rich media options.
+ *
+ * Generics and modes:
+ *   - Single mode (default): value?: T; onChange?(T); renderValue?(T) => ReactNode
+ *   - Multiple mode: multiple: true; value?: T[]; onChange?(T[]); renderValue?(T[]) => ReactNode
+ *
+ * Adornments:
+ *   - startAdornment / endAdornment can be raw ReactNode or props object { content, variant, className }.
+ *   - End adornment defaults to chevron; search icon always available unless error/success state.
  */
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { VariableSizeList as List } from 'react-window';
@@ -56,6 +93,8 @@ type AutocompleteFieldAdornmentProps = {
   variant?: AutocompleteFieldAdornmentVariant;
   className?: string;
 };
+
+type FlattenedRow<T> = { type: 'group'; group: string; options: T[] } | { type: 'option'; option: T; group?: string };
 
 type CommonAutocompleteProps<T> = {
   id: string;
@@ -121,6 +160,12 @@ export type MultipleAutocompleteProps<T> = CommonAutocompleteProps<T> & {
   disabled?: boolean | ((options: ReadonlyArray<T>, value: T[] | undefined) => boolean);
 };
 
+/**
+ * isIconElement – heuristic icon detection for adornments
+ * We look for a displayName containing 'Icon' (common with lucide / custom icon components) to
+ * apply icon-specific styling when explicit variant not provided. This remains a heuristic to avoid
+ * tight coupling with any specific icon library implementation.
+ */
 const isIconElement = (node: React.ReactNode): boolean => {
   if (!React.isValidElement(node)) return false;
   const type = node.type as { displayName?: string } | undefined;
@@ -128,12 +173,103 @@ const isIconElement = (node: React.ReactNode): boolean => {
   return typeof displayName === 'string' && displayName.includes('Icon');
 };
 
+/**
+ * isProps – type guard for structured adornment prop object { content, variant?, className? }.
+ * Allows dual API: raw ReactNode or structured configuration.
+ */
 const isProps = (val: unknown): val is AutocompleteFieldAdornmentProps =>
   typeof val === 'object' && val !== null && 'content' in (val as Record<string, unknown>);
 
-// Heuristic for {label, value} shaped options; used for default rendering & equality fallback
+/**
+ * isOption – structural heuristic for the common { label, value } pattern.
+ * This enables:
+ *   - Default rendering (option.label)
+ *   - Identity comparison (option.value)
+ * Without a stricter type contract; keeps component flexible for mixed shapes.
+ */
 const isOption = (o: unknown): o is { label: string; value: unknown } =>
   !!o && typeof o === 'object' && 'label' in (o as Record<string, unknown>) && 'value' in (o as Record<string, unknown>);
+// Rationale: We avoid additional property asserts to keep runtime overhead negligible & remain permissive.
+
+// ---------------- Adornment Components ----------------
+interface StartAdornmentProps {
+  adornment: React.ReactNode | AutocompleteFieldAdornmentProps | undefined;
+  getClassName: (key: string) => string;
+}
+
+/**
+ * StartAdornment – renders optional leading visual element inside input wrapper.
+ * Accepts either a raw ReactNode or a structured props object. Applies styling heuristics:
+ *   variant > iconDetection > default styling.
+ */
+const StartAdornment = React.memo(function StartAdornment({ adornment, getClassName }: StartAdornmentProps) {
+  if (!adornment) return null;
+  // Handle both raw ReactNode and structured { content, variant, className } prop forms.
+  const content = isProps(adornment) ? adornment.content : adornment;
+  const variant = isProps(adornment) ? adornment.variant : undefined;
+  const extra = isProps(adornment) ? adornment.className : undefined;
+  let cls = getClassName('startAdornment');
+  // Determine styling intent: explicit variant beats icon heuristic; fallback to 'default'.
+  if (variant) cls += ` ${getClassName(variant)}`;
+  else if (isIconElement(content)) cls += ` ${getClassName('icon')}`;
+  else cls += ` ${getClassName('default')}`;
+  if (extra) cls += ` ${extra}`;
+  return <div className={cls}>{content}</div>;
+});
+
+interface EndAdornmentProps {
+  adornment: React.ReactNode | AutocompleteFieldAdornmentProps | undefined;
+  getClassName: (key: string) => string;
+  isOpen: boolean;
+  isDisabled: boolean;
+  readOnly: boolean;
+  hasEndInputAdornment: boolean;
+  onToggle: () => void;
+  lastInteractionRef: React.MutableRefObject<'keyboard' | 'pointer' | null>;
+}
+
+/**
+ * EndAdornment – trailing element controlling dropdown toggle (unless custom override provided).
+ * Always clickable unless disabled/readOnly. Maintains modality tracking (pointer vs keyboard).
+ */
+const EndAdornment = React.memo(function EndAdornment({
+  adornment,
+  getClassName,
+  isOpen,
+  isDisabled,
+  readOnly,
+  hasEndInputAdornment,
+  onToggle,
+  lastInteractionRef,
+}: EndAdornmentProps) {
+  const defaultAdornment: AutocompleteFieldAdornmentProps = {
+    content: <ChevronDownIcon size={18} className={`${getClassName('chevron')} ${isOpen ? getClassName('chevronUp') : ''}`} />,
+    variant: 'default',
+    className: undefined,
+  };
+  // Choose user-provided adornment or internal chevron; same processing pipeline as start adornment.
+  const source = adornment ?? defaultAdornment;
+  const content = isProps(source) ? source.content : source;
+  const variant = isProps(source) ? source.variant : undefined;
+  const extraClass = isProps(source) ? source.className : undefined;
+  let cls = hasEndInputAdornment ? getClassName('endAdornment-input') : getClassName('endAdornment');
+  // Styling priority: variant > icon heuristic > default.
+  if (variant) cls += ` ${getClassName(variant)}`;
+  else if (isIconElement(content)) cls += ` ${getClassName('icon')}`;
+  else cls += ` ${getClassName('default')}`;
+  if (extraClass) cls += ` ${extraClass}`;
+  return (
+    <div
+      className={cls}
+      onClick={() => !isDisabled && !readOnly && onToggle()}
+      onMouseDown={() => {
+        lastInteractionRef.current = 'pointer';
+      }}
+    >
+      {content}
+    </div>
+  );
+});
 
 export type AutocompleteFieldProps<T = string> = SingleAutocompleteProps<T> | MultipleAutocompleteProps<T>;
 export function AutocompleteField<T = string>({
@@ -179,6 +315,10 @@ export function AutocompleteField<T = string>({
   const justClosedRef = useRef(false);
   const hasEndInputAdornment = typeof endAdornment === 'object' && isProps(endAdornment) && endAdornment.className?.includes('input');
 
+  /**
+   * renderOptionNode – default + custom renderer wrapper. Supplies backward-compatible signature without meta.
+   * Throws when encountering non-string, non-{label,value} option without user provided renderOption.
+   */
   const renderOptionNode = useCallback(
     (option: T) => {
       if (renderOption) return renderOption(option);
@@ -189,8 +329,15 @@ export function AutocompleteField<T = string>({
     [renderOption]
   );
 
+  /**
+   * equals – identity comparison strategy.
+   *   - If both values match the {label,value} pattern, compare by .value (stable identity source).
+   *   - Else defer to user-supplied isOptionEqualToValue OR strict equality.
+   * Ensures predictable toggling in multi-select chips & highlighted matching.
+   */
   const equals = useCallback(
     (a: T, b: T) => {
+      // Equality strategy: if both are {label,value} treat 'value' as identity; else defer to user comparator or strict equality.
       if (isOption(a) && isOption(b)) return a.value === b.value;
       return isOptionEqualToValue ? isOptionEqualToValue(a, b) : a === b;
     },
@@ -211,6 +358,16 @@ export function AutocompleteField<T = string>({
   }, [value, multiple]);
 
   // Derive search keys automatically (first non-null object) if none provided
+  /**
+   * derivedSearchKeys – auto-generation of key list for search when explicit searchKeys absent.
+   * Implementation details:
+   *   1. Detect at least one object-like option (non-null plain object).
+   *   2. If user supplied searchKeys -> map to string[] (narrow type extraction).
+   *   3. Else extract keys from first object-like option (shallow enumeration).
+   * Edge Cases:
+   *   - Mixed primitive & object options: will still derive from first object.
+   *   - Arrays / nested objects ignored (shallow only) for predictable performance.
+   */
   const derivedSearchKeys = useMemo(() => {
     // If options are primitive (string/number/boolean), no derived keys.
     const hasObject = options.some(o => typeof o === 'object' && o !== null && !Array.isArray(o));
@@ -220,7 +377,15 @@ export function AutocompleteField<T = string>({
     if (firstObj) return Object.keys(firstObj as Record<string, unknown>);
     return [] as string[];
   }, [searchKeys, options]);
+  // Above: auto derives keys only when user did not pass explicit searchKeys and data is object-like (shallow heuristic).
 
+  // ---------- Filtering Logic (Shallow Search) ----------
+  // Notes:
+  //   - O(n * k) where n = options.length, k = derivedSearchKeys.length (or 2 for label/value scan).
+  //   - Avoids deep traversal / JSON.stringify to keep latency low even for large sets.
+  //   - filterOption provides an escape hatch for custom or fuzzy matching.
+  //   - Arrays are only shallowly scanned for string primitives.
+  //   - Non-object primitives fallback to simple string containment.
   useEffect(() => {
     const q = inputValue.trim().toLowerCase();
     if (!q) {
@@ -228,15 +393,20 @@ export function AutocompleteField<T = string>({
       return;
     }
     const next: T[] = [];
+    // Iterate original options (not pre-filtered) each time query changes; complexity O(n * k) where k is inspected keys.
     for (const option of options) {
+      // Begin option scan – early exit paths favored (user filter, primitive match, label/value match).
       let match = false;
       if (filterOption) {
+        // User-defined filter overrides internal logic entirely.
         match = filterOption(q, option as T);
       } else if (typeof option === 'string') {
         match = option.toLowerCase().includes(q);
       } else if (isOption(option)) {
         match = option.label.toLowerCase().includes(q) || String(option.value).toLowerCase().includes(q);
+        // Attempt derived key scan only if initial label/value match failed & keys available.
         if (!match && derivedSearchKeys.length) {
+          // Fallback: scan only derived keys (or explicit searchKeys) for string/primitive containment.
           for (const key of derivedSearchKeys) {
             if (key === 'label' || key === 'value') continue; // already covered
             const val = option[key as keyof typeof option];
@@ -263,6 +433,7 @@ export function AutocompleteField<T = string>({
           }
         }
       } else if (derivedSearchKeys.length && typeof option === 'object' && option !== null && !Array.isArray(option)) {
+        // Generic object-like option: scan derived keys (or explicit searchKeys) for primitive string/number/boolean containment.
         for (const key of derivedSearchKeys) {
           const val = option[key as keyof typeof option];
           if (val == null) continue;
@@ -294,6 +465,7 @@ export function AutocompleteField<T = string>({
     }
     setFilteredOptions(next);
   }, [inputValue, options, filterOption, derivedSearchKeys]);
+  // Above effect: intentionally avoids deep traversal; only shallow keys and arrays of primitives are considered.
 
   // auto close if nothing to show
   useEffect(() => {
@@ -391,9 +563,18 @@ export function AutocompleteField<T = string>({
   }, [isOpen, iframe]);
 
   // ----- Grouping & Flattening -----
-  type FlattenedRow = { type: 'group'; group: string; options: T[] } | { type: 'option'; option: T; group?: string };
-  const flattenedOptions: FlattenedRow[] = React.useMemo(() => {
+
+  /**
+   * flattenedOptions – normalized sequence consumed by react-window.
+   * When grouping enabled:
+   *   [ groupHeader, option, option, groupHeader, option, ... ]
+   * Without grouping:
+   *   [ option, option, ... ]
+   * Guarantees stable ordering across renders while query / selection states change.
+   */
+  const flattenedOptions: FlattenedRow<T>[] = React.useMemo(() => {
     if (!groupBy) return filteredOptions.map(o => ({ type: 'option', option: o }));
+    // When grouping is enabled: build a stable row list of group headers + their options for virtualization.
     const groupMap = new Map<string, T[]>();
     const ungrouped: T[] = [];
     for (const opt of filteredOptions) {
@@ -405,7 +586,7 @@ export function AutocompleteField<T = string>({
         ungrouped.push(opt);
       }
     }
-    const rows: FlattenedRow[] = [];
+    const rows: FlattenedRow<T>[] = [];
     for (const [g, opts] of groupMap.entries()) {
       rows.push({ type: 'group', group: g, options: opts });
       for (const o of opts) rows.push({ type: 'option', option: o, group: g });
@@ -415,12 +596,25 @@ export function AutocompleteField<T = string>({
   }, [filteredOptions, groupBy]);
 
   // Pre-render base option content (excluding dynamic selection/highlight classes) to reduce work per scroll repaint.
+  /**
+   * baseOptionContent – pre-render option body nodes once per flattenedOptions change.
+   * Prevents re-invoking potentially heavy renderOption implementations on every virtual row redraw.
+   */
   const baseOptionContent = useMemo(() => {
     return flattenedOptions.map(row => (row.type === 'option' ? renderOptionNode(row.option) : null));
   }, [flattenedOptions, renderOptionNode]);
+  // Pre-rendered option content: avoids recomputing heavy custom renderers during react-window cell redraws.
 
   // Memoize individual row sizes and overall capped dropdown height to avoid recomputing on every render.
   // Previously height was computed inline and itemSize performed branching each call. Here we precompute once per dependency change.
+  /**
+   * rowSizes / totalHeight – memoized virtualization metrics.
+   * rowSizes: individual pixel heights for each row (group headers use listItemSize unless customized).
+   * totalHeight: capped cumulative height (<= 240px) controlling list viewport; prevents overly tall dropdowns.
+   * Tuning:
+   *   - Adjust cap (240) for different design density.
+   *   - Provide getOptionSize for variable content heights.
+   */
   const { rowSizes, totalHeight } = useMemo(() => {
     const sizes: number[] = [];
     let accumulated = 0;
@@ -439,9 +633,11 @@ export function AutocompleteField<T = string>({
     }
     return { rowSizes: sizes, totalHeight: Math.min(accumulated, 240) };
   }, [flattenedOptions, listItemSize, getOptionSize]);
+  // Above: compute each row's pixel height once per dependency change; cap scroll viewport to 240px for usability.
 
   useEffect(() => {
     if (!isOpen || isDisabled || readOnly) return;
+    // Keyboard navigation handler – manages highlight traversal & selection.
     const onDocKey = (e: KeyboardEvent) => {
       const key = e.key;
       if (key === 'ArrowDown') {
@@ -488,6 +684,7 @@ export function AutocompleteField<T = string>({
     document.addEventListener('keydown', onDocKey);
     return () => document.removeEventListener('keydown', onDocKey);
   }, [isOpen, isDisabled, readOnly, highlightedIndex, flattenedOptions, handleOptionClick]);
+  // Above effect: global key listener only while dropdown open & interactive; navigates skipping group headers.
 
   // Only reset when closing; opening leaves it at -1 until user navigates.
   useEffect(() => {
@@ -503,10 +700,12 @@ export function AutocompleteField<T = string>({
     }
   };
 
+  // Input change: updates query & conditionally opens dropdown (lazy open on typing).
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
     if (!isOpen && !isDisabled && !readOnly) setIsOpen(true);
   };
+  // Input focus: only auto-open for keyboard modality (accessibility) & not immediately post-close.
   const onInputFocus: React.FocusEventHandler<HTMLInputElement> = e => {
     if (isDisabled || readOnly || isOpen) return;
     if (justClosedRef.current) return;
@@ -518,7 +717,9 @@ export function AutocompleteField<T = string>({
 
     if (isKeyboard) setIsOpen(true);
   };
+  // Rationale: only auto-open on focus when modality is keyboard (accessibility) & not immediately after closing.
 
+  // Down-arrow from closed state: open & allow navigation start.
   const onInputKeyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
     if (disabled || readOnly) return;
     if (e.key === 'ArrowDown' && !isOpen) {
@@ -546,20 +747,7 @@ export function AutocompleteField<T = string>({
     <div className={containerClasses}>
       <FieldLabel label={label} readOnly={readOnly} icon={icon} htmlFor={id} />
       <div className={inputWrapperClasses} ref={containerRef} {...getReferenceProps()}>
-        {startAdornment &&
-          (() => {
-            const adornment = startAdornment as AutocompleteFieldAdornmentProps | React.ReactNode;
-            const content = isProps(adornment) ? adornment.content : adornment;
-            const variant = isProps(adornment) ? adornment.variant : undefined;
-            const extra = isProps(adornment) ? adornment.className : undefined;
-            let adornmentClass = getClassName('startAdornment');
-            if (variant) adornmentClass += ` ${getClassName(variant)}`;
-            else if (isIconElement(content)) adornmentClass += ` ${getClassName('icon')}`;
-            else adornmentClass += ` ${getClassName('default')}`;
-            if (extra) adornmentClass += ` ${extra}`;
-
-            return <div className={adornmentClass}>{content}</div>;
-          })()}
+        <StartAdornment adornment={startAdornment} getClassName={getClassName} />
 
         <div
           className={getClassName('valueContainer')}
@@ -616,34 +804,16 @@ export function AutocompleteField<T = string>({
               }}
             />
           )}
-          {(() => {
-            const defaultAdornment: AutocompleteFieldAdornmentProps = {
-              content: <ChevronDownIcon size={18} className={`${getClassName('chevron')} ${isOpen ? getClassName('chevronUp') : ''}`} />,
-              variant: 'default',
-              className: undefined,
-            };
-            const source = endAdornment ?? defaultAdornment;
-            const content: React.ReactNode = isProps(source) ? source.content : source;
-            const variant = isProps(source) ? source.variant : undefined;
-            const extraClass = isProps(source) ? source.className : undefined;
-            let adornmentClass = getClassName('endAdornment');
-            if (variant) adornmentClass += ` ${getClassName(variant)}`;
-            else if (isIconElement(content)) adornmentClass += ` ${getClassName('icon')}`;
-            else adornmentClass += ` ${getClassName('default')}`;
-            if (extraClass) adornmentClass += ` ${extraClass}`;
-            if (hasEndInputAdornment) adornmentClass = getClassName('endAdornment-input') + ` ${extraClass ?? ''}`;
-            return (
-              <div
-                className={adornmentClass}
-                onClick={() => !isDisabled && !readOnly && setIsOpen(o => !o)}
-                onMouseDown={() => {
-                  lastInteraction.current = 'pointer';
-                }}
-              >
-                {content}
-              </div>
-            );
-          })()}
+          <EndAdornment
+            adornment={endAdornment}
+            getClassName={getClassName}
+            isOpen={isOpen}
+            isDisabled={isDisabled}
+            readOnly={readOnly}
+            hasEndInputAdornment={!!hasEndInputAdornment}
+            onToggle={() => setIsOpen(o => !o)}
+            lastInteractionRef={lastInteraction}
+          />
         </div>
 
         {error && (
@@ -668,6 +838,7 @@ export function AutocompleteField<T = string>({
                 style={floatingStyles}
                 {...getFloatingProps({ className: getClassName('dropdown') })}
               >
+                {/* Virtualized options list – react-window VariableSizeList */}
                 <List
                   height={totalHeight}
                   width={'100%'}
@@ -684,7 +855,7 @@ export function AutocompleteField<T = string>({
                   }: {
                     index: number;
                     style: React.CSSProperties;
-                    data: { rows: FlattenedRow[]; selectedValues: T[]; handleOptionClick: (o: T) => void; highlightedIndex: number };
+                    data: { rows: FlattenedRow<T>[]; selectedValues: T[]; handleOptionClick: (o: T) => void; highlightedIndex: number };
                   }) => {
                     const row = data.rows[index];
                     if (row.type === 'group') {
@@ -707,7 +878,7 @@ export function AutocompleteField<T = string>({
                         onClick={() => data.handleOptionClick(option)}
                         // Intentionally no onMouseEnter here to prevent pointer hover re-renders.
                       >
-                        {baseOptionContent[index]}
+                        {baseOptionContent[index] /* Pre-rendered content (stable reference) */}
                       </div>
                     );
                   }}
