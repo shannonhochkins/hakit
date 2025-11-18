@@ -1,21 +1,18 @@
-import { ComponentData, createUsePuck, Slot, useGetPuck, walkTree } from '@measured/puck';
-import { ArrowDown, ArrowUp, Box, Copy, CornerLeftUp, EllipsisVertical, Trash } from 'lucide-react';
+import { ComponentData, createUsePuck, Slot, walkTree } from '@measured/puck';
+import { ArrowDown, ArrowUp, CornerLeftUp } from 'lucide-react';
 import { PopupProps } from '../../InternalComponents/Popup';
 import { useCallback, useMemo } from 'react';
 import { usePopupStore } from '@hooks/usePopupStore';
 import { IconButton } from '@components/Button';
 import styles from './ActionBar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
-import { Menu, MenuAnchor, MenuContent, MenuItem } from '@components/Menu';
-import { useGlobalStore } from '@hooks/useGlobalStore';
-import { ContainerProps } from '../../InternalComponents/Container';
+import { SharedActionBar } from './SharedActionBar';
 
 const cn = getClassNameFactory('ActionBar', styles);
 
 const usePuck = createUsePuck();
 
 export function ActionBar() {
-  const getPuck = useGetPuck();
   const selectedItem = usePuck(s => s.selectedItem);
   const getPermissions = usePuck(s => s.getPermissions);
   const dispatch = usePuck(s => s.dispatch);
@@ -80,34 +77,6 @@ export function ActionBar() {
       }
     },
     [getSelectorForId, dispatch, parentId]
-  );
-
-  const onDuplicate = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      e.stopPropagation();
-      if (!itemSelector) return;
-      const { index, zone = 'root' } = itemSelector;
-      dispatch({
-        type: 'duplicate',
-        sourceIndex: index,
-        sourceZone: zone,
-      });
-    },
-    [itemSelector, dispatch]
-  );
-
-  const onDelete = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      e.stopPropagation();
-      if (!itemSelector) return;
-      const { index, zone = 'root' } = itemSelector;
-      dispatch({
-        type: 'remove',
-        index: index,
-        zone: zone,
-      });
-    },
-    [itemSelector, dispatch]
   );
 
   const onMoveUp = useCallback(
@@ -247,40 +216,6 @@ export function ActionBar() {
     );
   }, [globalPermissions.edit, globalPermissions.drag, onMoveDown, parentId, getItemById, itemSelector]);
 
-  const sharedMenuContentItems = useMemo(() => {
-    return (
-      <MenuContent>
-        <MenuItem
-          onClick={() => {
-            const { appState, config, getItemBySelector, dispatch } = getPuck();
-            const selected = appState.ui.itemSelector;
-            const item = selected ? getItemBySelector(selected) : null;
-            if (!item) return;
-            const newContent = walkTree(appState.data, config, content => {
-              return content.map(component => {
-                if (component.props.id === item.props.id) {
-                  const container = useGlobalStore.getState().actions.createComponentInstance<ContainerProps>('Container');
-                  if (!container) return component;
-                  container.props.content = [component];
-                  return container;
-                }
-                return component;
-              });
-            });
-            dispatch({
-              type: 'setData',
-              data: newContent,
-            });
-          }}
-          label='Wrap in Container'
-          startIcon={<Box size={16} />}
-        />
-        <MenuItem label='Delete' onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete} />
-        <MenuItem label='Duplicate' onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate} />
-      </MenuContent>
-    );
-  }, [getPuck, onDelete, onDuplicate, globalPermissions]);
-
   if (!selectedItem)
     return (
       <div className={cn()}>
@@ -290,19 +225,7 @@ export function ActionBar() {
           {moveDownAction}
         </div>
         <div className={cn('group')}>
-          <Menu>
-            <MenuAnchor>
-              <IconButton
-                size='xs'
-                variant='transparent'
-                aria-label='Additional Actions'
-                aria-haspopup='menu'
-                tooltipProps={{ basic: true }}
-                icon={<EllipsisVertical size={16} />}
-              />
-            </MenuAnchor>
-            {sharedMenuContentItems}
-          </Menu>
+          <SharedActionBar />
         </div>
       </div>
     );
@@ -315,19 +238,7 @@ export function ActionBar() {
         {moveDownAction}
       </div>
       <div className={cn('group')}>
-        <Menu>
-          <MenuAnchor>
-            <IconButton
-              size='xs'
-              variant='transparent'
-              aria-label='Additional Actions'
-              aria-haspopup='menu'
-              tooltipProps={{ basic: true }}
-              icon={<EllipsisVertical size={16} />}
-            />
-          </MenuAnchor>
-          {sharedMenuContentItems}
-        </Menu>
+        <SharedActionBar />
       </div>
     </div>
   );
