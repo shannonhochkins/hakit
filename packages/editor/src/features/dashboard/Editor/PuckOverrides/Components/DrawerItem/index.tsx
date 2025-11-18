@@ -5,17 +5,19 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { useComponentSearchStore } from '..';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { Tooltip } from '@components/Tooltip';
+import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 const getClassName = getClassNameFactory('DrawerItem', styles);
 
 type DrawerItemProps = { name: string };
 
-export function DrawerItem({ name }: DrawerItemProps) {
+export function DrawerItem({ name: addonName }: DrawerItemProps) {
+  const name = addonName.split(COMPONENT_TYPE_DELIMITER)[0];
   const [proxiedComponents] = useLocalStorage<Record<string, string>>('proxied-components', {});
   const searchTerm = useComponentSearchStore(state => state.searchTerm);
   if (searchTerm && !name.toLowerCase().includes(searchTerm.toLowerCase())) return <></>; // Hide if not matching
   return (
     <Tooltip
-      title={proxiedComponents[name] ? `This component is proxied via module federation.` : undefined}
+      title={proxiedComponents[addonName] ? `This component is proxied via module federation.` : undefined}
       style={{
         width: '100%',
       }}
@@ -30,7 +32,7 @@ export function DrawerItem({ name }: DrawerItemProps) {
         justifyContent='start'
         className={getClassName({
           DrawerItem: true,
-          proxied: !!proxiedComponents[name],
+          proxied: !!proxiedComponents[addonName],
         })}
       >
         <div className={getClassName('DrawerItem-Icon')}>
