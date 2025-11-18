@@ -13,6 +13,8 @@ import { buttonComponentConfig } from '../Editor/InternalComponents/Button';
 
 import { iconButtonComponentConfig } from '../Editor/InternalComponents/IconButton';
 import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
+import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
+import { toast } from 'react-toastify';
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;
@@ -146,6 +148,25 @@ instance.registerPlugins([
   },
 ]);
 
+instance.registerPlugins([
+  {
+    name: 'pre-register',
+    async errorLoadRemote(ctx) {
+      try {
+        const proxied = getMockedProxies();
+        const match = proxied && Object.entries(proxied).find(([, entry]) => ctx.id === entry);
+        if (match) {
+          toast.error(`Module Federation Devtools extension is misconfigured or the target remote "${match[0]}" is not running.`, {
+            toastId: `mf-error-${match[0]}`,
+          });
+        }
+      } catch {
+        // fail silently
+      }
+    },
+  },
+]);
+
 // -------------------------
 // Helpers to reduce duplication
 // -------------------------
@@ -245,18 +266,19 @@ async function processComponent<P extends object>({
   // and cast it here to the correct type
   const customComponent = componentConfig;
   const componentLabel = customComponent.label;
-  if (!componentLabel) {
+  const componentType = customComponent.label + `${COMPONENT_TYPE_DELIMITER}${remote.addonId}`;
+  if (!componentLabel?.trim()) {
     throw new Error(`Component from remote "${remote.name}" has no label`);
   }
-  if (components[componentLabel]) {
+  if (components[componentType]) {
     // @ts-expect-error - it does exist, see further down, intentionally not in the types to satisfy Puck
-    const componentWithRemote = components[componentLabel]._remoteAddonName;
+    const componentWithRemote = components[componentType]._remoteAddonName;
     console.warn(
-      `Component "${componentLabel}" already exists, attempted to load from remote "${remote.name}", already loaded via "${componentWithRemote}", skipping this instance.`
+      `Component "${componentType}" already exists, attempted to load from remote "${remote.name}", already loaded via "${componentWithRemote}", skipping this instance.`
     );
     return null;
   }
-  components[componentLabel] = {
+  components[componentType] = {
     ...componentConfig,
     // @ts-expect-error - we know this doesn't exist, it's fine.
     _remoteAddonName: remote.name, // track which remote this came from
@@ -274,7 +296,7 @@ async function processComponent<P extends object>({
         : { visible: false, components: [] }),
     };
   }
-  categories[categoryLabel].components?.push(componentLabel);
+  categories[categoryLabel].components?.push(componentType);
 }
 
 export async function getPuckConfiguration(data: ComponentFactoryData): Promise<CustomPuckConfig<DefaultComponentProps>> {
@@ -338,8 +360,8 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
       if (isRemoteProxied) {
         remoteManifest.get(remote.name); // ensure we have the manifest loaded
         remoteManifestData.exposes.forEach(module => {
-          if (!currentProxied[module.name]) {
-            currentProxied[module.name] = `${remote.name}/${module.name}`;
+          if (!currentProxied[`${module.name}${COMPONENT_TYPE_DELIMITER}${remote.addonId}`]) {
+            currentProxied[`${module.name}${COMPONENT_TYPE_DELIMITER}${remote.addonId}`] = `${remote.name}/${module.name}`;
           }
         });
         setLocalStorageItem('proxied-components', currentProxied);
