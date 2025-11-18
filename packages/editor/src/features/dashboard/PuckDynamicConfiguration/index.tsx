@@ -156,9 +156,13 @@ instance.registerPlugins([
         const proxied = getMockedProxies();
         const match = proxied && Object.entries(proxied).find(([, entry]) => ctx.id === entry);
         if (match) {
-          toast.error(`Module Federation Devtools extension is misconfigured or the target remote "${match[0]}" is not running.`, {
-            toastId: `mf-error-${match[0]}`,
-          });
+          toast.error(
+            `Failed to connect to remote "${match[0]}" via "${match[1]}". The Module Federation Devtools proxy may be misconfigured or the remote server is not running.`,
+            {
+              toastId: `mf-error-${match[0]}`,
+              autoClose: false,
+            }
+          );
         }
       } catch {
         // fail silently
