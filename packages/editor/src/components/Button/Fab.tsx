@@ -36,7 +36,7 @@ export const Fab = ({
   position = 'relative',
   pulse = false,
   children,
-  tooltipProps = {},
+  tooltipProps,
   active,
   className,
   borderRadius = '50%',

@@ -39,7 +39,7 @@
 .placeholder {
   color: var(--clr-text-a10);
   font-size: var(--font-size-sm);
-  line-clamp: 1;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }

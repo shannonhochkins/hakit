@@ -12,6 +12,7 @@
   color: var(--clr-text-a10);
   background: transparent;
   transition: padding 0.2s ease-in-out;
+  min-inline-size: auto;
 }
 .CollapsibleFieldWrapper {
   border-left: 1px solid transparent;
