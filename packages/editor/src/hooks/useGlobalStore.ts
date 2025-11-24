@@ -6,9 +6,9 @@ import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
 import { type BreakPoint } from '@hakit/components';
-import { DefaultComponentProps } from '@measured/puck';
+import { usePuck, DefaultComponentProps } from '@measured/puck';
 import { toast } from 'react-toastify';
-import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
+import { COMPONENT_TYPE_DELIMITER, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import type { ComponentData } from '@measured/puck';
 import { setLocalStorageItem } from './useLocalStorage';
 import { generateId } from '@helpers/string/generateId';
@@ -105,6 +105,8 @@ export type PuckConfigurationStore = {
   setComponentBreakpointMap: (componentBreakpointModeMap: ComponentBreakpointModeMap) => void;
   // Actions object for centralized operations
   actions: {
+    deselectComponent: (store: ReturnType<typeof usePuck>) => void;
+    selectComponentById: (id: string, store: ReturnType<typeof usePuck>) => void;
     save: (pagePath: string, callback?: () => void) => Promise<void>;
     createComponentInstance: <D extends DefaultComponentProps>(componentLabel: string) => ComponentData<D> | null;
   };
@@ -188,6 +190,25 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
 
     // Actions object for centralized operations
     actions: {
+      selectComponentById: (id: string, store: ReturnType<typeof usePuck>) => {
+        const itemSelector = store.getSelectorForId(id);
+        if (!itemSelector) {
+          toast.error(`Could not find selector for component with id "${id}"`);
+          return;
+        }
+        store.dispatch({
+          type: 'setUi',
+          ui: { itemSelector },
+          recordHistory: true,
+        });
+      },
+      deselectComponent: (store: ReturnType<typeof usePuck>) => {
+        store.dispatch({
+          type: 'setUi',
+          ui: { itemSelector: null },
+          recordHistory: true,
+        });
+      },
       createComponentInstance: <D extends DefaultComponentProps>(componentLabel: string) => {
         const { userConfig } = get();
         if (!userConfig) {
@@ -197,7 +218,12 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           });
           return null;
         }
-        const componentConfig = userConfig.components[componentLabel];
+        const partialComponentLabel = `${componentLabel}${COMPONENT_TYPE_DELIMITER}@hakit`;
+        const actualComponentLabels = Object.keys(userConfig.components).filter(
+          key => key === componentLabel || key.startsWith(partialComponentLabel)
+        );
+        const actualComponentLabel = actualComponentLabels[0];
+        const componentConfig = userConfig.components[actualComponentLabel];
         if (!componentConfig) {
           toast(`Component "${componentLabel}" not found in user config`, {
             type: 'error',
@@ -206,9 +232,9 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           return null;
         }
         const defaultProps = componentConfig.defaultProps || {};
-        const id = generateId(componentLabel);
+        const id = generateId(actualComponentLabel);
         const newInstance: ComponentData<D> = {
-          type: componentLabel,
+          type: actualComponentLabel,
           props: {
             ...defaultProps,
             id,

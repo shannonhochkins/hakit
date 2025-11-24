@@ -12,6 +12,8 @@ import { UnitFieldValue } from '@typings/fields';
 const BASE_Z_INDEX = 1050;
 
 export type PopupProps = {
+  /** Whether to hide the header */
+  hideHeader: boolean;
   /** The title for the popup */
   title: string;
   /** The description for the popup */
@@ -34,17 +36,29 @@ export type PopupProps = {
 export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
   label: 'Popup',
   fields: {
+    hideHeader: {
+      type: 'switch',
+      label: 'Hide Header',
+      description: 'Whether to hide the header section of the popup',
+      default: false,
+    },
     title: {
       type: 'text',
       label: 'Title',
       default: 'Popup Title',
       description: 'Title of the popup',
+      visible(props) {
+        return !props.hideHeader;
+      },
     },
     description: {
       type: 'textarea',
       label: 'Description',
       default: 'Popup Description',
       description: 'Description of the popup',
+      visible(props) {
+        return !props.hideHeader;
+      },
     },
     contentPadding: {
       type: 'unit',
@@ -66,6 +80,9 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
       label: 'Hide Close Button',
       description: 'Whether to hide the close button',
       default: false,
+      visible(props) {
+        return !props.hideHeader;
+      },
     },
     fullscreen: {
       type: 'switch',
@@ -235,7 +252,9 @@ function Render(props: RenderProps<PopupProps>) {
   // for pushing the last open popup in front of any previous popups
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => registerOverlayPortal(ref.current), []);
+  useEffect(() => {
+    if (open) registerOverlayPortal(ref.current);
+  }, [open]);
 
   const doClose = useCallback(() => {
     if (autocloseRef.current) {
@@ -276,24 +295,26 @@ function Render(props: RenderProps<PopupProps>) {
       >
         <div className={`Popup-backdrop`} id={`${prefix}-backdrop`} onClick={doClose} />
         <div ref={props._dragRef} className={`Popup ${fullscreen ? 'Popup--fullscreen' : ''}`}>
-          <div key={`${prefix}-header`} className={`Popup-header`}>
-            <div className={`Popup-column`}>
-              {title && <h4 className={`Popup-title`}>{title}</h4>}
-              {description && <h4 className={`Popup-description`}>{description}</h4>}
-            </div>
-            {!hideCloseButton && (
-              <div className='Popup-row' ref={ref}>
-                <Fab
-                  icon={<X size={24} />}
-                  onClick={doClose}
-                  className={`popup-close-button`}
-                  aria-label='Close popup'
-                  variant='secondary'
-                  size='sm'
-                />
+          {!props.hideHeader && (
+            <div key={`${prefix}-header`} className={`Popup-header`}>
+              <div className={`Popup-column`}>
+                {title && <h4 className={`Popup-title`}>{title}</h4>}
+                {description && <h4 className={`Popup-description`}>{description}</h4>}
               </div>
-            )}
-          </div>
+              {!hideCloseButton && (
+                <div className='Popup-row' ref={ref}>
+                  <Fab
+                    icon={<X size={24} />}
+                    onClick={doClose}
+                    className={`popup-close-button`}
+                    aria-label='Close popup'
+                    variant='secondary'
+                    size='sm'
+                  />
+                </div>
+              )}
+            </div>
+          )}
           <div key={`${prefix}-overflow`} className={`Popup-overflow`}>
             <div className={`Popup-inner`}>
               <Content />

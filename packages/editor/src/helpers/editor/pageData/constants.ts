@@ -26,3 +26,6 @@ export const DEFAULT_FIELD_DEBOUNCE_MS = 150;
 export const CSS_VARIABLE_PREFIX = '--clr-';
 
 export const COMPONENT_TYPE_DELIMITER = '__@@__';
+
+export const DEFAULT_ROOT_ZONE = 'root:content';
+export const DEFAULT_POPUP_ZONE = 'root:popupContent';

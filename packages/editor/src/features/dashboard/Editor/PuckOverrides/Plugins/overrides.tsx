@@ -5,7 +5,7 @@ import { FieldDefinition } from '@typings/fields';
 import { StandardFieldWrapper, type StandardFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Standard';
 import { CollapsibleFieldWrapper, type CollapsibleFieldComponentProps } from '@features/dashboard/Editor/FieldContainer/Collapsible';
 import { RenderErrorBoundary } from '../../RenderErrorBoundary';
-import isEqual from '@guanghechen/fast-deep-equal';
+import isDeepEqual from '@guanghechen/fast-deep-equal';
 import { ActionBar } from '../ActionBar';
 import { Components } from '../Components';
 
@@ -47,7 +47,7 @@ const MemoFieldWrapperInner = memo(FieldWrapperInner, (prevProps, nextProps) => 
   // Re-render when handler identity changes
   if (prevProps.onChange !== nextProps.onChange) return false;
   // Re-render when value changes deeply
-  if (!isEqual(prevProps.value, nextProps.value)) return false;
+  if (!isDeepEqual(prevProps.value, nextProps.value)) return false;
   // Ignore other prop changes (name, id, etc.) for performance
   return true;
 });

@@ -1,5 +1,5 @@
 import { Row } from '@components/Layout';
-import { ComponentData, createUsePuck, CustomFieldRender, setDeep } from '@measured/puck';
+import { ComponentData, createUsePuck, useGetPuck, CustomFieldRender } from '@measured/puck';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { toast } from 'react-toastify';
 import { usePopupStore } from '@hooks/usePopupStore';
@@ -9,22 +9,19 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { IconButton, SecondaryButton } from '@components/Button';
 import { Plus, SquareArrowOutUpRight, Trash, X } from 'lucide-react';
 import { SelectField } from '@components/Form/Field/Select';
+import { COMPONENT_TYPE_DELIMITER, DEFAULT_POPUP_ZONE } from '@helpers/editor/pageData/constants';
 const usePuck = createUsePuck();
 
 const cn = getClassNameFactory('PopupIdField', styles);
 
 export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }: Parameters<CustomFieldRender<string>>[0]) => {
-  const dispatch = usePuck(s => s.dispatch);
-  const state = usePuck(s => s.appState);
-  const getSelectorForId = usePuck(s => s.getSelectorForId);
-  const getItemBySelector = usePuck(s => s.getItemBySelector);
+  const getPuck = useGetPuck();
   const getItemById = usePuck(s => s.getItemById);
-  const currentComponent = state.ui.itemSelector ? getItemBySelector(state.ui.itemSelector) : null;
   const popups = usePopupStore(store => store.popups);
   const hasPopupLinked = popups.find(p => p.id === value) !== undefined;
   const existingPopupComponents = popups
     .map(p => getItemById(p.id))
-    .filter((c): c is ComponentData<PopupProps> => !!c && c.type === 'Popup');
+    .filter((c): c is ComponentData<PopupProps> => !!c && c.type.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`));
   // an auto complete, populated with all existing popups
   // and a button to "create" a new popup, which will assign the id of the popup via onchange once created
   // this will need to be done via the puck api
@@ -34,35 +31,51 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
   // use a new store to maintain/manage available popups
   // need a way to "remove/delete" a popup as well
   const handleInsertPopup = () => {
-    let id: string | undefined;
+    const { dispatch, appState, getItemBySelector } = getPuck();
+    const currentComponent = appState.ui.itemSelector ? getItemBySelector(appState.ui.itemSelector) : null;
+    const root = appState.data.root;
+    const newPopup = useGlobalStore.getState().actions.createComponentInstance<PopupProps>('Popup');
+    if (!newPopup) {
+      return;
+    }
+    // if we have it, assign the relatedComponentId, this will be useful when closing the popup, deleting the popup
+    // we can try to focus the parent component again
+    if (currentComponent) {
+      newPopup.props.relatedComponentId = currentComponent.props.id;
+    }
+    const popupContent: ComponentData[] = 'popupContent' in root ? ((root.popupContent as ComponentData[]) ?? []) : [];
     dispatch({
-      type: 'setData',
-      data(previous) {
-        // creates an instance of the component with the default props
-        const newPopup = useGlobalStore.getState().actions.createComponentInstance<PopupProps>('Popup');
-        if (!newPopup) {
-          toast.error('Failed to create new popup');
-          return previous;
-        }
-        const root = previous.root.props ?? {};
+      type: 'insert',
+      componentType: newPopup.type,
+      destinationIndex: popupContent.length, // append to end
+      destinationZone: DEFAULT_POPUP_ZONE,
+      id: newPopup.props.id,
+    });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
         // if we have it, assign the relatedComponentId, this will be useful when closing the popup, deleting the popup
         // we can try to focus the parent component again
         if (currentComponent) {
           newPopup.props.relatedComponentId = currentComponent.props.id;
         }
-        // push into the root popupContent array to render at the same level
-        const popupContent: ComponentData[] = 'popupContent' in root ? ((root.popupContent as ComponentData[]) ?? []) : [];
-        const newContent = [...popupContent, newPopup];
+        dispatch({
+          type: 'replace',
+          destinationIndex: popupContent.length,
+          destinationZone: DEFAULT_POPUP_ZONE,
+          data: {
+            type: newPopup.type,
+            props: {
+              ...newPopup.props,
+            },
+          },
+        });
         onChange(newPopup.props.id);
-        id = newPopup.props.id;
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            openPopup(id);
+            openPopup(newPopup.props.id);
           });
         });
-        // update the array property with the new array
-        return setDeep(previous, `root.props.popupContent`, newContent);
-      },
+      });
     });
   };
   const handleDeselectPopup = () => {
@@ -70,39 +83,23 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
   };
   const handleRemovePopup = () => {
     if (!value) return;
+    const { dispatch, getSelectorForId } = getPuck();
+    const selector = getSelectorForId(value);
+    if (!selector) {
+      toast.error('Unable to find the popup to delete.');
+      return;
+    }
     dispatch({
-      type: 'setData',
-      data(previous) {
-        const root = previous.root.props ?? {};
-        // remove from the root popupContent array
-        const popupContent: ComponentData[] = 'popupContent' in root ? ((root.popupContent as ComponentData[]) ?? []) : [];
-        const newContent = popupContent.filter(c => c.props.id !== value);
-        // update the array property with the new array
-        usePopupStore.getState().removePopup(value);
-        onChange('');
-        return setDeep(previous, `root.props.popupContent`, newContent);
-      },
+      type: 'remove',
+      ...selector,
     });
+    onChange('');
   };
   const openPopup = (id?: string) => {
     const popupToOpen = id || value;
     if (!popupToOpen) return;
     usePopupStore.getState().openPopup(popupToOpen);
-    const itemSelector = getSelectorForId(popupToOpen);
-    if (itemSelector) {
-      dispatch({
-        type: 'set',
-        state: {
-          ...state,
-          ui: {
-            ...state.ui,
-            itemSelector,
-          },
-        },
-      });
-    } else {
-      console.error('Failed to find selector for popup id', value);
-    }
+    useGlobalStore.getState().actions.selectComponentById(popupToOpen, getPuck());
   };
 
   const options = existingPopupComponents.map(c => ({ label: c.props.title || 'Popup', value: c.props.id }));

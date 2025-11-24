@@ -5,7 +5,7 @@ import { PuckPageData } from '@typings/puck';
 import { updateDashboardPageForUser } from '@services/dashboard';
 import { type PuckAction } from '@measured/puck';
 import { toast } from 'react-toastify';
-import deepEqual from 'deep-equal';
+import isDeepEqual from '@guanghechen/fast-deep-equal';
 import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';
 import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 import { usePopupStore } from './usePopupStore';
@@ -102,7 +102,7 @@ export function useUnsavedChanges(): UnsavedChangesState {
     if (!puckPageData || !unsavedPuckPageData) {
       return false;
     }
-    return deepEqual(puckPageData, unsavedPuckPageData) === false;
+    return isDeepEqual(puckPageData, unsavedPuckPageData) === false;
   }, [puckPageData, unsavedPuckPageData]);
 
   // Update localStorage whenever unsavedPuckPageData changes

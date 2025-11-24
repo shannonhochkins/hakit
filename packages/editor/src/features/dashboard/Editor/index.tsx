@@ -8,24 +8,22 @@ import { PuckLayout } from './PuckLayout';
 import { useRef, useEffect, useCallback } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { toast } from 'react-toastify';
-import deepEqual from 'deep-equal';
+import isDeepEqual from '@guanghechen/fast-deep-equal';
 import { EditorShortcuts } from './EditorShortcuts';
-import { sanitizePuckData } from '@helpers/editor/pageData/sanitizePuckData';
 import { usePopupStore } from '@hooks/usePopupStore';
 import { usePuckMiddleware } from '@hooks/usePuckMiddleware';
+import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
 
 function SyncUnsavedAndPuckData() {
   const getPuck = useGetPuck();
-  const unsavedPuckPageData = useGlobalStore(state => state.unsavedPuckPageData);
+  // const unsavedPuckPageData = useGlobalStore(state => state.unsavedPuckPageData);
   usePuckMiddleware.getState().onAction((action, appState) => {
     const { getItemBySelector } = getPuck();
-    // listen for setData actions to update unsaved data
-    if (action.type === 'remove') {
-      // whenever a component is removed, we need to re-address the validatity of popups
-      // and components that may have assigned popups that no longer exist
+    if (action.type === 'remove' || action.type === 'insert') {
+      // When removing/inserting, we need to re-initialize the popup store to ensure removed/inserted popups are cleared out or initialized
       const data = appState.data;
       usePopupStore.getState().initializePopups(data);
     }
@@ -34,7 +32,7 @@ function SyncUnsavedAndPuckData() {
       const itemSelector = (action.ui as Partial<UiState>)?.itemSelector;
       if (itemSelector) {
         const item = getItemBySelector(itemSelector);
-        if (item?.type === 'Popup') {
+        if (item?.type?.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`)) {
           const popupId = item.props.id;
           usePopupStore.getState().closeAllPopups();
           usePopupStore.getState().openPopup(popupId);
@@ -42,23 +40,24 @@ function SyncUnsavedAndPuckData() {
       }
     }
   });
-
+  // TODO - Assess if this is needed, or if puck onChange is sufficient
+  // I cannot find a valid reason to keep this so for now we'll comment it out until issues arise, recovering unsaved changes should be handled via the useUnsavedChanges hook
   // Sync unsaved data to puck
-  useEffect(() => {
-    if (unsavedPuckPageData) {
-      // unsavedPuckPageData has a sanitization layer which will perform trimming on things
-      // and ensure validity on other values, for example after removing a popup component, any components
-      // that referenced that popup should have had their popupId field cleared out.
-      const { dispatch, appState } = getPuck();
-      const data = appState.data;
-      if (!deepEqual(data, unsavedPuckPageData)) {
-        dispatch({
-          type: 'setData',
-          data: unsavedPuckPageData,
-        });
-      }
-    }
-  }, [unsavedPuckPageData, getPuck]);
+  // useEffect(() => {
+  //   if (unsavedPuckPageData) {
+  //     // unsavedPuckPageData has a sanitization layer which will perform trimming on things
+  //     // and ensure validity on other values, for example after removing a popup component, any components
+  //     // that referenced that popup should have had their popupId field cleared out.
+  //     const { dispatch, appState } = getPuck();
+  //     const data = appState.data;
+  //     if (!deepEqual(data, unsavedPuckPageData)) {
+  //       dispatch({
+  //         type: 'setData', // TODO - Avoid using this, as it's expensive
+  //         data: unsavedPuckPageData,
+  //       });
+  //     }
+  //   }
+  // }, [unsavedPuckPageData, getPuck]);
 
   return null;
 }
@@ -118,11 +117,15 @@ export function Editor() {
           return;
         }
         if (newData) {
-          const sanitizedData = sanitizePuckData({
-            data: newData,
-            userConfig,
-          });
-          if (sanitizedData && !deepEqual(currentPage.data, sanitizedData)) {
+          // We currently run the sanitization on page load, which should be sufficient enough to ensure
+          // the data matches the users configuration and removes any invalid references etc.
+          // if we run into issues we can consider running this on every change, but it may lead to performance issues
+          // const sanitizedData = sanitizePuckData({
+          //   data: newData,
+          //   userConfig,
+          // });
+          const sanitizedData = newData;
+          if (sanitizedData && !isDeepEqual(currentPage.data, sanitizedData)) {
             console.debug('Updating data for db', {
               // updatedOriginal: updated,
               updated: sanitizedData,
