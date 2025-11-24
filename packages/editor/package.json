@@ -55,7 +55,6 @@
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/react-dom": "^19.1.7",
     "deep-copy-ts": "^0.5.4",
-    "deep-equal": "^2.2.3",
     "ts-deepmerge": "^7.0.2",
     "typescript": "^5.7.2"
   }

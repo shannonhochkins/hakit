@@ -2,6 +2,7 @@ import { type Config, walkTree } from '@measured/puck';
 import { type PuckPageData } from '@typings/puck';
 import { create } from 'zustand';
 import { useGlobalStore } from './useGlobalStore';
+import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 
 /**
  * This store will manage a list of popup ids
@@ -32,7 +33,7 @@ export function getPopupIdsInData(data: PuckPageData, userConfig: Config): Set<s
   try {
     walkTree(data, userConfig, content => {
       content.forEach(item => {
-        if (item.type === 'Popup' && item.props.id) {
+        if (item.type?.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`) && item.props.id) {
           popupIds.add(item.props.id);
         }
       });
@@ -67,7 +68,6 @@ export const usePopupStore = create<PopupStore>(set => {
         for (const existingId of Array.from(existingMap.keys())) {
           if (!popupIds.has(existingId)) existingMap.delete(existingId);
         }
-
         return { popups: Array.from(existingMap.values()) };
       });
     },

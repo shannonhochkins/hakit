@@ -49,7 +49,6 @@
     "@happy-dom/global-registrator": "^17.4.4",
     "@originjs/vite-plugin-federation": "^1.4.0",
     "@types/bun": "latest",
-    "@types/deep-equal": "^1.0.4",
     "@types/jszip": "^3.4.1",
     "@types/pg": "^8.11.11",
     "@types/react": "^19.1.10",

@@ -1,4 +1,4 @@
-import { ComponentData, createUsePuck, Slot, walkTree } from '@measured/puck';
+import { ComponentData, createUsePuck, Slot, walkTree, useGetPuck } from '@measured/puck';
 import { ArrowDown, ArrowUp, CornerLeftUp } from 'lucide-react';
 import { PopupProps } from '../../InternalComponents/Popup';
 import { useCallback, useMemo } from 'react';
@@ -7,12 +7,17 @@ import { IconButton } from '@components/Button';
 import styles from './ActionBar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { SharedActionBar } from './SharedActionBar';
+import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
+import { toast } from 'react-toastify';
+import { DEFAULT_DROPZONE_NAME } from '@constants/index';
+import { useGlobalStore } from '@hooks/useGlobalStore';
 
 const cn = getClassNameFactory('ActionBar', styles);
 
 const usePuck = createUsePuck();
 
 export function ActionBar() {
+  const getPuck = useGetPuck();
   const selectedItem = usePuck(s => s.selectedItem);
   const getPermissions = usePuck(s => s.getPermissions);
   const dispatch = usePuck(s => s.dispatch);
@@ -23,7 +28,7 @@ export function ActionBar() {
   const getSelectorForId = usePuck(s => s.getSelectorForId);
   const getItemById = usePuck(s => s.getItemById);
   const selectedNode = itemSelector ? getItemBySelector(itemSelector) : null;
-  const isPopup = selectedNode?.type === 'Popup';
+  const isPopup = selectedNode?.type?.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`);
   const popup = isPopup ? (selectedNode as ComponentData<PopupProps>) : null;
 
   const globalPermissions = getPermissions();
@@ -44,20 +49,14 @@ export function ActionBar() {
       e.stopPropagation();
       usePopupStore.getState().closePopup(popup!.props.id);
       const relatedComponentId = popup?.props.relatedComponentId;
+
       if (relatedComponentId) {
-        const itemSelector = getSelectorForId(relatedComponentId);
-        if (itemSelector) {
-          dispatch({
-            type: 'setUi',
-            ui: {
-              itemSelector,
-            },
-            recordHistory: true,
-          });
-        }
+        useGlobalStore.getState().actions.selectComponentById(relatedComponentId, getPuck());
+      } else {
+        toast.info('This popup is not linked to any component.');
       }
     },
-    [dispatch, getSelectorForId, popup]
+    [getPuck, popup]
   );
 
   const onSelectParent = useCallback(
@@ -83,7 +82,7 @@ export function ActionBar() {
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
       if (!itemSelector) return;
-      const { index, zone = 'root' } = itemSelector;
+      const { index, zone = DEFAULT_DROPZONE_NAME } = itemSelector;
       if (index <= 0) return;
       dispatch({
         type: 'reorder',
@@ -112,7 +111,7 @@ export function ActionBar() {
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
       if (!itemSelector || !parentId) return;
-      const { index, zone = 'root' } = itemSelector;
+      const { index, zone = DEFAULT_DROPZONE_NAME } = itemSelector;
       const selector = getItemById(parentId) as ComponentData<{
         content: Slot;
       }>;

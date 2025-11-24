@@ -1,4 +1,4 @@
-import { createUsePuck, useGetPuck, walkTree } from '@measured/puck';
+import { createUsePuck, useGetPuck } from '@measured/puck';
 import { Box, Copy, EllipsisVertical, RotateCcw, Trash, X } from 'lucide-react';
 import { useCallback } from 'react';
 import { IconButton } from '@components/Button';
@@ -6,6 +6,7 @@ import { Menu, MenuAnchor, MenuContent, MenuDivider, MenuItem } from '@component
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { ContainerProps } from '../../InternalComponents/Container';
 import { toast } from 'react-toastify';
+import { DEFAULT_DROPZONE_NAME } from '@constants/index';
 
 const usePuck = createUsePuck();
 
@@ -21,7 +22,7 @@ export function SharedActionBar() {
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
       if (!itemSelector) return;
-      const { index, zone = 'root' } = itemSelector;
+      const { index, zone = DEFAULT_DROPZONE_NAME } = itemSelector;
       dispatch({
         type: 'duplicate',
         sourceIndex: index,
@@ -35,7 +36,7 @@ export function SharedActionBar() {
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
       if (!itemSelector) return;
-      const { index, zone = 'root' } = itemSelector;
+      const { index, zone = DEFAULT_DROPZONE_NAME } = itemSelector;
       dispatch({
         type: 'remove',
         index: index,
@@ -46,34 +47,54 @@ export function SharedActionBar() {
   );
 
   const deselect = useCallback(() => {
-    dispatch({
-      type: 'setUi',
-      ui: { itemSelector: null },
-      recordHistory: true,
-    });
-  }, [dispatch]);
+    useGlobalStore.getState().actions.deselectComponent(getPuck());
+  }, [getPuck]);
 
   const wrapInContainer = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
-      const { appState, config, getItemBySelector, dispatch } = getPuck();
+      const { appState, getItemBySelector, dispatch } = getPuck();
       const selected = appState.ui.itemSelector;
       const item = selected ? getItemBySelector(selected) : null;
-      if (!item) return;
-      const newContent = walkTree(appState.data, config, content => {
-        return content.map(component => {
-          if (component.props.id === item.props.id) {
-            const container = useGlobalStore.getState().actions.createComponentInstance<ContainerProps>('Container');
-            if (!container) return component;
-            container.props.content = [component];
-            return container;
-          }
-          return component;
-        });
-      });
+
+      if (!selected || selected.zone === undefined) {
+        toast.error('No selected component to wrap.');
+        return;
+      }
+      if (!item) {
+        toast.error('No component data found to wrap.');
+      }
+      const container = useGlobalStore.getState().actions.createComponentInstance<ContainerProps>('Container');
+      if (!container) {
+        toast.error('Unable to create container component.');
+        return;
+      }
+      // first, delete the existing item
       dispatch({
-        type: 'setData',
-        data: newContent,
+        type: 'remove',
+        index: selected.index,
+        zone: selected.zone,
+      });
+      // then insert the container at the same index
+      dispatch({
+        type: 'insert',
+        destinationIndex: selected.index,
+        destinationZone: selected.zone,
+        componentType: container.type,
+        id: container.props.id,
+      });
+      // now, replace the component to update the "content" property
+      dispatch({
+        type: 'replace',
+        destinationIndex: selected.index,
+        destinationZone: selected.zone,
+        data: {
+          type: container.type,
+          props: {
+            ...container.props,
+            content: [item],
+          },
+        },
       });
     },
     [getPuck]

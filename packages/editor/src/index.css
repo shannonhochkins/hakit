@@ -229,6 +229,10 @@ button::-moz-focus-inner,
 [class*="_PuckFields-field_"]:has(>[class*="_InputWrapper_"]>.field-hidden) {
   display: none;
 }
+/* If the field is hidden via the visible function, we should remove padding */
+[class*="_PuckFields-field_"]>[class*="_InputWrapper_"]:has(>[style*="display: none"]) {
+  padding: 0;
+}
 body, html {
   width: 100%;
   height: 100%;
