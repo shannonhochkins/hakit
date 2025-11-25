@@ -13,6 +13,7 @@ import {
   parseColorMix,
   extractCssVarToken,
   extractAlphaPct,
+  isGradientWithCssVars,
 } from './colorFieldHelpers';
 import { useDebouncer } from '@tanstack/react-pacer';
 import { DEFAULT_FIELD_DEBOUNCE_MS } from '@helpers/editor/pageData/constants';
@@ -86,7 +87,7 @@ export function isValidColorValue(val: string | undefined | null): boolean {
 }
 
 export interface ColorFieldProps {
-  value: string;
+  value: string | undefined;
   id: string;
   name?: string;
   icon?: React.ReactNode;
@@ -136,7 +137,7 @@ function ExtractCurrentTheme({ onChange }: { onChange: (theme: InternalComponent
 }
 
 export const ColorField = ({
-  value = 'transparent',
+  value,
   size = 'medium',
   onChange,
   className,
@@ -153,11 +154,12 @@ export const ColorField = ({
   isWithinEditorContext = false,
 }: ColorFieldProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [internalValue, setInternalValue] = useState<string>(value);
-  const [isValid, setIsValid] = useState<boolean>(() => isValidColorValue(value));
+  const [internalValue, setInternalValue] = useState<string | undefined>(value);
+  const [isValid, setIsValid] = useState<boolean>(() => (value ? isValidColorValue(value) : true));
   const [matchedSwatches, setMatchedSwatches] = useState<ColorSwatches | null>(null);
   // alpha slider value (0-100) if working with solid colors or color-mix
   const [alphaPct, setAlphaPct] = useState<number>(() => {
+    if (!value) return 100;
     // Use original incoming value (not yet mutated by internal state) for initialization
     const initial = value;
     const alpha = extractAlphaPct(initial);
@@ -167,6 +169,7 @@ export const ColorField = ({
   useEffect(() => setInternalValue(value), [value]);
   // Re-evaluate validity whenever external value changes
   useEffect(() => {
+    if (!value) return;
     setIsValid(isValidColorValue(value));
   }, [value]);
   const { iframe } = usePuckIframeElements();
@@ -179,7 +182,7 @@ export const ColorField = ({
   });
 
   // Single parse for color-mix (avoid duplicate parse operations)
-  const parsedMix = useMemo(() => parseColorMix(internalValue), [internalValue]);
+  const parsedMix = useMemo(() => (internalValue ? parseColorMix(internalValue) : undefined), [internalValue]);
   const baseVarForGrouping = parsedMix ? `var(${parsedMix.token})` : internalValue;
   const colorOptions: FieldOption[] = useMemo(
     () => (!disableThemeAutocomplete ? buildColorVariableGroups({ currentValue: baseVarForGrouping, matchedSwatches }) : []),
@@ -219,21 +222,23 @@ export const ColorField = ({
   const mixMatch = parsedMix;
   const isMixVar = !!parsedMix;
   const mixAlpha = parsedMix?.alphaPct;
+  // if the internal value is a linear gradient, but also contains css variables as the values, we still want to treat it as a gradient
+  const isGradientValueWithCssVars = useMemo(() => (internalValue ? isGradientWithCssVars(internalValue) : false), [internalValue]);
+  const isGradientValue = useMemo(() => (internalValue ? isGradient(internalValue) : false), [internalValue]);
 
   // Hook interface for conversions & gradient manipulation
-  const { valueToHex } = useColorPicker(internalValue, v => {
+  const { valueToHex } = useColorPicker(isGradientValueWithCssVars || !internalValue ? 'transparent' : internalValue, v => {
     // Suppress picker-driven state updates for var()/color-mix values to prevent recursive render loops
     if (isCssVar || isMixVar) return;
     setInternalValue(v);
     onChange(v);
   });
 
-  const isGradientValue = useMemo(() => isGradient(internalValue), [internalValue]);
-  const isCssVar = useMemo(() => isCssVariableValue(internalValue), [internalValue]);
+  const isCssVar = useMemo(() => (internalValue ? isCssVariableValue(internalValue) : false), [internalValue]);
 
   // Keep alphaPct in sync with internalValue when it changes externally (picker / freeform / variable)
   useEffect(() => {
-    if (isGradientValue || isCssVar || isMixVar) return; // ignore sync for var/mix/gradient
+    if (isGradientValue || isCssVar || isMixVar || !internalValue) return; // ignore sync for var/mix/gradient
     // Attempt to parse rgba(...)
     const maybe = extractAlphaPct(internalValue);
     if (maybe !== undefined) {
@@ -266,7 +271,7 @@ export const ColorField = ({
         // Represent alpha adjustment using color-mix, preserving the underlying var token.
         // Example: alphaPct=60 -> color-mix(in srgb, var(--token) 60%, transparent 40%)
         const transparentPortion = 100 - next;
-        const token = extractCssVarToken(internalValue) || mixMatch?.token;
+        const token = internalValue ? extractCssVarToken(internalValue) || mixMatch?.token : undefined;
         if (token) {
           // Guard against redundant mix reconstruction (prevents update depth loops)
           if (isMixVar && typeof mixAlpha === 'number' && mixAlpha === next) return;
@@ -347,7 +352,7 @@ export const ColorField = ({
   const pickerResolvedValue = useMemo(() => {
     if (!isCssVar) return internalValue;
     try {
-      const token = extractCssVarToken(internalValue);
+      const token = internalValue ? extractCssVarToken(internalValue) : undefined;
       if (token) {
         const root = document.documentElement;
         const computed = getComputedStyle(root).getPropertyValue(token).trim();
@@ -463,7 +468,7 @@ export const ColorField = ({
               <div className={styles.popover}>
                 {/* Gradient / Color picker (always available) */}
                 <GradientPickerWrapper
-                  value={pickerResolvedValue}
+                  value={pickerResolvedValue ?? ''}
                   onChange={v => {
                     setInternalValue(v);
                     onChange(v);
@@ -504,6 +509,8 @@ const GradientPickerWrapper = memo(({ value, onChange, debounce, hideControls }:
 
   useEffect(() => () => debouncedOnChange.cancel(), [debouncedOnChange]);
 
+  const isGradientValueWithCssVars = useMemo(() => isGradientWithCssVars(value), [value]);
+
   return (
     <GradientPicker
       hideAdvancedSliders
@@ -512,7 +519,7 @@ const GradientPickerWrapper = memo(({ value, onChange, debounce, hideControls }:
       hidePresets
       width={COLOR_PICKER_WIDTH}
       height={COLOR_PICKER_HEIGHT}
-      value={value}
+      value={isGradientValueWithCssVars ? undefined : value}
       onChange={onChangeStable}
       style={GRADIENT_PICKER_STYLES}
     />

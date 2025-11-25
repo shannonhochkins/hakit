@@ -27,22 +27,24 @@ import { Column, Row } from '@components/Layout';
  * Types & helpers
  * ======================= */
 export type ContainerProps = {
-  flex: {
-    direction: 'row' | 'column' | 'row-reverse' | 'column-reverse';
-    alignItems: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
-    justifyContent: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+  appearance: {
+    flex: {
+      direction: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+      alignItems: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
+      justifyContent: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+    };
+    flexWrap: 'nowrap' | 'wrap' | 'wrap-reverse';
+    gap: UnitFieldValue;
+    additionalLayout: {
+      grow: boolean; // grow to fill available space
+      shrink: boolean; // allow shrinking smaller than content
+    };
+    width: UnitFieldValue;
+    height: UnitFieldValue;
+    backgroundColor?: string;
+    padding: UnitFieldValue; // supports corners
+    margin: UnitFieldValue; // supports corners
   };
-  flexWrap: 'nowrap' | 'wrap' | 'wrap-reverse';
-  gap: UnitFieldValue;
-  additionalLayout: {
-    grow: boolean; // grow to fill available space
-    shrink: boolean; // allow shrinking smaller than content
-  };
-  width: UnitFieldValue;
-  height: UnitFieldValue;
-  backgroundColor?: string;
-  padding: UnitFieldValue; // supports corners
-  margin: UnitFieldValue; // supports corners
   /** Location for sub components */
   content: Slot;
 };
@@ -126,185 +128,201 @@ const renderOptionFactory = (axis: Axis) => (option: { label: string; value: str
 export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
   label: 'Container',
   fields: {
-    flex: {
-      type: 'custom',
-      label: 'Container Alignment',
-      default: {
-        direction: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
-      },
-      render({ value, onChange, id }) {
-        const isColumn = value.direction === 'column';
-
-        // Map X/Y controls to the proper CSS props based on direction
-        const xIsMain = !isColumn; // row => X is main (justifyContent); column => X is cross (alignItems)
-        const yIsMain = isColumn; // row => Y is cross; column => Y is main
-
-        const xOptions = xIsMain ? MAIN_AXIS_OPTIONS : CROSS_AXIS_OPTIONS;
-        const yOptions = yIsMain ? MAIN_AXIS_OPTIONS : CROSS_AXIS_OPTIONS;
-
-        const xValue = xIsMain ? value.justifyContent : value.alignItems;
-        const yValue = yIsMain ? value.justifyContent : value.alignItems;
-
-        return (
-          <Column gap='var(--space-5)' alignItems='flex-start' justifyContent='flex-start'>
-            <SelectField
-              id={id + '-direction'}
-              name={id + '-direction'}
-              label='Direction'
-              icon={<ArrowRightLeft size={16} />}
-              value={directionOptions.find(o => o.value === value.direction) ?? directionOptions[0]}
-              options={directionOptions}
-              helperText='Direction of content layout'
-              onChange={option => {
-                if (option.value === value.direction) return;
-                const nextDirection = option.value;
-                let { alignItems, justifyContent } = value;
-                const isSimpleAI = SIMPLE_POS.includes(alignItems);
-                const isSimpleJC = SIMPLE_POS.includes(justifyContent);
-                // Swap only when both are simple (avoid trashing space-* or stretch/baseline)
-                if (isSimpleAI && isSimpleJC) {
-                  const tmp = alignItems;
-                  alignItems = justifyContent as typeof alignItems;
-                  justifyContent = tmp as typeof justifyContent;
-                }
-                onChange({ ...value, direction: nextDirection, alignItems, justifyContent });
-              }}
-            />
-
-            {/* Horizontal (X) alignment selector */}
-            <SelectField
-              id={id + '-x'}
-              name={id + '-x'}
-              label='Horizontal'
-              icon={ICON_MAP.h.center({})}
-              value={xOptions.find(o => o.value === xValue) ?? xOptions[0]}
-              options={xOptions}
-              helperText={xIsMain ? 'Main axis (justify-content)' : 'Cross axis (align-items)'}
-              renderOption={renderOptionFactory('h')}
-              onChange={option => {
-                const v = option.value;
-                if (xIsMain) {
-                  // justify-content accepts simple + space-*
-                  if (v === 'stretch' || v === 'baseline') return; // guard
-                  onChange({ ...value, justifyContent: v });
-                } else {
-                  // align-items accepts simple + stretch/baseline
-                  if (isSpaceValue(v)) return; // guard
-                  onChange({ ...value, alignItems: v });
-                }
-              }}
-            />
-
-            {/* Vertical (Y) alignment selector */}
-            <SelectField
-              id={id + '-y'}
-              name={id + '-y'}
-              label='Vertical'
-              icon={ICON_MAP.v.center({})}
-              value={yOptions.find(o => o.value === yValue) ?? yOptions[0]}
-              options={yOptions}
-              helperText={yIsMain ? 'Main axis (justify-content)' : 'Cross axis (align-items)'}
-              renderOption={renderOptionFactory('v')}
-              onChange={option => {
-                const v = option.value;
-                if (yIsMain) {
-                  if (v === 'stretch' || v === 'baseline') return;
-                  onChange({ ...value, justifyContent: v });
-                } else {
-                  if (isSpaceValue(v)) return;
-                  onChange({ ...value, alignItems: v });
-                }
-              }}
-            />
-          </Column>
-        );
-      },
-    },
-    flexWrap: {
-      type: 'custom',
-      label: 'Wrap Options',
-      default: 'wrap',
-      description: 'Wrap behavior for container items',
-      render({ value, onChange, id }) {
-        return (
-          <SelectField
-            id={id}
-            name={id}
-            label='Flex Wrap'
-            icon={<ListChevronsDownUp size={16} />}
-            value={FLEX_WRAP_OPTIONS.find(o => o.value === value) ?? FLEX_WRAP_OPTIONS[0]}
-            options={FLEX_WRAP_OPTIONS}
-            helperText='Wrap behavior for container items'
-            onChange={option => {
-              onChange(option.value);
-            }}
-          />
-        );
-      },
-    },
-    gap: {
-      type: 'unit',
-      label: 'Gap',
-      description: 'Gap between items inside the container',
-      default: '0.5rem',
-    },
-    additionalLayout: {
+    appearance: {
       type: 'object',
-      label: 'Additional Layout',
-      section: { expanded: false },
+      label: 'Appearance',
       objectFields: {
-        grow: {
-          type: 'switch',
-          label: 'Allow grow',
-          default: true,
-          description: 'When enabled, the container will allow growing to fill available space.',
+        flex: {
+          type: 'custom',
+          label: 'Container Alignment',
+          default: {
+            direction: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+          },
+          render({ value, onChange, id }) {
+            const isColumn = value.direction === 'column';
+
+            // Map X/Y controls to the proper CSS props based on direction
+            const xIsMain = !isColumn; // row => X is main (justifyContent); column => X is cross (alignItems)
+            const yIsMain = isColumn; // row => Y is cross; column => Y is main
+
+            const xOptions = xIsMain ? MAIN_AXIS_OPTIONS : CROSS_AXIS_OPTIONS;
+            const yOptions = yIsMain ? MAIN_AXIS_OPTIONS : CROSS_AXIS_OPTIONS;
+
+            const xValue = xIsMain ? value.justifyContent : value.alignItems;
+            const yValue = yIsMain ? value.justifyContent : value.alignItems;
+
+            return (
+              <Column
+                gap='var(--space-5)'
+                alignItems='flex-start'
+                justifyContent='flex-start'
+                style={{
+                  padding: `var(--space-3)`,
+                }}
+              >
+                <SelectField
+                  id={id + '-direction'}
+                  name={id + '-direction'}
+                  label='Direction'
+                  icon={<ArrowRightLeft size={16} />}
+                  value={directionOptions.find(o => o.value === value.direction) ?? directionOptions[0]}
+                  options={directionOptions}
+                  helperText='Direction of content layout'
+                  onChange={option => {
+                    if (option.value === value.direction) return;
+                    const nextDirection = option.value;
+                    let { alignItems, justifyContent } = value;
+                    const isSimpleAI = SIMPLE_POS.includes(alignItems);
+                    const isSimpleJC = SIMPLE_POS.includes(justifyContent);
+                    // Swap only when both are simple (avoid trashing space-* or stretch/baseline)
+                    if (isSimpleAI && isSimpleJC) {
+                      const tmp = alignItems;
+                      alignItems = justifyContent as typeof alignItems;
+                      justifyContent = tmp as typeof justifyContent;
+                    }
+                    onChange({ ...value, direction: nextDirection, alignItems, justifyContent });
+                  }}
+                />
+
+                {/* Horizontal (X) alignment selector */}
+                <SelectField
+                  id={id + '-x'}
+                  name={id + '-x'}
+                  label='Horizontal'
+                  icon={ICON_MAP.h.center({})}
+                  value={xOptions.find(o => o.value === xValue) ?? xOptions[0]}
+                  options={xOptions}
+                  helperText={xIsMain ? 'Main axis (justify-content)' : 'Cross axis (align-items)'}
+                  renderOption={renderOptionFactory('h')}
+                  onChange={option => {
+                    const v = option.value;
+                    if (xIsMain) {
+                      // justify-content accepts simple + space-*
+                      if (v === 'stretch' || v === 'baseline') return; // guard
+                      onChange({ ...value, justifyContent: v });
+                    } else {
+                      // align-items accepts simple + stretch/baseline
+                      if (isSpaceValue(v)) return; // guard
+                      onChange({ ...value, alignItems: v });
+                    }
+                  }}
+                />
+
+                {/* Vertical (Y) alignment selector */}
+                <SelectField
+                  id={id + '-y'}
+                  name={id + '-y'}
+                  label='Vertical'
+                  icon={ICON_MAP.v.center({})}
+                  value={yOptions.find(o => o.value === yValue) ?? yOptions[0]}
+                  options={yOptions}
+                  helperText={yIsMain ? 'Main axis (justify-content)' : 'Cross axis (align-items)'}
+                  renderOption={renderOptionFactory('v')}
+                  onChange={option => {
+                    const v = option.value;
+                    if (yIsMain) {
+                      if (v === 'stretch' || v === 'baseline') return;
+                      onChange({ ...value, justifyContent: v });
+                    } else {
+                      if (isSpaceValue(v)) return;
+                      onChange({ ...value, alignItems: v });
+                    }
+                  }}
+                />
+              </Column>
+            );
+          },
         },
-        shrink: {
-          type: 'switch',
-          label: 'Allow Shrink',
-          default: true,
-          description: 'When enabled, the container can shrink smaller than its content if needed.',
+        flexWrap: {
+          type: 'custom',
+          label: 'Wrap Options',
+          default: 'wrap',
+          description: 'Wrap behavior for container items',
+          render({ value, onChange, id }) {
+            return (
+              <SelectField
+                style={{
+                  margin: `var(--space-3)`,
+                }}
+                id={id}
+                name={id}
+                label='Flex Wrap'
+                icon={<ListChevronsDownUp size={16} />}
+                value={FLEX_WRAP_OPTIONS.find(o => o.value === value) ?? FLEX_WRAP_OPTIONS[0]}
+                options={FLEX_WRAP_OPTIONS}
+                helperText='Wrap behavior for container items'
+                onChange={option => {
+                  onChange(option.value);
+                }}
+              />
+            );
+          },
+        },
+        gap: {
+          type: 'unit',
+          label: 'Gap',
+          description: 'Gap between items inside the container',
+          default: '0.5rem',
+        },
+        additionalLayout: {
+          type: 'object',
+          label: 'Additional Layout',
+          section: { expanded: false },
+          objectFields: {
+            grow: {
+              type: 'switch',
+              label: 'Allow grow',
+              default: true,
+              description: 'When enabled, the container will allow growing to fill available space.',
+            },
+            shrink: {
+              type: 'switch',
+              label: 'Allow Shrink',
+              default: true,
+              description: 'When enabled, the container can shrink smaller than its content if needed.',
+            },
+          },
+        },
+
+        backgroundColor: {
+          type: 'color',
+          label: 'Background Color',
+          description: 'Background color or gradient of the container',
+          default: 'transparent',
+        },
+
+        width: {
+          type: 'unit',
+          label: 'Width',
+          description: 'Width of the container',
+          default: 'auto',
+        },
+
+        height: {
+          type: 'unit',
+          label: 'Height',
+          description: 'Height of the container',
+          default: 'auto',
+        },
+
+        padding: {
+          type: 'unit',
+          label: 'Padding',
+          description: 'Padding inside the container around the content area',
+          default: '1rem',
+          supportsAllCorners: true,
+        },
+
+        margin: {
+          type: 'unit',
+          label: 'Margin',
+          description: 'Margin outside the container',
+          default: '0rem',
+          supportsAllCorners: true,
         },
       },
-    },
-
-    backgroundColor: {
-      type: 'color',
-      label: 'Background Color',
-      description: 'Background color or gradient of the container',
-      default: 'transparent',
-    },
-
-    width: {
-      type: 'unit',
-      label: 'Width',
-      description: 'Width of the container',
-      default: 'auto',
-    },
-
-    height: {
-      type: 'unit',
-      label: 'Height',
-      description: 'Height of the container',
-      default: 'auto',
-    },
-
-    padding: {
-      type: 'unit',
-      label: 'Padding',
-      description: 'Padding inside the container around the content area',
-      default: '1rem',
-      supportsAllCorners: true,
-    },
-
-    margin: {
-      type: 'unit',
-      label: 'Margin',
-      description: 'Margin outside the container',
-      default: '0rem',
-      supportsAllCorners: true,
     },
 
     content: {
@@ -320,27 +338,27 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
 
   styles(props) {
     return `
-      padding: ${props.padding};
-      margin: ${props.margin};
-      width: ${props.width};
-      height: ${props.height};
+      padding: ${props.appearance.padding};
+      margin: ${props.appearance.margin};
+      width: ${props.appearance.width};
+      height: ${props.appearance.height};
       max-width: 100%;
       min-width: 0px;
       position: relative;
-      background: ${props.backgroundColor ?? 'transparent'};
+      background: ${props.appearance.backgroundColor ?? 'transparent'};
       
       > .Container-content {
         display: flex;
         min-width: 0;
         max-width: 100%;
-        gap: ${props.gap};
-        flex-direction: ${props.flex.direction};
-        align-items: ${props.flex.alignItems};
-        justify-content: ${props.flex.justifyContent};
-        flex-wrap: ${props.flexWrap};
-        flex-shrink: ${props.additionalLayout?.shrink ? 1 : 0};
-        flex-grow: ${props.additionalLayout?.grow ? 1 : 0};
-        ${props.additionalLayout?.grow ? 'flex-grow: 1; place-self: stretch;' : ''}
+        gap: ${props.appearance.gap};
+        flex-direction: ${props.appearance.flex.direction};
+        align-items: ${props.appearance.flex.alignItems};
+        justify-content: ${props.appearance.flex.justifyContent};
+        flex-wrap: ${props.appearance.flexWrap};
+        flex-shrink: ${props.appearance.additionalLayout?.shrink ? 1 : 0};
+        flex-grow: ${props.appearance.additionalLayout?.grow ? 1 : 0};
+        ${props.appearance.additionalLayout?.grow ? 'flex-grow: 1; place-self: stretch;' : ''}
       }
     `;
   },

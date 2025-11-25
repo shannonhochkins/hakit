@@ -1,10 +1,10 @@
-import { scan } from 'react-scan';
+// import { scan } from 'react-scan';
 
-if (import.meta.env.DEV) {
-  scan({
-    enabled: true,
-  });
-}
+// if (import.meta.env.DEV) {
+//   scan({
+//     enabled: true,
+//   });
+// }
 
 import React from 'react';
 

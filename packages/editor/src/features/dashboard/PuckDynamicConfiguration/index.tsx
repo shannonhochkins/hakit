@@ -10,6 +10,7 @@ import { createRootComponent } from '@features/dashboard/Editor/createRootCompon
 import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
 import { containerComponentConfig } from '@features/dashboard/Editor/InternalComponents/Container';
 import { buttonComponentConfig } from '../Editor/InternalComponents/Button';
+import { cardComponentConfig } from '../Editor/InternalComponents/Card';
 
 import { iconButtonComponentConfig } from '../Editor/InternalComponents/IconButton';
 import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
@@ -456,6 +457,9 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
       configs: [
         {
           config: containerComponentConfig,
+        },
+        {
+          config: cardComponentConfig,
         },
       ],
     },

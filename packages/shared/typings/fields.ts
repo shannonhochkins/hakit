@@ -38,6 +38,7 @@ export type SlotField = PuckSlotField;
 export interface FieldOption {
   label: string;
   value: string | number | boolean | undefined | null | object;
+  description?: string;
   // Arbitrary metadata; consumers can store cssVar tokens, custom flags, etc.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   meta?: Record<string, any>;

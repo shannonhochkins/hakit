@@ -271,7 +271,7 @@ export function renderField(props: RenderFieldProps) {
           renderOption={props.field.renderOption}
           value={props.field.options.find(option => option.value === props.value)}
           options={[...props.field.options]}
-          renderValue={props.field.renderValue}
+          renderValue={props.field.renderValue ?? (option => option.label)}
           onChange={selectedOption => {
             if (
               selectedOption &&

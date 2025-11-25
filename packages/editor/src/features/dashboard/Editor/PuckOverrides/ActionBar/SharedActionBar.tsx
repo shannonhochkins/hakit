@@ -1,5 +1,5 @@
 import { createUsePuck, useGetPuck } from '@measured/puck';
-import { Box, Copy, EllipsisVertical, RotateCcw, Trash, X } from 'lucide-react';
+import { Box, Copy, EllipsisVertical, RectangleHorizontal, RotateCcw, Trash, X } from 'lucide-react';
 import { useCallback } from 'react';
 import { IconButton } from '@components/Button';
 import { Menu, MenuAnchor, MenuContent, MenuDivider, MenuItem } from '@components/Menu';
@@ -50,8 +50,8 @@ export function SharedActionBar() {
     useGlobalStore.getState().actions.deselectComponent(getPuck());
   }, [getPuck]);
 
-  const wrapInContainer = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
+  const wrapInComponent = useCallback(
+    (e: React.MouseEvent<HTMLElement>, type: string) => {
       e.stopPropagation();
       const { appState, getItemBySelector, dispatch } = getPuck();
       const selected = appState.ui.itemSelector;
@@ -64,9 +64,9 @@ export function SharedActionBar() {
       if (!item) {
         toast.error('No component data found to wrap.');
       }
-      const container = useGlobalStore.getState().actions.createComponentInstance<ContainerProps>('Container');
+      const container = useGlobalStore.getState().actions.createComponentInstance<ContainerProps>(type);
       if (!container) {
-        toast.error('Unable to create container component.');
+        toast.error(`Unable to create "${type}" component.`);
         return;
       }
       // first, delete the existing item
@@ -142,7 +142,8 @@ export function SharedActionBar() {
         />
       </MenuAnchor>
       <MenuContent>
-        <MenuItem onClick={wrapInContainer} label='Wrap in Container' startIcon={<Box size={16} />} />
+        <MenuItem onClick={e => wrapInComponent(e, 'Container')} label='Wrap in Container' startIcon={<Box size={16} />} />
+        <MenuItem onClick={e => wrapInComponent(e, 'Card')} label='Wrap in Card' startIcon={<RectangleHorizontal size={16} />} />
         <MenuItem label='Delete' onClick={onDelete} startIcon={<Trash size={16} />} disabled={!globalPermissions.delete} />
         <MenuItem label='Duplicate' onClick={onDuplicate} startIcon={<Copy size={16} />} disabled={!globalPermissions.duplicate} />
         <MenuDivider />
