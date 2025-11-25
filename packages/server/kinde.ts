@@ -25,6 +25,8 @@ export const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE,
   logoutRedirectURL: ProcessEnv.KINDE_LOGOUT_REDIRECT_URI,
 });
 
+const isLocal = process.env.NODE_ENV !== 'production';
+
 export const sessionManager = (c: Context): SessionManager => ({
   async getSessionItem(key: string) {
     const result = getCookie(c, key);
@@ -33,9 +35,10 @@ export const sessionManager = (c: Context): SessionManager => ({
   async setSessionItem(key: string, value: unknown) {
     const cookieOptions: CookieOptions = {
       httpOnly: true,
-      secure: true,
+      secure: !isLocal,
       sameSite: 'Lax',
       maxAge: 60 * 60 * 24 * 365,
+      path: '/',
     } as const;
     if (typeof value === 'string') {
       setCookie(c, key, value, cookieOptions);

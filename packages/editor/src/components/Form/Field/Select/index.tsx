@@ -19,6 +19,7 @@ import {
   autoUpdate,
   size as floatingSize,
 } from '@floating-ui/react';
+import { Column } from '@components/Layout';
 
 type SelectFieldSize = 'small' | 'medium' | 'large';
 type SelectAdornmentVariant = 'default' | 'icon' | 'custom';
@@ -213,6 +214,15 @@ export function SelectField<T extends FieldOption = FieldOption>({
   const renderOptionNode = (option: T): string | React.ReactNode => {
     if (renderOption) return renderOption(option);
     if (typeof (option as unknown) === 'string') return option as unknown as string;
+    // if label and description are present, return a Column with both
+    if (option && typeof option === 'object' && 'label' in option && 'description' in option) {
+      return (
+        <Column gap='0.125rem' alignItems='flex-start' justifyContent='center'>
+          <span>{option.label}</span>
+          <span style={{ opacity: 0.75 }}>{option.description}</span>
+        </Column>
+      );
+    }
     // fallback to label if it exists
     if (option && typeof option === 'object' && 'label' in option) return option.label as string;
     throw new Error(`Select: non-string options require renderOption to be provided for field ${name}.`);
@@ -228,8 +238,6 @@ export function SelectField<T extends FieldOption = FieldOption>({
   useEffect(() => {
     if (!isOpen) {
       setHighlightedIndex(-1);
-    } else {
-      setHighlightedIndex(0);
     }
   }, [isOpen]);
 

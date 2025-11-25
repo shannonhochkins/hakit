@@ -1,7 +1,7 @@
 import { ChevronRight, PanelLeftIcon, PanelRightIcon } from 'lucide-react';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
 import { Puck, createUsePuck } from '@measured/puck';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '@components/Button/IconButton';
 import styles from './RightSidebar.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
@@ -88,7 +88,7 @@ export function RightSidebar({ onToggle }: { onToggle: (collapsed: boolean) => v
   }, []);
 
   // Measure after layout for initial & subsequent breadcrumb changes.
-  useLayoutEffect(() => {
+  useEffect(() => {
     recomputeVisible();
   }, [recomputeVisible, breadcrumbs]);
 

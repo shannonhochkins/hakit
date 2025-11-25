@@ -145,17 +145,20 @@
   background-color: var(--clr-surface-a10);
 }
 .selectedOption {
-  background-color: var(--clr-primary-a10);
-  color: var(--clr-primary-a90);
+  background-color: var(--clr-primary-a20);
+  color: var(--clr-on-primary-a20);
 }
 .selectedOption:hover {
-  background-color: var(--clr-primary-a20);
+  background-color: var(--clr-primary-a30);
+  color: var(--clr-on-primary-a30);
 }
 .highlightedOption {
-  background-color: var(--clr-primary-a30);
+  background-color: var(--clr-primary-a40);
+  color: var(--clr-on-primary-a40);
 }
 .highlightedOption:hover {
-  background-color: var(--clr-primary-a40);
+  background-color: var(--clr-primary-a50);
+  color: var(--clr-on-primary-a50);
 }
 .checkIcon { color: var(--clr-primary-a50); justify-self: center; }
 

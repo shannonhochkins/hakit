@@ -87,6 +87,12 @@ export function isGradient(val: string): boolean {
   return /^(linear-gradient|radial-gradient)\(/.test(val.trim());
 }
 
+export function isGradientWithCssVars(val: string): boolean {
+  if (!isGradient(val)) return false;
+  const gradientContent = val.trim().slice(val.indexOf('(') + 1, val.lastIndexOf(')'));
+  return /var\(--[a-zA-Z0-9-_]+\)/.test(gradientContent);
+}
+
 // Extract alpha percentage from rgba(), #rrggbbaa, or color-mix var form
 export function extractAlphaPct(val: string): number | undefined {
   const mix = parseColorMix(val);

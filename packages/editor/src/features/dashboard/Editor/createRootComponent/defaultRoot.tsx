@@ -166,6 +166,20 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
             return data.background?.useBackgroundImage ?? true;
           },
         },
+        backgroundAttachment: {
+          type: 'select',
+          label: 'Background Attachment',
+          description: 'CSS background-attachment',
+          default: 'fixed',
+          options: [
+            { label: 'Scroll', value: 'scroll' },
+            { label: 'Fixed', value: 'fixed' },
+            { label: 'Local', value: 'local' },
+          ],
+          visible(data) {
+            return data.background?.useBackgroundImage ?? true;
+          },
+        },
         overlayColor: {
           type: 'color',
           label: 'Overlay Color',
@@ -408,6 +422,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         --background-filter-contrast: ${background?.filterContrast ?? 1};
         --background-filter-saturate: ${background?.filterSaturate ?? 1};
         --background-filter-grayscale: ${background?.filterGrayscale ?? 0};
+        --background-attachment: ${background?.backgroundAttachment ?? 'fixed'};
 
         /* Typography Variables */
         --typography-font-family: ${fontFamily};
@@ -433,6 +448,7 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         background-repeat: var(--background-repeat, no-repeat);
         background-size: var(--background-size, cover);
         background-image: var(--background-image);
+        background-attachment: var(--background-attachment, fixed);
         filter: blur(var(--background-blur)) brightness(var(--background-filter-brightness, 1))
           contrast(var(--background-filter-contrast, 1)) saturate(var(--background-filter-saturate, 1))
           grayscale(var(--background-filter-grayscale, 0));
