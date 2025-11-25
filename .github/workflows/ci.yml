@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun i
+
+      - name: Formatting check
+        run: bun run format:check
+
+      - name: Check theme generation
+        run: |
+          bun run generate-theme
+          if [ -n "$(git status --porcelain packages/editor/src/theme.css)" ]; then
+            echo "❌ Error: theme.css has uncommitted changes after running generate-theme"
+            echo "Please run 'bun run generate-theme' and commit the changes."
+            git diff packages/editor/src/theme.css
+            exit 1
+          fi
+          echo "✅ theme.css is up to date"
+
+      - name: Build and test
+        run: bun run build

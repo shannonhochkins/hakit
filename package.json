@@ -27,7 +27,7 @@
     "prebuild": "bun run test && bun run type-check && bun run lint && bun run format",
     "build:editor": "NODE_ENV=production cd packages/editor && bun run build",
     "build:addon": "NODE_ENV=production cd packages/addon && bun run build",
-    "build": "bun run build:editor && bun run build:addon",
+    "build": "bun run generate-theme && bun run build:editor && bun run build:addon",
     "type-check:editor": "bun run --filter hakit-editor type-check",
     "type-check:addon": "bun run --filter @hakit/addon type-check",
     "type-check:server": "tsc -p packages/server/tsconfig.json --noEmit",
