@@ -289,22 +289,24 @@ describe('createRootComponent', () => {
     // Verify render functions were called
     expect(mockRootConfig1.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',
@@ -327,22 +329,24 @@ describe('createRootComponent', () => {
 
     expect(mockRootConfig2.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',
@@ -416,7 +420,9 @@ describe('createRootComponent', () => {
     // content is a slot field injected internally, structure not statically typed
     expect(result.fields!.content?.type).toBe('slot');
     // should bind the internal default field
-    expect(result.fields!['theme']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
+    expect(result.fields!['$appearance'].type).toBe('object');
+    expect((result.fields.$appearance as Record<string, unknown>).objectFields).toHaveProperty('theme');
   });
 
   test('should bind internal field from the default Root and internal fields to the root config', async () => {
@@ -430,8 +436,8 @@ describe('createRootComponent', () => {
     expect(result.fields!.content?.type).toBe('slot');
     expect(result.fields!['popupContent']).toBeDefined();
     expect(result.fields!['popupContent'].type).toBe('slot');
-    expect(result.fields!['theme']).toBeDefined();
-    expect(result.fields!['styles']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
+    expect(result.fields!['$styles']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed at this level
     expect(result.fields!['typography']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed at this level
@@ -537,9 +543,9 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([], mockComponentFactoryData);
 
     expect(result.fields).toBeDefined();
-    expect(result.fields!['theme']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
     // @ts-expect-error = We know this doesn't exist, just testing functionality
-    expect(result.fields!['theme'].addonId).toBeUndefined();
+    expect(result.fields!['$appearance'].addonId).toBeUndefined();
   });
 
   test('should attach addon reference to array fields', async () => {
@@ -683,22 +689,24 @@ describe('createRootComponent', () => {
     // Verify the render function was called with the correct props including slots
     expect(slotRootConfig.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',

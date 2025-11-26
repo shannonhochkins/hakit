@@ -18,7 +18,7 @@ describe('extendPuckDataWithDefaults', () => {
             },
             // Missing typography object
           },
-          styles: {
+          $styles: {
             css: '',
           },
         },

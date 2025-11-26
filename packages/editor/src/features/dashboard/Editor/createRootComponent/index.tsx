@@ -224,7 +224,7 @@ function Render<P extends DefaultComponentProps>({
   >;
   const editorElements = usePuckIframeElements();
   const processedProps = currentBreakpointProps;
-  const { id, styles } = processedProps;
+  const { id, $styles } = processedProps;
 
   const dashboard = useGlobalStore(state => state.dashboardWithoutData);
 
@@ -276,7 +276,7 @@ function Render<P extends DefaultComponentProps>({
           /* Global styles for the dashboard */
           ${allCustomStyles ?? ''}
           /* Style overrides for the root component */
-          ${styles?.css ?? ''}
+          ${$styles?.css ?? ''}
         `}
       />
     </>

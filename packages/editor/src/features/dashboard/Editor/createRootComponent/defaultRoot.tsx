@@ -396,11 +396,11 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
     const selectedFontFamily = typography?.fontFamily ?? 'roboto';
     const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
     const swatches = generateColorSwatches({
-      ...props.theme.colors,
-      success: props.theme.colors.semantics.success,
-      warning: props.theme.colors.semantics.warning,
-      danger: props.theme.colors.semantics.danger,
-      info: props.theme.colors.semantics.info,
+      ...props.$appearance.theme.colors,
+      success: props.$appearance.theme.colors.semantics.success,
+      warning: props.$appearance.theme.colors.semantics.warning,
+      danger: props.$appearance.theme.colors.semantics.danger,
+      info: props.$appearance.theme.colors.semantics.info,
     });
     const cssVariables = generateCssVariables(swatches);
 

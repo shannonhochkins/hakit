@@ -108,7 +108,7 @@ describe('createComponent', () => {
         text: 'hello',
         count: 0,
         // css may be '' initially
-        styles: expect.objectContaining({ css: '' }),
+        $styles: expect.objectContaining({ css: '' }),
       })
     );
   });
@@ -145,12 +145,12 @@ describe('createComponent', () => {
 
     const transformedFields = result.fields;
     expect(transformedFields).toHaveProperty('text');
-    expect(transformedFields).toHaveProperty('styles');
+    expect(transformedFields).toHaveProperty('$styles');
 
     // Verify transformed structure
     expect(transformedFields.text.type).toBe('text');
 
-    const stylesField = transformedFields.styles;
+    const stylesField = transformedFields.$styles;
     expect(stylesField.type).toBe('object');
     if (stylesField.type === 'object') {
       expect(stylesField.label).toBe('Style Overrides');
@@ -172,9 +172,9 @@ describe('createComponent', () => {
     const result = await componentFactory(data);
 
     const transformedFields = result.fields;
-    expect(transformedFields).toHaveProperty('styles');
+    expect(transformedFields).toHaveProperty('$styles');
 
-    const stylesField = transformedFields.styles;
+    const stylesField = transformedFields.$styles;
     expect(stylesField.type).toBe('object');
     if (stylesField.type === 'object') {
       expect(stylesField.label).toBe('Style Overrides');
@@ -225,7 +225,7 @@ describe('createComponent', () => {
     expect(result.defaultProps).toEqual(
       expect.objectContaining({
         ...expectedDefaults,
-        styles: expect.objectContaining({ css: '' }),
+        $styles: expect.objectContaining({ css: '' }),
       })
     );
   });
@@ -244,7 +244,7 @@ describe('createComponent', () => {
     const result = await componentFactory(data);
 
     const transformedFields = result.fields;
-    expect(transformedFields.styles).toBeDefined();
+    expect(transformedFields.$styles).toBeDefined();
   });
 
   test('should maintain consistent behavior across multiple calls', async () => {

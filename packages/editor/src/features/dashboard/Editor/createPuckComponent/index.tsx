@@ -172,7 +172,7 @@ const callService = async ({
   return undefined;
 };
 
-async function processInteractions(interaction: InternalComponentFields['interactions'][keyof InternalComponentFields['interactions']]) {
+async function processInteractions(interaction: InternalComponentFields['$interactions'][keyof InternalComponentFields['$interactions']]) {
   if (interaction.type === 'none') return undefined;
   if (interaction.type === 'popup') {
     usePopupStore.getState().openPopup(interaction.popupId);
@@ -247,7 +247,7 @@ async function processInteractions(interaction: InternalComponentFields['interac
 
 function Render<P extends object>({ renderProps, internalComponentConfig: config, dragRef, isEditing }: CommonRenderProps<P>) {
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
-  const { interactions } = renderProps;
+  const { $interactions: interactions } = renderProps;
   const hasTap = interactions?.tap?.type !== 'none' && interactions?.tap;
   const hasDoubleTap = interactions?.doubleTap?.type !== 'none' && interactions?.doubleTap;
   const hasHold = interactions?.hold?.type !== 'none' && interactions?.hold;
@@ -290,15 +290,15 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
     } as P & InternalComponentFields & AdditionalRenderProps;
     // Generate style strings for emotion CSS processing in iframe context
     const componentStyles = config.styles ? config.styles(obj) : '';
-    const overrideStyles = props.styles?.css ?? '';
+    const overrideStyles = props.$styles?.css ?? '';
     let cssVariables = '';
-    if (props.theme.override) {
+    if (props.$appearance.theme.override) {
       const swatches = generateColorSwatches({
-        ...props.theme.colors,
-        success: props.theme.colors.semantics.success,
-        warning: props.theme.colors.semantics.warning,
-        danger: props.theme.colors.semantics.danger,
-        info: props.theme.colors.semantics.info,
+        ...props.$appearance.theme.colors,
+        success: props.$appearance.theme.colors.semantics.success,
+        warning: props.$appearance.theme.colors.semantics.warning,
+        danger: props.$appearance.theme.colors.semantics.danger,
+        info: props.$appearance.theme.colors.semantics.info,
       });
       // TODO - Potentially de-duplicate, the user may only change the primary color for example
       // yet we'll be re-generating all other css variables under this scope

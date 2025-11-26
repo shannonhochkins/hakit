@@ -7,11 +7,11 @@ import { Column } from '@components/Layout';
 import { MousePointerClick, TextSelect } from 'lucide-react';
 import { CodeField } from '@components/Form/Field/Code';
 import { PopupIdField } from './PopupIdField';
-import { getThemeFields } from './Theme';
+import { getAppearanceFields } from './appearance';
 
 export const internalRootComponentFields: FieldConfiguration<InternalRootComponentFields> = {
-  ...getThemeFields('root'),
-  styles: {
+  ...getAppearanceFields('root'),
+  $styles: {
     type: 'object',
     label: 'Global styles',
     section: {
@@ -36,7 +36,7 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
   },
 };
 
-function getInteractionFields<T extends keyof InternalComponentFields['interactions']>(type: T) {
+function getInteractionFields<T extends keyof InternalComponentFields['$interactions']>(type: T) {
   const fields: FieldConfiguration<{ value: Actions }, InternalComponentFields> = {
     // value key here is just to satisfy the type checker
     value: {
@@ -61,7 +61,7 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
         callService: {
           type: 'custom',
           visible(data) {
-            return data.interactions[type].type === 'callService';
+            return data.$interactions[type].type === 'callService';
           },
           default: {
             entity: undefined,
@@ -123,14 +123,14 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           default: '',
           description: 'The URL to open',
           visible(data) {
-            return data.interactions[type].type === 'external';
+            return data.$interactions[type].type === 'external';
           },
         },
         target: {
           type: 'select',
           label: 'Navigation Target',
           visible(data) {
-            return data.interactions[type].type === 'external';
+            return data.$interactions[type].type === 'external';
           },
           default: '_blank',
           options: [
@@ -145,7 +145,7 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           type: 'page',
           label: 'Page ID',
           visible(data) {
-            return data.interactions[type].type === 'navigate';
+            return data.$interactions[type].type === 'navigate';
           },
           default: {
             dashboardId: '',
@@ -159,7 +159,7 @@ function getInteractionFields<T extends keyof InternalComponentFields['interacti
           description: 'Configure the popup to open',
           default: '', // populated later
           visible(data) {
-            return data.interactions[type].type === 'popup';
+            return data.$interactions[type].type === 'popup';
           },
           render: PopupIdField,
         },
@@ -176,7 +176,8 @@ const holdValue = getInteractionFields('hold');
 const doubleTapValue = getInteractionFields('doubleTap');
 
 export const internalComponentFields: FieldConfiguration<InternalComponentFields> = {
-  interactions: {
+  ...getAppearanceFields('component'),
+  $interactions: {
     type: 'object',
     label: 'Interactions',
     section: {
@@ -205,7 +206,7 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
             label: 'Hold Delay',
             description: 'The minimum time to hold to trigger the action',
             visible(data) {
-              return data.interactions.hold?.type && data.interactions.hold?.type !== 'none';
+              return data.$interactions.hold?.type && data.$interactions.hold?.type !== 'none';
             },
             default: HOLD_DELAY,
           },
@@ -225,7 +226,7 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
             label: 'Double Tap Delay',
             description: 'The minimum time between taps to trigger the action',
             visible(data) {
-              return data.interactions.doubleTap?.type && data.interactions.doubleTap?.type !== 'none';
+              return data.$interactions.doubleTap?.type && data.$interactions.doubleTap?.type !== 'none';
             },
             default: DOUBLE_TAP_DELAY,
           },
@@ -234,8 +235,7 @@ export const internalComponentFields: FieldConfiguration<InternalComponentFields
       },
     },
   },
-  ...getThemeFields('component'),
-  styles: {
+  $styles: {
     type: 'object',
     label: 'Style Overrides',
     section: {
