@@ -17,29 +17,44 @@ import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@ha
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
 import { usePopupStore } from '@hooks/usePopupStore';
-import { generateCssVariables } from '@helpers/color/generateCssVariables';
-import { generateColorSwatches } from '@helpers/color';
+import { generateCssForInternalProps } from '@helpers/editor/generateCssForInternalProps';
 import isEqual from '@guanghechen/fast-deep-equal';
+import { DeepPartial } from '@typings/utils';
+import { processInternalFields } from './processInternalFields';
+import { type CSSInterpolation } from '@emotion/serialize';
+import { Typography } from '../Typography';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
  * whose render method is wrapped so we can pass `activeBreakpoint`.
  */
 
-type CustomComponentConfigurationWithDefinitionAndPuck<P extends object> = CustomComponentConfig<P> & {
+type CustomComponentConfigurationWithDefinitionAndPuck<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+> = CustomComponentConfig<P, ExtendedInternalFields, IsRoot> & {
   defaultProps: P;
   inline: boolean;
 };
 
 // Define explicit props type to help retain generics through memo
-type CommonRenderProps<P extends object> = {
-  renderProps: Omit<RenderProps<P & InternalComponentFields>, 'puck'>;
+type CommonRenderProps<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+> = {
+  renderProps: Omit<RenderProps<P & DeepPartial<InternalComponentFields>>, 'puck'>;
   dragRef: ((element: Element | null) => void) | null;
   isEditing: boolean;
-  internalComponentConfig: CustomComponentConfig<P>;
+  internalComponentConfig: CustomComponentConfig<P, ExtendedInternalFields, IsRoot>;
 };
 
-function arePropsEqual<P extends object>(prev: CommonRenderProps<P>, next: CommonRenderProps<P>) {
+function arePropsEqual<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+>(prev: CommonRenderProps<P, ExtendedInternalFields, IsRoot>, next: CommonRenderProps<P, ExtendedInternalFields, IsRoot>) {
   // intentionally ignoring props.internalComponentConfig as it's static
   if (!isEqual(prev.renderProps, next.renderProps)) return false;
   if (prev.dragRef !== next.dragRef) return false;
@@ -50,32 +65,49 @@ function arePropsEqual<P extends object>(prev: CommonRenderProps<P>, next: Commo
 
 // Cast back to the original generic function type so <TemplateSubscriber<P>> works
 // Provide a helper generic wrapper to preserve type inference with memo
-type TemplateSubscriberComponent = <P extends object>(props: CommonRenderProps<P>) => React.ReactElement | null;
+type TemplateSubscriberComponent = <
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+>(
+  props: CommonRenderProps<P, ExtendedInternalFields, IsRoot>
+) => React.ReactElement | null;
 
 function withGenericTemplateSubscriber(component: TemplateSubscriberComponent) {
-  const equality = (prev: CommonRenderProps<object>, next: CommonRenderProps<object>): boolean => arePropsEqual(prev, next);
-  return memo(component, equality) as TemplateSubscriberComponent;
+  return memo(component, (prev, next) => {
+    return arePropsEqual(prev, next);
+  }) as TemplateSubscriberComponent;
 }
 
 const TemplateSubscriber = withGenericTemplateSubscriber(TemplateSubscriberInner);
 
-export function createComponent<P extends object>(
-  config: CustomComponentConfig<P>,
+export function createComponent<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+>(
+  config: CustomComponentConfig<P, ExtendedInternalFields, IsRoot>,
   isRootComponent = false
   // intentionally only resolving component fields instead of root fields here as this createComponent is used as a starting factory, and then updated
   // later for root components with createRootComponent
-): (data: ComponentFactoryData) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & InternalComponentFields>> {
+): (
+  data: ComponentFactoryData
+) => Promise<CustomComponentConfigurationWithDefinitionAndPuck<P & DeepPartial<InternalComponentFields>, ExtendedInternalFields, IsRoot>> {
   return async function (data: ComponentFactoryData) {
+    // Get base internal fields
+    const baseInternalFields = isRootComponent ? internalRootComponentFields : internalComponentFields;
+
+    // Process internalFields configuration if provided
     // Merge the field configurations - type assertion is necessary due to mapped type limitations
-    const fields = isRootComponent
-      ? ({
-          ...config.fields,
-          ...internalRootComponentFields,
-        } as FieldConfiguration<P & InternalComponentFields>)
-      : ({
-          ...config.fields,
-          ...internalComponentFields,
-        } as FieldConfiguration<P & InternalComponentFields>);
+    const fields = processInternalFields(
+      {
+        ...config.fields,
+        ...baseInternalFields,
+      } as FieldConfiguration<P & DeepPartial<InternalComponentFields>>,
+      // @ts-expect-error - Complex type compatibility between InternalFieldsConfig variants, convered with tests
+      config.internalFields
+    ) as FieldConfiguration<P & DeepPartial<InternalComponentFields>>;
+
     const entities = data.getAllEntities();
     const services = await data.getAllServices();
 
@@ -86,11 +118,16 @@ export function createComponent<P extends object>(
     });
 
     // this is the config that will be used for puck
-    return {
+    const result: CustomComponentConfigurationWithDefinitionAndPuck<
+      P & DeepPartial<InternalComponentFields>,
+      ExtendedInternalFields,
+      IsRoot
+    > = {
       ...config,
       // replace the default props
       defaultProps,
       // provide the updated fields
+      // @ts-expect-error - Complex type compatibility between FieldConfiguration variants after refactoring
       fields,
       // All components are inline by default for automatic dragRef attachment
       inline: true,
@@ -98,25 +135,35 @@ export function createComponent<P extends object>(
         // NOTE: We do NOT need to process templates at this level, as all components are added to the root content block
         // this means we resolve all tempaltes in the createRootComponent, and all props will be resolved to the child
         if (config.resolveData) {
-          return config.resolveData(data, changed) as unknown as P & InternalComponentFields;
+          return config.resolveData(data, changed) as unknown as P & DeepPartial<InternalComponentFields>;
         }
-        return data as unknown as P & InternalComponentFields;
+        return data as unknown as P & DeepPartial<InternalComponentFields>;
       },
       // this render function is ONLY used for components, rootComponents redefine the render function
       // which is why here we only provide InternalComponentFields
-      render({ puck, ...renderProps }: RenderProps<P & InternalComponentFields>) {
+      render({ puck, ...renderProps }: RenderProps<P & DeepPartial<InternalComponentFields>>) {
         const { dragRef, isEditing } = puck;
         return (
           <RenderErrorBoundary prefix={config.label} ref={dragRef}>
-            <TemplateSubscriber renderProps={renderProps} internalComponentConfig={config} dragRef={dragRef} isEditing={isEditing} />
+            <TemplateSubscriber
+              renderProps={renderProps}
+              internalComponentConfig={config as CustomComponentConfig<P, undefined, undefined>}
+              dragRef={dragRef}
+              isEditing={isEditing}
+            />
           </RenderErrorBoundary>
         );
       },
     };
+    return result;
   };
 }
 
-function TemplateSubscriberInner<P extends object>({ renderProps, internalComponentConfig, dragRef, isEditing }: CommonRenderProps<P>) {
+function TemplateSubscriberInner<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+>({ renderProps, internalComponentConfig, dragRef, isEditing }: CommonRenderProps<P, ExtendedInternalFields, IsRoot>) {
   const { data, loading, error } = useResolvedJinjaTemplate(renderProps);
   if (error) {
     throw error;
@@ -245,9 +292,31 @@ async function processInteractions(interaction: InternalComponentFields['$intera
   return undefined;
 }
 
-function Render<P extends object>({ renderProps, internalComponentConfig: config, dragRef, isEditing }: CommonRenderProps<P>) {
+function Render<
+  P extends object,
+  ExtendedInternalFields extends object | undefined = undefined,
+  IsRoot extends boolean | undefined = undefined,
+>({ renderProps, internalComponentConfig: config, dragRef, isEditing }: CommonRenderProps<P, ExtendedInternalFields, IsRoot>) {
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
-  const { $interactions: interactions } = renderProps;
+
+  // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
+  // this will flatten the breakpoint data to only contain the active breakpoint data
+  const currentBreakpointProps = useMemo(() => {
+    return dbValueToPuck(renderProps, activeBreakpoint ?? 'xlg') as typeof renderProps;
+  }, [renderProps, activeBreakpoint]);
+
+  const { id, ...props } = currentBreakpointProps;
+
+  // Note: We no longer need to process props here because:
+  // - Omit is handled in processInternalFields (fields are removed from config)
+  // - Defaults are handled in processInternalFields (default values updated in field config)
+  // - getDefaultPropsFromFields already uses the processed field configuration
+  // So props already have the correct structure and defaults applied
+
+  // Handle interactions (may be omitted)
+  const interactions =
+    // eslint-disable-next-line react/prop-types
+    '$interactions' in props ? (props as { $interactions?: InternalComponentFields['$interactions'] }).$interactions : undefined;
   const hasTap = interactions?.tap?.type !== 'none' && interactions?.tap;
   const hasDoubleTap = interactions?.doubleTap?.type !== 'none' && interactions?.doubleTap;
   const hasHold = interactions?.hold?.type !== 'none' && interactions?.hold;
@@ -260,17 +329,10 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
     {
       holdDelay: interactions?.hold?.holdDelay,
       doubleTapDelay: interactions?.doubleTap?.doubleTapDelay,
-      disabled: isEditing,
+      disabled: isEditing || (!hasTap && !hasDoubleTap && !hasHold),
     }
   );
 
-  // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
-  // this will flatten the breakpoint data to only contain the active breakpoint data
-  const currentBreakpointProps = useMemo(() => {
-    return dbValueToPuck(renderProps, activeBreakpoint ?? 'xlg') as typeof renderProps;
-  }, [renderProps, activeBreakpoint]);
-
-  const { id, ...props } = currentBreakpointProps;
   const editorElements = usePuckIframeElements();
 
   // Extract the correct type for renderProps from the config's render function
@@ -287,32 +349,43 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
     const obj = {
       ...props,
       ...renderProps,
-    } as P & InternalComponentFields & AdditionalRenderProps;
+    };
+    // Generate CSS for internal fields (appearance, layout, typography, theme)
+    const { cssVariables, cssStyles: internalCssStyles } = generateCssForInternalProps(obj, 'component');
+
     // Generate style strings for emotion CSS processing in iframe context
-    const componentStyles = config.styles ? config.styles(obj) : '';
-    const overrideStyles = props.$styles?.css ?? '';
-    let cssVariables = '';
-    if (props.$appearance.theme.override) {
-      const swatches = generateColorSwatches({
-        ...props.$appearance.theme.colors,
-        success: props.$appearance.theme.colors.semantics.success,
-        warning: props.$appearance.theme.colors.semantics.warning,
-        danger: props.$appearance.theme.colors.semantics.danger,
-        info: props.$appearance.theme.colors.semantics.info,
-      });
-      // TODO - Potentially de-duplicate, the user may only change the primary color for example
-      // yet we'll be re-generating all other css variables under this scope
-      cssVariables = generateCssVariables(swatches);
+    // Render is only for components, so IsRoot is always false/undefined, meaning InternalComponentFields
+    // The styles function receives simplified types (UnitFieldValue -> string) to avoid union explosion
+    // Cast obj to match the expected type signature of config.styles (via unknown to avoid type checking issues)
+    const componentStyles = config.styles ? config.styles(obj as unknown as Parameters<typeof config.styles>[0]) : '';
+    // eslint-disable-next-line react/prop-types -- $styles is a TypeScript-typed internal field
+    const overrideStyles = typeof props.$styles?.css === 'string' ? props.$styles.css : '';
+
+    // Build array of CSS objects for emotion
+    const componentStylesArray: CSSInterpolation[] = [];
+    if (cssVariables) componentStylesArray.push(cssVariables);
+    if (internalCssStyles) componentStylesArray.push(internalCssStyles);
+    if (componentStyles) {
+      // componentStyles might be a string or CSSInterpolation
+      const serialized = getSerializedStyles(componentStyles);
+      if (serialized) {
+        componentStylesArray.push(serialized);
+      } else if (typeof componentStyles === 'string') {
+        componentStylesArray.push(componentStyles);
+      } else {
+        componentStylesArray.push(componentStyles);
+      }
     }
 
     // Generate emotion CSS in iframe context where correct cache is active
     const emotionCss = generateEmotionCss({
-      componentStyles: [cssVariables, typeof componentStyles === 'string' ? componentStyles : ''],
+      componentStyles: componentStylesArray,
       overrideStyles,
       preSerializedStyles: getSerializedStyles(componentStyles),
     });
     if (emotionCss) {
       // Attach serialized styles under a dedicated key
+      // @ts-expect-error - emotionCss is SerializedStyles which is compatible but TypeScript can't infer the complex union type
       obj.css = emotionCss;
     }
     return obj;
@@ -324,7 +397,7 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
   if (config.autoWrapComponent === false) {
     return renderedElement;
   }
-  return attachPropsToElement({
+  const newElement = attachPropsToElement({
     element: renderedElement,
     ref: dragRef,
     componentLabel: config.label,
@@ -337,4 +410,10 @@ function Render<P extends object>({ renderProps, internalComponentConfig: config
       });
     },
   });
+  return (
+    <>
+      <Typography typography={fullProps.$appearance?.typography} type='component' />
+      {newElement}
+    </>
+  );
 }

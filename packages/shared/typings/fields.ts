@@ -1,6 +1,5 @@
 import type {
   DefaultComponentProps,
-  ComponentData,
   SlotField as PuckSlotField,
   CustomField as PuckCustomField,
   NumberField,
@@ -10,8 +9,9 @@ import type {
   ObjectField,
   TextField,
   SelectField as PuckSelectField,
+  ComponentData,
 } from '@measured/puck';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
 import type { OnValidate } from '@monaco-editor/react';
@@ -159,15 +159,6 @@ export type BackgroundFields = {
   repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
   /** CSS background-attachment */
   attachment?: 'scroll' | 'fixed' | 'local';
-  /** blend mode for the background image and color */
-  blendMode: CSSProperties['mixBlendMode'];
-  /** Optional image filters */
-  useAdvancedFilters: boolean;
-  filterBlur: number;
-  filterBrightness: number;
-  filterContrast: number;
-  filterSaturate: number;
-  filterGrayscale: number;
 };
 
 export interface TypographyProps {
@@ -189,8 +180,16 @@ export interface TypographyProps {
   letterSpacing: number;
 }
 
+export type SizeAndSpacingFields = {
+  width: UnitFieldValue;
+  height: UnitFieldValue;
+  padding: UnitFieldValue; // supports corners
+  margin: UnitFieldValue; // supports corners
+};
+
 export type AppearanceFields = {
   background: BackgroundFields;
+  sizeAndSpacing: SizeAndSpacingFields;
   typography: TypographyProps;
   theme: ThemeFields;
 };
@@ -309,8 +308,8 @@ export type FieldDefinition = {
   textarea: TextareaField;
   select: Omit<PuckSelectField, 'options'> & {
     options: FieldOption[];
-    renderOption?: (option: FieldOption) => string;
-    renderValue?: (option: FieldOption) => string;
+    renderOption?: (option: FieldOption) => ReactNode;
+    renderValue?: (option: FieldOption) => ReactNode;
   };
   radio: RadioField;
   page: { type: 'page'; default: PageValue };

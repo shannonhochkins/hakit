@@ -628,7 +628,7 @@ describe('trimPuckDataToConfig', () => {
         zones: {},
       };
 
-      const userConfig: CustomPuckConfig<DefaultComponentProps> = {
+      const userConfig: CustomPuckConfig<DefaultComponentProps, DefaultComponentProps, true> = {
         components: {},
         root: {
           defaultProps: {},
@@ -1392,19 +1392,23 @@ describe('trimPuckDataToConfig', () => {
         },
       };
 
-      const userConfig: CustomPuckConfig<{
-        [Header]: {
-          title: string;
-          subtitle: string;
-        };
-        [Footer]: {
-          copyright: string;
-          links: {
-            home: string;
-            about: string;
+      const userConfig: CustomPuckConfig<
+        {
+          [Header]: {
+            title: string;
+            subtitle: string;
           };
-        };
-      }> = {
+          [Footer]: {
+            copyright: string;
+            links: {
+              home: string;
+              about: string;
+            };
+          };
+        },
+        DefaultComponentProps,
+        true
+      > = {
         components: {
           [Header]: {
             render() {
@@ -1703,7 +1707,8 @@ describe('trimPuckDataToConfig', () => {
             backgroundImage: string;
           };
         };
-      }
+      },
+      true
     > = {
       components: {},
       categories: {},

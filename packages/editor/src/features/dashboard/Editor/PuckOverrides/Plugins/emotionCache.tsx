@@ -22,6 +22,9 @@ function IframeOverrideComponent({ children, document }: PropsOf<Overrides['ifra
         const cache = createCache({
           key: 'hakit-addons',
           container: head,
+          // Performance optimizations
+          prepend: false, // Append styles instead of prepending (faster)
+          stylisPlugins: [], // No additional plugins for better performance
         });
         setEmotionCache(cache);
       }

@@ -17,6 +17,13 @@ export default defineConfig({
   html: {
     template: './static/index.html',
   },
+  // Performance optimizations
+  performance: {
+    // Optimize chunk splitting for better loading performance
+    chunkSplit: {
+      strategy: 'split-by-experience',
+    },
+  },
   server: {
     port: 3000,
     strictPort: true,
@@ -55,9 +62,12 @@ export default defineConfig({
             [
               '@swc/plugin-emotion',
               {
-                sourceMap: true,
+                // Disable source maps in production for better performance
+                sourceMap: process.env.NODE_ENV === 'development',
+                // Only add labels in development
                 autoLabel: 'dev-only',
                 labelFormat: '[local]',
+                // Optimize css prop usage - reduces runtime overhead
                 cssPropOptimization: true,
               },
             ],

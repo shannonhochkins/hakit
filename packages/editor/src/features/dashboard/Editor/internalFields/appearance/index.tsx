@@ -6,6 +6,8 @@ import { FieldConfiguration, AppearanceFields } from '@typings/fields';
 import Color from 'color';
 import { Blend, Lightbulb, LightbulbOff, PaintBucket, Palette } from 'lucide-react';
 import { useCallback } from 'react';
+import React from 'react';
+import { fontFamilyMap, googleFontsNameMap, Typography } from '../../Typography';
 
 export const getAppearanceFields = <T extends 'root' | 'component'>(
   type: T
@@ -33,7 +35,7 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
             type: 'color',
             label: 'Background Color',
             description: type === 'root' ? 'Base color for the page background.' : 'Base color for the background.',
-            default: type === 'root' ? 'var(--clr-surface-a0)' : 'var(--clr-surface-a30)',
+            default: type === 'root' ? 'var(--clr-surface-a0)' : undefined,
           },
           useImage: {
             type: 'switch',
@@ -42,7 +44,7 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               type === 'root'
                 ? 'Enable to display a background image on the page.'
                 : 'Enable to display a background image on this component.',
-            default: type === 'root' ? true : false,
+            default: false,
           },
           image: {
             type: 'imageUpload',
@@ -120,92 +122,41 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               return data.$appearance.background.useImage;
             },
           },
-          blendMode: {
-            type: 'select',
-            label: 'Image & Color Blend Mode',
-            description:
-              'Choose how the background image and color are blended together. Useful for overlay effects and creative backgrounds.',
-            default: 'multiply',
-            options: [
-              { label: 'Normal', value: 'normal' },
-              { label: 'Multiply', value: 'multiply' },
-              { label: 'Screen', value: 'screen' },
-              { label: 'Overlay', value: 'overlay' },
-              { label: 'Darken', value: 'darken' },
-              { label: 'Lighten', value: 'lighten' },
-              { label: 'Color Dodge', value: 'color-dodge' },
-              { label: 'Color Burn', value: 'color-burn' },
-              { label: 'Hard Light', value: 'hard-light' },
-              { label: 'Soft Light', value: 'soft-light' },
-              { label: 'Difference', value: 'difference' },
-              { label: 'Exclusion', value: 'exclusion' },
-              { label: 'Hue', value: 'hue' },
-              { label: 'Saturation', value: 'saturation' },
-              { label: 'Color', value: 'color' },
-              { label: 'Luminosity', value: 'luminosity' },
-            ],
+        },
+      },
+      sizeAndSpacing: {
+        type: 'object',
+        section: {
+          expanded: false,
+        },
+        label: 'Size & Spacing',
+        description: 'Layout settings for the page',
+        objectFields: {
+          width: {
+            type: 'unit',
+            label: 'Width',
+            description: 'Width of the container',
+            default: 'auto',
           },
-          useAdvancedFilters: {
-            type: 'switch',
-            label: 'Enable Image Filters',
-            description:
-              'Turn on to adjust the background image with advanced filters like brightness, contrast, saturation, and grayscale.',
-            default: false,
+          height: {
+            type: 'unit',
+            label: 'Height',
+            description: 'Height of the container',
+            default: 'auto',
           },
-          filterBlur: {
-            type: 'number',
-            label: 'Image Blur',
-            min: 0,
-            description: 'Apply a blur effect to the background, higher values create a stronger blur.',
-            default: 0,
+          padding: {
+            type: 'unit',
+            label: 'Padding',
+            description: 'Padding inside the container around the content area',
+            default: '0rem',
+            supportsAllCorners: true,
           },
-          filterBrightness: {
-            type: 'number',
-            label: 'Image Brightness',
-            description: 'Increase or decrease the brightness of the background image.',
-            default: 1,
-            min: 0,
-            max: 3,
-            step: 0.05,
-            visible(data) {
-              return data.$appearance.background.useAdvancedFilters ?? false;
-            },
-          },
-          filterContrast: {
-            type: 'number',
-            label: 'Image Contrast',
-            description: 'Adjust the contrast of the background image for more or less distinction.',
-            default: 1,
-            min: 0,
-            max: 3,
-            step: 0.05,
-            visible(data) {
-              return data.$appearance.background.useAdvancedFilters ?? false;
-            },
-          },
-          filterSaturate: {
-            type: 'number',
-            label: 'Image Saturation',
-            description: 'Change the intensity of colors in the background image.',
-            default: 1,
-            min: 0,
-            max: 3,
-            step: 0.05,
-            visible(data) {
-              return data.$appearance.background.useAdvancedFilters ?? false;
-            },
-          },
-          filterGrayscale: {
-            type: 'number',
-            label: 'Image Grayscale',
-            description: 'Convert the background image to grayscale (black & white).',
-            default: 0,
-            min: 0,
-            max: 1,
-            step: 0.05,
-            visible(data) {
-              return data.$appearance.background.useAdvancedFilters ?? false;
-            },
+          margin: {
+            type: 'unit',
+            label: 'Margin',
+            description: 'Margin outside the container',
+            default: '0rem',
+            supportsAllCorners: true,
           },
         },
       },
@@ -237,17 +188,22 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
             default: 'roboto',
             options: [
               { label: 'System Font', value: 'system' },
-              { label: 'Roboto', value: 'roboto' },
-              { label: 'Open Sans', value: 'open-sans' },
-              { label: 'Lato', value: 'lato' },
-              { label: 'Montserrat', value: 'montserrat' },
-              { label: 'Source Sans Pro', value: 'source-sans-pro' },
-              { label: 'Poppins', value: 'poppins' },
-              { label: 'Nunito', value: 'nunito' },
-              { label: 'Inter', value: 'inter' },
-              { label: 'Playfair Display', value: 'playfair-display' },
-              { label: 'Merriweather', value: 'merriweather' },
+              ...Object.entries(googleFontsNameMap).map(([value, label]) => ({ label: label.replace(/[+]/g, ' '), value })),
             ],
+            renderOption(option) {
+              return (
+                <>
+                  <Typography type='root' typography={{ fontFamily: option.value as keyof typeof googleFontsNameMap }} />
+                  <span
+                    style={{
+                      fontFamily: fontFamilyMap[option.value as keyof typeof fontFamilyMap],
+                    }}
+                  >
+                    {option.label}
+                  </span>
+                </>
+              );
+            },
             visible: data => (type === 'root' ? true : !!data.$appearance.typography.override),
           },
           useAdvancedTypography: {

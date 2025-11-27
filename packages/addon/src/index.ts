@@ -11,8 +11,8 @@ export type Dashboard = {
   updatedAt: string;
   dashboardId: string;
 };
-import { type ComponentData, type DefaultComponentProps } from '@measured/puck';
-import type { CustomComponentConfig } from '@typings/puck';
+import { type DefaultComponentProps } from '@measured/puck';
+import type { CustomComponentConfig, CustomRootComponentConfig } from '@typings/puck';
 
 export type { RenderFn, RenderProps } from '@typings/puck';
 
@@ -20,10 +20,18 @@ export type { Slot } from '@typings/puck';
 import type { FieldConfiguration as InternalFieldConfiguration } from '@typings/fields';
 
 // field configuration object if wanting to define fields separately for shared use
-export type FieldConfiguration<T extends DefaultComponentProps> = InternalFieldConfiguration<T, Omit<ComponentData<T>, 'type'>['props']>;
+export type FieldConfiguration<T extends DefaultComponentProps> = InternalFieldConfiguration<T>;
 
 // the component definition type
-export type ComponentConfig<T extends DefaultComponentProps> = CustomComponentConfig<T>;
+export type ComponentConfig<
+  T extends DefaultComponentProps,
+  ExtendedInternalFields extends object | undefined = undefined,
+> = CustomComponentConfig<T, ExtendedInternalFields>;
+
+export type RootComponentConfig<
+  T extends DefaultComponentProps,
+  ExtendedInternalFields extends object | undefined = undefined,
+> = CustomRootComponentConfig<T, ExtendedInternalFields>;
 
 export type { PageValue, UnitFieldValue, ColorVar } from '@typings/fields';
 

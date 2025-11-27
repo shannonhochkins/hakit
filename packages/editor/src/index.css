@@ -241,3 +241,8 @@ body, html {
 :focus-visible {
   outline: 1px solid var(--clr-primary-a60);
 }
+
+[class*="_DropZone_"]:not([class*="_DropZone--hasChildren_"]) {
+  width: 100%;
+  min-width: 128px !important;
+}

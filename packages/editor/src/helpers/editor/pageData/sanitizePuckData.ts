@@ -6,15 +6,17 @@ import { extendPuckDataWithDefaults } from './extendPuckDataWithDefaults';
 export interface SanitizePuckDataOptions<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
+  IsRoot extends boolean | undefined = undefined,
 > {
   data: PuckPageData;
-  userConfig: CustomPuckConfig<Props, RootProps>;
+  userConfig: CustomPuckConfig<Props, RootProps, IsRoot>;
 }
 
 export function sanitizePuckData<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
->(options: SanitizePuckDataOptions<Props, RootProps>) {
+  IsRoot extends boolean | undefined = undefined,
+>(options: SanitizePuckDataOptions<Props, RootProps, IsRoot>) {
   const { data, userConfig } = options;
 
   // First trim to only include valid fields

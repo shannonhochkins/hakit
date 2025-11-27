@@ -2,7 +2,7 @@ import type { AdditionalRenderProps, ComponentFactoryData, RenderProps, Internal
 import { Fragment, useMemo, memo } from 'react';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
-import { defaultRootConfig, type DefaultRootProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
+import { defaultRootConfig, type InternalFieldsBackgroundProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
 import { type DefaultComponentProps } from '@measured/puck';
 import { css, Global } from '@emotion/react';
 import { type FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
@@ -14,16 +14,23 @@ import { attachAddonReference } from '@helpers/editor/pageData/attachAddonRefere
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 import isEqual from '@guanghechen/fast-deep-equal';
+import { generateCssForInternalProps } from '@helpers/editor/generateCssForInternalProps';
 
 // Define explicit props type to help retain generics through memo
-type CommonRenderProps<P extends DefaultComponentProps> = {
-  renderProps: Omit<RenderProps<InternalRootData & InternalRootComponentFields>, 'content' | 'popupContent' | 'puck'>;
+// For root components, we use InternalRootComponentFields (no $interactions)
+type RootRenderProps = Parameters<CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields, undefined>['render']>[0];
+
+type CommonRenderProps<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined> = {
+  renderProps: Omit<RootRenderProps, 'content' | 'popupContent' | 'puck'>;
   remoteKeys: Set<string>;
   isEditing: boolean;
-  processedConfigs: CustomRootConfigWithRemote<P>[];
+  processedConfigs: CustomRootConfigWithRemote<P, ExtendedInternalFields>[];
 };
 
-function arePropsEqual<P extends DefaultComponentProps>(prev: CommonRenderProps<P>, next: CommonRenderProps<P>) {
+function arePropsEqual<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>(
+  prev: CommonRenderProps<P, ExtendedInternalFields>,
+  next: CommonRenderProps<P, ExtendedInternalFields>
+) {
   // intentionally ignoring props.processedConfigs/props.remoteKeys as it's static
   if (!isEqual(prev.renderProps, next.renderProps)) return false;
   if (prev.isEditing !== next.isEditing) return false;
@@ -31,30 +38,34 @@ function arePropsEqual<P extends DefaultComponentProps>(prev: CommonRenderProps<
   return true;
 }
 
-// Cast back to the original generic function type so <TemplateSubscriber<P>> works
+// Cast back to the original generic function type so <TemplateSubscriber<P, ExtendedInternalFields>> works
 // Provide a helper generic wrapper to preserve type inference with memo
-type TemplateSubscriberComponent = <P extends DefaultComponentProps>(props: CommonRenderProps<P>) => React.ReactElement | null;
+type TemplateSubscriberComponent = <P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>(
+  props: CommonRenderProps<P, ExtendedInternalFields>
+) => React.ReactElement | null;
 
 function withGenericTemplateSubscriber(component: TemplateSubscriberComponent) {
-  const equality = (prev: CommonRenderProps<DefaultComponentProps>, next: CommonRenderProps<DefaultComponentProps>): boolean =>
-    arePropsEqual(prev, next);
+  const equality = <P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>(
+    prev: CommonRenderProps<P, ExtendedInternalFields>,
+    next: CommonRenderProps<P, ExtendedInternalFields>
+  ): boolean => arePropsEqual(prev, next);
   return memo(component, equality) as TemplateSubscriberComponent;
 }
 
 const TemplateSubscriber = withGenericTemplateSubscriber(TemplateSubscriberInner);
 
-export async function createRootComponent<P extends DefaultComponentProps>(
-  rootConfigs: CustomRootConfigWithRemote<P>[],
+export async function createRootComponent<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>(
+  rootConfigs: CustomRootConfigWithRemote<P, ExtendedInternalFields>[],
   data: ComponentFactoryData
 ) {
   let mergedFields: Record<string, FieldConfiguration[string]> = {};
   const remoteKeys = new Set<string>();
-  const processedConfigs: CustomRootConfigWithRemote<P>[] = [];
+  const processedConfigs: CustomRootConfigWithRemote<P, ExtendedInternalFields>[] = [];
 
   // casting here as types are correct on the defaultRootConfig value
   // we have our own root config which is available to all dashboards
   // we omit default props here as they're computed further down
-  const defaultConfig: Omit<CustomRootConfigWithRemote<DefaultRootProps>, 'defaultProps'> = {
+  const defaultConfig: Omit<CustomRootConfigWithRemote<DefaultComponentProps, InternalFieldsBackgroundProps>, 'defaultProps'> = {
     ...defaultRootConfig,
     _remoteAddonId: '@hakit/default-root', // this is the default root config
     _remoteAddonName: '@hakit/editor', // this is the default root config
@@ -62,7 +73,7 @@ export async function createRootComponent<P extends DefaultComponentProps>(
 
   // Always include the default config first
   // the object above is typed, so okay to cast here as the rest of the values in this array are unknown values/types
-  processedConfigs.push(defaultConfig as unknown as CustomRootConfigWithRemote<P>);
+  processedConfigs.push(defaultConfig as unknown as CustomRootConfigWithRemote<P, ExtendedInternalFields>);
   remoteKeys.add(defaultConfig._remoteAddonId);
 
   // Process provided root configs, ignoring duplicates
@@ -76,6 +87,15 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   });
 
   processedConfigs.forEach(rootConfig => {
+    // @ts-expect-error - This is fine, for root configs, spacing doesn't make sense
+    rootConfig.internalFields = {
+      ...rootConfig.internalFields,
+      omit: {
+        $appearance: {
+          sizeAndSpacing: true,
+        },
+      },
+    };
     if (rootConfig._remoteAddonId === '@hakit/default-root') {
       mergedFields = {
         ...mergedFields,
@@ -114,7 +134,8 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   });
 
   // create the puck definitions
-  const componentFactory = await createComponent<P>(
+  // For root components, IsRoot should be true, ExtendedInternalFields is undefined by default
+  const componentFactory = await createComponent<P, undefined, true>(
     {
       // Merge other properties from base config (excluding render and fields)
       ...baseConfig,
@@ -132,21 +153,23 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   // use our component factory to convert out component structure to a puck component
   const updatedRootConfig = await componentFactory(data);
 
-  const finalRootConfig: CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields> = {
+  const finalRootConfig: CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields, undefined> = {
     ...updatedRootConfig,
     // @ts-expect-error - objects are typed above, they just can't be combined here
     fields: updatedRootConfig.fields,
-    inline: false,
+    inline: true,
     // Create a render function that calls all root render functions
-    render({
-      content: Content,
-      popupContent: PopupContent,
-      puck,
-      // @ts-expect-error - does exist, just not in the types internally, this is a puck value we intentionally don't render as we have custom slots for the root zone
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      children: _children,
-      ...renderProps
-    }: RenderProps<InternalRootData & InternalRootComponentFields>) {
+    // The render function signature matches what CustomRootConfigWithRemote expects (IsRoot = true, so InternalRootComponentFields)
+    render(props: Parameters<CustomRootConfigWithRemote<InternalRootData & InternalRootComponentFields, undefined>['render']>[0]) {
+      const {
+        content: Content,
+        popupContent: PopupContent,
+        puck,
+        // @ts-expect-error - does exist, just not in the types internally, this is a puck value we intentionally don't render as we have custom slots for the root zone
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        children: _children,
+        ...renderProps
+      } = props;
       return (
         <RenderErrorBoundary prefix='Root'>
           <TemplateSubscriber
@@ -168,12 +191,12 @@ export async function createRootComponent<P extends DefaultComponentProps>(
   return finalRootConfig;
 }
 
-function TemplateSubscriberInner<P extends DefaultComponentProps>({
+function TemplateSubscriberInner<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>({
   renderProps,
   remoteKeys,
   processedConfigs,
   isEditing,
-}: CommonRenderProps<P>) {
+}: CommonRenderProps<P, ExtendedInternalFields>) {
   const { data, loading, error } = useResolvedJinjaTemplate(renderProps);
   if (error) {
     throw error;
@@ -187,8 +210,8 @@ function TemplateSubscriberInner<P extends DefaultComponentProps>({
   );
 }
 
-function getPropsForRoot<P extends DefaultComponentProps>(
-  rootConfig: CustomRootConfigWithRemote<P>,
+function getPropsForRoot<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>(
+  rootConfig: CustomRootConfigWithRemote<P, ExtendedInternalFields>,
   props: Record<string, unknown>,
   additionalProps: Omit<AdditionalRenderProps, '_dragRef'>,
   remoteKeys: Set<string>
@@ -204,16 +227,17 @@ function getPropsForRoot<P extends DefaultComponentProps>(
     ...(typeof currentRemoteProps === 'object' && currentRemoteProps !== null ? currentRemoteProps : {}),
     ...additionalProps,
   };
+
   return propsForThisRoot;
 }
 
-function Render<P extends DefaultComponentProps>({
+function Render<P extends DefaultComponentProps, ExtendedInternalFields extends object | undefined = undefined>({
   renderProps,
   processedConfigs,
   remoteKeys,
   isEditing,
-}: CommonRenderProps<P> & {
-  processedConfigs: CustomRootConfigWithRemote<P>[];
+}: CommonRenderProps<P, ExtendedInternalFields> & {
+  processedConfigs: CustomRootConfigWithRemote<P, ExtendedInternalFields>[];
   remoteKeys: Set<string>;
 }) {
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
@@ -237,11 +261,52 @@ function Render<P extends DefaultComponentProps>({
       _dashboard: dashboard,
     };
     const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
-    if (rootConfig.styles) {
-      // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
-      return rootConfig.styles(propsForThisRoot);
+
+    // Generate CSS for internal fields (appearance, layout, typography, theme)
+    const { cssVariables, cssStyles: internalCssStyles } = generateCssForInternalProps(propsForThisRoot, 'root');
+
+    // Get component-specific styles if provided
+    const componentStyles = rootConfig.styles
+      ? // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
+        rootConfig.styles(propsForThisRoot)
+      : '';
+
+    // Combine all styles: CSS variables, internal CSS styles, and component-specific styles
+    // For root, we need to wrap CSS variables in :root selector
+    const stylesArray: string[] = [];
+
+    if (cssVariables && typeof cssVariables === 'object') {
+      const cssVarsString = Object.entries(cssVariables)
+        .map(([key, value]) => `  ${key}: ${value};`)
+        .join('\n');
+      if (cssVarsString) {
+        stylesArray.push(`:root {\n${cssVarsString}\n}`);
+      }
     }
-    return '';
+
+    if (internalCssStyles && typeof internalCssStyles === 'object' && !Array.isArray(internalCssStyles)) {
+      // Convert CSS object to string for root styles
+      const cssStylesString = Object.entries(internalCssStyles)
+        .map(([key, value]) => {
+          const cssKey = String(key)
+            .replace(/([A-Z])/g, '-$1')
+            .toLowerCase();
+          const cssValue = typeof value === 'string' ? value : String(value);
+          return `  ${cssKey}: ${cssValue};`;
+        })
+        .join('\n');
+      if (cssStylesString) {
+        stylesArray.push(cssStylesString);
+      }
+    } else if (typeof internalCssStyles === 'string') {
+      stylesArray.push(internalCssStyles);
+    }
+
+    if (componentStyles) {
+      stylesArray.push(typeof componentStyles === 'string' ? componentStyles : '');
+    }
+
+    return stylesArray.filter(Boolean).join('\n');
   });
 
   const propsForRootMap = useMemo(() => {

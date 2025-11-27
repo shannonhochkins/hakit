@@ -1,438 +1,200 @@
-import React, { CSSProperties } from 'react';
-import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import { UnitFieldValue } from '@typings/fields';
-import { generateColorSwatches } from '@helpers/color';
-import { generateCssVariables } from '@helpers/color/generateCssVariables';
+// import React, { CSSProperties } from 'react';
+import { CustomRootComponentConfig, RenderProps } from '@typings/puck';
+// import { UnitFieldValue } from '@typings/fields';
 import { properties, sharedCss } from '../../../../css-variables';
+import { DefaultComponentProps } from '@measured/puck';
+import { Typography } from '../Typography';
+// import { processPropsWithInternalFields } from '../createPuckComponent';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
-interface BackgroundProps {
-  /** whether to use a background image or not @default true */
-  useBackgroundImage: boolean;
-  /** the background image to apply to the dashboard @default defaultBackground */
-  backgroundImage?: string;
-  /** overlay color drawn over the image (supports gradients/alpha) */
-  overlayColor?: string;
-  /** overlay blend mode to tint/merge overlay over the image @default "multiply" */
-  overlayBlendMode?: CSSProperties['mixBlendMode'];
-  /** the blur amount to apply to the background image of the dashboard @default 15 */
-  blur?: number;
-  /** the opacity of the background overlay color @default 0.9 */
-  overlayOpacity?: number;
-  /** CSS background-size value or 'custom' to use backgroundSizeCustom */
-  backgroundSize?: string;
-  /** custom CSS background-size when backgroundSize is 'custom' */
-  backgroundSizeCustom?: string;
-  /** CSS background-position, e.g. 'center center' */
-  backgroundPosition?: string;
-  /** CSS background-repeat */
-  backgroundRepeat?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
-  /** CSS background-attachment */
-  backgroundAttachment?: 'scroll' | 'fixed' | 'local';
-  /** Optional image filters */
-  useAdvancedFilters?: boolean;
-  filterBrightness?: number;
-  filterContrast?: number;
-  filterSaturate?: number;
-  filterGrayscale?: number;
-  /** Optional radial glow overlay controls - removed */
+export interface InternalFieldsBackgroundProps {
+  $appearance: {
+    background: {
+      /** overlay color drawn over the image (supports gradients/alpha) */
+      overlayColor: string;
+      /** the opacity of the background overlay color @default 0.9 */
+      overlayOpacity: number;
+      /** blend mode for the background image and color */
+      blendMode:
+        | 'normal'
+        | 'multiply'
+        | 'screen'
+        | 'overlay'
+        | 'darken'
+        | 'lighten'
+        | 'color-dodge'
+        | 'color-burn'
+        | 'hard-light'
+        | 'soft-light'
+        | 'difference'
+        | 'exclusion'
+        | 'hue'
+        | 'saturation'
+        | 'color'
+        | 'luminosity';
+      /** Optional image filters */
+      useAdvancedFilters: boolean;
+      filterBlur: number;
+      filterBrightness: number;
+      filterContrast: number;
+      filterSaturate: number;
+      filterGrayscale: number;
+    };
+  };
 }
 
-interface TypographyProps {
-  /** Font family selection */
-  fontFamily: string;
-  /** Advanced typography options */
-  useAdvancedTypography?: boolean;
-  /** Font weight for headings */
-  headingWeight: number;
-  /** Font weight for body text */
-  bodyWeight: number;
-  /** Base font size */
-  baseFontSize: UnitFieldValue;
-  /** Line height */
-  lineHeight: number;
-  /** Letter spacing */
-  letterSpacing: number;
-}
-
-export type DefaultRootProps = {
-  background: BackgroundProps;
-  typography: TypographyProps;
-};
-// TODO - Combine to shared constant
-// Map font family names to Google Fonts API format
-const googleFontsNameMap: Record<string, string> = {
-  roboto: 'Roboto',
-  'open-sans': 'Open+Sans',
-  lato: 'Lato',
-  montserrat: 'Montserrat',
-  'source-sans-pro': 'Source+Sans+Pro',
-  poppins: 'Poppins',
-  nunito: 'Nunito',
-  inter: 'Inter',
-  'playfair-display': 'Playfair+Display',
-  merriweather: 'Merriweather',
-};
-
-// Font family mapping
-const fontFamilyMap: Record<string, string> = {
-  system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  roboto: '"Roboto", system-ui, sans-serif',
-  'open-sans': '"Open Sans", system-ui, sans-serif',
-  lato: '"Lato", system-ui, sans-serif',
-  montserrat: '"Montserrat", system-ui, sans-serif',
-  'source-sans-pro': '"Source Sans Pro", system-ui, sans-serif',
-  poppins: '"Poppins", system-ui, sans-serif',
-  nunito: '"Nunito", system-ui, sans-serif',
-  inter: '"Inter", system-ui, sans-serif',
-  'playfair-display': '"Playfair Display", system-ui, serif',
-  merriweather: '"Merriweather", system-ui, serif',
-};
-
-export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
+export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps, InternalFieldsBackgroundProps> = {
   label: 'Default Root',
   rootConfiguration: true,
-  fields: {
-    background: {
-      type: 'object',
-      section: {
-        expanded: false,
-      },
-      label: 'Background options',
-      description: 'General options for the main background',
-      objectFields: {
-        useBackgroundImage: {
-          type: 'switch',
-          label: 'Use Background Image',
-          description: 'Whether to use a background image or not',
-          default: true,
-        },
-        backgroundImage: {
-          type: 'imageUpload',
-          label: 'Background Image',
-          description: 'The entity to display in the button card',
-          default: undefined,
-          visible(data) {
-            return data.background?.useBackgroundImage ?? true;
+  fields: {},
+  internalFields: {
+    extend: {
+      $appearance: {
+        background: {
+          overlayColor: {
+            type: 'color',
+            label: 'Overlay Color',
+            description: 'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
+            default: 'var(--clr-primary-a10)',
           },
-        },
-        backgroundSize: {
-          type: 'select',
-          label: 'Background Size',
-          description: 'CSS background-size value',
-          default: 'cover',
-          options: [
-            { label: 'Cover', value: 'cover' },
-            { label: 'Contain', value: 'contain' },
-            { label: 'Auto', value: 'auto' },
-            { label: 'Custom…', value: 'custom' },
-          ],
-          visible(data) {
-            return data.background?.useBackgroundImage ?? true;
+          overlayOpacity: {
+            type: 'number',
+            label: 'Overlay Opacity',
+            description: 'Opacity applied to the overlay color',
+            default: 0.9,
+            min: 0,
+            max: 1,
+            step: 0.1,
           },
-        },
-        backgroundSizeCustom: {
-          type: 'text',
-          label: 'Custom Background Size',
-          description: 'Any valid CSS background-size value',
-          default: '',
-          visible(data) {
-            return (data.background?.backgroundSize ?? 'cover') === 'custom' && (data.background?.useBackgroundImage ?? true);
+          blendMode: {
+            type: 'select',
+            label: 'Image & Color Blend Mode',
+            description:
+              'Choose how the background image and color are blended together. Useful for overlay effects and creative backgrounds.',
+            default: 'multiply',
+            options: [
+              { label: 'Normal', value: 'normal' },
+              { label: 'Multiply', value: 'multiply' },
+              { label: 'Screen', value: 'screen' },
+              { label: 'Overlay', value: 'overlay' },
+              { label: 'Darken', value: 'darken' },
+              { label: 'Lighten', value: 'lighten' },
+              { label: 'Color Dodge', value: 'color-dodge' },
+              { label: 'Color Burn', value: 'color-burn' },
+              { label: 'Hard Light', value: 'hard-light' },
+              { label: 'Soft Light', value: 'soft-light' },
+              { label: 'Difference', value: 'difference' },
+              { label: 'Exclusion', value: 'exclusion' },
+              { label: 'Hue', value: 'hue' },
+              { label: 'Saturation', value: 'saturation' },
+              { label: 'Color', value: 'color' },
+              { label: 'Luminosity', value: 'luminosity' },
+            ],
           },
-        },
-        backgroundPosition: {
-          type: 'text',
-          label: 'Background Position',
-          description: 'CSS background-position (e.g., "center center", "top", "50% 50%")',
-          default: 'center center',
-          visible(data) {
-            return data.background?.useBackgroundImage ?? true;
+          useAdvancedFilters: {
+            type: 'switch',
+            label: 'Enable Image Filters',
+            description:
+              'Turn on to adjust the background image with advanced filters like brightness, contrast, saturation, and grayscale.',
+            default: false,
           },
-        },
-        backgroundRepeat: {
-          type: 'select',
-          label: 'Background Repeat',
-          description: 'CSS background-repeat',
-          default: 'no-repeat',
-          options: [
-            { label: 'No Repeat', value: 'no-repeat' },
-            { label: 'Repeat', value: 'repeat' },
-            { label: 'Repeat X', value: 'repeat-x' },
-            { label: 'Repeat Y', value: 'repeat-y' },
-            { label: 'Space', value: 'space' },
-            { label: 'Round', value: 'round' },
-          ],
-          visible(data) {
-            return data.background?.useBackgroundImage ?? true;
+          filterBlur: {
+            type: 'number',
+            label: 'Image Blur',
+            min: 0,
+            description: 'Apply a blur effect to the background, higher values create a stronger blur.',
+            default: 25,
           },
-        },
-        backgroundAttachment: {
-          type: 'select',
-          label: 'Background Attachment',
-          description: 'CSS background-attachment',
-          default: 'fixed',
-          options: [
-            { label: 'Scroll', value: 'scroll' },
-            { label: 'Fixed', value: 'fixed' },
-            { label: 'Local', value: 'local' },
-          ],
-          visible(data) {
-            return data.background?.useBackgroundImage ?? true;
+          filterBrightness: {
+            type: 'number',
+            label: 'Image Brightness',
+            description: 'Increase or decrease the brightness of the background image.',
+            default: 1,
+            min: 0,
+            max: 3,
+            step: 0.05,
+            visible(data) {
+              return data.$appearance?.background?.useAdvancedFilters || false;
+            },
           },
-        },
-        overlayColor: {
-          type: 'color',
-          label: 'Overlay Color',
-          description: 'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
-          default: 'var(--clr-primary-a10)',
-        },
-        overlayBlendMode: {
-          type: 'select',
-          label: 'Overlay Blend Mode',
-          description: 'How the overlay color blends with the image',
-          default: 'multiply',
-          options: [
-            { label: 'Color', value: 'color' },
-            { label: 'Color Burn', value: 'color-burn' },
-            { label: 'Color Dodge', value: 'color-dodge' },
-            { label: 'Darken', value: 'darken' },
-            { label: 'Difference', value: 'difference' },
-            { label: 'Exclusion', value: 'exclusion' },
-            { label: 'Hard Light', value: 'hard-light' },
-            { label: 'Hue', value: 'hue' },
-            { label: 'Lighten', value: 'lighten' },
-            { label: 'Luminosity', value: 'luminosity' },
-            { label: 'Multiply', value: 'multiply' },
-            { label: 'Normal', value: 'normal' },
-            { label: 'Overlay', value: 'overlay' },
-            { label: 'Saturation', value: 'saturation' },
-            { label: 'Screen', value: 'screen' },
-            { label: 'Soft Light', value: 'soft-light' },
-          ],
-        },
-        blur: {
-          type: 'number',
-          label: 'Blur',
-          min: 0,
-          description: 'Blur amount applied to the background image',
-          default: 25,
-        },
-        overlayOpacity: {
-          type: 'number',
-          label: 'Overlay Opacity',
-          description: 'Opacity applied to the overlay color',
-          default: 0.9,
-          min: 0,
-          max: 1,
-          step: 0.1,
-        },
-        useAdvancedFilters: {
-          type: 'switch',
-          label: 'Use Advanced Filters',
-          description: 'Enable image filters like brightness, contrast, saturation and grayscale',
-          default: false,
-        },
-        filterBrightness: {
-          type: 'number',
-          label: 'Brightness',
-          description: 'CSS filter brightness()',
-          default: 1,
-          min: 0,
-          max: 3,
-          step: 0.05,
-          visible(data) {
-            return data.background?.useAdvancedFilters ?? false;
+          filterContrast: {
+            type: 'number',
+            label: 'Image Contrast',
+            description: 'Adjust the contrast of the background image for more or less distinction.',
+            default: 1,
+            min: 0,
+            max: 3,
+            step: 0.05,
+            visible(data) {
+              return data.$appearance?.background?.useAdvancedFilters ?? false;
+            },
           },
-        },
-        filterContrast: {
-          type: 'number',
-          label: 'Contrast',
-          description: 'CSS filter contrast()',
-          default: 1,
-          min: 0,
-          max: 3,
-          step: 0.05,
-          visible(data) {
-            return data.background?.useAdvancedFilters ?? false;
+          filterSaturate: {
+            type: 'number',
+            label: 'Image Saturation',
+            description: 'Change the intensity of colors in the background image.',
+            default: 1,
+            min: 0,
+            max: 3,
+            step: 0.05,
+            visible(data) {
+              return data.$appearance?.background?.useAdvancedFilters ?? false;
+            },
           },
-        },
-        filterSaturate: {
-          type: 'number',
-          label: 'Saturate',
-          description: 'CSS filter saturate()',
-          default: 1,
-          min: 0,
-          max: 3,
-          step: 0.05,
-          visible(data) {
-            return data.background?.useAdvancedFilters ?? false;
-          },
-        },
-        filterGrayscale: {
-          type: 'number',
-          label: 'Grayscale',
-          description: 'CSS filter grayscale()',
-          default: 0,
-          min: 0,
-          max: 1,
-          step: 0.05,
-          visible(data) {
-            return data.background?.useAdvancedFilters ?? false;
+          filterGrayscale: {
+            type: 'number',
+            label: 'Image Grayscale',
+            description: 'Convert the background image to grayscale (black & white).',
+            default: 0,
+            min: 0,
+            max: 1,
+            step: 0.05,
+            visible(data) {
+              return data.$appearance?.background?.useAdvancedFilters ?? false;
+            },
           },
         },
       },
     },
-    typography: {
-      type: 'object',
-      section: {
-        expanded: false,
-      },
-      label: 'Typography',
-      description: 'Font and text styling options',
-      objectFields: {
-        fontFamily: {
-          type: 'select',
-          label: 'Font Family',
-          description: 'Choose a font family for your dashboard',
-          default: 'roboto',
-          options: [
-            { label: 'System Font', value: 'system' },
-            { label: 'Roboto', value: 'roboto' },
-            { label: 'Open Sans', value: 'open-sans' },
-            { label: 'Lato', value: 'lato' },
-            { label: 'Montserrat', value: 'montserrat' },
-            { label: 'Source Sans Pro', value: 'source-sans-pro' },
-            { label: 'Poppins', value: 'poppins' },
-            { label: 'Nunito', value: 'nunito' },
-            { label: 'Inter', value: 'inter' },
-            { label: 'Playfair Display', value: 'playfair-display' },
-            { label: 'Merriweather', value: 'merriweather' },
-          ],
-        },
-        useAdvancedTypography: {
-          type: 'switch',
-          label: 'Advanced Typography',
-          description: 'Enable advanced typography options',
-          default: false,
-        },
-        headingWeight: {
-          type: 'select',
-          label: 'Heading Weight',
-          description: 'Font weight for headings and titles',
-          default: 600,
-          options: [
-            { label: 'Light (300)', value: 300 },
-            { label: 'Regular (400)', value: 400 },
-            { label: 'Medium (500)', value: 500 },
-            { label: 'Semi Bold (600)', value: 600 },
-            { label: 'Bold (700)', value: 700 },
-          ],
-          visible(data) {
-            return data.typography?.useAdvancedTypography ?? false;
-          },
-        },
-        bodyWeight: {
-          type: 'select',
-          label: 'Body Weight',
-          description: 'Font weight for body text',
-          default: 400,
-          options: [
-            { label: 'Light (300)', value: 300 },
-            { label: 'Regular (400)', value: 400 },
-            { label: 'Medium (500)', value: 500 },
-            { label: 'Semi Bold (600)', value: 600 },
-          ],
-          visible(data) {
-            return data.typography?.useAdvancedTypography ?? false;
-          },
-        },
-        baseFontSize: {
-          type: 'unit',
-          label: 'Base Font Size',
-          description: 'Base font size to apply to the dashboard',
-          default: '16px',
-          min: 12,
-          max: 24,
-          step: 1,
-          visible(data) {
-            return data.typography?.useAdvancedTypography ?? false;
-          },
-        },
-        lineHeight: {
-          type: 'number',
-          label: 'Line Height',
-          description: 'Line height multiplier',
-          default: 1.5,
-          min: 1.2,
-          max: 2.0,
-          step: 0.1,
-          visible(data) {
-            return data.typography?.useAdvancedTypography ?? false;
-          },
-        },
-        letterSpacing: {
-          type: 'number',
-          label: 'Letter Spacing',
-          description: 'Letter spacing in pixels',
-          default: 0,
-          min: -1,
-          max: 2,
-          step: 0.1,
-          visible(data) {
-            return data.typography?.useAdvancedTypography ?? false;
-          },
+    defaults: {
+      $appearance: {
+        background: {
+          useImage: true,
+          image: defaultBackground,
         },
       },
     },
   },
   styles(props) {
-    const { background, typography } = props;
-    const bgSize =
-      background?.backgroundSize === 'custom' ? (background?.backgroundSizeCustom ?? 'cover') : (background?.backgroundSize ?? 'cover');
-    const bgImageUrl = background?.useBackgroundImage
-      ? `url(${background?.backgroundImage ? background.backgroundImage : defaultBackground})`
-      : '';
+    // Note: CSS variables and internal styles are now generated by generateCssForInternalProps
+    // This function only provides root-specific CSS structure and CSS reset
+    // CSS variables are included via the helper in createRootComponent
+    // Props parameter is required by type signature but values are generated by helper
 
-    const selectedFontFamily = typography?.fontFamily ?? 'roboto';
-    const fontFamily = fontFamilyMap[selectedFontFamily] ?? fontFamilyMap.system;
-    const swatches = generateColorSwatches({
-      ...props.$appearance.theme.colors,
-      success: props.$appearance.theme.colors.semantics.success,
-      warning: props.$appearance.theme.colors.semantics.warning,
-      danger: props.$appearance.theme.colors.semantics.danger,
-      info: props.$appearance.theme.colors.semantics.info,
-    });
-    const cssVariables = generateCssVariables(swatches);
+    const filterParts: string[] = [];
+    if (props.$appearance?.background?.filterBlur !== undefined) {
+      filterParts.push(`blur(${props.$appearance?.background?.filterBlur}px)`);
+    }
+    if (props.$appearance?.background?.useAdvancedFilters) {
+      if (props.$appearance?.background?.filterBrightness !== undefined) {
+        filterParts.push(`brightness(${props.$appearance?.background?.filterBrightness})`);
+      }
+      if (props.$appearance?.background?.filterContrast !== undefined) {
+        filterParts.push(`contrast(${props.$appearance?.background?.filterContrast})`);
+      }
+      if (props.$appearance?.background?.filterSaturate !== undefined) {
+        filterParts.push(`saturate(${props.$appearance?.background?.filterSaturate})`);
+      }
+      if (props.$appearance?.background?.filterGrayscale !== undefined) {
+        filterParts.push(`grayscale(${props.$appearance?.background?.filterGrayscale})`);
+      }
+    }
 
     return `
       ${properties}
       :root {
         ${sharedCss}
-        ${cssVariables}
-        /* Background Variables */
-        --background-image: ${bgImageUrl};
-        --background-size: ${bgSize};
-        --background-position: ${background?.backgroundPosition ?? 'center center'};
-        --background-repeat: ${background?.backgroundRepeat ?? 'no-repeat'};
-        --background-overlay-color: ${background?.overlayColor ?? 'var(--clr-primary-a0'};
-        --background-overlay-blend-mode: ${background?.overlayBlendMode ?? 'multiply'};
-        --background-overlay-opacity: ${background?.overlayOpacity ?? 0.9};
-        --background-blur: ${background?.blur ?? 25}px;
-        --background-filter-brightness: ${background?.filterBrightness ?? 1};
-        --background-filter-contrast: ${background?.filterContrast ?? 1};
-        --background-filter-saturate: ${background?.filterSaturate ?? 1};
-        --background-filter-grayscale: ${background?.filterGrayscale ?? 0};
-        --background-attachment: ${background?.backgroundAttachment ?? 'fixed'};
-
-        /* Typography Variables */
-        --typography-font-family: ${fontFamily};
-        --typography-heading-weight: ${typography?.headingWeight ?? 600};
-        --typography-body-weight: ${typography?.bodyWeight ?? 400};
-        --font-size: ${typography?.baseFontSize ?? `16px`};
-        --typography-line-height: ${typography?.lineHeight ?? 1.5};
-        --typography-letter-spacing: ${typography?.letterSpacing ?? 0}px;
       }
-
       /* Root Component Styles */
       .root-component {
         position: absolute !important;
@@ -444,14 +206,13 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       .root-component-background {
         width: 100%;
         height: 100%;
-        background-position: var(--background-position, center center);
-        background-repeat: var(--background-repeat, no-repeat);
-        background-size: var(--background-size, cover);
-        background-image: var(--background-image);
-        background-attachment: var(--background-attachment, fixed);
-        filter: blur(var(--background-blur)) brightness(var(--background-filter-brightness, 1))
-          contrast(var(--background-filter-contrast, 1)) saturate(var(--background-filter-saturate, 1))
-          grayscale(var(--background-filter-grayscale, 0));
+        background-color: var(--ha-background-color);
+        background-position: var(--ha-background-position);
+        background-repeat: var(--ha-background-repeat);
+        background-size: var(--ha-background-size);
+        background-image: var(--ha-background-image);
+        background-attachment: var(--ha-background-attachment);
+        filter: ${filterParts.join(' ')};
         overflow: hidden;
       }
 
@@ -463,9 +224,9 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         content: '';
         position: absolute;
         inset: 0;
-        background: var(--background-overlay-color, transparent);
-        opacity: var(--background-overlay-opacity, 0);
-        mix-blend-mode: var(--background-overlay-blend-mode, normal);
+        background: ${props.$appearance?.background?.overlayColor || 'transparent'};
+        opacity: ${props.$appearance?.background?.overlayOpacity || 0};
+        mix-blend-mode: ${props.$appearance?.background?.blendMode || 'normal'};
       }
 
       /* ============================================
@@ -517,10 +278,10 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
 
       /* Global Typography Styles */
       body {
-        font-family: var(--typography-font-family);
-        font-size: var(--font-size);
-        line-height: var(--typography-line-height);
-        letter-spacing: var(--typography-letter-spacing);
+        font-family: var(--ha-typography-font-family);
+        font-size: var(--ha-typography-base-font-size);
+        line-height: var(--ha-typography-line-height);
+        letter-spacing: var(--ha-typography-letter-spacing);
 
         /* Better text rendering */
         text-rendering: optimizeLegibility;
@@ -535,8 +296,8 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
       h4,
       h5,
       h6 {
-        font-family: var(--typography-font-family);
-        font-weight: var(--typography-heading-weight);
+        font-family: var(--ha-typography-font-family);
+        font-weight: var(--ha-typography-heading-weight);
 
         /* Better line-height for headings */
         line-height: 1.2;
@@ -545,21 +306,9 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
         text-wrap: balance;
       }
 
-      p,
-      span,
-      div,
-      a,
-      button,
-      input,
-      textarea,
-      select {
-        font-family: var(--typography-font-family);
-        font-weight: var(--typography-body-weight);
-      }
-
       /* Better paragraph spacing */
       p {
-        line-height: var(--typography-line-height);
+        line-height: var(--ha-typography-line-height);
       }
 
       /* Remove list styles by default (opt-in styling is more flexible) */
@@ -676,55 +425,10 @@ export const defaultRootConfig: CustomComponentConfig<DefaultRootProps> = {
   render: Render,
 };
 
-function Render(props: RenderProps<DefaultRootProps>) {
-  const { typography } = props;
-
-  // Generate Google Fonts link for non-system fonts
-  const selectedFontFamily = typography?.fontFamily ?? 'roboto';
-
-  const googleFontsUrl =
-    selectedFontFamily !== 'system'
-      ? (() => {
-          const headingWeight = typography?.headingWeight ?? 600;
-          const bodyWeight = typography?.bodyWeight ?? 400;
-          // Sort weights in ascending order as required by Google Fonts API
-          const sortedWeights = [headingWeight, bodyWeight].sort((a, b) => a - b);
-          const uniqueWeights = [...new Set(sortedWeights)]; // Remove duplicates
-          const weightsString = uniqueWeights.join(';');
-          return `https://fonts.googleapis.com/css2?family=${googleFontsNameMap[selectedFontFamily]}:wght@${weightsString}&display=swap`;
-        })()
-      : '';
-
-  // Clean up any existing Google Fonts links when font changes
-  React.useEffect(() => {
-    if (typeof document !== 'undefined' && selectedFontFamily) {
-      // Remove any existing href where it has href= family=(not the current family)
-      const existingLinks = document.querySelectorAll(
-        `link[href*="fonts.googleapis.com"]:not([href*="${googleFontsNameMap[selectedFontFamily]}"])[rel="stylesheet"]`
-      );
-      existingLinks.forEach(link => {
-        if (link.parentNode) {
-          link.parentNode.removeChild(link);
-        }
-      });
-    }
-  }, [selectedFontFamily]);
-
+function Render(props: RenderProps<DefaultComponentProps>) {
   return (
     <>
-      {/* 
-        Note: Font links are rendered in component body rather than <head>.
-        This is acceptable because:
-        1. Modern browsers handle font loading asynchronously regardless of placement
-        2. React's rendering and Puck's architecture manage document structure
-        3. Font loading timing isn't critical for this use case
-        4. We clean up previous fonts via useEffect to prevent accumulation
-      */}
-      {googleFontsUrl && (
-        <>
-          <link href={googleFontsUrl} rel='stylesheet' />
-        </>
-      )}
+      <Typography typography={props.$appearance?.typography} type='root' />
       <div className='root-component' id={props.id}>
         <div className='root-component-background'></div>
       </div>

@@ -31,7 +31,8 @@ import { getPopupIdsInData } from '@hooks/usePopupStore';
 export function trimPuckDataToConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
->(data: PuckPageData | null, userConfig?: CustomPuckConfig<Props, RootProps>): PuckPageData | null {
+  IsRoot extends boolean | undefined = undefined,
+>(data: PuckPageData | null, userConfig?: CustomPuckConfig<Props, RootProps, IsRoot>): PuckPageData | null {
   if (!data || !userConfig) return data;
   const existingPopups = getPopupIdsInData(data, userConfig as Config);
 
