@@ -326,7 +326,7 @@ describe('createRootComponent', () => {
             position: 'center center',
             repeat: 'no-repeat',
             size: 'cover',
-            color: 'var(--clr-surface-a0)',
+            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
             blendMode: 'multiply',
             sizeCustom: '',
             filterBlur: 25,
@@ -335,8 +335,6 @@ describe('createRootComponent', () => {
             filterSaturate: 1,
             filterGrayscale: 0,
             useAdvancedFilters: false,
-            overlayColor: 'var(--clr-primary-a10)',
-            overlayOpacity: 0.9,
             useImage: true,
           },
           typography: {
@@ -395,7 +393,7 @@ describe('createRootComponent', () => {
             position: 'center center',
             repeat: 'no-repeat',
             size: 'cover',
-            color: 'var(--clr-surface-a0)',
+            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
             blendMode: 'multiply',
             sizeCustom: '',
             filterBlur: 25,
@@ -404,8 +402,6 @@ describe('createRootComponent', () => {
             filterSaturate: 1,
             filterGrayscale: 0,
             useAdvancedFilters: false,
-            overlayColor: 'var(--clr-primary-a10)',
-            overlayOpacity: 0.9,
             useImage: true,
           },
           typography: {
@@ -781,15 +777,13 @@ describe('createRootComponent', () => {
           background: {
             attachment: 'fixed',
             blendMode: 'multiply',
-            color: 'var(--clr-surface-a0)',
+            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
             filterBlur: 25,
             filterBrightness: 1,
             filterContrast: 1,
             filterGrayscale: 0,
             filterSaturate: 1,
             image: expect.stringMatching(/default-background\.jpg$/),
-            overlayColor: 'var(--clr-primary-a10)',
-            overlayOpacity: 0.9,
             position: 'center center',
             repeat: 'no-repeat',
             size: 'cover',
@@ -863,8 +857,6 @@ describe('createRootComponent', () => {
     // Check that background defaults are populated
     const backgroundDefaults = result.defaultProps.$appearance.background;
     expect(backgroundDefaults).toHaveProperty('useImage', true);
-    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
-    expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
     expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
     expect(backgroundDefaults).toHaveProperty('filterContrast', 1);
@@ -1131,10 +1123,8 @@ describe('createRootComponent', () => {
     expect(backgroundDefaults).toHaveProperty('sizeCustom', '');
     expect(backgroundDefaults).toHaveProperty('position', 'center center');
     expect(backgroundDefaults).toHaveProperty('repeat', 'no-repeat');
-    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
     expect(backgroundDefaults).toHaveProperty('blendMode', 'multiply');
     expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
-    expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
     expect(backgroundDefaults).toHaveProperty('useAdvancedFilters', false);
     expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
     expect(backgroundDefaults).toHaveProperty('filterContrast', 1);
@@ -1164,7 +1154,6 @@ describe('createRootComponent', () => {
 
     // Verify defaultRootConfig defaults are preserved
     expect(backgroundDefaults).toHaveProperty('useImage', true);
-    expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
     expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
 
@@ -1196,10 +1185,8 @@ describe('createRootComponent', () => {
     expect(background).toHaveProperty('sizeCustom');
     expect(background).toHaveProperty('position');
     expect(background).toHaveProperty('repeat');
-    expect(background).toHaveProperty('overlayColor');
     expect(background).toHaveProperty('blendMode');
     expect(background).toHaveProperty('filterBlur');
-    expect(background).toHaveProperty('overlayOpacity');
     expect(background).toHaveProperty('useAdvancedFilters');
     expect(background).toHaveProperty('filterBrightness');
     expect(background).toHaveProperty('filterContrast');
@@ -1227,7 +1214,6 @@ describe('createRootComponent', () => {
       '@hakit/default-root': {
         background: {
           useBackgroundImage: true,
-          overlayColor: '#ff0000', // Different from default to test merging
           blur: 10, // Different from default to test merging
         },
         // Missing typography object entirely
