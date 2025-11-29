@@ -321,8 +321,8 @@ describe('createRootComponent', () => {
         $appearance: {
           background: {
             attachment: 'fixed',
-            image:
-              'file:///Users/shannon.hochkins/Documents/dev/hakit/packages/editor/src/features/dashboard/Editor/createRootComponent/default-background.jpg',
+            /// expect image to end with default-background.jps
+            image: expect.stringMatching(/default-background\.jpg$/),
             position: 'center center',
             repeat: 'no-repeat',
             size: 'cover',
@@ -391,8 +391,7 @@ describe('createRootComponent', () => {
         $appearance: {
           background: {
             attachment: 'fixed',
-            image:
-              'file:///Users/shannon.hochkins/Documents/dev/hakit/packages/editor/src/features/dashboard/Editor/createRootComponent/default-background.jpg',
+            image: expect.stringMatching(/default-background\.jpg$/),
             position: 'center center',
             repeat: 'no-repeat',
             size: 'cover',
@@ -788,8 +787,7 @@ describe('createRootComponent', () => {
             filterContrast: 1,
             filterGrayscale: 0,
             filterSaturate: 1,
-            image:
-              'file:///Users/shannon.hochkins/Documents/dev/hakit/packages/editor/src/features/dashboard/Editor/createRootComponent/default-background.jpg',
+            image: expect.stringMatching(/default-background\.jpg$/),
             overlayColor: 'var(--clr-primary-a10)',
             overlayOpacity: 0.9,
             position: 'center center',
@@ -1128,10 +1126,7 @@ describe('createRootComponent', () => {
     // Verify ALL background field defaults match defaultRootConfig exactly
     expect(backgroundDefaults).not.toHaveProperty('test');
     expect(backgroundDefaults).toHaveProperty('useImage', true);
-    expect(backgroundDefaults).toHaveProperty(
-      'image',
-      'file:///Users/shannon.hochkins/Documents/dev/hakit/packages/editor/src/features/dashboard/Editor/createRootComponent/default-background.jpg'
-    );
+    expect(backgroundDefaults).toHaveProperty('image', expect.stringMatching(/default-background\.jpg$/));
     expect(backgroundDefaults).toHaveProperty('size', 'cover');
     expect(backgroundDefaults).toHaveProperty('sizeCustom', '');
     expect(backgroundDefaults).toHaveProperty('position', 'center center');
