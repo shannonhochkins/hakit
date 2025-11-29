@@ -118,7 +118,7 @@
 .fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_'])) {
   border: 0;
 }
-.fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_']) > fieldset) {
+.fieldWrapper :global([class*='_ObjectField_']:has([class*='__CollapsibleFieldWrapper']) > fieldset) {
   padding: 0;
 }
 .fieldWrapper :global([class*="_ObjectField-fieldset"] > [class*="_InputWrapper_"] > fieldset:not([class*='field-object'])) {
@@ -142,9 +142,6 @@
 
 .fieldWrapper :global([class*='_ObjectField_'] [class*='_ObjectField_']) {
   border: 0;
-}
-.fieldWrapper :global(.field-object:has([class*='_ObjectField_'])) {
-  border-top: 1px solid var(--clr-surface-a50);
 }
 .fieldWrapper :global([class*='_ArrayFieldItem_']) {
   margin-top: 1px;

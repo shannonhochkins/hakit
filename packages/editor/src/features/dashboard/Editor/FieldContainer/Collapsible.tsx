@@ -156,12 +156,15 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
           <HelperText helperText={field.description} />
         </Row>
       )}
+
       <AutoHeight isOpen={isExpanded} duration={300} renderChildren>
-        <FieldWrapper className='hakit-field-wrapper'>
-          <div className={getClassName('fieldInput')}>
-            <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} fieldLabel={field.label} />
-          </div>
-        </FieldWrapper>
+        {isExpanded && (
+          <FieldWrapper className='hakit-field-wrapper'>
+            <div className={getClassName('fieldInput')}>
+              <CustomAutoField field={field} name={name} onChange={onChange} value={value} id={id} icon={_icon} fieldLabel={field.label} />
+            </div>
+          </FieldWrapper>
+        )}
       </AutoHeight>
     </Fieldset>
   );

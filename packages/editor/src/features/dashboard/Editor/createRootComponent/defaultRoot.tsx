@@ -7,13 +7,12 @@ import { Typography } from '../Typography';
 // import { processPropsWithInternalFields } from '../createPuckComponent';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
+
 export interface InternalFieldsBackgroundProps {
   $appearance: {
     background: {
-      /** overlay color drawn over the image (supports gradients/alpha) */
-      overlayColor: string;
-      /** the opacity of the background overlay color @default 0.9 */
-      overlayOpacity: number;
+      useImage: boolean;
+      image: string | undefined;
       /** blend mode for the background image and color */
       blendMode:
         | 'normal'
@@ -51,26 +50,26 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
     extend: {
       $appearance: {
         background: {
-          overlayColor: {
-            type: 'color',
-            label: 'Overlay Color',
-            description: 'Background color or gradient. If an image is enabled, this tints the image; otherwise it becomes the background.',
-            default: 'var(--clr-primary-a10)',
+          useImage: {
+            type: 'switch',
+            label: 'Use Background Image',
+            description: 'Enable to display a background image on the page.',
+            default: false,
           },
-          overlayOpacity: {
-            type: 'number',
-            label: 'Overlay Opacity',
-            description: 'Opacity applied to the overlay color',
-            default: 0.9,
-            min: 0,
-            max: 1,
-            step: 0.1,
+          image: {
+            type: 'imageUpload',
+            label: 'Background Image',
+            description: 'Image to display as the page background.',
+            default: undefined,
+            visible(data) {
+              return data.$appearance?.background?.useImage === true;
+            },
           },
           blendMode: {
             type: 'select',
             label: 'Image & Color Blend Mode',
             description:
-              'Choose how the background image and color are blended together. Useful for overlay effects and creative backgrounds.',
+              'Choose how the background image and background color are blended together. Useful for tinting effects and creative backgrounds.',
             default: 'multiply',
             options: [
               { label: 'Normal', value: 'normal' },
@@ -90,13 +89,9 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
               { label: 'Color', value: 'color' },
               { label: 'Luminosity', value: 'luminosity' },
             ],
-          },
-          useAdvancedFilters: {
-            type: 'switch',
-            label: 'Enable Image Filters',
-            description:
-              'Turn on to adjust the background image with advanced filters like brightness, contrast, saturation, and grayscale.',
-            default: false,
+            visible(data) {
+              return data.$appearance?.background?.useImage === true;
+            },
           },
           filterBlur: {
             type: 'number',
@@ -104,6 +99,19 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             min: 0,
             description: 'Apply a blur effect to the background, higher values create a stronger blur.',
             default: 25,
+            visible(data) {
+              return data.$appearance?.background?.useImage === true;
+            },
+          },
+          useAdvancedFilters: {
+            type: 'switch',
+            label: 'Enable Image Filters',
+            description:
+              'Turn on to adjust the background image with advanced filters like brightness, contrast, saturation, and grayscale.',
+            default: false,
+            visible(data) {
+              return data.$appearance?.background?.useImage === true;
+            },
           },
           filterBrightness: {
             type: 'number',
@@ -114,7 +122,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters || false;
+              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
             },
           },
           filterContrast: {
@@ -126,7 +134,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters ?? false;
+              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
             },
           },
           filterSaturate: {
@@ -138,7 +146,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters ?? false;
+              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
             },
           },
           filterGrayscale: {
@@ -150,9 +158,17 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 1,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters ?? false;
+              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
             },
           },
+        },
+      },
+    },
+    omit: {
+      $appearance: {
+        background: {
+          useImage: true,
+          image: true,
         },
       },
     },
@@ -190,43 +206,53 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
       }
     }
 
+    // Build background-image: just the image (backgroundColor is handled separately via background-color)
+    const blendMode = props.$appearance?.background?.blendMode || 'normal';
+    const hasImage = props.$appearance?.background?.useImage && props.$appearance?.background?.image;
+    const backgroundColor = props.$appearance?.background?.color;
+    const attachment = props.$appearance?.background?.attachment || 'fixed';
+
+    // Use CSS variable for background image (set by generateCssForInternalProps)
+    const backgroundImage = hasImage ? 'var(--ha-background-image)' : 'none';
+
+    // Apply blend-mode when we have both background color and image
+    // background-color and background-image will blend together
+    const backgroundBlendMode = backgroundColor && hasImage ? `background-blend-mode: ${blendMode};` : '';
+
+    // Set position based on background-attachment:
+    // - fixed: use position: fixed (stays in viewport)
+    // - scroll/local: use position: absolute (scrolls with content)
+    const pseudoElementPosition = attachment === 'fixed' ? 'fixed' : 'absolute';
+
     return `
       ${properties}
       :root {
         ${sharedCss}
       }
-      /* Root Component Styles */
-      .root-component {
-        position: absolute !important;
+      /* Root Component Styles - Background attached to body */
+      /* Use body::before pseudo-element so filters don't affect body content */
+      body {
+        position: relative;
+        /* Ensure body content is above the background */
+        isolation: isolate;
+        /* Ensure body has minimum height for background coverage */
+        min-height: 100vh;
+      }
+
+      body::before {
+        content: '';
+        position: ${pseudoElementPosition};
         inset: 0;
         z-index: -1;
         pointer-events: none;
-      }
-
-      .root-component-background {
-        width: 100%;
-        height: 100%;
         background-color: var(--ha-background-color);
         background-position: var(--ha-background-position);
         background-repeat: var(--ha-background-repeat);
         background-size: var(--ha-background-size);
-        background-image: var(--ha-background-image);
-        background-attachment: var(--ha-background-attachment);
+        background-image: ${backgroundImage};
+        ${pseudoElementPosition === 'fixed' ? 'background-attachment: var(--ha-background-attachment);' : 'background-attachment: scroll;'}
+        ${backgroundBlendMode}
         filter: ${filterParts.join(' ')};
-        overflow: hidden;
-      }
-
-      .root-component-background:after {
-        content: none;
-      }
-
-      .root-component-background:before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: ${props.$appearance?.background?.overlayColor || 'transparent'};
-        opacity: ${props.$appearance?.background?.overlayOpacity || 0};
-        mix-blend-mode: ${props.$appearance?.background?.blendMode || 'normal'};
       }
 
       /* ============================================
@@ -429,9 +455,6 @@ function Render(props: RenderProps<DefaultComponentProps>) {
   return (
     <>
       <Typography typography={props.$appearance?.typography} type='root' />
-      <div className='root-component' id={props.id}>
-        <div className='root-component-background'></div>
-      </div>
     </>
   );
 }

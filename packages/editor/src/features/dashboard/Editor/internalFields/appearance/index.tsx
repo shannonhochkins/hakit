@@ -35,7 +35,7 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
             type: 'color',
             label: 'Background Color',
             description: type === 'root' ? 'Base color for the page background.' : 'Base color for the background.',
-            default: type === 'root' ? 'var(--clr-surface-a0)' : undefined,
+            default: type === 'root' ? 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)' : undefined,
           },
           useImage: {
             type: 'switch',
