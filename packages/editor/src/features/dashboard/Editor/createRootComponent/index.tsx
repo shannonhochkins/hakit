@@ -1,4 +1,4 @@
-import type { AdditionalRenderProps, ComponentFactoryData, RenderProps, InternalRootData } from '@typings/puck';
+import type { AdditionalRenderProps, ComponentFactoryData, InternalRootData } from '@typings/puck';
 import { Fragment, useMemo, memo } from 'react';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
@@ -14,7 +14,7 @@ import { attachAddonReference } from '@helpers/editor/pageData/attachAddonRefere
 import { dbValueToPuck } from '@helpers/editor/pageData/dbValueToPuck';
 import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 import isEqual from '@guanghechen/fast-deep-equal';
-import { generateCssForInternalProps } from '@helpers/editor/generateCssForInternalProps';
+import { processComponentStyles } from '@features/dashboard/Editor/createPuckComponent/helpers/processComponentStyles';
 
 // Define explicit props type to help retain generics through memo
 // For root components, we use InternalRootComponentFields (no $interactions)
@@ -243,9 +243,10 @@ function Render<P extends DefaultComponentProps, ExtendedInternalFields extends 
   const activeBreakpoint = useGlobalStore(state => state.activeBreakpoint);
   // now, as the data has all the breakpoint data, we need to convert it to the active breakpoint
   // this will flatten the breakpoint data to only contain the active breakpoint data
-  const currentBreakpointProps = dbValueToPuck(renderProps, activeBreakpoint) as RenderProps<
-    InternalRootData & InternalRootComponentFields
-  >;
+  const currentBreakpointProps = useMemo(() => {
+    return dbValueToPuck(renderProps, activeBreakpoint ?? 'xlg') as typeof renderProps;
+  }, [renderProps, activeBreakpoint]);
+
   const editorElements = usePuckIframeElements();
   const processedProps = currentBreakpointProps;
   const { id, $styles } = processedProps;
@@ -262,51 +263,20 @@ function Render<P extends DefaultComponentProps, ExtendedInternalFields extends 
     };
     const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
 
-    // Generate CSS for internal fields (appearance, layout, typography, theme)
-    const { cssVariables, cssStyles: internalCssStyles } = generateCssForInternalProps(propsForThisRoot, 'root');
-
     // Get component-specific styles if provided
     const componentStyles = rootConfig.styles
       ? // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
         rootConfig.styles(propsForThisRoot)
-      : '';
+      : undefined;
 
-    // Combine all styles: CSS variables, internal CSS styles, and component-specific styles
-    // For root, we need to wrap CSS variables in :root selector
-    const stylesArray: string[] = [];
+    // Process all styles using unified helper
+    const styles = processComponentStyles({
+      props: propsForThisRoot,
+      type: 'root',
+      componentStyles: componentStyles,
+    });
 
-    if (cssVariables && typeof cssVariables === 'object') {
-      const cssVarsString = Object.entries(cssVariables)
-        .map(([key, value]) => `  ${key}: ${value};`)
-        .join('\n');
-      if (cssVarsString) {
-        stylesArray.push(`:root {\n${cssVarsString}\n}`);
-      }
-    }
-
-    if (internalCssStyles && typeof internalCssStyles === 'object' && !Array.isArray(internalCssStyles)) {
-      // Convert CSS object to string for root styles
-      const cssStylesString = Object.entries(internalCssStyles)
-        .map(([key, value]) => {
-          const cssKey = String(key)
-            .replace(/([A-Z])/g, '-$1')
-            .toLowerCase();
-          const cssValue = typeof value === 'string' ? value : String(value);
-          return `  ${cssKey}: ${cssValue};`;
-        })
-        .join('\n');
-      if (cssStylesString) {
-        stylesArray.push(cssStylesString);
-      }
-    } else if (typeof internalCssStyles === 'string') {
-      stylesArray.push(internalCssStyles);
-    }
-
-    if (componentStyles) {
-      stylesArray.push(typeof componentStyles === 'string' ? componentStyles : '');
-    }
-
-    return stylesArray.filter(Boolean).join('\n');
+    return styles || '';
   });
 
   const propsForRootMap = useMemo(() => {

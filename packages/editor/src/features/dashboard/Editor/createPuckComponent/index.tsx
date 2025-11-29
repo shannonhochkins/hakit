@@ -3,8 +3,7 @@ import { useGlobalStore } from '@hooks/useGlobalStore';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, RenderProps } from '@typings/puck';
 import { useMemo, memo } from 'react';
-import { attachPropsToElement } from './attachPropsToElement';
-import { generateEmotionCss, getSerializedStyles } from './generateEmotionCss';
+import { attachPropsToElement } from './helpers/attachPropsToElement';
 import { FieldConfiguration, InternalComponentFields } from '@typings/fields';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { internalComponentFields, internalRootComponentFields } from '@features/dashboard/Editor/internalFields';
@@ -17,11 +16,10 @@ import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@ha
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
 import { usePopupStore } from '@hooks/usePopupStore';
-import { generateCssForInternalProps } from '@helpers/editor/generateCssForInternalProps';
+import { processComponentStyles } from '@features/dashboard/Editor/createPuckComponent/helpers/processComponentStyles';
 import isEqual from '@guanghechen/fast-deep-equal';
 import { DeepPartial } from '@typings/utils';
-import { processInternalFields } from './processInternalFields';
-import { type CSSInterpolation } from '@emotion/serialize';
+import { processInternalFields } from './helpers/processInternalFields';
 import { Typography } from '../Typography';
 
 /**
@@ -307,7 +305,6 @@ function Render<
 
   const { id, ...props } = currentBreakpointProps;
 
-  // Note: We no longer need to process props here because:
   // - Omit is handled in processInternalFields (fields are removed from config)
   // - Defaults are handled in processInternalFields (default values updated in field config)
   // - getDefaultPropsFromFields already uses the processed field configuration
@@ -350,43 +347,26 @@ function Render<
       ...props,
       ...renderProps,
     };
-    // Generate CSS for internal fields (appearance, layout, typography, theme)
-    const { cssVariables, cssStyles: internalCssStyles } = generateCssForInternalProps(obj, 'component');
 
-    // Generate style strings for emotion CSS processing in iframe context
-    // Render is only for components, so IsRoot is always false/undefined, meaning InternalComponentFields
+    // Get component-specific styles if provided
     // The styles function receives simplified types (UnitFieldValue -> string) to avoid union explosion
     // Cast obj to match the expected type signature of config.styles (via unknown to avoid type checking issues)
-    const componentStyles = config.styles ? config.styles(obj as unknown as Parameters<typeof config.styles>[0]) : '';
+    const componentStyles = config.styles ? config.styles(obj as unknown as Parameters<typeof config.styles>[0]) : undefined;
     // eslint-disable-next-line react/prop-types -- $styles is a TypeScript-typed internal field
-    const overrideStyles = typeof props.$styles?.css === 'string' ? props.$styles.css : '';
+    const overrideStyles = typeof props.$styles?.css === 'string' ? props.$styles.css : undefined;
 
-    // Build array of CSS objects for emotion
-    const componentStylesArray: CSSInterpolation[] = [];
-    if (cssVariables) componentStylesArray.push(cssVariables);
-    if (internalCssStyles) componentStylesArray.push(internalCssStyles);
-    if (componentStyles) {
-      // componentStyles might be a string or CSSInterpolation
-      const serialized = getSerializedStyles(componentStyles);
-      if (serialized) {
-        componentStylesArray.push(serialized);
-      } else if (typeof componentStyles === 'string') {
-        componentStylesArray.push(componentStyles);
-      } else {
-        componentStylesArray.push(componentStyles);
-      }
-    }
-
-    // Generate emotion CSS in iframe context where correct cache is active
-    const emotionCss = generateEmotionCss({
-      componentStyles: componentStylesArray,
+    // Process all styles using unified helper
+    const styles = processComponentStyles({
+      props: obj,
+      type: 'component',
+      componentStyles,
       overrideStyles,
-      preSerializedStyles: getSerializedStyles(componentStyles),
     });
-    if (emotionCss) {
+
+    if (styles) {
       // Attach serialized styles under a dedicated key
-      // @ts-expect-error - emotionCss is SerializedStyles which is compatible but TypeScript can't infer the complex union type
-      obj.css = emotionCss;
+      // @ts-expect-error - styles is SerializedStyles which is compatible but TypeScript can't infer the complex union type
+      obj.css = styles;
     }
     return obj;
   }, [props, id, dragRef, isEditing, config, editorElements]);

@@ -121,8 +121,9 @@ function ExtractCurrentTheme({ onChange }: { onChange: (theme: InternalComponent
       const crumb = breadcrumbs[i];
       const isRoot = crumb.id === 'root';
       const item = crumb.selector ? getItemBySelector(crumb.selector) : null;
-      if (isRoot) {
-        onChange((appState.data.root.props as InternalComponentFields).$appearance.theme);
+      const appStateValue = (appState.data.root.props as InternalComponentFields).$appearance.theme;
+      if (isRoot && appStateValue) {
+        onChange(appStateValue);
         break;
       } else if (item?.props.$appearance.theme.override) {
         // if the current component has "override" set to true, use it's theme, else keep going

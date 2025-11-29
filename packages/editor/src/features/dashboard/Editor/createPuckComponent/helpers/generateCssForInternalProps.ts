@@ -1,15 +1,14 @@
 import { generateColorSwatches } from '@helpers/color';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
 import { InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
-import { type CSSInterpolation } from '@emotion/serialize';
 import { fontFamilyMap } from '@features/dashboard/Editor/Typography';
 
 type InternalFields = InternalComponentFields | InternalRootComponentFields;
 type ComponentType = 'component' | 'root';
 
 export interface GenerateCssForInternalPropsResult {
-  cssVariables: CSSInterpolation;
-  cssStyles: CSSInterpolation;
+  cssVariables: Record<string, string> | undefined;
+  cssStyles: Record<string, string | number> | undefined;
 }
 
 /**
