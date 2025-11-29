@@ -57,7 +57,8 @@ type InternalDataOverride = {
 export function extendPuckDataWithDefaults<
   Props extends DefaultComponentProps = DefaultComponentProps,
   RootProps extends DefaultComponentProps = DefaultComponentProps,
->(inputData: PuckPageData, userConfig: CustomPuckConfig<Props, RootProps>): PuckPageData {
+  IsRoot extends boolean | undefined = undefined,
+>(inputData: PuckPageData, userConfig: CustomPuckConfig<Props, RootProps, IsRoot>): PuckPageData {
   const defaultProps = userConfig.root?.defaultProps;
   const data = inputData as InternalDataOverride;
 

@@ -1,6 +1,7 @@
 import type { EntityName, FilterByDomain } from '@hakit/core';
 import { PuckContext } from '@measured/puck';
-import { CustomComponentConfig } from '@typings/puck';
+import { UnitFieldValue } from '@typings/fields';
+import { CustomComponentConfig, CustomRootComponentConfig, RenderProps } from '@typings/puck';
 export interface NavigationProps {
   options: {
     hideClock?: boolean;
@@ -180,5 +181,70 @@ export const definition: CustomComponentConfig<NavigationProps> = {
   permissions: { delete: true, drag: true, duplicate: false },
   render({ puck, options, clockOptions }) {
     return <NavigationBar clockOptions={clockOptions} options={options} ref={puck.dragRef} />;
+  },
+};
+
+type Props = {
+  margin: UnitFieldValue;
+};
+
+export const testRootConfigWithRenderProps: CustomRootComponentConfig<Props> = {
+  label: 'Default Root',
+  rootConfiguration: true,
+  internalFields: {
+    omit: {
+      $appearance: {
+        typography: false,
+      },
+    },
+  },
+  fields: {
+    margin: {
+      type: 'unit',
+      label: 'Margin',
+      description: 'The margin of the root component',
+      default: '0px',
+    },
+  },
+  render: Render,
+};
+
+function Render(props: RenderProps<Props, undefined, true>) {
+  const { $appearance } = props;
+
+  // @ts-expect-error - internal fields are deep partial, so this should error
+  return <div>{$appearance.typography.fontFamily || 'inherit'}</div>;
+}
+
+export const testRootConfigWithoutRenderProps: CustomRootComponentConfig<Props> = {
+  label: 'Test Root Without Render Props',
+  rootConfiguration: true,
+  internalFields: {
+    omit: {
+      $appearance: {
+        typography: false,
+      },
+    },
+  },
+  fields: {
+    margin: {
+      type: 'unit',
+      label: 'Margin',
+      description: 'The margin of the root component',
+      default: '0px',
+    },
+  },
+  styles(props) {
+    // @ts-expect-error - internal fields are deep partial, so this should error
+    const fontFamily = props.$appearance.typography.fontFamily || 'inherit';
+    return `
+      margin: ${props.margin};
+      font-family: ${fontFamily};
+    `;
+  },
+  render(props) {
+    const { $appearance } = props;
+    // @ts-expect-error - internal fields are deep partial, so this should error
+    return <div>{$appearance.typography.fontFamily}</div>;
   },
 };

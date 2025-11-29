@@ -7,21 +7,32 @@ import { getUserAddons } from '@services/addons';
 import { MfManifest } from '@server/routes/addons/validate-zip';
 import { createRootComponent } from '@features/dashboard/Editor/createRootComponent';
 // import the internal components
-import { popupComponentConfig } from '@features/dashboard/Editor/InternalComponents/Popup';
-import { containerComponentConfig } from '@features/dashboard/Editor/InternalComponents/Container';
-import { buttonComponentConfig } from '../Editor/InternalComponents/Button';
-import { cardComponentConfig } from '../Editor/InternalComponents/Card';
+import { popupComponentConfig, PopupProps } from '@features/dashboard/Editor/InternalComponents/Popup';
+import { containerComponentConfig, ContainerProps } from '@features/dashboard/Editor/InternalComponents/Container';
+import { buttonComponentConfig, ButtonProps } from '../Editor/InternalComponents/Button';
+import { cardComponentConfig, CardProps } from '../Editor/InternalComponents/Card';
 
-import { iconButtonComponentConfig } from '../Editor/InternalComponents/IconButton';
+import { iconButtonComponentConfig, IconButtonProps } from '../Editor/InternalComponents/IconButton';
 import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
 import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 import { toast } from 'react-toastify';
+
+// Union type of all internal component configs
+type InternalComponentConfig =
+  | CustomComponentConfig<PopupProps>
+  | CustomComponentConfig<ContainerProps>
+  | CustomComponentConfig<CardProps>
+  | CustomComponentConfig<ButtonProps>
+  | CustomComponentConfig<IconButtonProps>;
 
 interface ComponentModule {
   config: CustomPuckComponentConfig<DefaultComponentProps>;
 }
 
-export type CustomRootConfigWithRemote<P extends DefaultComponentProps = DefaultComponentProps> = CustomPuckComponentConfig<P> & {
+export type CustomRootConfigWithRemote<
+  P extends DefaultComponentProps = DefaultComponentProps,
+  ExtendedInternalFields extends object | undefined = undefined,
+> = CustomPuckComponentConfig<P, ExtendedInternalFields, true> & {
   _remoteAddonId: string; // remote id for tracking
   _remoteAddonName: string; // remote name for tracking
 };
@@ -248,7 +259,7 @@ async function buildRemoteWithDbFallback(userAddon: UserAddon, manifestCache: Ma
   };
 }
 
-async function processComponent<P extends object>({
+async function processComponent({
   config,
   components,
   remote,
@@ -256,7 +267,7 @@ async function processComponent<P extends object>({
   categories,
   visible,
 }: {
-  config: CustomComponentConfig<P>;
+  config: InternalComponentConfig;
   components: Record<string, CustomPuckComponentConfig<DefaultComponentProps>>;
   remote: RemoteWithAddonId;
   data: ComponentFactoryData;
@@ -264,7 +275,8 @@ async function processComponent<P extends object>({
   visible?: boolean;
 }) {
   // create the puck definitions
-  const componentFactory = await createComponent(config);
+  // TypeScript can't narrow the union type, but createComponent works with any CustomComponentConfig at runtime
+  const componentFactory = await createComponent(config as unknown as CustomComponentConfig<DefaultComponentProps>);
   // use our component factory to convert out component structure to a puck component
   const componentConfig = await componentFactory(data);
   // it's the same reference to the same element, but just to make puck happy we'll create a new object
@@ -406,14 +418,17 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
       if (isRootComponent) {
         // for now, we just capture the rootConfigs as we need to render them under one root
         // we need to restructure them to support this
+        // Type assertion: we know this is a root config because isRootComponent is true
+        // The render function will be updated by createRootComponent to use InternalRootComponentFields
         rootConfigs.push({
           ...component.config,
           _remoteAddonName: remote.name, // track which remote this came from
           _remoteAddonId: remote.addonId, // track which remote this came from
-        });
+        } as unknown as CustomRootConfigWithRemote<DefaultComponentProps, undefined>);
       } else {
         processComponent({
-          config: component.config,
+          // component.config is CustomPuckComponentConfig<DefaultComponentProps>, which is compatible with InternalComponentConfig
+          config: component.config as unknown as InternalComponentConfig,
           components,
           remote,
           data,
@@ -426,9 +441,7 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
   const internalComponents: {
     remote: RemoteWithAddonId;
     configs: {
-      // we just want it to expect any component config, this is fine here
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      config: CustomComponentConfig<any>;
+      config: InternalComponentConfig;
       /**
        * Whether the component is hidden from the UI (invisible component)
        */

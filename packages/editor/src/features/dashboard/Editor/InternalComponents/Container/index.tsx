@@ -27,7 +27,7 @@ import { Column, Row } from '@components/Layout';
  * Types & helpers
  * ======================= */
 export type ContainerProps = {
-  appearance: {
+  layout: {
     flex: {
       direction: 'row' | 'column' | 'row-reverse' | 'column-reverse';
       alignItems: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
@@ -39,11 +39,6 @@ export type ContainerProps = {
       grow: boolean; // grow to fill available space
       shrink: boolean; // allow shrinking smaller than content
     };
-    width: UnitFieldValue;
-    height: UnitFieldValue;
-    backgroundColor?: string;
-    padding: UnitFieldValue; // supports corners
-    margin: UnitFieldValue; // supports corners
   };
   /** Location for sub components */
   content: Slot;
@@ -128,9 +123,9 @@ const renderOptionFactory = (axis: Axis) => (option: { label: string; value: str
 export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
   label: 'Container',
   fields: {
-    appearance: {
+    layout: {
       type: 'object',
-      label: 'Appearance',
+      label: 'Layout',
       objectFields: {
         flex: {
           type: 'custom',
@@ -285,43 +280,6 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
             },
           },
         },
-
-        backgroundColor: {
-          type: 'color',
-          label: 'Background Color',
-          description: 'Background color or gradient of the container',
-          default: 'transparent',
-        },
-
-        width: {
-          type: 'unit',
-          label: 'Width',
-          description: 'Width of the container',
-          default: 'auto',
-        },
-
-        height: {
-          type: 'unit',
-          label: 'Height',
-          description: 'Height of the container',
-          default: 'auto',
-        },
-
-        padding: {
-          type: 'unit',
-          label: 'Padding',
-          description: 'Padding inside the container around the content area',
-          default: '1rem',
-          supportsAllCorners: true,
-        },
-
-        margin: {
-          type: 'unit',
-          label: 'Margin',
-          description: 'Margin outside the container',
-          default: '0rem',
-          supportsAllCorners: true,
-        },
       },
     },
 
@@ -338,27 +296,22 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
 
   styles(props) {
     return `
-      padding: ${props.appearance.padding};
-      margin: ${props.appearance.margin};
-      width: ${props.appearance.width};
-      height: ${props.appearance.height};
-      max-width: 100%;
+      max-width: fit-content;
       min-width: 0px;
       position: relative;
-      background: ${props.appearance.backgroundColor ?? 'transparent'};
       
       > .Container-content {
         display: flex;
         min-width: 0;
         max-width: 100%;
-        gap: ${props.appearance.gap};
-        flex-direction: ${props.appearance.flex.direction};
-        align-items: ${props.appearance.flex.alignItems};
-        justify-content: ${props.appearance.flex.justifyContent};
-        flex-wrap: ${props.appearance.flexWrap};
-        flex-shrink: ${props.appearance.additionalLayout?.shrink ? 1 : 0};
-        flex-grow: ${props.appearance.additionalLayout?.grow ? 1 : 0};
-        ${props.appearance.additionalLayout?.grow ? 'flex-grow: 1; place-self: stretch;' : ''}
+        gap: ${props.layout.gap};
+        flex-direction: ${props.layout.flex.direction};
+        align-items: ${props.layout.flex.alignItems};
+        justify-content: ${props.layout.flex.justifyContent};
+        flex-wrap: ${props.layout.flexWrap};
+        flex-shrink: ${props.layout.additionalLayout?.shrink ? 1 : 0};
+        flex-grow: ${props.layout.additionalLayout?.grow ? 1 : 0};
+        ${props.layout.additionalLayout?.grow ? 'flex-grow: 1; place-self: stretch;' : ''}
       }
     `;
   },

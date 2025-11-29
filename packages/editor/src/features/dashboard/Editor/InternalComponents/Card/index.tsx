@@ -8,11 +8,6 @@ import { LiquidGlass } from './LiquidGlass';
  * ======================= */
 export type CardProps = {
   appearance: {
-    backgroundColor: string;
-    padding: UnitFieldValue;
-    margin: UnitFieldValue;
-    width: UnitFieldValue;
-    height: UnitFieldValue;
     borderRadius: UnitFieldValue;
     backgroundType: 'color' | 'glass' | 'liquid-glass';
 
@@ -56,15 +51,6 @@ export const cardComponentConfig: CustomComponentConfig<CardProps> = {
             { label: 'Liquid Glass', value: 'liquid-glass', description: 'Only works in Google Chrome' },
           ],
           default: 'color',
-        },
-        backgroundColor: {
-          type: 'color',
-          label: 'Background Color',
-          description: 'Background color or gradient of the card',
-          default: 'linear-gradient(180deg, var(--clr-surface-a0) 0%, var(--clr-surface-a30) 100%)',
-          visible(props) {
-            return props.appearance.backgroundType === 'color';
-          },
         },
         glassColor: {
           type: 'color',
@@ -210,32 +196,6 @@ export const cardComponentConfig: CustomComponentConfig<CardProps> = {
             return props.appearance.boxShadowEnabled !== false;
           },
         },
-        padding: {
-          type: 'unit',
-          label: 'Padding',
-          description: 'Padding inside the card around the content area',
-          default: '1rem',
-          supportsAllCorners: true,
-        },
-        width: {
-          type: 'unit',
-          label: 'Width',
-          description: 'Width of the card',
-          default: 'auto',
-        },
-        height: {
-          type: 'unit',
-          label: 'Height',
-          description: 'Height of the card',
-          default: 'auto',
-        },
-        margin: {
-          type: 'unit',
-          label: 'Margin',
-          description: 'Margin outside the card',
-          default: '0rem',
-          supportsAllCorners: true,
-        },
         borderRadius: {
           type: 'unit',
           label: 'Border Radius',
@@ -259,7 +219,6 @@ export const cardComponentConfig: CustomComponentConfig<CardProps> = {
   autoWrapComponent: false,
 
   styles(props) {
-    const isColorBackground = props.appearance.backgroundType === 'color';
     const isGlassBackground = props.appearance.backgroundType === 'glass';
     const isLiquidGlassBackground = props.appearance.backgroundType === 'liquid-glass';
     const boxShadow =
@@ -268,23 +227,11 @@ export const cardComponentConfig: CustomComponentConfig<CardProps> = {
         : '';
     const baseStyles = `
       position: relative;
-      padding: ${props.appearance.padding};
-      margin: ${props.appearance.margin};
-      width: ${props.appearance.width};
-      height: ${props.appearance.height};
-      max-width: 100%;
-      min-width: 0px;
       border-radius: ${props.appearance.borderRadius};
       overflow: hidden;
       ${boxShadow}
     `;
 
-    if (isColorBackground) {
-      return `
-        ${baseStyles}
-        background: ${props.appearance.backgroundColor};
-      `;
-    }
     if (isGlassBackground) {
       const glassColor = props.appearance.glassColor || 'rgba(255, 255, 255, 0.2)';
 

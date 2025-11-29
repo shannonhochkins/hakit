@@ -1,6 +1,5 @@
 import type {
   DefaultComponentProps,
-  ComponentData,
   SlotField as PuckSlotField,
   CustomField as PuckCustomField,
   NumberField,
@@ -10,6 +9,7 @@ import type {
   ObjectField,
   TextField,
   SelectField as PuckSelectField,
+  ComponentData,
 } from '@measured/puck';
 import type { ReactNode } from 'react';
 import type { Slot } from './puck';
@@ -84,7 +84,7 @@ type ArrayFieldNode<Value, DataShape> = Value extends (infer Item)[]
   : never;
 
 // Final recursive shape
-type FieldFor<Value, DataShape> =
+export type FieldFor<Value, DataShape> =
   | (Value extends Slot ? SlotField : never)
   | LeafField<Value, DataShape>
   | ObjectFieldNode<Value, DataShape>
@@ -141,23 +141,76 @@ export type ThemeFields = {
     };
   };
 };
+
+export type BackgroundFields = {
+  /** whether to use a background image or not  */
+  useImage: boolean;
+  /** the background color to apply */
+  color: string;
+  /** the background image to apply */
+  image: string | undefined;
+  /** CSS background-size value or 'custom' to use backgroundSizeCustom */
+  size: 'cover' | 'contain' | 'auto' | 'custom';
+  /** custom CSS background-size when backgroundSize is 'custom' */
+  sizeCustom?: string;
+  /** CSS background-position, e.g. 'center center' */
+  position: string;
+  /** CSS background-repeat */
+  repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
+  /** CSS background-attachment */
+  attachment?: 'scroll' | 'fixed' | 'local';
+};
+
+export interface TypographyProps {
+  /** only used for components */
+  override: boolean;
+  /** Font family selection */
+  fontFamily: string;
+  /** Advanced typography options */
+  useAdvancedTypography: boolean;
+  /** Font weight for headings */
+  headingWeight: number;
+  /** Font weight for body text */
+  bodyWeight: number;
+  /** Base font size */
+  baseFontSize: UnitFieldValue;
+  /** Line height */
+  lineHeight: number;
+  /** Letter spacing */
+  letterSpacing: number;
+}
+
+export type SizeAndSpacingFields = {
+  width: UnitFieldValue;
+  height: UnitFieldValue;
+  padding: UnitFieldValue; // supports corners
+  margin: UnitFieldValue; // supports corners
+};
+
+export type AppearanceFields = {
+  background: BackgroundFields;
+  sizeAndSpacing: SizeAndSpacingFields;
+  typography: TypographyProps;
+  theme: ThemeFields;
+};
+
 export interface InternalComponentFields {
-  interactions: {
+  $appearance: AppearanceFields;
+  $interactions: {
     tap: Actions;
     hold: Actions & { holdDelay?: number };
     doubleTap: Actions & { doubleTapDelay?: number };
   };
-  styles: {
+  $styles: {
     css: string;
   };
-  theme: ThemeFields;
 }
 
 export interface InternalRootComponentFields {
   content: Slot;
   popupContent: Slot;
-  theme: ThemeFields;
-  styles: {
+  $appearance: AppearanceFields;
+  $styles: {
     css: string;
   };
 }
@@ -255,8 +308,8 @@ export type FieldDefinition = {
   textarea: TextareaField;
   select: Omit<PuckSelectField, 'options'> & {
     options: FieldOption[];
-    renderOption?: (option: FieldOption) => string;
-    renderValue?: (option: FieldOption) => string;
+    renderOption?: (option: FieldOption) => ReactNode;
+    renderValue?: (option: FieldOption) => ReactNode;
   };
   radio: RadioField;
   page: { type: 'page'; default: PageValue };

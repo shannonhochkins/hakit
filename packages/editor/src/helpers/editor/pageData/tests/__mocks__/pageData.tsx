@@ -1,5 +1,6 @@
 import { FilterByDomain } from '@hakit/core';
 import { EntityName } from '@hakit/core';
+import { DefaultComponentProps } from '@measured/puck';
 import { PageValue } from '@typings/fields';
 import { CustomPuckConfig, PuckPageData, Slot } from '@typings/puck';
 
@@ -150,9 +151,13 @@ export interface NavigationProps {
   };
 }
 
-export const userConfig: CustomPuckConfig<{
-  Navigation: NavigationProps;
-}> = {
+export const userConfig: CustomPuckConfig<
+  {
+    Navigation: NavigationProps;
+  },
+  DefaultComponentProps,
+  true
+> = {
   components: {
     Navigation: {
       label: 'Navigation',

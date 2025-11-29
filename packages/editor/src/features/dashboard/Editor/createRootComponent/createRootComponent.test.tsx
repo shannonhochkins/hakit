@@ -218,7 +218,8 @@ describe('createRootComponent', () => {
     // default root is merged at the top level, only external roots are scoped
     expect(result.fields!).not.toHaveProperty('@hakit/default-root');
 
-    expect(result.fields).toHaveProperty('background');
+    expect(result.fields).toHaveProperty('$appearance');
+    expect(result.fields!['$appearance'].type).toBe('object');
   });
 
   test('should merge fields from both default and provided rootConfigs', async () => {
@@ -251,6 +252,34 @@ describe('createRootComponent', () => {
     expect(result.fields).toBeDefined();
     // content is injected internally; assert its type property without forcing exact shape
     expect(result.fields!.content?.type).toBe('slot');
+  });
+
+  test('should only include internal root fields once and for the default config', async () => {
+    const result = await createRootComponent([mockRootConfig1, mockRootConfig2], mockComponentFactoryData);
+
+    expect(result.fields).toBeDefined();
+
+    // Internal fields should exist at the top level (from default root config)
+    expect(result.fields!['$appearance']).toBeDefined();
+    expect(result.fields!['$appearance'].type).toBe('object');
+    expect(result.fields!['$styles']).toBeDefined();
+    expect(result.fields!['$styles'].type).toBe('object');
+
+    // Second root config should be scoped under its addon ID
+    // @ts-expect-error - This does exist, just not typed intentionally
+    const testAddon2Field = result.fields!['test-addon-2'] as Record<string, unknown>;
+    expect(testAddon2Field).toBeDefined();
+    expect(testAddon2Field.type).toBe('object');
+    expect(testAddon2Field.objectFields).toBeDefined();
+
+    // Second root config should NOT have internal fields in its scoped object
+    const testAddon2ObjectFields = testAddon2Field.objectFields as Record<string, unknown>;
+    expect(testAddon2ObjectFields).not.toHaveProperty('$appearance');
+    expect(testAddon2ObjectFields).not.toHaveProperty('$styles');
+
+    // Second root config should only have its own fields
+    expect(testAddon2ObjectFields).toHaveProperty('testField2');
+    expect(testAddon2ObjectFields).toHaveProperty('sharedField');
   });
 
   test('should isolate props for each root config in render function', async () => {
@@ -289,22 +318,54 @@ describe('createRootComponent', () => {
     // Verify render functions were called
     expect(mockRootConfig1.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          background: {
+            attachment: 'fixed',
+            /// expect image to end with default-background.jps
+            image: expect.stringMatching(/default-background\.jpg$/),
+            position: 'center center',
+            repeat: 'no-repeat',
+            size: 'cover',
+            color: 'var(--clr-surface-a0)',
+            blendMode: 'multiply',
+            sizeCustom: '',
+            filterBlur: 25,
+            filterBrightness: 1,
+            filterContrast: 1,
+            filterSaturate: 1,
+            filterGrayscale: 0,
+            useAdvancedFilters: false,
+            overlayColor: 'var(--clr-primary-a10)',
+            overlayOpacity: 0.9,
+            useImage: true,
+          },
+          typography: {
+            override: true,
+            baseFontSize: '16px',
+            bodyWeight: 400,
+            fontFamily: 'roboto',
+            headingWeight: 600,
+            letterSpacing: 0,
+            lineHeight: 1.5,
+            useAdvancedTypography: false,
+          },
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',
@@ -327,22 +388,53 @@ describe('createRootComponent', () => {
 
     expect(mockRootConfig2.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          background: {
+            attachment: 'fixed',
+            image: expect.stringMatching(/default-background\.jpg$/),
+            position: 'center center',
+            repeat: 'no-repeat',
+            size: 'cover',
+            color: 'var(--clr-surface-a0)',
+            blendMode: 'multiply',
+            sizeCustom: '',
+            filterBlur: 25,
+            filterBrightness: 1,
+            filterContrast: 1,
+            filterSaturate: 1,
+            filterGrayscale: 0,
+            useAdvancedFilters: false,
+            overlayColor: 'var(--clr-primary-a10)',
+            overlayOpacity: 0.9,
+            useImage: true,
+          },
+          typography: {
+            override: true,
+            baseFontSize: '16px',
+            bodyWeight: 400,
+            fontFamily: 'roboto',
+            headingWeight: 600,
+            letterSpacing: 0,
+            lineHeight: 1.5,
+            useAdvancedTypography: false,
+          },
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',
@@ -416,7 +508,9 @@ describe('createRootComponent', () => {
     // content is a slot field injected internally, structure not statically typed
     expect(result.fields!.content?.type).toBe('slot');
     // should bind the internal default field
-    expect(result.fields!['theme']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
+    expect(result.fields!['$appearance'].type).toBe('object');
+    expect((result.fields.$appearance as Record<string, unknown>).objectFields).toHaveProperty('theme');
   });
 
   test('should bind internal field from the default Root and internal fields to the root config', async () => {
@@ -430,12 +524,12 @@ describe('createRootComponent', () => {
     expect(result.fields!.content?.type).toBe('slot');
     expect(result.fields!['popupContent']).toBeDefined();
     expect(result.fields!['popupContent'].type).toBe('slot');
-    expect(result.fields!['theme']).toBeDefined();
-    expect(result.fields!['styles']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
+    expect(result.fields!['$styles']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed at this level
-    expect(result.fields!['typography']).toBeDefined();
+    expect(result.fields!['$appearance']!['objectFields']!['typography']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed at this level
-    expect(result.fields!['background']).toBeDefined();
+    expect(result.fields!['$appearance']!['objectFields']!['background']).toBeDefined();
   });
 
   test('should not have _remoteAddonId in final config', async () => {
@@ -537,9 +631,9 @@ describe('createRootComponent', () => {
     const result = await createRootComponent([], mockComponentFactoryData);
 
     expect(result.fields).toBeDefined();
-    expect(result.fields!['theme']).toBeDefined();
+    expect(result.fields!['$appearance']).toBeDefined();
     // @ts-expect-error = We know this doesn't exist, just testing functionality
-    expect(result.fields!['theme'].addonId).toBeUndefined();
+    expect(result.fields!['$appearance'].addonId).toBeUndefined();
   });
 
   test('should attach addon reference to array fields', async () => {
@@ -683,22 +777,53 @@ describe('createRootComponent', () => {
     // Verify the render function was called with the correct props including slots
     expect(slotRootConfig.render).toHaveBeenCalledWith(
       expect.objectContaining({
-        theme: {
-          override: true,
-          colors: {
-            primary: 'rgb(27, 1, 204)',
-            surface: 'rgb(18, 18, 18)',
-            lightMode: false,
-            tonalityMix: 0.3,
-            semantics: {
-              success: '#22946E',
-              warning: '#A87A2A',
-              danger: '#9C2121',
-              info: '#21498A',
+        $appearance: {
+          background: {
+            attachment: 'fixed',
+            blendMode: 'multiply',
+            color: 'var(--clr-surface-a0)',
+            filterBlur: 25,
+            filterBrightness: 1,
+            filterContrast: 1,
+            filterGrayscale: 0,
+            filterSaturate: 1,
+            image: expect.stringMatching(/default-background\.jpg$/),
+            overlayColor: 'var(--clr-primary-a10)',
+            overlayOpacity: 0.9,
+            position: 'center center',
+            repeat: 'no-repeat',
+            size: 'cover',
+            sizeCustom: '',
+            useAdvancedFilters: false,
+            useImage: true,
+          },
+          typography: {
+            baseFontSize: '16px',
+            bodyWeight: 400,
+            fontFamily: 'roboto',
+            headingWeight: 600,
+            letterSpacing: 0,
+            lineHeight: 1.5,
+            override: true,
+            useAdvancedTypography: false,
+          },
+          theme: {
+            override: true,
+            colors: {
+              primary: 'rgb(27, 1, 204)',
+              surface: 'rgb(18, 18, 18)',
+              lightMode: false,
+              tonalityMix: 0.3,
+              semantics: {
+                success: '#22946E',
+                warning: '#A87A2A',
+                danger: '#9C2121',
+                info: '#21498A',
+              },
             },
           },
         },
-        styles: {
+        $styles: {
           css: '',
         },
         device: 'mobile',
@@ -732,21 +857,23 @@ describe('createRootComponent', () => {
 
     // Check default root config defaults
     expect(result.defaultProps).not.toHaveProperty('@hakit/default-root');
-    expect(result.defaultProps).toHaveProperty('background');
-    expect(result.defaultProps).toHaveProperty('typography');
+    expect(result.defaultProps.$appearance).toHaveProperty('background');
+    expect(result.defaultProps.$appearance).toHaveProperty('typography');
 
     // Check that background defaults are populated
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const backgroundDefaults = result.defaultProps.background;
-    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
+    const backgroundDefaults = result.defaultProps.$appearance.background;
+    expect(backgroundDefaults).toHaveProperty('useImage', true);
     expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
-    expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
     expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
-    expect(backgroundDefaults).toHaveProperty('blur', 25);
+    expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
+    expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
+    expect(backgroundDefaults).toHaveProperty('filterContrast', 1);
+    expect(backgroundDefaults).toHaveProperty('filterSaturate', 1);
+    expect(backgroundDefaults).toHaveProperty('filterGrayscale', 0);
+    expect(backgroundDefaults).toHaveProperty('useAdvancedFilters', false);
 
     // Check that typography defaults are populated
-    // @ts-expect-error - internal value does exist
-    const typographyDefaults = result.defaultProps.typography;
+    const typographyDefaults = result.defaultProps.$appearance.typography;
     expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
     expect(typographyDefaults).toHaveProperty('useAdvancedTypography', false);
     expect(typographyDefaults).toHaveProperty('headingWeight', 600);
@@ -989,25 +1116,24 @@ describe('createRootComponent', () => {
 
     // Check default root config defaults
     expect(result.defaultProps).not.toHaveProperty('@hakit/default-root');
-    expect(result.defaultProps).toHaveProperty('background');
-    expect(result.defaultProps).toHaveProperty('typography');
+    expect(result.defaultProps).toHaveProperty('$appearance');
+    expect(result.defaultProps).toHaveProperty('$appearance.typography');
+    expect(result.defaultProps).toHaveProperty('$appearance.background');
 
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const backgroundDefaults = result.defaultProps.background;
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const typographyDefaults = result.defaultProps.typography;
+    const backgroundDefaults = result.defaultProps.$appearance.background;
+    const typographyDefaults = result.defaultProps.$appearance.typography;
 
     // Verify ALL background field defaults match defaultRootConfig exactly
     expect(backgroundDefaults).not.toHaveProperty('test');
-    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
-    expect(backgroundDefaults).toHaveProperty('backgroundImage', undefined);
-    expect(backgroundDefaults).toHaveProperty('backgroundSize', 'cover');
-    expect(backgroundDefaults).toHaveProperty('backgroundSizeCustom', '');
-    expect(backgroundDefaults).toHaveProperty('backgroundPosition', 'center center');
-    expect(backgroundDefaults).toHaveProperty('backgroundRepeat', 'no-repeat');
+    expect(backgroundDefaults).toHaveProperty('useImage', true);
+    expect(backgroundDefaults).toHaveProperty('image', expect.stringMatching(/default-background\.jpg$/));
+    expect(backgroundDefaults).toHaveProperty('size', 'cover');
+    expect(backgroundDefaults).toHaveProperty('sizeCustom', '');
+    expect(backgroundDefaults).toHaveProperty('position', 'center center');
+    expect(backgroundDefaults).toHaveProperty('repeat', 'no-repeat');
     expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
-    expect(backgroundDefaults).toHaveProperty('overlayBlendMode', 'multiply');
-    expect(backgroundDefaults).toHaveProperty('blur', 25);
+    expect(backgroundDefaults).toHaveProperty('blendMode', 'multiply');
+    expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(backgroundDefaults).toHaveProperty('overlayOpacity', 0.9);
     expect(backgroundDefaults).toHaveProperty('useAdvancedFilters', false);
     expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
@@ -1033,15 +1159,13 @@ describe('createRootComponent', () => {
     expect(result.defaultProps).toBeDefined();
 
     // Verify default root config defaults are still correct
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const backgroundDefaults = result.defaultProps.background;
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const typographyDefaults = result.defaultProps.typography;
+    const backgroundDefaults = result.defaultProps.$appearance.background;
+    const typographyDefaults = result.defaultProps.$appearance.typography;
 
     // Verify defaultRootConfig defaults are preserved
-    expect(backgroundDefaults).toHaveProperty('useBackgroundImage', true);
+    expect(backgroundDefaults).toHaveProperty('useImage', true);
     expect(backgroundDefaults).toHaveProperty('overlayColor', 'var(--clr-primary-a10)');
-    expect(backgroundDefaults).toHaveProperty('blur', 25);
+    expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(typographyDefaults).toHaveProperty('fontFamily', 'roboto');
 
     // Verify custom config defaults are also present
@@ -1060,22 +1184,21 @@ describe('createRootComponent', () => {
     const defaultProps = result.defaultProps;
 
     // Verify the structure matches DefaultRootProps interface
-    expect(defaultProps).toHaveProperty('background');
-    expect(defaultProps).toHaveProperty('typography');
+    expect(defaultProps).toHaveProperty('$appearance.background');
+    expect(defaultProps).toHaveProperty('$appearance.typography');
 
     // Verify background structure matches BackgroundProps interface
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const background = defaultProps.background;
+    const background = defaultProps.$appearance.background;
     expect(background).not.toHaveProperty('test');
-    expect(background).toHaveProperty('useBackgroundImage');
-    expect(background).toHaveProperty('backgroundImage');
-    expect(background).toHaveProperty('backgroundSize');
-    expect(background).toHaveProperty('backgroundSizeCustom');
-    expect(background).toHaveProperty('backgroundPosition');
-    expect(background).toHaveProperty('backgroundRepeat');
+    expect(background).toHaveProperty('useImage');
+    expect(background).toHaveProperty('image');
+    expect(background).toHaveProperty('size');
+    expect(background).toHaveProperty('sizeCustom');
+    expect(background).toHaveProperty('position');
+    expect(background).toHaveProperty('repeat');
     expect(background).toHaveProperty('overlayColor');
-    expect(background).toHaveProperty('overlayBlendMode');
-    expect(background).toHaveProperty('blur');
+    expect(background).toHaveProperty('blendMode');
+    expect(background).toHaveProperty('filterBlur');
     expect(background).toHaveProperty('overlayOpacity');
     expect(background).toHaveProperty('useAdvancedFilters');
     expect(background).toHaveProperty('filterBrightness');
@@ -1084,8 +1207,7 @@ describe('createRootComponent', () => {
     expect(background).toHaveProperty('filterGrayscale');
 
     // Verify typography structure matches TypographyProps interface
-    // @ts-expect-error - defaultProps exists at runtime but not in type definition
-    const typography = defaultProps.typography;
+    const typography = defaultProps.$appearance.typography;
     expect(typography).toHaveProperty('fontFamily');
     expect(typography).toHaveProperty('useAdvancedTypography');
     expect(typography).toHaveProperty('headingWeight');

@@ -3,6 +3,7 @@ import { BaseButton, type BaseButtonProps } from './BaseButton';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import styles from './Fab.module.css';
 import { icons, LucideProps } from 'lucide-react';
+import { Column } from '@components/Layout';
 
 const getFabClassName = getClassNameFactory('Fab', styles);
 // Props interface for the FAB
@@ -23,6 +24,8 @@ export interface FabProps extends Omit<BaseButtonProps, 'variant' | 'startIcon' 
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'relative';
   /** if the button should appear active */
   active?: boolean;
+  /** Label to display beneath the FAB */
+  label?: React.ReactNode;
 }
 
 // React component wrapper
@@ -40,7 +43,10 @@ export const Fab = ({
   active,
   className,
   borderRadius = '50%',
+  label,
   style,
+  css,
+  ref,
   ...props
 }: FabProps) => {
   const computed = getFabClassName(
@@ -88,19 +94,28 @@ export const Fab = ({
   }, [icon, iconProps]);
 
   return (
-    <BaseButton
-      className={fabClassName}
-      disabled={disabled || loading}
-      size={size}
-      autoWidth
-      tooltipProps={tooltipProps}
-      variant={variant}
-      style={styles}
-      active={active}
-      {...props}
+    <Column
+      ref={ref}
+      css={css}
+      style={{
+        maxWidth: 'fit-content',
+      }}
     >
-      {loading ? null : iconElement}
-      {children}
-    </BaseButton>
+      <BaseButton
+        className={fabClassName}
+        disabled={disabled || loading}
+        size={size}
+        autoWidth
+        tooltipProps={tooltipProps}
+        variant={variant}
+        style={styles}
+        active={active}
+        {...props}
+      >
+        {loading ? null : iconElement}
+        {children}
+      </BaseButton>
+      {label && <span className={`fab-label-${props.id}`}>{label}</span>}
+    </Column>
   );
 };

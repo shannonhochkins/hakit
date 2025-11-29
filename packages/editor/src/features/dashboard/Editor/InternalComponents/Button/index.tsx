@@ -8,24 +8,6 @@ import { Slot } from '@measured/puck';
  * Types & helpers
  * ======================= */
 export type ButtonProps = {
-  appearance: {
-    type: 'primary' | 'secondary';
-    primaryVariant?: 'primary' | 'success' | 'danger';
-    secondaryVariant?: 'secondary' | 'danger' | 'success' | 'transparent';
-    size: 'xs' | 'sm' | 'md' | 'lg';
-    startIcon?: string;
-    startIconSize?: UnitFieldValue;
-    startIconColor?: string;
-    endIcon?: string;
-    endIconSize?: UnitFieldValue;
-    endIconColor?: string;
-    showBadge: boolean;
-    badgeIcon?: string;
-    badgeIconSize?: UnitFieldValue;
-    badgeIconColor?: string;
-    fullWidth: boolean;
-    fullHeight: boolean;
-  };
   content: {
     useSlot: boolean;
     slot: Slot;
@@ -35,12 +17,206 @@ export type ButtonProps = {
   };
 };
 
+type InternalFieldOverrides = {
+  $appearance: {
+    general: {
+      type: 'primary' | 'secondary';
+      primaryVariant?: 'primary' | 'success' | 'danger';
+      secondaryVariant?: 'secondary' | 'danger' | 'success' | 'transparent';
+      size: 'xs' | 'sm' | 'md' | 'lg';
+      startIcon?: string;
+      startIconSize?: UnitFieldValue;
+      startIconColor?: string;
+      endIcon?: string;
+      endIconSize?: UnitFieldValue;
+      endIconColor?: string;
+      showBadge: boolean;
+      badgeIcon?: string;
+      badgeIconSize?: UnitFieldValue;
+      badgeIconColor?: string;
+    };
+    sizeAndSpacing: {
+      fullHeight: boolean;
+      fullWidth: boolean;
+    };
+  };
+};
+
 /** =========================
  * Component Config
  * ======================= */
-export const buttonComponentConfig: CustomComponentConfig<ButtonProps> = {
+export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalFieldOverrides> = {
   label: 'Button',
   autoWrapComponent: false,
+  internalFields: {
+    omit: {
+      $appearance: {
+        background: true,
+        sizeAndSpacing: {
+          width: true,
+          height: true,
+          margin: true,
+          padding: true,
+        },
+      },
+    },
+    extend: {
+      $appearance: {
+        sizeAndSpacing: {
+          fullHeight: {
+            type: 'switch',
+            label: 'Full Height',
+            description: 'Whether to make the button take up the full height of its container',
+            default: false,
+          },
+          fullWidth: {
+            type: 'switch',
+            label: 'Full Width',
+            description: 'Whether to make the button take up the full width of its container',
+            default: false,
+          },
+        },
+        general: {
+          type: 'object',
+          label: 'General',
+          objectFields: {
+            type: {
+              type: 'select',
+              label: 'Type',
+              description: 'The style of button to display',
+              default: 'primary',
+              options: [
+                { label: 'Primary', value: 'primary' },
+                { label: 'Secondary', value: 'secondary' },
+              ],
+            },
+            primaryVariant: {
+              type: 'select',
+              label: 'Primary Variant',
+              description: 'The variant style for the primary button',
+              default: 'primary',
+              options: [
+                { label: 'Default', value: 'primary' },
+                { label: 'Success', value: 'success' },
+                { label: 'Danger', value: 'danger' },
+              ],
+              visible(data) {
+                return data.$appearance?.general?.type === 'primary';
+              },
+            },
+            secondaryVariant: {
+              type: 'select',
+              label: 'Secondary Variant',
+              description: 'The variant style for the secondary button',
+              default: 'secondary',
+              options: [
+                { label: 'Default', value: 'secondary' },
+                { label: 'Success', value: 'success' },
+                { label: 'Danger', value: 'danger' },
+                { label: 'Transparent', value: 'transparent' },
+              ],
+              visible(data) {
+                return data.$appearance?.general?.type === 'secondary';
+              },
+            },
+            startIcon: {
+              type: 'icon',
+              label: 'Start Icon',
+              description: 'Icon to display before the button label',
+              default: undefined,
+            },
+            startIconSize: {
+              type: 'unit',
+              label: 'Start Icon Size',
+              description: 'The size of the start icon',
+              default: '1.25rem',
+              visible(data) {
+                return data.$appearance?.general?.startIcon !== undefined;
+              },
+            },
+            startIconColor: {
+              type: 'color',
+              label: 'Start Icon Color',
+              description: 'The color of the start icon, inherits by default',
+              default: undefined,
+              visible(data) {
+                return data.$appearance?.general?.startIcon !== undefined;
+              },
+            },
+            endIcon: {
+              type: 'icon',
+              label: 'End Icon',
+              description: 'Icon to display after the button label',
+              default: undefined,
+            },
+            endIconSize: {
+              type: 'unit',
+              label: 'End Icon Size',
+              description: 'The size of the end icon',
+              default: '1.25rem',
+              visible(data) {
+                return data.$appearance?.general?.endIcon !== undefined;
+              },
+            },
+            endIconColor: {
+              type: 'color',
+              label: 'End Icon Color',
+              description: 'The color of the end icon, inherits by default',
+              default: undefined,
+              visible(data) {
+                return data.$appearance?.general?.endIcon !== undefined;
+              },
+            },
+            size: {
+              type: 'select',
+              label: 'Size',
+              description: 'The size of the button',
+              default: 'md',
+              options: [
+                { label: 'Extra Small', value: 'xs' },
+                { label: 'Small', value: 'sm' },
+                { label: 'Medium', value: 'md' },
+                { label: 'Large', value: 'lg' },
+              ],
+            },
+            showBadge: {
+              type: 'switch',
+              label: 'Show Badge',
+              description: 'Whether to display a badge on the button',
+              default: false,
+            },
+            badgeIcon: {
+              type: 'icon',
+              label: 'Badge Icon',
+              description: 'Icon to display inside the badge',
+              default: undefined,
+              visible(data) {
+                return data.$appearance?.general?.showBadge === true;
+              },
+            },
+            badgeIconSize: {
+              type: 'unit',
+              label: 'Badge Icon Size',
+              description: 'The size of the badge icon',
+              default: '0.75rem',
+              visible(data) {
+                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+              },
+            },
+            badgeIconColor: {
+              type: 'color',
+              label: 'Badge Icon Color',
+              description: 'The color of the badge icon, inherits by default',
+              default: undefined,
+              visible(data) {
+                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+              },
+            },
+          },
+        },
+      },
+    },
+  },
   fields: {
     content: {
       type: 'object',
@@ -90,200 +266,46 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps> = {
         },
       },
     },
-    appearance: {
-      type: 'object',
-      label: 'Appearance',
-      objectFields: {
-        type: {
-          type: 'select',
-          label: 'Type',
-          description: 'The style of button to display',
-          default: 'primary',
-          options: [
-            { label: 'Primary', value: 'primary' },
-            { label: 'Secondary', value: 'secondary' },
-          ],
-        },
-        primaryVariant: {
-          type: 'select',
-          label: 'Primary Variant',
-          description: 'The variant style for the primary button',
-          default: 'primary',
-          options: [
-            { label: 'Default', value: 'primary' },
-            { label: 'Success', value: 'success' },
-            { label: 'Error', value: 'error' },
-          ],
-          visible(data) {
-            return data.appearance.type === 'primary';
-          },
-        },
-        secondaryVariant: {
-          type: 'select',
-          label: 'Secondary Variant',
-          description: 'The variant style for the secondary button',
-          default: 'secondary',
-          options: [
-            { label: 'Default', value: 'secondary' },
-            { label: 'Success', value: 'success' },
-            { label: 'Error', value: 'error' },
-            { label: 'Transparent', value: 'transparent' },
-          ],
-          visible(data) {
-            return data.appearance.type === 'secondary';
-          },
-        },
-        startIcon: {
-          type: 'icon',
-          label: 'Start Icon',
-          description: 'Icon to display before the button label',
-          default: undefined,
-        },
-        startIconSize: {
-          type: 'unit',
-          label: 'Start Icon Size',
-          description: 'The size of the start icon',
-          default: '1.25rem',
-          visible(data) {
-            return data.appearance.startIcon !== undefined;
-          },
-        },
-        startIconColor: {
-          type: 'color',
-          label: 'Start Icon Color',
-          description: 'The color of the start icon, inherits by default',
-          default: undefined,
-          visible(data) {
-            return data.appearance.startIcon !== undefined;
-          },
-        },
-        endIcon: {
-          type: 'icon',
-          label: 'End Icon',
-          description: 'Icon to display after the button label',
-          default: undefined,
-        },
-        endIconSize: {
-          type: 'unit',
-          label: 'End Icon Size',
-          description: 'The size of the end icon',
-          default: '1.25rem',
-          visible(data) {
-            return data.appearance.endIcon !== undefined;
-          },
-        },
-        endIconColor: {
-          type: 'color',
-          label: 'End Icon Color',
-          description: 'The color of the end icon, inherits by default',
-          default: undefined,
-          visible(data) {
-            return data.appearance.endIcon !== undefined;
-          },
-        },
-        size: {
-          type: 'select',
-          label: 'Size',
-          description: 'The size of the button',
-          default: 'md',
-          options: [
-            { label: 'Extra Small', value: 'xs' },
-            { label: 'Small', value: 'sm' },
-            { label: 'Medium', value: 'md' },
-            { label: 'Large', value: 'lg' },
-          ],
-        },
-        showBadge: {
-          type: 'switch',
-          label: 'Show Badge',
-          description: 'Whether to display a badge on the button',
-          default: false,
-        },
-        badgeIcon: {
-          type: 'icon',
-          label: 'Badge Icon',
-          description: 'Icon to display inside the badge',
-          default: undefined,
-          visible(data) {
-            return data.appearance.showBadge;
-          },
-        },
-        badgeIconSize: {
-          type: 'unit',
-          label: 'Badge Icon Size',
-          description: 'The size of the badge icon',
-          default: '0.75rem',
-          visible(data) {
-            return data.appearance.badgeIcon !== undefined && data.appearance.showBadge;
-          },
-        },
-        badgeIconColor: {
-          type: 'color',
-          label: 'Badge Icon Color',
-          description: 'The color of the badge icon, inherits by default',
-          default: undefined,
-          visible(data) {
-            return data.appearance.badgeIcon !== undefined && data.appearance.showBadge;
-          },
-        },
-        fullWidth: {
-          type: 'switch',
-          label: 'Full Width',
-          description: 'Whether the button should take up the full width of its container',
-          default: false,
-        },
-        fullHeight: {
-          type: 'switch',
-          label: 'Full Height',
-          description: 'Whether the button should take up the full height of its container',
-          default: false,
-        },
-      },
-    },
   },
   styles(props) {
     return `
        .button-slot-${props.id} {
           width: 100%;
-          height: 100%;
-          &[style*="--min-empty-height"] {
-            width: 100%;
-            min-width: 128px;
-          }
+          height: 100%;          
        }
     `;
   },
   render: Render,
 };
 
-function Render(props: RenderProps<ButtonProps>) {
+function Render(props: RenderProps<ButtonProps, InternalFieldOverrides>) {
   const { content } = props;
   const { slot: Slot, useSlot } = content;
 
-  if (props.appearance.type === 'secondary') {
+  if (props.$appearance?.general?.type === 'secondary') {
     return (
       <SecondaryButton
         ref={props._dragRef}
         css={props.css}
-        variant={props.appearance.secondaryVariant}
+        variant={props.$appearance.general.secondaryVariant}
         aria-label={content.tooltip}
-        size={props.appearance.size}
-        startIcon={props.appearance.startIcon}
+        size={props.$appearance.general.size}
+        startIcon={props.$appearance.general.startIcon}
         startIconProps={{
-          size: props.appearance.startIconSize,
-          color: props.appearance.startIconColor,
+          size: props.$appearance.general.startIconSize,
+          color: props.$appearance.general.startIconColor,
         }}
-        endIcon={props.appearance.endIcon}
+        endIcon={props.$appearance.general.endIcon}
         endIconProps={{
-          size: props.appearance.endIconSize,
-          color: props.appearance.endIconColor,
+          size: props.$appearance.general.endIconSize,
+          color: props.$appearance.general.endIconColor,
         }}
-        fullHeight={props.appearance.fullHeight}
-        fullWidth={props.appearance.fullWidth}
-        badge={props.appearance.showBadge ? props.appearance.badgeIcon : undefined}
+        fullHeight={props.$appearance?.sizeAndSpacing?.fullHeight}
+        fullWidth={props.$appearance?.sizeAndSpacing?.fullWidth}
+        badge={props.$appearance.general.showBadge ? props.$appearance.general.badgeIcon : undefined}
         badgeIconProps={{
-          size: props.appearance.badgeIconSize,
-          color: props.appearance.badgeIconColor,
+          size: props.$appearance.general.badgeIconSize,
+          color: props.$appearance.general.badgeIconColor,
         }}
       >
         {useSlot ? <Slot minEmptyHeight={32} className={`button-slot-${props.id}`} /> : content.label}
@@ -295,25 +317,25 @@ function Render(props: RenderProps<ButtonProps>) {
     <PrimaryButton
       ref={props._dragRef}
       css={props.css}
-      variant={props.appearance.primaryVariant}
+      variant={props.$appearance?.general?.primaryVariant}
       aria-label={content.tooltip}
-      size={props.appearance.size}
-      startIcon={props.appearance.startIcon}
+      size={props.$appearance?.general?.size}
+      startIcon={props.$appearance?.general?.startIcon}
       startIconProps={{
-        size: props.appearance.startIconSize,
-        color: props.appearance.startIconColor,
+        size: props.$appearance?.general?.startIconSize,
+        color: props.$appearance?.general?.startIconColor,
       }}
-      endIcon={props.appearance.endIcon}
+      endIcon={props.$appearance?.general?.endIcon}
       endIconProps={{
-        size: props.appearance.endIconSize,
-        color: props.appearance.endIconColor,
+        size: props.$appearance?.general?.endIconSize,
+        color: props.$appearance?.general?.endIconColor,
       }}
-      fullHeight={props.appearance.fullHeight}
-      fullWidth={props.appearance.fullWidth}
-      badge={props.appearance.showBadge ? props.appearance.badgeIcon : undefined}
+      fullHeight={props.$appearance?.sizeAndSpacing?.fullHeight}
+      fullWidth={props.$appearance?.sizeAndSpacing?.fullWidth}
+      badge={props.$appearance?.general?.showBadge ? props.$appearance?.general?.badgeIcon : undefined}
       badgeIconProps={{
-        size: props.appearance.badgeIconSize,
-        color: props.appearance.badgeIconColor,
+        size: props.$appearance?.general?.badgeIconSize,
+        color: props.$appearance?.general?.badgeIconColor,
       }}
     >
       {useSlot ? <Slot minEmptyHeight={32} className={`button-slot-${props.id}`} /> : content.label}

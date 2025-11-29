@@ -25,7 +25,9 @@ export const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE,
   logoutRedirectURL: ProcessEnv.KINDE_LOGOUT_REDIRECT_URI,
 });
 
-const isLocal = process.env.NODE_ENV !== 'production';
+// TODO - Safari locally simply doesn't like the cookie settings below, you need to set secure to false for local development
+// and set the path to /, however this causes 504 timeouts for chrome....
+// Need to test in production once built
 
 export const sessionManager = (c: Context): SessionManager => ({
   async getSessionItem(key: string) {
@@ -35,10 +37,9 @@ export const sessionManager = (c: Context): SessionManager => ({
   async setSessionItem(key: string, value: unknown) {
     const cookieOptions: CookieOptions = {
       httpOnly: true,
-      secure: !isLocal,
+      secure: true,
       sameSite: 'Lax',
       maxAge: 60 * 60 * 24 * 365,
-      path: '/',
     } as const;
     if (typeof value === 'string') {
       setCookie(c, key, value, cookieOptions);

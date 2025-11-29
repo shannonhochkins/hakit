@@ -1,3 +1,4 @@
+import { DefaultComponentProps } from '@measured/puck';
 import { CustomComponentConfig, CustomConfig } from '@typings/puck';
 
 export type LayoutProps = {
@@ -132,7 +133,7 @@ type ComponentType = {
   [ComponentName]: LayoutProps;
 };
 
-export const userConfig: CustomConfig<ComponentType> = {
+export const userConfig: CustomConfig<ComponentType, DefaultComponentProps, true> = {
   components: {
     [ComponentName]: FieldTest,
   },
