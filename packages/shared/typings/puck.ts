@@ -133,7 +133,7 @@ type BaseInternalFieldsConfig<InternalFields> = {
    * ```ts
    * omit: {
    *   $appearance: {
-   *     background: true, // Omit the entire background section
+   *     design: true, // Omit the entire design section
    *     typography: {
    *       fontFamily: true // Omit only fontFamily from typography
    *     }
@@ -293,7 +293,7 @@ export type CustomComponentConfig<
    * @example
    * ```ts
    * internalFields: {
-   *   omit: { $appearance: { background: true } },
+   *   omit: { $appearance: { design: true } },
    *   defaults: { $appearance: { design: { borderEnabled: true } } },
    *   extend: { $appearance: { design: { customField: { ... } } } }
    * }
@@ -322,6 +322,22 @@ export type CustomComponentConfig<
    * ```ts
    * styles(props) {
    *   return `background: ${props.backgroundColor}; padding: 1rem;`;
+   * }
+   * ```
+   * When adding keyframes from emotion, you will have to return with the `css` helper function, like so:
+   * ```ts
+   * import { css } from '@emotion/react';
+   * // define outside the component configuration
+   * const sweep = keyframes`
+   *   from { transform: rotate(0deg); }
+   *   to { transform: rotate(360deg); }
+   * `;
+   * // then within the component configuration, use the css helper function to return the keyframes
+   * ...
+   * styles(props) {
+   *   return css`
+   *     animation: ${sweep} 2s linear infinite;
+   *   `;
    * }
    * ```
    */

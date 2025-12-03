@@ -171,7 +171,7 @@ function TemplateSubscriberInner<
   }
   if (loading || !data) return null;
   // Pass processed template data as props object, keep internal config separate
-  return <Render renderProps={renderProps} internalComponentConfig={internalComponentConfig} isEditing={isEditing} dragRef={dragRef} />;
+  return <Render renderProps={data} internalComponentConfig={internalComponentConfig} isEditing={isEditing} dragRef={dragRef} />;
 }
 
 const callService = async ({

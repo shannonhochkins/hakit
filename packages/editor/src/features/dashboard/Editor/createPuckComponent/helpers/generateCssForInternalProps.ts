@@ -63,6 +63,7 @@ export function generateCssForInternalProps(
   // Generate background CSS - use direct values (no CSS variables)
   if (appearance?.design) {
     const d = appearance.design;
+    // don't allow glass for root components
     const isGlassBackground = d.backgroundType === 'glass' && type !== 'root';
     const isLiquidGlassBackground = d.backgroundType === 'liquid-glass' && type !== 'root';
     const isBackgroundColor = d.backgroundType === 'color' || type === 'root';
