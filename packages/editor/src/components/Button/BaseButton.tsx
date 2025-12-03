@@ -3,6 +3,7 @@ import { Tooltip, TooltipProps } from '@components/Tooltip';
 import styles from './BaseButton.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 import { icons, type LucideProps } from 'lucide-react';
+import { SerializedStyles } from '@emotion/react';
 
 const getClassName = getClassNameFactory('BaseButton', styles);
 
@@ -43,9 +44,9 @@ export interface BaseButtonProps extends React.ComponentPropsWithRef<'div'> {
   /** Tooltip props for the badge */
   badgeTooltipProps?: Partial<TooltipProps>;
   /** Variant for styling (used for badge variant inheritance) */
-  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent' | 'glass' | 'liquid-glass' | 'color';
   /** Badge variant override (defaults to button variant) */
-  badgeVariant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent';
+  badgeVariant?: 'primary' | 'secondary' | 'danger' | 'success' | 'transparent' | 'glass' | 'liquid-glass' | 'color';
   /** Wrapper style for the outer div */
   wrapperStyle?: React.CSSProperties;
   /** active state */
@@ -53,7 +54,9 @@ export interface BaseButtonProps extends React.ComponentPropsWithRef<'div'> {
   /** Disabled state */
   disabled?: boolean;
   /** props to pass to the button element */
-  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    css?: SerializedStyles;
+  };
 }
 
 // React component wrapper with all logic

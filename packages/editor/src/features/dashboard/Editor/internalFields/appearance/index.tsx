@@ -24,18 +24,140 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
     },
     description: 'Appearance settings for the page',
     objectFields: {
-      background: {
+      design: {
         type: 'object',
         section: { expanded: false },
-        label: type === 'root' ? 'Page Background' : 'Background',
-        description:
-          type === 'root' ? 'Configure the background for the entire page.' : 'Configure the background for this component only.',
+        label: type === 'root' ? 'Page Design' : 'Design',
+        description: type === 'root' ? 'Configure the design for the entire page.' : 'Configure the design for this component only.',
         objectFields: {
-          color: {
+          backgroundType: {
+            type: 'select',
+            label: 'Background Type',
+            description: 'Type of background effect for the card',
+            options: [
+              { label: 'Color', value: 'color' },
+              { label: 'Glass', value: 'glass' },
+              { label: 'Liquid Glass', value: 'liquid-glass', description: 'Only works in Google Chrome' },
+            ],
+            default: 'color',
+            visible() {
+              return type !== 'root';
+            },
+          },
+          glassColor: {
+            type: 'color',
+            label: 'Glass Color',
+            description: 'Tint color for the glass background, including alpha for transparency',
+            default: 'rgba(255, 255, 255, 0.1)',
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'glass';
+            },
+          },
+          glassBlurAmount: {
+            type: 'slider',
+            label: 'Glass Blur Amount',
+            description: 'Amount of blur for the glass background',
+            default: 5,
+            step: 0.1,
+            min: 0,
+            max: 30,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'glass';
+            },
+          },
+          glassOutline: {
+            type: 'slider',
+            label: 'Glass Outline',
+            description: 'Outline thickness for the glass background',
+            default: 1,
+            step: 1,
+            min: 0,
+            max: 10,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'glass' || props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassOutlineTransparency: {
+            type: 'slider',
+            label: 'Glass Outline Transparency',
+            description: 'Outline transparency for the glass background',
+            default: 0.81,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'glass' || props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassDisplacementScale: {
+            type: 'slider',
+            label: 'Displacement Scale',
+            description: 'Refraction strength for liquid glass',
+            default: 53,
+            step: 1,
+            min: 0,
+            max: 200,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassSpecularOpacity: {
+            type: 'slider',
+            label: 'Specular Opacity',
+            description: 'Alpha slope for specular layer (0..1)',
+            default: 0.1,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassSpecularSaturation: {
+            type: 'slider',
+            label: 'Glass Specular Saturation',
+            description: 'Saturation applied after displacement',
+            default: 2,
+            step: 0.1,
+            min: 0,
+            max: 10,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassBlur: {
+            type: 'slider',
+            label: 'Glass Pre-Blur',
+            description: 'Blur amount for the glass background before displacement',
+            default: 2,
+            step: 0.1,
+            min: 0,
+            max: 10,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+          glassBackgroundOpacity: {
+            type: 'slider',
+            label: 'Glass Background Opacity',
+            description: 'Opacity of the panel tint (0..1)',
+            default: 0.1,
+            step: 0.01,
+            min: 0,
+            max: 1,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'liquid-glass';
+            },
+          },
+
+          backgroundColor: {
             type: 'color',
             label: 'Background Color',
             description: type === 'root' ? 'Base color for the page background.' : 'Base color for the background.',
             default: type === 'root' ? 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)' : undefined,
+            visible(props) {
+              return props.$appearance?.design?.backgroundType === 'color';
+            },
           },
           useImage: {
             type: 'switch',
@@ -46,16 +168,43 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
                 : 'Enable to display a background image on this component.',
             default: false,
           },
-          image: {
+          backgroundImage: {
             type: 'imageUpload',
             label: 'Background Image',
             description: type === 'root' ? 'Image to display as the page background.' : 'Image to display as the background.',
             default: undefined,
             visible(data) {
-              return data.$appearance.background.useImage;
+              return data.$appearance.design.useImage;
             },
           },
-          size: {
+          backgroundImageBlendMode: {
+            type: 'select',
+            label: 'Background Image Blend Mode',
+            description: 'Blend mode for the background image and color',
+            default: 'normal',
+            options: [
+              { label: 'Normal', value: 'normal' },
+              { label: 'Multiply', value: 'multiply' },
+              { label: 'Screen', value: 'screen' },
+              { label: 'Overlay', value: 'overlay' },
+              { label: 'Darken', value: 'darken' },
+              { label: 'Lighten', value: 'lighten' },
+              { label: 'Color Dodge', value: 'color-dodge' },
+              { label: 'Color Burn', value: 'color-burn' },
+              { label: 'Hard Light', value: 'hard-light' },
+              { label: 'Soft Light', value: 'soft-light' },
+              { label: 'Difference', value: 'difference' },
+              { label: 'Exclusion', value: 'exclusion' },
+              { label: 'Hue', value: 'hue' },
+              { label: 'Saturation', value: 'saturation' },
+              { label: 'Color', value: 'color' },
+              { label: 'Luminosity', value: 'luminosity' },
+            ],
+            visible(data) {
+              return data.$appearance.design.useImage;
+            },
+          },
+          backgroundSize: {
             type: 'select',
             label: 'Background Size',
             description: 'How the background image should be sized.',
@@ -67,28 +216,28 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               { label: 'Custom…', value: 'custom' },
             ],
             visible(data) {
-              return data.$appearance.background.useImage;
+              return data.$appearance.design.useImage;
             },
           },
-          sizeCustom: {
+          backgroundSizeCustom: {
             type: 'text',
             label: 'Custom Background Size',
             description: 'Enter any valid CSS background-size value.',
             default: '',
             visible(data) {
-              return (data.$appearance.background?.size ?? 'cover') === 'custom' && data.$appearance.background.useImage;
+              return (data.$appearance.design?.backgroundSize ?? 'cover') === 'custom' && data.$appearance.design.useImage;
             },
           },
-          position: {
+          backgroundPosition: {
             type: 'text',
             label: 'Background Position',
             description: 'Position of the background image (e.g., "center center", "top", "50% 50%").',
             default: 'center center',
             visible(data) {
-              return data.$appearance.background.useImage;
+              return data.$appearance.design.useImage;
             },
           },
-          repeat: {
+          backgroundRepeat: {
             type: 'select',
             label: 'Background Repeat',
             description: 'How the background image should repeat.',
@@ -102,10 +251,10 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               { label: 'Round', value: 'round' },
             ],
             visible(data) {
-              return data.$appearance.background.useImage;
+              return data.$appearance.design.useImage;
             },
           },
-          attachment: {
+          backgroundAttachment: {
             type: 'select',
             label: 'Background Attachment',
             description:
@@ -119,7 +268,126 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               { label: 'Local', value: 'local' },
             ],
             visible(data) {
-              return data.$appearance.background.useImage;
+              return data.$appearance.design.useImage;
+            },
+          },
+
+          boxShadowEnabled: {
+            type: 'switch',
+            label: 'Enable Box Shadow',
+            description: 'Toggle box shadow on or off',
+            default: false,
+            visible() {
+              return type !== 'root';
+            },
+          },
+          boxShadowColor: {
+            type: 'color',
+            label: 'Box Shadow Color',
+            description: 'Color of the box shadow (supports transparency)',
+            default: 'rgba(0,0,0,0.1)',
+            visible(props) {
+              return props.$appearance?.design?.boxShadowEnabled !== false && type !== 'root';
+            },
+          },
+          boxShadowBlur: {
+            type: 'slider',
+            label: 'Box Shadow Blur',
+            description: 'Blur radius for the box shadow',
+            default: 30,
+            step: 1,
+            min: 0,
+            max: 100,
+            visible(props) {
+              return props.$appearance?.design?.boxShadowEnabled !== false && type !== 'root';
+            },
+          },
+          boxShadowSpread: {
+            type: 'slider',
+            label: 'Box Shadow Spread',
+            description: 'Spread radius for the box shadow',
+            default: 10,
+            step: 1,
+            min: 0,
+            max: 100,
+            visible(props) {
+              return props.$appearance?.design?.boxShadowEnabled !== false && type !== 'root';
+            },
+          },
+          borderRadius: {
+            type: 'unit',
+            label: 'Border Radius',
+            description: 'Border radius of the card',
+            default: undefined,
+            supportsAllCorners: true,
+            visible() {
+              return type !== 'root';
+            },
+          },
+          borderEnabled: {
+            type: 'switch',
+            label: 'Enable Border',
+            description: 'Enable to add a border',
+            default: false,
+            visible(props) {
+              return (
+                props.$appearance?.design?.backgroundType !== 'glass' &&
+                props.$appearance?.design?.backgroundType !== 'liquid-glass' &&
+                type !== 'root'
+              );
+            },
+          },
+          borderWidth: {
+            type: 'unit',
+            label: 'Border Width',
+            description: 'Width of the border',
+            default: '1px',
+            supportsAllCorners: true,
+            visible(props) {
+              return (
+                props.$appearance?.design?.backgroundType !== 'glass' &&
+                props.$appearance?.design?.backgroundType !== 'liquid-glass' &&
+                props.$appearance?.design?.borderEnabled === true &&
+                type !== 'root'
+              );
+            },
+          },
+          borderColor: {
+            type: 'color',
+            label: 'Border Color',
+            description: 'Color of the border',
+            default: 'var(--clr-primary-a90)',
+            visible(props) {
+              return (
+                props.$appearance?.design?.backgroundType !== 'glass' &&
+                props.$appearance?.design?.backgroundType !== 'liquid-glass' &&
+                props.$appearance?.design?.borderEnabled === true &&
+                type !== 'root'
+              );
+            },
+          },
+          borderStyle: {
+            type: 'select',
+            label: 'Border Style',
+            description: 'Style of the border',
+            default: 'solid',
+            options: [
+              { label: 'Solid', value: 'solid' },
+              { label: 'Dashed', value: 'dashed' },
+              { label: 'Dotted', value: 'dotted' },
+              { label: 'Double', value: 'double' },
+              { label: 'Groove', value: 'groove' },
+              { label: 'Ridge', value: 'ridge' },
+              { label: 'Inset', value: 'inset' },
+              { label: 'Outset', value: 'outset' },
+            ],
+            visible(props) {
+              return (
+                props.$appearance?.design?.backgroundType !== 'glass' &&
+                props.$appearance?.design?.backgroundType !== 'liquid-glass' &&
+                props.$appearance?.design?.borderEnabled === true &&
+                type !== 'root'
+              );
             },
           },
         },

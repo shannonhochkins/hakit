@@ -1,8 +1,8 @@
 import { css } from '@emotion/react';
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { type CSSInterpolation } from '@emotion/serialize';
 
-export interface LiquidGlassProps {
+export interface LiquidGlassProps extends React.ComponentProps<'div'> {
   /** feDisplacementMap scale (refraction strength) */
   displacementScale?: number;
 
@@ -14,12 +14,6 @@ export interface LiquidGlassProps {
 
   /** feGaussianBlur stdDeviation before displacement */
   blur?: number;
-
-  /** Panel background base color */
-  glassBgColor?: string;
-
-  /** 0..1; converted to #RRGGBBAA when possible, else via color-mix fallback */
-  glassBgOpacity?: number;
 
   /** z-index for the hidden SVG (panel sits above it) */
   zIndex?: number;
@@ -34,9 +28,13 @@ export interface LiquidGlassProps {
   children?: React.ReactNode;
 
   /** Force a stable ID for the filter (useful if you SSR or memoize heavily) */
-  filterId?: string;
-  ref?: ((element: Element | null) => void) | null;
+  filterId: string;
+  ref?: React.Ref<HTMLDivElement>;
   cssStyles?: CSSInterpolation;
+}
+
+export function sanitizeFilterId(id: string) {
+  return id.replace(/[^a-zA-Z0-9-_]/g, '-');
 }
 
 export const LiquidGlass: React.FC<LiquidGlassProps> = ({
@@ -44,8 +42,6 @@ export const LiquidGlass: React.FC<LiquidGlassProps> = ({
   specularOpacity = 0.1,
   specularSaturation = 2,
   blur = 2,
-  glassBgOpacity = 0.1,
-  glassBgColor = '#ffffff',
   zIndex = 1,
 
   displacementMapSrc,
@@ -57,11 +53,14 @@ export const LiquidGlass: React.FC<LiquidGlassProps> = ({
   filterId,
   ref,
   cssStyles,
+  ...props
 }) => {
   // --- sizing (auto) ---
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(300);
   const [height, setHeight] = useState(200);
+
+  const id = useMemo(() => sanitizeFilterId(filterId), [filterId]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -88,10 +87,6 @@ export const LiquidGlass: React.FC<LiquidGlassProps> = ({
     return () => ro.disconnect();
   }, []);
 
-  // --- IDs / Refs ---
-  const reactId = useId();
-  const id = useMemo(() => (filterId ? filterId : `liquid-glass-${reactId.replace(/:/g, '-')}`), [filterId, reactId]);
-
   const dispImgRef = useRef<SVGFEImageElement>(null);
   const specImgRef = useRef<SVGFEImageElement>(null);
   const dispCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -99,18 +94,6 @@ export const LiquidGlass: React.FC<LiquidGlassProps> = ({
 
   // Keep DPI = 1 (like your original). It avoids coordinate mismatches in feImage.
   const DPI = 1;
-
-  // --- helpers: color + href ---
-  const toBg = useMemo(() => {
-    const a = Math.round(Math.max(0, Math.min(1, glassBgOpacity)) * 255)
-      .toString(16)
-      .padStart(2, '0')
-      .toUpperCase();
-    if (/^#([0-9a-f]{6})$/i.test(glassBgColor)) return `${glassBgColor}${a}`;
-    // non-hex → fallback using color-mix so opacity still applies
-    const pct = Math.round(glassBgOpacity * 100);
-    return `color-mix(in oklab, ${glassBgColor} ${pct}%, transparent)`;
-  }, [glassBgColor, glassBgOpacity]);
 
   const setHref = (el: SVGElement, url: string) => {
     el.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url);
@@ -322,22 +305,17 @@ export const LiquidGlass: React.FC<LiquidGlassProps> = ({
       <div
         ref={_ref => {
           containerRef.current = _ref;
+          // @ts-expect-error - TODO - Fix types later
           if (ref) ref(_ref);
         }}
         className={className}
         style={{
-          position: 'relative',
-          overflow: 'hidden',
-          background: toBg,
-          ...(filterReady && {
-            backdropFilter: `url(#${id})`,
-            WebkitBackdropFilter: `url(#${id})`,
-          }),
           ...style,
         }}
         css={css`
           ${cssStyles}
         `}
+        {...props}
       >
         {children}
       </div>

@@ -1,5 +1,5 @@
 import { jsx } from '@emotion/react';
-import { ReactNode, isValidElement, Fragment } from 'react';
+import { ReactNode, isValidElement, Fragment, createElement } from 'react';
 
 /**
  * Automatically attach dragRef to the top-level element returned by a component
@@ -9,23 +9,25 @@ import { ReactNode, isValidElement, Fragment } from 'react';
  *
  * Considerations and edge cases handled:
  *
- * 1. **Fragment at top level**: Extracts children and wraps in a div with dragRef
+ * 1. **Fragment at top level**: Extracts children and wraps in a div (or custom wrapper) with dragRef
  * 2. **Intentional falsy returns**: Returns null, undefined, false, empty string unchanged
- * 3. **Array returns**: Wraps entire array in a div with dragRef
- * 4. **String/number returns**: Wraps in a span with dragRef (including 0 and negative numbers)
+ * 3. **Array returns**: Wraps entire array in a div (or custom wrapper) with dragRef
+ * 4. **String/number returns**: Wraps in a span (or custom wrapper) with dragRef (including 0 and negative numbers)
  * 5. **Regular elements**: Uses jsx from '@emotion/react' to add/merge the ref and apply css properly
  * 6. **Existing refs**: Preserves and calls existing refs alongside dragRef
- * 7. **Clone failures**: Falls back to div wrapper if jsx fails
+ * 7. **Clone failures**: Falls back to div (or custom wrapper) if jsx fails
+ * 8. **Custom wrapper**: If provided, replaces auto-wrapping elements and merges createWrapperProps onto it
  *
  * Trade-offs:
  * - May introduce extra wrapper elements in some cases
- * - Fragment semantics are lost (converted to div)
+ * - Fragment semantics are lost (converted to div or custom wrapper)
  * - Some performance overhead from jsx/cloning
  *
  * Benefits:
  * - Eliminates manual ref management for users
  * - Handles all common React return patterns
  * - Preserves existing component functionality
+ * - Allows custom wrapper elements for more control
  */
 
 type AttachPropsToElementProps = {
@@ -33,9 +35,16 @@ type AttachPropsToElementProps = {
   ref?: ((element: Element | null) => void) | null;
   componentLabel?: string;
   updateProps?: (currentProps: React.ComponentPropsWithRef<'div'>) => React.ComponentPropsWithRef<'div'>;
+  wrapper?: ReactNode;
 };
 
-export function attachPropsToElement({ element, ref, componentLabel, updateProps }: AttachPropsToElementProps): ReactNode | undefined {
+export function attachPropsToElement({
+  element,
+  ref,
+  componentLabel,
+  updateProps,
+  wrapper,
+}: AttachPropsToElementProps): ReactNode | undefined {
   // Helper to create wrapper props with optional emotion CSS
   const createWrapperProps = (additionalProps?: React.ComponentPropsWithRef<'div'>) => {
     const baseProps: React.ComponentPropsWithRef<'div'> = {
@@ -43,7 +52,41 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
       ...additionalProps,
     };
     const updatedProps = updateProps ? updateProps(baseProps) : baseProps;
-    return updatedProps;
+    // Ensure ref is always preserved even if updateProps doesn't include it
+    return {
+      ...updatedProps,
+      ref: updatedProps.ref ?? ref ?? null,
+    };
+  };
+
+  // Helper to wrap element with custom wrapper or default element
+  const wrapElement = (children: ReactNode, defaultType: 'div' | 'span' = 'div') => {
+    if (wrapper && isValidElement(wrapper)) {
+      // Merge createWrapperProps onto the wrapper element
+      const wrapperProps = createWrapperProps();
+      const wrapperElementProps = wrapper.props as Record<string, unknown>;
+      // Use wrapper's children if it explicitly has children, otherwise use the provided children
+      // Check if 'children' key exists in props (even if value is undefined/null)
+      const hasWrapperChildren = 'children' in wrapperElementProps && wrapperElementProps.children !== undefined;
+      const wrapperChildren = hasWrapperChildren ? (wrapperElementProps.children as ReactNode) : children;
+      const mergedProps = {
+        ...wrapperElementProps,
+        ...wrapperProps,
+        // Ensure ref from wrapperProps (which includes dragRef) is explicitly applied
+        ref: wrapperProps.ref,
+        // Include key in props, not as separate argument
+        key: wrapper.key,
+      };
+      // Remove children from props - createElement handles it as 3rd+ argument
+      delete (mergedProps as { children?: unknown }).children;
+      // Use createElement for wrapper to ensure proper children handling
+      // Key is now in props, children are passed as 3rd argument
+      return createElement(wrapper.type, mergedProps, wrapperChildren);
+    }
+    // Fallback to default wrapper - use createElement for consistency
+    const defaultProps = createWrapperProps();
+    // Pass children as 3rd argument to createElement (not in props)
+    return createElement(defaultType, defaultProps, children);
   };
 
   // First check: if component intentionally returned falsy value, respect that decision
@@ -62,13 +105,13 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
   // Handle numbers (including 0) and non-empty strings
   if (typeof element === 'string' || typeof element === 'number') {
     logAutoWrap(`Component returned ${typeof element}`, 'span');
-    return <span {...createWrapperProps()}>{element}</span>;
+    return wrapElement(element, 'span');
   }
 
   // Handle arrays
   if (Array.isArray(element)) {
     logAutoWrap('Component returned an array', 'div');
-    return <div {...createWrapperProps()}>{element}</div>;
+    return wrapElement(element, 'div');
   }
 
   // Handle React elements
@@ -76,31 +119,26 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
     // Handle Fragment specifically
     if (element.type === Fragment) {
       logAutoWrap('Component returned a React Fragment', 'div');
-      // Extract children from fragment and wrap in div
+      // Extract children from fragment and wrap
       const fragmentProps = element.props as { children?: ReactNode };
-      return <div {...createWrapperProps()}>{fragmentProps.children}</div>;
+      return wrapElement(fragmentProps.children, 'div');
     }
     // if the element.type is not a simple string (like 'div' or 'span'), it is a custom component
     // we need to wrap it
     if (typeof element.type !== 'string') {
       logAutoWrap('Component returned a custom React component', 'div');
-      return <div {...createWrapperProps()}>{element}</div>;
+      return wrapElement(element, 'div');
     }
 
     // Handle regular React elements - clone and add/merge the ref and CSS
     try {
       const originalProps = element.props as React.ComponentPropsWithRef<'div'>;
 
-      // Build the current props view for updateProps to inspect and modify
-      const currentProps: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> = {
-        ...originalProps,
-        // don't compose yet; let updateProps see the original
-        ref: originalProps?.ref,
-      };
+      // If wrapper is provided, updateProps is meant for the wrapper, not the element
+      // So we don't call updateProps on the element's props when a wrapper is present
+      const finalProps = wrapper && isValidElement(wrapper) ? originalProps : updateProps ? updateProps(originalProps) : originalProps;
 
-      const finalProps = updateProps ? updateProps(currentProps) : currentProps;
-
-      // Compose refs *after* updateProps so we include any ref it set
+      // Compose refs
       const innerRef = finalProps?.ref;
       const outerRef = ref;
 
@@ -119,6 +157,48 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
         }
       };
 
+      // If wrapper is provided, wrap the element with the wrapper
+      if (wrapper && isValidElement(wrapper)) {
+        // For the element, use originalProps (don't apply updateProps which is for the wrapper)
+        // Ensure children are on props (not as jsx's 3rd arg)
+        const propsForJsx = {
+          ...originalProps,
+          ref: composedRef, // <— our composed ref wins
+          key: element.key, // key goes here for jsx runtime
+          children: originalProps?.children,
+        };
+
+        const clonedElement = jsx(element.type, propsForJsx);
+
+        // Merge wrapper's original props with the ref first, then apply updateProps
+        const wrapperElementProps = wrapper.props as Record<string, unknown>;
+        const baseWrapperProps: React.ComponentPropsWithRef<'div'> = {
+          ref: ref ?? null,
+          ...(wrapperElementProps as React.ComponentPropsWithRef<'div'>),
+        };
+
+        // Apply updateProps to the merged wrapper props (not just the ref)
+        const updatedWrapperProps = updateProps ? updateProps(baseWrapperProps) : baseWrapperProps;
+
+        // Ensure ref is always preserved
+        const finalWrapperProps = {
+          ...updatedWrapperProps,
+          ref: updatedWrapperProps.ref ?? ref ?? null,
+          // Include key in props for jsx
+          key: wrapper.key,
+        };
+
+        // Determine children: use wrapper's children if explicitly provided, otherwise use the cloned element
+        const hasWrapperChildren = 'children' in wrapperElementProps && wrapperElementProps.children !== undefined;
+        const wrapperChildren = hasWrapperChildren ? (wrapperElementProps.children as ReactNode) : clonedElement;
+
+        // Remove children from props - jsx handles it as 3rd+ argument
+        delete (finalWrapperProps as { children?: unknown }).children;
+        // Pass children as 3rd argument to jsx (not in props)
+        return jsx(wrapper.type, finalWrapperProps, wrapperChildren);
+      }
+
+      // When no wrapper, updateProps applies to the element itself
       // Ensure children are on props (not as jsx's 3rd arg)
       const propsForJsx = {
         ...finalProps,
@@ -131,8 +211,8 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
     } catch (error) {
       console.warn('HAKIT: Failed to clone element for automatic drag behavior:', error);
       logAutoWrap('cloneElement failed', 'div');
-      // Fallback: wrap in div
-      return <div {...createWrapperProps()}>{element}</div>;
+      // Fallback: wrap in div or custom wrapper
+      return wrapElement(element, 'div');
     }
   }
   // for react portals, just return the original element
@@ -142,5 +222,5 @@ export function attachPropsToElement({ element, ref, componentLabel, updateProps
   }
   // Fallback for any other case
   logAutoWrap('Component returned unknown type', 'div');
-  return <div {...createWrapperProps()}>{element}</div>;
+  return wrapElement(element, 'div');
 }

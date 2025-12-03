@@ -231,6 +231,22 @@ describe('createComponent', () => {
     );
   });
 
+  test('switch fields should honor their defaults', async () => {
+    // borders, should be disabled by default
+    const config: CustomComponentConfig<DefaultComponentProps> = {
+      label: 'Test Component',
+      fields: {},
+      render: props => {
+        return createElement('div', {}, `borderEnabled: ${props.$appearance?.design?.borderEnabled}`);
+      },
+    };
+
+    const data = createMockComponentFactoryData();
+    const componentFactory = createComponent(config);
+    const result = await componentFactory(data);
+    expect(result.defaultProps.$appearance?.design?.borderEnabled).toBe(false);
+  });
+
   test('should create breakpoint field with correct behavior', async () => {
     const config: CustomComponentConfig<SimpleProps> = {
       label: 'Test Component',
@@ -479,7 +495,7 @@ describe('createComponent', () => {
       expect(result.fields).toBeDefined();
       assertObjectField(result.fields.$appearance);
       expect('typography' in result.fields.$appearance.objectFields).toBe(false);
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
     });
 
     test('should omit deeply nested field within $appearance.background', async () => {
@@ -492,8 +508,8 @@ describe('createComponent', () => {
         internalFields: {
           omit: {
             $appearance: {
-              background: {
-                color: true,
+              design: {
+                backgroundColor: true,
               },
             },
           },
@@ -506,11 +522,15 @@ describe('createComponent', () => {
 
       expect(result.fields).toBeDefined();
       assertObjectField(result.fields.$appearance);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect('color' in backgroundField.objectFields).toBe(false);
-      expect('useImage' in backgroundField.objectFields).toBe(true);
-      expect('image' in backgroundField.objectFields).toBe(true);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect('backgroundColor' in designField.objectFields).toBe(false);
+      expect('useImage' in designField.objectFields).toBe(true);
+      expect('backgroundImage' in designField.objectFields).toBe(true);
+      expect('backgroundSize' in designField.objectFields).toBe(true);
+      expect('backgroundPosition' in designField.objectFields).toBe(true);
+      expect('backgroundRepeat' in designField.objectFields).toBe(true);
+      expect('backgroundAttachment' in designField.objectFields).toBe(true);
     });
 
     test('should omit $interactions.tap field', async () => {
@@ -684,8 +704,8 @@ describe('createComponent', () => {
         internalFields: {
           omit: {
             $appearance: {
-              background: {
-                color: true,
+              design: {
+                backgroundColor: true,
                 useImage: true,
               },
             },
@@ -699,12 +719,14 @@ describe('createComponent', () => {
 
       expect(result.fields).toBeDefined();
       assertObjectField(result.fields.$appearance);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect('color' in backgroundField.objectFields).toBe(false);
-      expect('useImage' in backgroundField.objectFields).toBe(false);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect('backgroundColor' in designField.objectFields).toBe(false);
+      expect('useImage' in designField.objectFields).toBe(false);
       // Other background fields should still exist
-      expect('image' in backgroundField.objectFields || 'size' in backgroundField.objectFields).toBe(true);
+      expect('backgroundImage' in designField.objectFields || 'backgroundSize' in designField.objectFields).toBe(true);
+      expect('backgroundPosition' in designField.objectFields || 'backgroundRepeat' in designField.objectFields).toBe(true);
+      expect('backgroundAttachment' in designField.objectFields).toBe(true);
     });
 
     test('should omit nested fields across multiple internal field groups', async () => {
@@ -720,8 +742,8 @@ describe('createComponent', () => {
               tap: true,
             },
             $appearance: {
-              background: {
-                color: true,
+              design: {
+                backgroundColor: true,
               },
             },
           },
@@ -738,9 +760,9 @@ describe('createComponent', () => {
       expect('tap' in result.fields.$interactions.objectFields).toBe(false);
       // Verify $appearance.background.color is omitted
       assertObjectField(result.fields.$appearance);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect('color' in backgroundField.objectFields).toBe(false);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect('backgroundColor' in designField.objectFields).toBe(false);
     });
 
     test('should extend internal fields with new top-level field', async () => {
@@ -823,7 +845,7 @@ describe('createComponent', () => {
         SimpleProps,
         {
           $appearance: {
-            background: {
+            design: {
               overlayColor: string;
             };
           };
@@ -837,7 +859,7 @@ describe('createComponent', () => {
         internalFields: {
           extend: {
             $appearance: {
-              background: {
+              design: {
                 overlayColor: {
                   type: 'color',
                   label: 'Overlay Color',
@@ -857,18 +879,18 @@ describe('createComponent', () => {
       expect('$appearance' in result.fields).toBe(true);
       assertObjectField(result.fields.$appearance);
       expect(result.fields.$appearance.objectFields).toBeDefined();
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect(backgroundField.objectFields).toBeDefined();
-      expect('overlayColor' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.overlayColor, 'color');
-      const overlayColorField = backgroundField.objectFields.overlayColor;
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect(designField.objectFields).toBeDefined();
+      expect('overlayColor' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.overlayColor, 'color');
+      const overlayColorField = designField.objectFields.overlayColor;
       expect(overlayColorField.label).toBe('Overlay Color');
       expect(overlayColorField.default).toBe('#000000');
       // Verify existing background fields still exist
-      expect('color' in backgroundField.objectFields).toBe(true);
-      expect('useImage' in backgroundField.objectFields).toBe(true);
+      expect('backgroundColor' in designField.objectFields).toBe(true);
+      expect('useImage' in designField.objectFields).toBe(true);
     });
 
     test('should extend $interactions.tap with new nested field', async () => {
@@ -960,9 +982,9 @@ describe('createComponent', () => {
         internalFields: {
           defaults: {
             $appearance: {
-              background: {
+              design: {
                 useImage: true,
-                image: 'https://example.com/image.jpg',
+                backgroundImage: 'https://example.com/image.jpg',
               },
             },
           },
@@ -977,13 +999,13 @@ describe('createComponent', () => {
       expect('$appearance' in result.fields).toBe(true);
       assertObjectField(result.fields.$appearance);
       expect(result.fields.$appearance.objectFields).toBeDefined();
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect(backgroundField.objectFields).toBeDefined();
-      expect('useImage' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.useImage, 'switch');
-      const useImageField = backgroundField.objectFields.useImage;
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect(designField.objectFields).toBeDefined();
+      expect('useImage' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.useImage, 'switch');
+      const useImageField = designField.objectFields.useImage;
       expect(useImageField.default).toBe(true);
     });
 
@@ -997,8 +1019,8 @@ describe('createComponent', () => {
         internalFields: {
           defaults: {
             $appearance: {
-              background: {
-                color: '#ff0000',
+              design: {
+                backgroundColor: '#ff0000',
               },
             },
           },
@@ -1013,14 +1035,14 @@ describe('createComponent', () => {
       expect('$appearance' in result.fields).toBe(true);
       assertObjectField(result.fields.$appearance);
       expect(result.fields.$appearance.objectFields).toBeDefined();
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect(backgroundField.objectFields).toBeDefined();
-      expect('color' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.color, 'color');
-      const colorField = backgroundField.objectFields.color;
-      expect(colorField.default).toBe('#ff0000');
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect(designField.objectFields).toBeDefined();
+      expect('backgroundColor' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.backgroundColor, 'color');
+      const backgroundColorField = designField.objectFields.backgroundColor;
+      expect(backgroundColorField.default).toBe('#ff0000');
     });
 
     test('should update default value of $interactions.tap.type', async () => {
@@ -1069,8 +1091,8 @@ describe('createComponent', () => {
         internalFields: {
           defaults: {
             $appearance: {
-              background: {
-                color: '#00ff00',
+              design: {
+                backgroundColor: '#00ff00',
                 useImage: true,
               },
             },
@@ -1095,16 +1117,16 @@ describe('createComponent', () => {
       expect('$appearance' in result.fields).toBe(true);
       assertObjectField(result.fields.$appearance);
       expect(result.fields.$appearance.objectFields).toBeDefined();
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect(backgroundField.objectFields).toBeDefined();
-      expect('color' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.color, 'color');
-      expect(backgroundField.objectFields.color.default).toBe('#00ff00');
-      expect('useImage' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.useImage, 'switch');
-      expect(backgroundField.objectFields.useImage.default).toBe(true);
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect(designField.objectFields).toBeDefined();
+      expect('backgroundColor' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.backgroundColor, 'color');
+      expect(designField.objectFields.backgroundColor.default).toBe('#00ff00');
+      expect('useImage' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.useImage, 'switch');
+      expect(designField.objectFields.useImage.default).toBe(true);
 
       // Verify $interactions defaults
       expect('$interactions' in result.fields).toBe(true);
@@ -1206,7 +1228,7 @@ describe('createComponent', () => {
         SimpleProps,
         {
           $appearance: {
-            background: {
+            design: {
               overlayOpacity: number;
             };
           };
@@ -1220,8 +1242,8 @@ describe('createComponent', () => {
         internalFields: {
           omit: {
             $appearance: {
-              background: {
-                color: true,
+              design: {
+                backgroundColor: true,
               },
             },
             $interactions: {
@@ -1230,7 +1252,7 @@ describe('createComponent', () => {
           },
           extend: {
             $appearance: {
-              background: {
+              design: {
                 overlayOpacity: {
                   type: 'number',
                   label: 'Overlay Opacity',
@@ -1241,7 +1263,7 @@ describe('createComponent', () => {
           },
           defaults: {
             $appearance: {
-              background: {
+              design: {
                 useImage: true,
                 // @ts-expect-error - overlayOpacity is an extended field, not in InternalComponentFields defaults
                 overlayOpacity: 0.8,
@@ -1263,21 +1285,21 @@ describe('createComponent', () => {
       expect(result.fields).toBeDefined();
       // Verify omit - $appearance.background.color should be removed
       assertObjectField(result.fields.$appearance);
-      assertObjectField(result.fields.$appearance.objectFields.background);
-      const backgroundField = result.fields.$appearance.objectFields.background;
-      expect('color' in backgroundField.objectFields).toBe(false);
+      assertObjectField(result.fields.$appearance.objectFields.design);
+      const designField = result.fields.$appearance.objectFields.design;
+      expect('backgroundColor' in designField.objectFields).toBe(false);
       // Verify omit - $interactions.tap should be removed
       assertObjectField(result.fields.$interactions);
       expect('tap' in result.fields.$interactions.objectFields).toBe(false);
       // Verify extend - overlayOpacity should exist
-      expect('overlayOpacity' in backgroundField.objectFields).toBe(true);
-      assertField(backgroundField.objectFields.overlayOpacity, 'number');
-      const overlayOpacityField = backgroundField.objectFields.overlayOpacity;
+      expect('overlayOpacity' in designField.objectFields).toBe(true);
+      assertField(designField.objectFields.overlayOpacity, 'number');
+      const overlayOpacityField = designField.objectFields.overlayOpacity;
       // Verify defaults - overlayOpacity default should be updated
       expect(overlayOpacityField.default).toBe(0.8);
       // Verify defaults - useImage default should be updated
-      assertField(backgroundField.objectFields.useImage, 'switch');
-      expect(backgroundField.objectFields.useImage.default).toBe(true);
+      assertField(designField.objectFields.useImage, 'switch');
+      expect(designField.objectFields.useImage.default).toBe(true);
       // Verify defaults - $interactions.hold.type should be updated
       assertObjectField(result.fields.$interactions.objectFields.hold);
       const holdField = result.fields.$interactions.objectFields.hold;
@@ -1323,7 +1345,7 @@ describe('createComponent', () => {
       // Verify extended field exists
       expect('customField' in result.fields.$appearance.objectFields).toBe(true);
       // Verify existing fields still exist
-      expect('background' in result.fields.$appearance.objectFields).toBe(true);
+      expect('design' in result.fields.$appearance.objectFields).toBe(true);
     });
 
     test('should place extended fields before existing fields', async () => {
@@ -1418,7 +1440,7 @@ describe('createComponent', () => {
     });
 
     describe('extend with object fields', () => {
-      test('should extend $appearance with new object field containing nested fields', async () => {
+      test('should extend appearance with new object field containing nested fields', async () => {
         const config: CustomComponentConfig<
           SimpleProps,
           {
@@ -1484,7 +1506,7 @@ describe('createComponent', () => {
         assertField(generalField.objectFields.type, 'select');
         assertField(generalField.objectFields.size, 'select');
         // Verify existing $appearance fields still exist
-        expect('background' in result.fields.$appearance.objectFields).toBe(true);
+        expect('design' in result.fields.$appearance.objectFields).toBe(true);
       });
 
       test('should extend $appearance with object field containing visible functions', async () => {
@@ -1705,7 +1727,7 @@ describe('createComponent', () => {
           SimpleProps,
           {
             $appearance: {
-              background: {
+              design: {
                 overlay: {
                   color: string;
                   opacity: number;
@@ -1722,7 +1744,7 @@ describe('createComponent', () => {
           internalFields: {
             extend: {
               $appearance: {
-                background: {
+                design: {
                   overlay: {
                     type: 'object',
                     label: 'Overlay',
@@ -1751,15 +1773,15 @@ describe('createComponent', () => {
 
         expect(result.fields).toBeDefined();
         assertObjectField(result.fields.$appearance);
-        assertObjectField(result.fields.$appearance.objectFields.background);
-        const backgroundField = result.fields.$appearance.objectFields.background;
-        expect('overlay' in backgroundField.objectFields).toBe(true);
-        assertObjectField(backgroundField.objectFields.overlay);
-        const overlayField = backgroundField.objectFields.overlay;
+        assertObjectField(result.fields.$appearance.objectFields.design);
+        const designField = result.fields.$appearance.objectFields.design;
+        expect('overlay' in designField.objectFields).toBe(true);
+        assertObjectField(designField.objectFields.overlay);
+        const overlayField = designField.objectFields.overlay;
         expect('color' in overlayField.objectFields).toBe(true);
         expect('opacity' in overlayField.objectFields).toBe(true);
         // Verify existing background fields still exist
-        expect('color' in backgroundField.objectFields || 'useImage' in backgroundField.objectFields).toBe(true);
+        expect('color' in designField.objectFields || 'useImage' in designField.objectFields).toBe(true);
       });
 
       test('should extend with object field and then omit some of its nested fields', async () => {

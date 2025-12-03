@@ -562,11 +562,211 @@ describe('processInternalFields', () => {
       } else {
         throw new Error('result title should be a field definition');
       }
-      // The original field should remain unchanged (shallow copy means nested objects might be shared)
-      // But the default property should be updated in the result, not the original
-      // Note: Due to shallow copy, nested objects are shared, but we're testing that
-      // the top-level field reference is different
+      // The original field should remain unchanged
       expect(result).not.toBe(fields);
+      assertField(fields.title, 'text');
+      expect(fields.title.default).toBe('Default Title');
+    });
+
+    test('should not share nested objects between different component defaults', () => {
+      // Simulate the Card component scenario where borderEnabled is set to true
+      // This test ensures that when one component sets a default, it doesn't affect others
+      const baseFields = createTestFields();
+
+      // First component: sets enabled to true
+      const config1: InternalFieldsConfig<TestProps> = {
+        defaults: {
+          enabled: true,
+        },
+      };
+      const result1 = processInternalFields(baseFields, config1);
+
+      // Second component: should still have enabled as false (original default)
+      const config2: InternalFieldsConfig<TestProps> = {
+        defaults: {
+          title: 'Different Title', // Different default, shouldn't affect enabled
+        },
+      };
+      const result2 = processInternalFields(baseFields, config2);
+
+      // Verify first component has enabled: true
+      assertField(result1.enabled, 'switch');
+      expect(result1.enabled.default).toBe(true);
+
+      // Verify second component still has enabled: false (original default)
+      assertField(result2.enabled, 'switch');
+      expect(result2.enabled.default).toBe(false);
+
+      // Verify original fields are unchanged
+      assertField(baseFields.enabled, 'switch');
+      expect(baseFields.enabled.default).toBe(false);
+    });
+
+    test('should not share deeply nested objects between different component defaults', () => {
+      const baseFields = createTestFields();
+
+      // First component: sets deeply nested default
+      const config1: InternalFieldsConfig<TestProps> = {
+        defaults: {
+          nested: {
+            deep: {
+              data: 999,
+            },
+          },
+        },
+      };
+      const result1 = processInternalFields(baseFields, config1);
+
+      // Second component: should still have original nested.deep.data default
+      const config2: InternalFieldsConfig<TestProps> = {
+        defaults: {
+          title: 'Different Title',
+        },
+      };
+      const result2 = processInternalFields(baseFields, config2);
+
+      // Verify first component has updated nested value
+      assertObjectField(result1.nested);
+      assertObjectField(result1.nested.objectFields.deep);
+      assertField(result1.nested.objectFields.deep.objectFields.data, 'number');
+      expect(result1.nested.objectFields.deep.objectFields.data.default).toBe(999);
+
+      // Verify second component has original nested value
+      assertObjectField(result2.nested);
+      assertObjectField(result2.nested.objectFields.deep);
+      assertField(result2.nested.objectFields.deep.objectFields.data, 'number');
+      expect(result2.nested.objectFields.deep.objectFields.data.default).toBe(42); // Original default
+
+      // Verify original fields are unchanged
+      assertObjectField(baseFields.nested);
+      assertObjectField(baseFields.nested.objectFields.deep);
+      assertField(baseFields.nested.objectFields.deep.objectFields.data, 'number');
+      expect(baseFields.nested.objectFields.deep.objectFields.data.default).toBe(42);
+    });
+
+    test('should isolate nested field defaults between components (borderEnabled scenario)', () => {
+      // This test specifically simulates the Card component borderEnabled bug
+      // where borderEnabled: true in Card was affecting all components
+      const baseFields: FieldConfiguration<{
+        $appearance: {
+          design: {
+            borderEnabled: boolean;
+            borderColor: string;
+          };
+        };
+      }> = {
+        $appearance: {
+          type: 'object',
+          label: 'Appearance',
+          objectFields: {
+            design: {
+              type: 'object',
+              label: 'Design',
+              objectFields: {
+                borderEnabled: {
+                  type: 'switch',
+                  label: 'Enable Border',
+                  default: false, // Default is false
+                },
+                borderColor: {
+                  type: 'color',
+                  label: 'Border Color',
+                  default: '#000000',
+                },
+              },
+            },
+          },
+        },
+      };
+
+      // Card component: sets borderEnabled to true
+      const cardConfig: InternalFieldsConfig<{
+        $appearance: {
+          design: {
+            borderEnabled: boolean;
+            borderColor: string;
+          };
+        };
+      }> = {
+        defaults: {
+          $appearance: {
+            design: {
+              borderEnabled: true, // Card wants borderEnabled: true
+            },
+          },
+        },
+      };
+      const cardResult = processInternalFields(baseFields, cardConfig);
+
+      // Other component: should still have borderEnabled: false
+      const otherConfig: InternalFieldsConfig<{
+        $appearance: {
+          design: {
+            borderEnabled: boolean;
+            borderColor: string;
+          };
+        };
+      }> = {
+        defaults: {
+          $appearance: {
+            design: {
+              borderColor: '#ff0000', // Only changes borderColor
+            },
+          },
+        },
+      };
+      const otherResult = processInternalFields(baseFields, otherConfig);
+
+      // Verify Card component has borderEnabled: true
+      assertObjectField(cardResult.$appearance);
+      assertObjectField(cardResult.$appearance.objectFields.design);
+      assertField(cardResult.$appearance.objectFields.design.objectFields.borderEnabled, 'switch');
+      expect(cardResult.$appearance.objectFields.design.objectFields.borderEnabled.default).toBe(true);
+
+      // Verify other component still has borderEnabled: false (original default)
+      assertObjectField(otherResult.$appearance);
+      assertObjectField(otherResult.$appearance.objectFields.design);
+      assertField(otherResult.$appearance.objectFields.design.objectFields.borderEnabled, 'switch');
+      expect(otherResult.$appearance.objectFields.design.objectFields.borderEnabled.default).toBe(false);
+
+      // Verify original base fields are unchanged
+      assertObjectField(baseFields.$appearance);
+      assertObjectField(baseFields.$appearance.objectFields.design);
+      assertField(baseFields.$appearance.objectFields.design.objectFields.borderEnabled, 'switch');
+      expect(baseFields.$appearance.objectFields.design.objectFields.borderEnabled.default).toBe(false);
+    });
+
+    test('should create separate object field instances when applying nested defaults', () => {
+      const baseFields = createTestFields();
+
+      const config: InternalFieldsConfig<TestProps> = {
+        defaults: {
+          nested: {
+            value: 'updated value',
+          },
+        },
+      };
+
+      const result = processInternalFields(baseFields, config);
+
+      // Verify the nested object field is a different instance
+      assertObjectField(result.nested);
+      assertObjectField(baseFields.nested);
+      expect(result.nested).not.toBe(baseFields.nested);
+
+      // Verify nested objectFields are different instances
+      expect(result.nested.objectFields).not.toBe(baseFields.nested.objectFields);
+
+      // Verify the value field is a different instance
+      assertField(result.nested.objectFields.value, 'text');
+      assertField(baseFields.nested.objectFields.value, 'text');
+      expect(result.nested.objectFields.value).not.toBe(baseFields.nested.objectFields.value);
+
+      // Verify original is unchanged
+      expect(baseFields.nested.objectFields.value.default).toBe('default value');
+
+      // Verify result has updated default
+      expect(result.nested.objectFields.value.default).toBe('updated value');
     });
   });
 

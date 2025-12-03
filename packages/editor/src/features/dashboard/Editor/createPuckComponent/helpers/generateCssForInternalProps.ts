@@ -2,6 +2,7 @@ import { generateColorSwatches } from '@helpers/color';
 import { generateCssVariables } from '@helpers/color/generateCssVariables';
 import { InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
 import { fontFamilyMap } from '@features/dashboard/Editor/Typography';
+import { sanitizeFilterId } from '@components/LiquidGlass';
 
 type InternalFields = InternalComponentFields | InternalRootComponentFields;
 type ComponentType = 'component' | 'root';
@@ -60,32 +61,88 @@ export function generateCssForInternalProps(
   }
 
   // Generate background CSS - use direct values (no CSS variables)
-  if (appearance?.background) {
-    const bg = appearance.background;
+  if (appearance?.design) {
+    const d = appearance.design;
+    const isGlassBackground = d.backgroundType === 'glass' && type !== 'root';
+    const isLiquidGlassBackground = d.backgroundType === 'liquid-glass' && type !== 'root';
+    const isBackgroundColor = d.backgroundType === 'color' || type === 'root';
 
     // Generate CSS rules with direct values
-    if (bg.color) {
-      cssStylesObj.backgroundColor = bg.color;
+    if (d.backgroundColor && isBackgroundColor) {
+      cssStylesObj.backgroundColor = d.backgroundColor;
     }
 
-    if (bg.useImage && bg.image) {
-      cssStylesObj.backgroundImage = `url(${bg.image})`;
+    if (d.boxShadowEnabled === true && type !== 'root') {
+      cssStylesObj.boxShadow = ` 0 4px ${d.boxShadowBlur ?? 30}px ${d.boxShadowSpread ?? 0}px ${d.boxShadowColor ?? 'rgba(0,0,0,0.1)'};`;
+    }
 
-      if (bg.size) {
-        const bgSize = bg.size === 'custom' ? (bg.sizeCustom ?? 'cover') : bg.size;
+    if (d.borderRadius && type !== 'root') {
+      cssStylesObj.borderRadius = d.borderRadius;
+    }
+
+    if (!isGlassBackground && !isLiquidGlassBackground) {
+      if (d.borderEnabled === true) {
+        cssStylesObj.border = `${d.borderWidth} ${d.borderStyle ?? 'solid'} ${d.borderColor}`;
+      }
+    }
+
+    if (isGlassBackground) {
+      const glassColor = d.glassColor || 'rgba(255, 255, 255, 0.2)';
+      const percent = Math.round((d.glassOutlineTransparency ?? 0.81) * 100);
+      const borderColor = `color-mix(in srgb, ${glassColor} ${percent}%, transparent)`;
+      const borderWidth = `${d.glassOutline ?? 1}px`;
+      cssStylesObj.backgroundColor = glassColor;
+      cssStylesObj.backdropFilter = `blur(${d.glassBlurAmount ?? `5`}px)`;
+      cssStylesObj.WebkitBackdropFilter = `blur(${d.glassBlurAmount ?? `5`}px)`;
+      cssStylesObj.border = `${borderWidth} solid ${borderColor}`;
+    }
+    if (isLiquidGlassBackground) {
+      const percent = Math.round((d.glassOutlineTransparency ?? 0.81) * 100);
+      const borderWidth = `${d.glassOutline ?? 1}px`;
+      let glassColor = d.glassColor || 'rgba(255, 255, 255, 0.2)';
+      // intentionally using the input glassColor here, not the color mix below, otherwise it may be too transparent
+      const borderColor = `color-mix(in srgb, ${glassColor} ${percent}%, transparent)`;
+
+      const a = Math.round(Math.max(0, Math.min(1, d.glassBackgroundOpacity ?? 0.1)) * 255)
+        .toString(16)
+        .padStart(2, '0')
+        .toUpperCase();
+      if (/^#([0-9a-f]{6})$/i.test(glassColor)) glassColor = `${glassColor}${a}`;
+      // non-hex → fallback using color-mix so opacity still applies
+      const pct = Math.round((d.glassBackgroundOpacity ?? 0.1) * 100);
+      glassColor = `color-mix(in oklab, ${glassColor} ${pct}%, transparent)`;
+
+      cssStylesObj.backgroundColor = glassColor;
+      cssStylesObj.border = `${borderWidth} solid ${borderColor}`;
+      cssStylesObj.overflow = 'hidden';
+      cssStylesObj.position = 'relative';
+      const filterId = sanitizeFilterId(`liquid-glass-${props.id}`);
+      cssStylesObj.backdropFilter = `url(#${filterId})`;
+      cssStylesObj.WebkitBackdropFilter = `url(#${filterId})`;
+    }
+
+    if (d.useImage && d.backgroundImage) {
+      cssStylesObj.backgroundImage = `url(${d.backgroundImage})`;
+
+      if (d.backgroundImageBlendMode && d.backgroundImageBlendMode !== 'normal') {
+        cssStylesObj.backgroundBlendMode = d.backgroundImageBlendMode;
+      }
+
+      if (d.backgroundSize && d.backgroundSize !== 'auto') {
+        const bgSize = d.backgroundSize === 'custom' ? (d.backgroundSizeCustom ?? 'cover') : d.backgroundSize;
         cssStylesObj.backgroundSize = bgSize;
       }
 
-      if (bg.position) {
-        cssStylesObj.backgroundPosition = bg.position;
+      if (d.backgroundPosition) {
+        cssStylesObj.backgroundPosition = d.backgroundPosition;
       }
 
-      if (bg.repeat) {
-        cssStylesObj.backgroundRepeat = bg.repeat;
+      if (d.backgroundRepeat && d.backgroundRepeat !== 'no-repeat') {
+        cssStylesObj.backgroundRepeat = d.backgroundRepeat;
       }
 
-      if (bg.attachment) {
-        cssStylesObj.backgroundAttachment = bg.attachment;
+      if (d.backgroundAttachment && d.backgroundAttachment !== 'scroll') {
+        cssStylesObj.backgroundAttachment = d.backgroundAttachment;
       }
     }
 
@@ -100,7 +157,7 @@ export function generateCssForInternalProps(
         cssVariablesObj['--ha-background-image'] = String(cssStylesObj.backgroundImage);
         delete cssStylesObj.backgroundImage;
       }
-      if (cssStylesObj.backgroundSize) {
+      if (cssStylesObj.backgroundSize && cssStylesObj.backgroundSize !== 'auto') {
         cssVariablesObj['--ha-background-size'] = String(cssStylesObj.backgroundSize);
         delete cssStylesObj.backgroundSize;
       }
@@ -108,11 +165,11 @@ export function generateCssForInternalProps(
         cssVariablesObj['--ha-background-position'] = String(cssStylesObj.backgroundPosition);
         delete cssStylesObj.backgroundPosition;
       }
-      if (cssStylesObj.backgroundRepeat) {
+      if (cssStylesObj.backgroundRepeat && cssStylesObj.backgroundRepeat !== 'no-repeat') {
         cssVariablesObj['--ha-background-repeat'] = String(cssStylesObj.backgroundRepeat);
         delete cssStylesObj.backgroundRepeat;
       }
-      if (cssStylesObj.backgroundAttachment) {
+      if (cssStylesObj.backgroundAttachment && cssStylesObj.backgroundAttachment !== 'scroll') {
         cssVariablesObj['--ha-background-attachment'] = String(cssStylesObj.backgroundAttachment);
         delete cssStylesObj.backgroundAttachment;
       }

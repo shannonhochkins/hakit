@@ -17,12 +17,13 @@ export type ButtonProps = {
   };
 };
 
+type BackgroundType = 'color' | 'primary' | 'secondary' | 'danger' | 'success' | 'transparent' | 'glass' | 'liquid-glass';
+
 type InternalFieldOverrides = {
   $appearance: {
-    general: {
-      type: 'primary' | 'secondary';
-      primaryVariant?: 'primary' | 'success' | 'danger';
-      secondaryVariant?: 'secondary' | 'danger' | 'success' | 'transparent';
+    design: {
+      backgroundType: BackgroundType;
+      backgroundColor?: string;
       size: 'xs' | 'sm' | 'md' | 'lg';
       startIcon?: string;
       startIconSize?: UnitFieldValue;
@@ -51,7 +52,10 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
   internalFields: {
     omit: {
       $appearance: {
-        background: true,
+        design: {
+          backgroundType: true,
+          backgroundColor: true,
+        },
         sizeAndSpacing: {
           width: true,
           height: true,
@@ -62,61 +66,30 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
     },
     extend: {
       $appearance: {
-        sizeAndSpacing: {
-          fullHeight: {
-            type: 'switch',
-            label: 'Full Height',
-            description: 'Whether to make the button take up the full height of its container',
-            default: false,
-          },
-          fullWidth: {
-            type: 'switch',
-            label: 'Full Width',
-            description: 'Whether to make the button take up the full width of its container',
-            default: false,
-          },
-        },
-        general: {
+        design: {
           type: 'object',
-          label: 'General',
+          label: 'Design',
           objectFields: {
-            type: {
+            backgroundType: {
               type: 'select',
-              label: 'Type',
-              description: 'The style of button to display',
+              label: 'Background Type',
+              description: 'The type of background to display',
               default: 'primary',
               options: [
                 { label: 'Primary', value: 'primary' },
                 { label: 'Secondary', value: 'secondary' },
+                { label: 'Color', value: 'color' },
+                { label: 'Glass', value: 'glass' },
+                { label: 'Liquid Glass', value: 'liquid-glass' },
               ],
             },
-            primaryVariant: {
-              type: 'select',
-              label: 'Primary Variant',
-              description: 'The variant style for the primary button',
-              default: 'primary',
-              options: [
-                { label: 'Default', value: 'primary' },
-                { label: 'Success', value: 'success' },
-                { label: 'Danger', value: 'danger' },
-              ],
-              visible(data) {
-                return data.$appearance?.general?.type === 'primary';
-              },
-            },
-            secondaryVariant: {
-              type: 'select',
-              label: 'Secondary Variant',
-              description: 'The variant style for the secondary button',
-              default: 'secondary',
-              options: [
-                { label: 'Default', value: 'secondary' },
-                { label: 'Success', value: 'success' },
-                { label: 'Danger', value: 'danger' },
-                { label: 'Transparent', value: 'transparent' },
-              ],
-              visible(data) {
-                return data.$appearance?.general?.type === 'secondary';
+            backgroundColor: {
+              type: 'color',
+              label: 'Background Color',
+              description: 'Base color for the background.',
+              default: 'var(--clr-primary-a10)',
+              visible(props) {
+                return props.$appearance?.design?.backgroundType === 'color';
               },
             },
             startIcon: {
@@ -131,7 +104,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The size of the start icon',
               default: '1.25rem',
               visible(data) {
-                return data.$appearance?.general?.startIcon !== undefined;
+                return data.$appearance?.design?.startIcon !== undefined;
               },
             },
             startIconColor: {
@@ -140,7 +113,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The color of the start icon, inherits by default',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.startIcon !== undefined;
+                return data.$appearance?.design?.startIcon !== undefined;
               },
             },
             endIcon: {
@@ -155,7 +128,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The size of the end icon',
               default: '1.25rem',
               visible(data) {
-                return data.$appearance?.general?.endIcon !== undefined;
+                return data.$appearance?.design?.endIcon !== undefined;
               },
             },
             endIconColor: {
@@ -164,7 +137,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The color of the end icon, inherits by default',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.endIcon !== undefined;
+                return data.$appearance?.design?.endIcon !== undefined;
               },
             },
             size: {
@@ -191,7 +164,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'Icon to display inside the badge',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.showBadge === true;
               },
             },
             badgeIconSize: {
@@ -200,7 +173,7 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The size of the badge icon',
               default: '0.75rem',
               visible(data) {
-                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.badgeIcon !== undefined && data.$appearance?.design?.showBadge === true;
               },
             },
             badgeIconColor: {
@@ -209,9 +182,24 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
               description: 'The color of the badge icon, inherits by default',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.badgeIcon !== undefined && data.$appearance?.design?.showBadge === true;
               },
             },
+          },
+        },
+
+        sizeAndSpacing: {
+          fullHeight: {
+            type: 'switch',
+            label: 'Full Height',
+            description: 'Whether to make the button take up the full height of its container',
+            default: false,
+          },
+          fullWidth: {
+            type: 'switch',
+            label: 'Full Width',
+            description: 'Whether to make the button take up the full width of its container',
+            default: false,
           },
         },
       },
@@ -237,6 +225,9 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
           label: 'Label',
           description: 'The text to display inside the button',
           default: 'Click Me',
+          visible(data) {
+            return !data.content?.useSlot;
+          },
         },
         tooltip: {
           type: 'text',
@@ -281,31 +272,34 @@ export const buttonComponentConfig: CustomComponentConfig<ButtonProps, InternalF
 function Render(props: RenderProps<ButtonProps, InternalFieldOverrides>) {
   const { content } = props;
   const { slot: Slot, useSlot } = content;
+  const backgroundType = props.$appearance?.design?.backgroundType as BackgroundType;
 
-  if (props.$appearance?.general?.type === 'secondary') {
+  if (backgroundType === 'secondary' || backgroundType === 'danger' || backgroundType === 'success' || backgroundType === 'transparent') {
     return (
       <SecondaryButton
         ref={props._dragRef}
-        css={props.css}
-        variant={props.$appearance.general.secondaryVariant}
-        aria-label={content.tooltip}
-        size={props.$appearance.general.size}
-        startIcon={props.$appearance.general.startIcon}
-        startIconProps={{
-          size: props.$appearance.general.startIconSize,
-          color: props.$appearance.general.startIconColor,
+        buttonProps={{
+          css: props.css,
         }}
-        endIcon={props.$appearance.general.endIcon}
+        variant={backgroundType}
+        aria-label={content.tooltip}
+        size={props.$appearance?.design?.size}
+        startIcon={props.$appearance?.design?.startIcon}
+        startIconProps={{
+          size: props.$appearance?.design?.startIconSize,
+          color: props.$appearance?.design?.startIconColor,
+        }}
+        endIcon={props.$appearance?.design?.endIcon}
         endIconProps={{
-          size: props.$appearance.general.endIconSize,
-          color: props.$appearance.general.endIconColor,
+          size: props.$appearance?.design?.endIconSize,
+          color: props.$appearance?.design?.endIconColor,
         }}
         fullHeight={props.$appearance?.sizeAndSpacing?.fullHeight}
         fullWidth={props.$appearance?.sizeAndSpacing?.fullWidth}
-        badge={props.$appearance.general.showBadge ? props.$appearance.general.badgeIcon : undefined}
+        badge={props.$appearance?.design?.showBadge ? props.$appearance?.design?.badgeIcon : undefined}
         badgeIconProps={{
-          size: props.$appearance.general.badgeIconSize,
-          color: props.$appearance.general.badgeIconColor,
+          size: props.$appearance?.design?.badgeIconSize,
+          color: props.$appearance?.design?.badgeIconColor,
         }}
       >
         {useSlot ? <Slot minEmptyHeight={32} className={`button-slot-${props.id}`} /> : content.label}
@@ -316,26 +310,28 @@ function Render(props: RenderProps<ButtonProps, InternalFieldOverrides>) {
   return (
     <PrimaryButton
       ref={props._dragRef}
-      css={props.css}
-      variant={props.$appearance?.general?.primaryVariant}
-      aria-label={content.tooltip}
-      size={props.$appearance?.general?.size}
-      startIcon={props.$appearance?.general?.startIcon}
-      startIconProps={{
-        size: props.$appearance?.general?.startIconSize,
-        color: props.$appearance?.general?.startIconColor,
+      buttonProps={{
+        css: props.css,
       }}
-      endIcon={props.$appearance?.general?.endIcon}
+      variant={backgroundType}
+      aria-label={content.tooltip}
+      size={props.$appearance?.design?.size}
+      startIcon={props.$appearance?.design?.startIcon}
+      startIconProps={{
+        size: props.$appearance?.design?.startIconSize,
+        color: props.$appearance?.design?.startIconColor,
+      }}
+      endIcon={props.$appearance?.design?.endIcon}
       endIconProps={{
-        size: props.$appearance?.general?.endIconSize,
-        color: props.$appearance?.general?.endIconColor,
+        size: props.$appearance?.design?.endIconSize,
+        color: props.$appearance?.design?.endIconColor,
       }}
       fullHeight={props.$appearance?.sizeAndSpacing?.fullHeight}
       fullWidth={props.$appearance?.sizeAndSpacing?.fullWidth}
-      badge={props.$appearance?.general?.showBadge ? props.$appearance?.general?.badgeIcon : undefined}
+      badge={props.$appearance?.design?.showBadge ? props.$appearance?.design?.badgeIcon : undefined}
       badgeIconProps={{
-        size: props.$appearance?.general?.badgeIconSize,
-        color: props.$appearance?.general?.badgeIconColor,
+        size: props.$appearance?.design?.badgeIconSize,
+        color: props.$appearance?.design?.badgeIconColor,
       }}
     >
       {useSlot ? <Slot minEmptyHeight={32} className={`button-slot-${props.id}`} /> : content.label}

@@ -179,7 +179,7 @@ export async function createRootComponent<P extends DefaultComponentProps, Exten
             isEditing={puck.isEditing}
           />
           {/* the root dropzone */}
-          <Content />
+          <Content className='Root-content' />
           {/* slot that houses all popup portals, intentionally hiding this zone so users can't drag into it */}
           <PopupContent style={{ display: 'none' }} />
         </RenderErrorBoundary>

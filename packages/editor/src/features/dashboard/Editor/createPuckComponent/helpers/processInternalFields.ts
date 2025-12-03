@@ -214,15 +214,20 @@ function applyDefaultsToFields<F>(fields: F, defaultsConfig: Record<string, unkn
       const fieldValue = (result as Record<string, unknown>)[key];
       if (fieldValue && typeof fieldValue === 'object' && 'objectFields' in fieldValue) {
         // This is an object field - recursively apply defaults to nested fields
-        const fieldConfig = fieldValue as { objectFields?: Record<string, unknown>; default?: unknown };
+        // IMPORTANT: Clone the fieldConfig to avoid mutating shared base fields
+        const fieldConfig = { ...(fieldValue as Record<string, unknown>) } as { objectFields?: Record<string, unknown>; default?: unknown };
         if (fieldConfig.objectFields && defaultValue && typeof defaultValue === 'object' && !Array.isArray(defaultValue)) {
           // Recursively apply defaults to nested objectFields
           fieldConfig.objectFields = applyDefaultsToFields(fieldConfig.objectFields, defaultValue as Record<string, unknown>);
         }
+        // Replace the field in result with the cloned and modified version
+        (result as Record<string, unknown>)[key] = fieldConfig;
       } else if (fieldValue && typeof fieldValue === 'object' && 'type' in fieldValue) {
-        // This is a regular field - update its default value
-        const fieldConfig = fieldValue as { default?: unknown };
+        // This is a regular field - clone it before updating its default value to avoid mutating shared base fields
+        const fieldConfig = { ...(fieldValue as Record<string, unknown>) } as { default?: unknown };
         fieldConfig.default = defaultValue;
+        // Replace the field in result with the cloned and modified version
+        (result as Record<string, unknown>)[key] = fieldConfig;
       }
     }
   }
