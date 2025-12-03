@@ -8,8 +8,10 @@ export interface StyleInputs {
 }
 
 // create a default style that adds max-width: fit-content; to everything
-const defaultStyles: CSSInterpolation = {
+export const defaultStyles: Record<string, string | number> = {
   maxWidth: 'fit-content',
+  position: 'relative',
+  overflow: 'hidden',
 };
 
 /**

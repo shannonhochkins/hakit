@@ -4,33 +4,14 @@ import { CustomRootComponentConfig, RenderProps } from '@typings/puck';
 import { properties, sharedCss } from '../../../../css-variables';
 import { DefaultComponentProps } from '@measured/puck';
 import { Typography } from '../Typography';
+import { UnitFieldValue } from '@typings/fields';
 // import { processPropsWithInternalFields } from '../createPuckComponent';
 
 const defaultBackground = new URL('./default-background.jpg', import.meta.url).href;
 
 export interface InternalFieldsBackgroundProps {
   $appearance: {
-    background: {
-      useImage: boolean;
-      image: string | undefined;
-      /** blend mode for the background image and color */
-      blendMode:
-        | 'normal'
-        | 'multiply'
-        | 'screen'
-        | 'overlay'
-        | 'darken'
-        | 'lighten'
-        | 'color-dodge'
-        | 'color-burn'
-        | 'hard-light'
-        | 'soft-light'
-        | 'difference'
-        | 'exclusion'
-        | 'hue'
-        | 'saturation'
-        | 'color'
-        | 'luminosity';
+    design: {
       /** Optional image filters */
       useAdvancedFilters: boolean;
       filterBlur: number;
@@ -38,6 +19,10 @@ export interface InternalFieldsBackgroundProps {
       filterContrast: number;
       filterSaturate: number;
       filterGrayscale: number;
+    };
+    spacing: {
+      margin: UnitFieldValue;
+      padding: UnitFieldValue;
     };
   };
 }
@@ -49,50 +34,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
   internalFields: {
     extend: {
       $appearance: {
-        background: {
-          useImage: {
-            type: 'switch',
-            label: 'Use Background Image',
-            description: 'Enable to display a background image on the page.',
-            default: false,
-          },
-          image: {
-            type: 'imageUpload',
-            label: 'Background Image',
-            description: 'Image to display as the page background.',
-            default: undefined,
-            visible(data) {
-              return data.$appearance?.background?.useImage === true;
-            },
-          },
-          blendMode: {
-            type: 'select',
-            label: 'Image & Color Blend Mode',
-            description:
-              'Choose how the background image and background color are blended together. Useful for tinting effects and creative backgrounds.',
-            default: 'multiply',
-            options: [
-              { label: 'Normal', value: 'normal' },
-              { label: 'Multiply', value: 'multiply' },
-              { label: 'Screen', value: 'screen' },
-              { label: 'Overlay', value: 'overlay' },
-              { label: 'Darken', value: 'darken' },
-              { label: 'Lighten', value: 'lighten' },
-              { label: 'Color Dodge', value: 'color-dodge' },
-              { label: 'Color Burn', value: 'color-burn' },
-              { label: 'Hard Light', value: 'hard-light' },
-              { label: 'Soft Light', value: 'soft-light' },
-              { label: 'Difference', value: 'difference' },
-              { label: 'Exclusion', value: 'exclusion' },
-              { label: 'Hue', value: 'hue' },
-              { label: 'Saturation', value: 'saturation' },
-              { label: 'Color', value: 'color' },
-              { label: 'Luminosity', value: 'luminosity' },
-            ],
-            visible(data) {
-              return data.$appearance?.background?.useImage === true;
-            },
-          },
+        design: {
           filterBlur: {
             type: 'number',
             label: 'Image Blur',
@@ -100,7 +42,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             description: 'Apply a blur effect to the background, higher values create a stronger blur.',
             default: 25,
             visible(data) {
-              return data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useImage === true;
             },
           },
           useAdvancedFilters: {
@@ -110,7 +52,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
               'Turn on to adjust the background image with advanced filters like brightness, contrast, saturation, and grayscale.',
             default: false,
             visible(data) {
-              return data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useImage === true;
             },
           },
           filterBrightness: {
@@ -122,7 +64,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useAdvancedFilters === true && data.$appearance?.design?.useImage === true;
             },
           },
           filterContrast: {
@@ -134,7 +76,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useAdvancedFilters === true && data.$appearance?.design?.useImage === true;
             },
           },
           filterSaturate: {
@@ -146,7 +88,7 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 3,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useAdvancedFilters === true && data.$appearance?.design?.useImage === true;
             },
           },
           filterGrayscale: {
@@ -158,7 +100,31 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
             max: 1,
             step: 0.05,
             visible(data) {
-              return data.$appearance?.background?.useAdvancedFilters === true && data.$appearance?.background?.useImage === true;
+              return data.$appearance?.design?.useAdvancedFilters === true && data.$appearance?.design?.useImage === true;
+            },
+          },
+        },
+        spacing: {
+          type: 'object',
+          section: {
+            expanded: false,
+          },
+          label: 'Spacing',
+          description: 'Spacing settings for the page',
+          objectFields: {
+            padding: {
+              type: 'unit',
+              label: 'Padding',
+              description: 'Padding inside the container around the content area',
+              default: '0rem',
+              supportsAllCorners: true,
+            },
+            margin: {
+              type: 'unit',
+              label: 'Margin',
+              description: 'Margin outside the container',
+              default: '0rem',
+              supportsAllCorners: true,
             },
           },
         },
@@ -166,17 +132,18 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
     },
     omit: {
       $appearance: {
-        background: {
+        design: {
           useImage: true,
-          image: true,
+          backgroundImage: true,
         },
       },
     },
     defaults: {
       $appearance: {
-        background: {
+        design: {
           useImage: true,
-          image: defaultBackground,
+          backgroundImage: defaultBackground,
+          backgroundImageBlendMode: 'multiply',
         },
       },
     },
@@ -188,29 +155,29 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
     // Props parameter is required by type signature but values are generated by helper
 
     const filterParts: string[] = [];
-    if (props.$appearance?.background?.filterBlur !== undefined) {
-      filterParts.push(`blur(${props.$appearance?.background?.filterBlur}px)`);
+    if (props.$appearance?.design?.filterBlur !== undefined) {
+      filterParts.push(`blur(${props.$appearance?.design?.filterBlur}px)`);
     }
-    if (props.$appearance?.background?.useAdvancedFilters) {
-      if (props.$appearance?.background?.filterBrightness !== undefined) {
-        filterParts.push(`brightness(${props.$appearance?.background?.filterBrightness})`);
+    if (props.$appearance?.design?.useAdvancedFilters) {
+      if (props.$appearance?.design?.filterBrightness !== undefined) {
+        filterParts.push(`brightness(${props.$appearance?.design?.filterBrightness})`);
       }
-      if (props.$appearance?.background?.filterContrast !== undefined) {
-        filterParts.push(`contrast(${props.$appearance?.background?.filterContrast})`);
+      if (props.$appearance?.design?.filterContrast !== undefined) {
+        filterParts.push(`contrast(${props.$appearance?.design?.filterContrast})`);
       }
-      if (props.$appearance?.background?.filterSaturate !== undefined) {
-        filterParts.push(`saturate(${props.$appearance?.background?.filterSaturate})`);
+      if (props.$appearance?.design?.filterSaturate !== undefined) {
+        filterParts.push(`saturate(${props.$appearance?.design?.filterSaturate})`);
       }
-      if (props.$appearance?.background?.filterGrayscale !== undefined) {
-        filterParts.push(`grayscale(${props.$appearance?.background?.filterGrayscale})`);
+      if (props.$appearance?.design?.filterGrayscale !== undefined) {
+        filterParts.push(`grayscale(${props.$appearance?.design?.filterGrayscale})`);
       }
     }
 
     // Build background-image: just the image (backgroundColor is handled separately via background-color)
-    const blendMode = props.$appearance?.background?.blendMode || 'normal';
-    const hasImage = props.$appearance?.background?.useImage && props.$appearance?.background?.image;
-    const backgroundColor = props.$appearance?.background?.color;
-    const attachment = props.$appearance?.background?.attachment || 'fixed';
+    const blendMode = props.$appearance?.design?.backgroundImageBlendMode || 'normal';
+    const hasImage = props.$appearance?.design?.useImage && props.$appearance?.design?.backgroundImage;
+    const backgroundColor = props.$appearance?.design?.backgroundColor;
+    const attachment = props.$appearance?.design?.backgroundAttachment || 'fixed';
 
     // Use CSS variable for background image (set by generateCssForInternalProps)
     const backgroundImage = hasImage ? 'var(--ha-background-image)' : 'none';
@@ -237,6 +204,12 @@ export const defaultRootConfig: CustomRootComponentConfig<DefaultComponentProps,
         isolation: isolate;
         /* Ensure body has minimum height for background coverage */
         min-height: 100vh;
+      }
+
+
+      .Root-content {
+        margin: ${props.$appearance?.spacing?.margin};
+        padding: ${props.$appearance?.spacing?.padding};
       }
 
       body::before {

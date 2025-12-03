@@ -21,6 +21,8 @@ import isEqual from '@guanghechen/fast-deep-equal';
 import { DeepPartial } from '@typings/utils';
 import { processInternalFields } from './helpers/processInternalFields';
 import { Typography } from '../Typography';
+import { LiquidGlass } from '@components/LiquidGlass';
+import { defaultStyles } from './helpers/generateEmotionCss';
 
 /**
  * Takes an existing CustomComponentConfig and returns a new config
@@ -141,6 +143,7 @@ export function createComponent<
       // which is why here we only provide InternalComponentFields
       render({ puck, ...renderProps }: RenderProps<P & DeepPartial<InternalComponentFields>>) {
         const { dragRef, isEditing } = puck;
+
         return (
           <RenderErrorBoundary prefix={config.label} ref={dragRef}>
             <TemplateSubscriber
@@ -374,22 +377,75 @@ function Render<
   // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
   const renderedElement = config.render(fullProps);
 
+  const isLiquidGlassBackground = fullProps.$appearance?.design?.backgroundType === 'liquid-glass';
+
   if (config.autoWrapComponent === false) {
-    return renderedElement;
+    if (isLiquidGlassBackground) {
+      const { glassDisplacementScale, glassSpecularOpacity, glassSpecularSaturation, glassBlur } = fullProps.$appearance?.design ?? {};
+      return (
+        <LiquidGlass
+          filterId={`liquid-glass-${id}`}
+          className='liquid-glass-wrapper auto-wrapped'
+          ref={dragRef}
+          displacementScale={glassDisplacementScale}
+          specularOpacity={glassSpecularOpacity}
+          specularSaturation={glassSpecularSaturation}
+          blur={glassBlur}
+          style={{
+            ...defaultStyles,
+          }}
+        >
+          {renderedElement}
+        </LiquidGlass>
+      );
+    }
+    return (
+      <>
+        <Typography typography={fullProps.$appearance?.typography} type='component' />
+        {renderedElement}
+      </>
+    );
   }
+
+  // Prepare LiquidGlass wrapper if needed
+  let liquidGlassWrapper: React.ReactElement | undefined;
+  if (isLiquidGlassBackground) {
+    const { glassDisplacementScale, glassSpecularOpacity, glassSpecularSaturation, glassBlur } = fullProps.$appearance?.design ?? {};
+
+    // Create LiquidGlass wrapper with base props
+    // updateProps will merge user props, css, className, etc. onto this
+    liquidGlassWrapper = (
+      <LiquidGlass
+        filterId={`liquid-glass-${id}`}
+        className='liquid-glass-wrapper standard'
+        displacementScale={glassDisplacementScale}
+        specularOpacity={glassSpecularOpacity}
+        specularSaturation={glassSpecularSaturation}
+        blur={glassBlur}
+        style={{
+          ...defaultStyles,
+        }}
+      />
+    );
+  }
+
   const newElement = attachPropsToElement({
     element: renderedElement,
     ref: dragRef,
     componentLabel: config.label,
-    updateProps: userProps => {
-      // After initial creation we avoid adding css prop again; keep className merge
+    wrapper: liquidGlassWrapper,
+    updateProps: wrapperProps => {
+      // updateProps receives the wrapper's props (LiquidGlass props in this case)
+      // Merge css, className, and interactions onto the wrapper
+      // wrapperProps already contains the LiquidGlass-specific props (glassBgColor, etc.)
       return bindWithProps({
-        ...userProps,
+        ...wrapperProps,
         ...(fullProps.css ? { css: fullProps.css } : {}),
-        className: [puckComponentStyles.pressable, userProps.className].filter(Boolean).join(' '),
+        className: [wrapperProps.className, puckComponentStyles.pressable].filter(Boolean).join(' '),
       });
     },
   });
+
   return (
     <>
       <Typography typography={fullProps.$appearance?.typography} type='component' />

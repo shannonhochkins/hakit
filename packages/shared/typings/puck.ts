@@ -39,25 +39,40 @@ export type InternalRootData = {
 // type WithField = true;
 
 export type AdditionalRenderProps = {
-  /**  Unique ID for the component instance */
+  /** Unique identifier for the component instance */
   id: string;
   /**
-   * This value is the "styles" value provided by the "styles" function in the component configuration, this is automatically assigned to all valid react elements aside from react portals.
-   * Emotion css object to use with emotion/react @example import { css } from '@emotion/react'; add this prop to your element if need be, css={css`${props.css}`}
-   * @hint You will only need this if you're doing something advanced, for example, returning a portal from the Render function of your component
-   * */
+   * Emotion CSS-in-JS styles object containing all styles for the component.
+   * Includes styles from the component's `styles` function, style overrides, and internal styles.
+   * Automatically applied to all valid React elements except portals (unless `autoWrapComponent` is `false`).
+   *
+   * @example
+   * ```tsx
+   * import { css } from '@emotion/react';
+   *
+   * render(props) {
+   *   return <div css={css`${props.css}`}>Content</div>;
+   * }
+   * ```
+   *
+   * @remarks Only needed for advanced use cases, such as returning a portal from the render function.
+   */
   css?: SerializedStyles;
-  /** Whether the component is being rendered in edit mode */
+  /** Indicates whether the component is currently being rendered in edit mode */
   _editMode: boolean;
-  /** the hakit context, this houses additional information to send to each render of each component */
+  /** HAKIT dashboard context containing additional information passed to each component render */
   _dashboard: Dashboard | null;
-  /** The drag ref element, this is automatically assigned by default to all valid elements except for react-portals */
+  /** Drag reference callback function for enabling drag-and-drop functionality in the editor.
+   * Automatically assigned to all valid React elements except portals (unless `autoWrapComponent` is `false`).
+   */
   _dragRef: ((element: Element | null) => void) | null;
-  /** Editor related references, only available when rendering inside the editor */
+  /** Editor-related references, only available when rendering inside the editor */
   _editor?: {
-    /** Reference to the iframe/window/document when rendering inside the editor */
+    /** Document reference for the editor iframe */
     document: Document | null;
+    /** Window reference for the editor iframe */
     window: Window | null;
+    /** HTML iframe element reference for the editor */
     iframe: HTMLIFrameElement | null;
   };
 };
@@ -109,10 +124,39 @@ export type DefaultPaths<T> = {
 
 // Base configuration type for internalFields
 type BaseInternalFieldsConfig<InternalFields> = {
-  /** Fields to completely omit from the component. Use `true` to omit a field, or provide a nested object to omit sub-fields.
-   * Set to `false` to disable omitting entirely (useful for overriding parent configs). */
+  /**
+   * Configuration for omitting fields from the component.
+   * Use `true` to omit a field, or provide a nested object to omit sub-fields.
+   * Set to `false` to disable omitting entirely (useful for overriding parent configurations).
+   *
+   * @example
+   * ```ts
+   * omit: {
+   *   $appearance: {
+   *     design: true, // Omit the entire design section
+   *     typography: {
+   *       fontFamily: true // Omit only fontFamily from typography
+   *     }
+   *   }
+   * }
+   * ```
+   */
   omit?: OmitPaths<InternalFields> | false;
-  /** Default values to override for internal fields. Use the same structure as the internal fields with new default values. */
+  /**
+   * Default value overrides for internal fields.
+   * Use the same structure as the internal fields with new default values.
+   *
+   * @example
+   * ```ts
+   * defaults: {
+   *   $appearance: {
+   *     design: {
+   *       borderEnabled: true // Override borderEnabled default to true
+   *     }
+   *   }
+   * }
+   * ```
+   */
   defaults?: DefaultPaths<InternalFields>;
 };
 
@@ -122,20 +166,54 @@ export type InternalFieldsConfigWithExtended<
   ExtendedInternalFields extends object,
   DataShape,
 > = BaseInternalFieldsConfig<InternalFields> & {
-  /** Fields to extend/add to the internal fields. Use FieldConfiguration structure to add new fields.
-   * Extended fields are added at the START (before existing fields) to ensure they appear first in the UI.
+  /**
+   * Configuration for extending internal fields with new fields.
+   * Extended fields are added at the start (before existing fields) to ensure they appear first in the UI.
    * You can extend at any path in the internal fields structure, or add completely new top-level fields.
-   * When ExtendedInternalFields is provided, extend is REQUIRED and must match NestedFieldConfiguration<ExtendedInternalFields>.
-   * This ensures type safety - if you specify ExtendedInternalFields, you must provide the extend config.
+   *
+   * @remarks
+   * When `ExtendedInternalFields` is provided, `extend` is required and must match
+   * `NestedFieldConfiguration<ExtendedInternalFields>`. This ensures type safety.
+   *
+   * @example
+   * ```ts
+   * extend: {
+   *   $appearance: {
+   *     design: {
+   *       customField: {
+   *         type: 'text',
+   *         label: 'Custom Field',
+   *         default: 'value'
+   *       }
+   *     }
+   *   }
+   * }
+   * ```
    */
   extend: NestedFieldConfiguration<ExtendedInternalFields, DataShape>;
 };
 
 // Configuration type for internalFields when ExtendedInternalFields is not provided
 export type InternalFieldsConfigWithoutExtended<InternalFields> = BaseInternalFieldsConfig<InternalFields> & {
-  /** Fields to extend/add to the internal fields. Use FieldConfiguration structure to add new fields.
-   * Extended fields are added at the START (before existing fields) to ensure they appear first in the UI.
+  /**
+   * Configuration for extending internal fields with new fields.
+   * Extended fields are added at the start (before existing fields) to ensure they appear first in the UI.
    * You can extend at any path in the internal fields structure, or add completely new top-level fields.
+   *
+   * @example
+   * ```ts
+   * extend: {
+   *   $appearance: {
+   *     design: {
+   *       customField: {
+   *         type: 'text',
+   *         label: 'Custom Field',
+   *         default: 'value'
+   *       }
+   *     }
+   *   }
+   * }
+   * ```
    */
   extend?: ExtendPaths<InternalFields>;
 };
@@ -177,17 +255,30 @@ export type CustomComponentConfig<
   }>,
   IgnorePuckConfigurableOptions | 'render' | 'label' | 'fields'
 > & {
-  // Label is required
+  /** Component label displayed in the editor UI */
   label: string;
-  /** If this configuration is a dashboard level configuration */
+  /** Indicates whether this configuration is for a dashboard-level (root) component */
   rootConfiguration?: IsRoot;
 
-  /** if true, hakit will not automatically expose css and the drag ref to your returned element and you will have to do yourself
-   * @default true
-   * @note This is only needed when your component needs to return a fragment, portal, or function component, should only be used in advanced use-cases
-   * @warning It's important the dragRef is applied to the top-level element returned by your component, otherwise drag-and-drop functionality in the editor will not work correctly
-   * @example render(props) {
-   *  return <div ref={props._dragRef} css={props.css}>My Component</div>
+  /**
+   * Controls whether HAKIT automatically applies CSS and drag ref to the returned element.
+   *
+   * @default `true`
+   *
+   * @remarks
+   * Set to `false` when your component needs to return a fragment, portal, or function component.
+   * This should only be used in advanced use cases.
+   *
+   * @warning
+   * When `false`, you must manually apply `_dragRef` to the top-level element returned by your component.
+   * Otherwise, drag-and-drop functionality in the editor will not work correctly.
+   *
+   * @example
+   * ```tsx
+   * render(props) {
+   *   return <div ref={props._dragRef} css={props.css}>My Component</div>;
+   * }
+   * ```
    */
   autoWrapComponent?: boolean;
   fields: FieldConfiguration<
@@ -195,8 +286,18 @@ export type CustomComponentConfig<
     SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
       DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
   >;
-  /** Configuration for internal fields (appearance, interactions, styles, etc.)
-   * Allows you to omit, extend, or override defaults for internal fields
+  /**
+   * Configuration for internal fields (appearance, interactions, styles, etc.).
+   * Allows you to omit, extend, or override default values for internal fields.
+   *
+   * @example
+   * ```ts
+   * internalFields: {
+   *   omit: { $appearance: { design: true } },
+   *   defaults: { $appearance: { design: { borderEnabled: true } } },
+   *   extend: { $appearance: { design: { customField: { ... } } } }
+   * }
+   * ```
    */
   internalFields?: InternalFieldsConfig<
     InferInternalFields<IsRoot>,
@@ -204,18 +305,48 @@ export type CustomComponentConfig<
     SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
       DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
   >;
+  /** Component render function that receives props and returns a React element */
   render: PuckComponent<
     SimplifyUnitFieldValue<Props> &
       DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>> &
       AdditionalRenderProps
   >;
-  // Optional styles function that returns CSS string for component-scoped styling
+  /**
+   * Optional styles function that returns CSS for component-scoped styling.
+   * Can return either a CSS string or an Emotion SerializedStyles object.
+   *
+   * @param props - Component props including internal fields and additional render props
+   * @returns CSS string or Emotion SerializedStyles object
+   *
+   * @example
+   * ```ts
+   * styles(props) {
+   *   return `background: ${props.backgroundColor}; padding: 1rem;`;
+   * }
+   * ```
+   * When adding keyframes from emotion, you will have to return with the `css` helper function, like so:
+   * ```ts
+   * import { css } from '@emotion/react';
+   * // define outside the component configuration
+   * const sweep = keyframes`
+   *   from { transform: rotate(0deg); }
+   *   to { transform: rotate(360deg); }
+   * `;
+   * // then within the component configuration, use the css helper function to return the keyframes
+   * ...
+   * styles(props) {
+   *   return css`
+   *     animation: ${sweep} 2s linear infinite;
+   *   `;
+   * }
+   * ```
+   */
   styles?: (
     props: SimplifyUnitFieldValue<Props> &
       DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>> &
       AdditionalRenderProps
   ) => string | SerializedStyles;
-  // defaultProps is intentionally omitted, we handle this on individual field definitions
+  // Note: defaultProps is intentionally omitted - defaults are handled via individual field definitions
 };
 
 export type CustomRootComponentConfig<

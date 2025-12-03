@@ -7,7 +7,7 @@ const getPrimaryClassName = getClassNameFactory('PrimaryButton', styles);
 // Props interface for better type safety
 export interface PrimaryButtonProps extends BaseButtonProps {
   /** Color variant of the button */
-  variant?: 'primary' | 'success' | 'danger';
+  variant?: 'primary' | 'success' | 'danger' | 'color' | 'glass' | 'liquid-glass';
 }
 // Export component with variant support
 export const PrimaryButton = ({ variant = 'primary', className, ...props }: PrimaryButtonProps) => {

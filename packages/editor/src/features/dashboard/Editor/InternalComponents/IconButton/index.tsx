@@ -16,8 +16,9 @@ export type IconButtonProps = {
 
 type InternalFieldOverrides = {
   $appearance: {
-    general: {
-      variant?: 'secondary' | 'danger' | 'success' | 'transparent' | 'primary';
+    design: {
+      backgroundType: 'secondary' | 'danger' | 'success' | 'transparent' | 'primary' | 'glass' | 'liquid-glass' | 'color';
+      backgroundColor?: string;
       size: 'xs' | 'sm' | 'md' | 'lg';
       icon?: string;
       iconSize?: UnitFieldValue;
@@ -39,20 +40,23 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
   internalFields: {
     omit: {
       $appearance: {
-        background: true,
+        design: {
+          backgroundType: true,
+          backgroundColor: true,
+        },
         sizeAndSpacing: true,
       },
     },
     extend: {
       $appearance: {
-        general: {
+        design: {
           type: 'object',
-          label: 'General',
+          label: 'Design',
           objectFields: {
-            variant: {
+            backgroundType: {
               type: 'select',
-              label: 'Secondary Variant',
-              description: 'The variant style for the secondary button',
+              label: 'Background Type',
+              description: 'The background type for the icon button',
               default: 'secondary',
               options: [
                 { label: 'Default', value: 'secondary' },
@@ -60,7 +64,19 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
                 { label: 'Success', value: 'success' },
                 { label: 'Danger', value: 'danger' },
                 { label: 'Transparent', value: 'transparent' },
+                { label: 'Glass', value: 'glass' },
+                { label: 'Liquid Glass', value: 'liquid-glass' },
+                { label: 'Color', value: 'color' },
               ],
+            },
+            backgroundColor: {
+              type: 'color',
+              label: 'Background Color',
+              description: 'Base color for the background.',
+              default: 'var(--clr-primary-a10)',
+              visible(props) {
+                return props.$appearance?.design?.backgroundType === 'color';
+              },
             },
             icon: {
               type: 'icon',
@@ -74,7 +90,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
               description: 'The size of the icon',
               default: '1.25rem',
               visible(data) {
-                return data.$appearance?.general?.icon !== undefined;
+                return data.$appearance?.design?.icon !== undefined;
               },
             },
             iconColor: {
@@ -83,7 +99,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
               description: 'The color of the icon, inherits by default',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.icon !== undefined;
+                return data.$appearance?.design?.icon !== undefined;
               },
             },
             size: {
@@ -110,7 +126,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
               description: 'Icon to display inside the badge',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.showBadge === true;
               },
             },
             badgeIconSize: {
@@ -119,7 +135,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
               description: 'The size of the badge icon',
               default: '0.75rem',
               visible(data) {
-                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.badgeIcon !== undefined && data.$appearance?.design?.showBadge === true;
               },
             },
             badgeIconColor: {
@@ -128,7 +144,7 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
               description: 'The color of the badge icon, inherits by default',
               default: undefined,
               visible(data) {
-                return data.$appearance?.general?.badgeIcon !== undefined && data.$appearance?.general?.showBadge === true;
+                return data.$appearance?.design?.badgeIcon !== undefined && data.$appearance?.design?.showBadge === true;
               },
             },
           },
@@ -181,23 +197,24 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
 
 function Render(props: RenderProps<IconButtonProps, InternalFieldOverrides>) {
   const { content } = props;
+  console.log('props.css', props.css);
   return (
     <Fab
       ref={props._dragRef}
       css={props.css}
       label={content.label}
-      variant={props.$appearance?.general?.variant}
+      variant={props.$appearance?.design?.backgroundType}
       aria-label={content.tooltip}
-      size={props.$appearance?.general?.size}
-      icon={props.$appearance?.general?.icon}
+      size={props.$appearance?.design?.size}
+      icon={props.$appearance?.design?.icon}
       iconProps={{
-        size: props.$appearance?.general?.iconSize,
-        color: props.$appearance?.general?.iconColor,
+        size: props.$appearance?.design?.iconSize,
+        color: props.$appearance?.design?.iconColor,
       }}
-      badge={props.$appearance?.general?.showBadge ? props.$appearance?.general?.badgeIcon : undefined}
+      badge={props.$appearance?.design?.showBadge ? props.$appearance?.design?.badgeIcon : undefined}
       badgeIconProps={{
-        size: props.$appearance?.general?.badgeIconSize,
-        color: props.$appearance?.general?.badgeIconColor,
+        size: props.$appearance?.design?.badgeIconSize,
+        color: props.$appearance?.design?.badgeIconColor,
       }}
     />
   );

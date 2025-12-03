@@ -8,6 +8,7 @@
   min-width: 0 !important;
   gap: 0;
   border-radius: 50%;
+  aspect-ratio: 1/1;
   cursor: pointer;
   font-family: inherit;
   font-weight: var(--font-weight-medium);

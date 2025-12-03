@@ -142,23 +142,65 @@ export type ThemeFields = {
   };
 };
 
-export type BackgroundFields = {
+export type DesignFields = {
   /** whether to use a background image or not  */
   useImage: boolean;
   /** the background color to apply */
-  color: string;
+  backgroundColor: string;
   /** the background image to apply */
-  image: string | undefined;
+  backgroundImage: string | undefined;
+  /** the blend mode to apply to the background image and color */
+  backgroundImageBlendMode:
+    | 'normal'
+    | 'multiply'
+    | 'screen'
+    | 'overlay'
+    | 'darken'
+    | 'lighten'
+    | 'color-dodge'
+    | 'color-burn'
+    | 'hard-light'
+    | 'soft-light'
+    | 'difference'
+    | 'exclusion'
+    | 'hue'
+    | 'saturation'
+    | 'color'
+    | 'luminosity';
   /** CSS background-size value or 'custom' to use backgroundSizeCustom */
-  size: 'cover' | 'contain' | 'auto' | 'custom';
+  backgroundSize: 'cover' | 'contain' | 'auto' | 'custom';
   /** custom CSS background-size when backgroundSize is 'custom' */
-  sizeCustom?: string;
+  backgroundSizeCustom?: string;
   /** CSS background-position, e.g. 'center center' */
-  position: string;
+  backgroundPosition: string;
   /** CSS background-repeat */
-  repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
+  backgroundRepeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y' | 'space' | 'round';
   /** CSS background-attachment */
-  attachment?: 'scroll' | 'fixed' | 'local';
+  backgroundAttachment?: 'scroll' | 'fixed' | 'local';
+  borderRadius: UnitFieldValue;
+  backgroundType: 'color' | 'glass' | 'liquid-glass';
+
+  glassBlurAmount?: number;
+  glassColor?: string;
+  glassOutline?: number;
+  glassOutlineTransparency?: number;
+
+  boxShadowEnabled?: boolean;
+  boxShadowColor?: string;
+  boxShadowBlur?: number;
+  boxShadowSpread?: number;
+
+  // (liquid-glass specific)
+  glassDisplacementScale?: number; // default 53
+  glassSpecularOpacity?: number; // default 0.1
+  glassSpecularSaturation?: number; // default 2
+  glassBlur?: number; // default 2
+  glassBackgroundOpacity?: number; // default 0.1
+  /** whether to use a border or not */
+  borderEnabled?: boolean;
+  borderWidth?: UnitFieldValue;
+  borderColor?: string;
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'ridge' | 'inset' | 'outset';
 };
 
 export interface TypographyProps {
@@ -188,7 +230,7 @@ export type SizeAndSpacingFields = {
 };
 
 export type AppearanceFields = {
-  background: BackgroundFields;
+  design: DesignFields;
   sizeAndSpacing: SizeAndSpacingFields;
   typography: TypographyProps;
   theme: ThemeFields;
@@ -317,7 +359,7 @@ export type FieldDefinition = {
   service: { type: 'service'; domain: SnakeOrCamelDomains; default: DomainService<SnakeOrCamelDomains> };
   color: { type: 'color'; hideControls?: boolean; default: ColorVar };
   imageUpload: { type: 'imageUpload' };
-  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue; supportsAllCorners?: boolean };
+  unit: { type: 'unit'; min?: number; max?: number; step?: number; default: UnitFieldValue | undefined; supportsAllCorners?: boolean };
   slider: { type: 'slider'; min?: number; max?: number; step?: number };
   code: { type: 'code'; language?: 'yaml' | 'json' | 'javascript' | 'css' | 'html' | 'jinja2'; onValidate?: OnValidate };
   entity: {

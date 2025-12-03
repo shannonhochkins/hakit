@@ -287,7 +287,7 @@ describe('createRootComponent', () => {
 
     const mockProps = {
       '@hakit/default-root': {
-        background: {
+        design: {
           backgroundColor: '#123456',
           useBackgroundImage: false,
         },
@@ -316,19 +316,34 @@ describe('createRootComponent', () => {
     }
 
     // Verify render functions were called
+    // replace below with snapshot expectation
     expect(mockRootConfig1.render).toHaveBeenCalledWith(
       expect.objectContaining({
         $appearance: {
-          background: {
-            attachment: 'fixed',
+          design: {
+            backgroundAttachment: 'fixed',
             /// expect image to end with default-background.jps
-            image: expect.stringMatching(/default-background\.jpg$/),
-            position: 'center center',
-            repeat: 'no-repeat',
-            size: 'cover',
-            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
-            blendMode: 'multiply',
-            sizeCustom: '',
+            backgroundImage: expect.stringMatching(/default-background\.jpg$/),
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+            backgroundColor: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
+            backgroundImageBlendMode: 'multiply',
+            borderRadius: undefined,
+            backgroundType: 'color',
+            boxShadowBlur: 30,
+            boxShadowColor: 'rgba(0,0,0,0.1)',
+            boxShadowSpread: 10,
+            glassBackgroundOpacity: 0.1,
+            glassBlur: 2,
+            glassBlurAmount: 5,
+            glassColor: 'rgba(255, 255, 255, 0.1)',
+            glassDisplacementScale: 53,
+            glassOutline: 1,
+            glassOutlineTransparency: 0.81,
+            glassSpecularOpacity: 0.1,
+            glassSpecularSaturation: 2,
+            backgroundSizeCustom: '',
             filterBlur: 25,
             filterBrightness: 1,
             filterContrast: 1,
@@ -336,6 +351,11 @@ describe('createRootComponent', () => {
             filterGrayscale: 0,
             useAdvancedFilters: false,
             useImage: true,
+            borderEnabled: false,
+            borderColor: 'var(--clr-primary-a90)',
+            borderStyle: 'solid',
+            borderWidth: '1px',
+            boxShadowEnabled: false,
           },
           typography: {
             override: true,
@@ -346,6 +366,10 @@ describe('createRootComponent', () => {
             letterSpacing: 0,
             lineHeight: 1.5,
             useAdvancedTypography: false,
+          },
+          spacing: {
+            margin: '0rem',
+            padding: '0rem',
           },
           theme: {
             override: true,
@@ -387,15 +411,15 @@ describe('createRootComponent', () => {
     expect(mockRootConfig2.render).toHaveBeenCalledWith(
       expect.objectContaining({
         $appearance: {
-          background: {
-            attachment: 'fixed',
-            image: expect.stringMatching(/default-background\.jpg$/),
-            position: 'center center',
-            repeat: 'no-repeat',
-            size: 'cover',
-            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
-            blendMode: 'multiply',
-            sizeCustom: '',
+          design: {
+            backgroundAttachment: 'fixed',
+            backgroundImage: expect.stringMatching(/default-background\.jpg$/),
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+            backgroundColor: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
+            backgroundImageBlendMode: 'multiply',
+            backgroundSizeCustom: '',
             filterBlur: 25,
             filterBrightness: 1,
             filterContrast: 1,
@@ -403,6 +427,25 @@ describe('createRootComponent', () => {
             filterGrayscale: 0,
             useAdvancedFilters: false,
             useImage: true,
+            backgroundType: 'color',
+            borderRadius: undefined,
+            boxShadowBlur: 30,
+            boxShadowColor: 'rgba(0,0,0,0.1)',
+            boxShadowEnabled: false,
+            boxShadowSpread: 10,
+            glassBackgroundOpacity: 0.1,
+            glassBlur: 2,
+            glassBlurAmount: 5,
+            glassColor: 'rgba(255, 255, 255, 0.1)',
+            glassDisplacementScale: 53,
+            glassOutline: 1,
+            glassOutlineTransparency: 0.81,
+            glassSpecularOpacity: 0.1,
+            glassSpecularSaturation: 2,
+            borderEnabled: false,
+            borderColor: 'var(--clr-primary-a90)',
+            borderStyle: 'solid',
+            borderWidth: '1px',
           },
           typography: {
             override: true,
@@ -413,6 +456,10 @@ describe('createRootComponent', () => {
             letterSpacing: 0,
             lineHeight: 1.5,
             useAdvancedTypography: false,
+          },
+          spacing: {
+            margin: '0rem',
+            padding: '0rem',
           },
           theme: {
             override: true,
@@ -525,7 +572,7 @@ describe('createRootComponent', () => {
     // @ts-expect-error - This does exist, just not typed at this level
     expect(result.fields!['$appearance']!['objectFields']!['typography']).toBeDefined();
     // @ts-expect-error - This does exist, just not typed at this level
-    expect(result.fields!['$appearance']!['objectFields']!['background']).toBeDefined();
+    expect(result.fields!['$appearance']!['objectFields']!['design']).toBeDefined();
   });
 
   test('should not have _remoteAddonId in final config', async () => {
@@ -747,7 +794,7 @@ describe('createRootComponent', () => {
     // Test that the render function properly handles slots
     const mockProps = {
       '@hakit/default-root': {
-        background: {
+        design: {
           backgroundColor: '#ffffff',
         },
       },
@@ -774,22 +821,41 @@ describe('createRootComponent', () => {
     expect(slotRootConfig.render).toHaveBeenCalledWith(
       expect.objectContaining({
         $appearance: {
-          background: {
-            attachment: 'fixed',
-            blendMode: 'multiply',
-            color: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
+          design: {
+            backgroundAttachment: 'fixed',
+            backgroundImageBlendMode: 'multiply',
+            backgroundColor: 'color-mix(in srgb, var(--clr-primary-a10) 90%, transparent 10%)',
             filterBlur: 25,
             filterBrightness: 1,
             filterContrast: 1,
             filterGrayscale: 0,
             filterSaturate: 1,
-            image: expect.stringMatching(/default-background\.jpg$/),
-            position: 'center center',
-            repeat: 'no-repeat',
-            size: 'cover',
-            sizeCustom: '',
+            backgroundImage: expect.stringMatching(/default-background\.jpg$/),
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover',
+            backgroundSizeCustom: '',
             useAdvancedFilters: false,
             useImage: true,
+            backgroundType: 'color',
+            borderRadius: undefined,
+            boxShadowBlur: 30,
+            boxShadowColor: 'rgba(0,0,0,0.1)',
+            boxShadowEnabled: false,
+            boxShadowSpread: 10,
+            glassBackgroundOpacity: 0.1,
+            glassBlur: 2,
+            glassBlurAmount: 5,
+            glassColor: 'rgba(255, 255, 255, 0.1)',
+            glassDisplacementScale: 53,
+            glassOutline: 1,
+            glassOutlineTransparency: 0.81,
+            glassSpecularOpacity: 0.1,
+            glassSpecularSaturation: 2,
+            borderEnabled: false,
+            borderColor: 'var(--clr-primary-a90)',
+            borderStyle: 'solid',
+            borderWidth: '1px',
           },
           typography: {
             baseFontSize: '16px',
@@ -800,6 +866,10 @@ describe('createRootComponent', () => {
             lineHeight: 1.5,
             override: true,
             useAdvancedTypography: false,
+          },
+          spacing: {
+            margin: '0rem',
+            padding: '0rem',
           },
           theme: {
             override: true,
@@ -851,11 +921,11 @@ describe('createRootComponent', () => {
 
     // Check default root config defaults
     expect(result.defaultProps).not.toHaveProperty('@hakit/default-root');
-    expect(result.defaultProps.$appearance).toHaveProperty('background');
+    expect(result.defaultProps.$appearance).toHaveProperty('design');
     expect(result.defaultProps.$appearance).toHaveProperty('typography');
 
     // Check that background defaults are populated
-    const backgroundDefaults = result.defaultProps.$appearance.background;
+    const backgroundDefaults = result.defaultProps.$appearance.design;
     expect(backgroundDefaults).toHaveProperty('useImage', true);
     expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
@@ -1110,20 +1180,20 @@ describe('createRootComponent', () => {
     expect(result.defaultProps).not.toHaveProperty('@hakit/default-root');
     expect(result.defaultProps).toHaveProperty('$appearance');
     expect(result.defaultProps).toHaveProperty('$appearance.typography');
-    expect(result.defaultProps).toHaveProperty('$appearance.background');
+    expect(result.defaultProps).toHaveProperty('$appearance.design');
 
-    const backgroundDefaults = result.defaultProps.$appearance.background;
+    const backgroundDefaults = result.defaultProps.$appearance.design;
     const typographyDefaults = result.defaultProps.$appearance.typography;
 
     // Verify ALL background field defaults match defaultRootConfig exactly
     expect(backgroundDefaults).not.toHaveProperty('test');
     expect(backgroundDefaults).toHaveProperty('useImage', true);
-    expect(backgroundDefaults).toHaveProperty('image', expect.stringMatching(/default-background\.jpg$/));
-    expect(backgroundDefaults).toHaveProperty('size', 'cover');
-    expect(backgroundDefaults).toHaveProperty('sizeCustom', '');
-    expect(backgroundDefaults).toHaveProperty('position', 'center center');
-    expect(backgroundDefaults).toHaveProperty('repeat', 'no-repeat');
-    expect(backgroundDefaults).toHaveProperty('blendMode', 'multiply');
+    expect(backgroundDefaults).toHaveProperty('backgroundImage', expect.stringMatching(/default-background\.jpg$/));
+    expect(backgroundDefaults).toHaveProperty('backgroundSize', 'cover');
+    expect(backgroundDefaults).toHaveProperty('backgroundSizeCustom', '');
+    expect(backgroundDefaults).toHaveProperty('backgroundPosition', 'center center');
+    expect(backgroundDefaults).toHaveProperty('backgroundRepeat', 'no-repeat');
+    expect(backgroundDefaults).toHaveProperty('backgroundImageBlendMode', 'multiply');
     expect(backgroundDefaults).toHaveProperty('filterBlur', 25);
     expect(backgroundDefaults).toHaveProperty('useAdvancedFilters', false);
     expect(backgroundDefaults).toHaveProperty('filterBrightness', 1);
@@ -1149,7 +1219,7 @@ describe('createRootComponent', () => {
     expect(result.defaultProps).toBeDefined();
 
     // Verify default root config defaults are still correct
-    const backgroundDefaults = result.defaultProps.$appearance.background;
+    const backgroundDefaults = result.defaultProps.$appearance.design;
     const typographyDefaults = result.defaultProps.$appearance.typography;
 
     // Verify defaultRootConfig defaults are preserved
@@ -1173,19 +1243,19 @@ describe('createRootComponent', () => {
     const defaultProps = result.defaultProps;
 
     // Verify the structure matches DefaultRootProps interface
-    expect(defaultProps).toHaveProperty('$appearance.background');
+    expect(defaultProps).toHaveProperty('$appearance.design');
     expect(defaultProps).toHaveProperty('$appearance.typography');
 
     // Verify background structure matches BackgroundProps interface
-    const background = defaultProps.$appearance.background;
+    const background = defaultProps.$appearance.design;
     expect(background).not.toHaveProperty('test');
     expect(background).toHaveProperty('useImage');
-    expect(background).toHaveProperty('image');
-    expect(background).toHaveProperty('size');
-    expect(background).toHaveProperty('sizeCustom');
-    expect(background).toHaveProperty('position');
-    expect(background).toHaveProperty('repeat');
-    expect(background).toHaveProperty('blendMode');
+    expect(background).toHaveProperty('backgroundImage');
+    expect(background).toHaveProperty('backgroundSize');
+    expect(background).toHaveProperty('backgroundSizeCustom');
+    expect(background).toHaveProperty('backgroundPosition');
+    expect(background).toHaveProperty('backgroundRepeat');
+    expect(background).toHaveProperty('backgroundImageBlendMode');
     expect(background).toHaveProperty('filterBlur');
     expect(background).toHaveProperty('useAdvancedFilters');
     expect(background).toHaveProperty('filterBrightness');

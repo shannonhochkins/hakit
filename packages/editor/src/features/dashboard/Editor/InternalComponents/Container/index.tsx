@@ -289,16 +289,9 @@ export const containerComponentConfig: CustomComponentConfig<ContainerProps> = {
     },
   },
 
-  permissions: {
-    drag: false,
-    duplicate: false,
-  },
-
   styles(props) {
     return `
-      max-width: fit-content;
       min-width: 0px;
-      position: relative;
       
       > .Container-content {
         display: flex;
