@@ -36,6 +36,18 @@ export function createMFConfig(manifest: Manifest, packageJson: PackageJson): Pl
         requiredVersion: false,
         import: false,
       },
+      'react/jsx-runtime': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
+      'react/jsx-dev-runtime': {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
       '@hakit/core': {
         singleton: true,
         eager: false,
@@ -66,6 +78,12 @@ export function createMFConfig(manifest: Manifest, packageJson: PackageJson): Pl
         requiredVersion: false,
         import: false,
       },
+      zustand: {
+        singleton: true,
+        eager: false,
+        requiredVersion: false,
+        import: false,
+      },
       '@hakit/addon/components': {
         import: false, // <— critical: do not include in remote bundle
         requiredVersion: false,
@@ -73,6 +91,14 @@ export function createMFConfig(manifest: Manifest, packageJson: PackageJson): Pl
         shareScope: 'default',
         shareKey: '@hakit/addon/components',
         packageName: '@hakit/addon/components', // avoid tying to @hakit/addon package.json
+      },
+      '@hakit/addon/utils': {
+        import: false, // <— critical: do not include in remote bundle
+        requiredVersion: false,
+        singleton: true,
+        shareScope: 'default',
+        shareKey: '@hakit/addon/utils',
+        packageName: '@hakit/addon/utils', // avoid tying to @hakit/addon package.json
       },
     },
   };

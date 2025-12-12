@@ -8,7 +8,7 @@ import { SwitchField } from '@components/Form/Field/Switch';
 import { SliderField } from '@components/Form/Field/Slider';
 import Color from 'color';
 import { Global } from '@emotion/react';
-import { InputField } from '@components/hakit-addon-shared';
+import { InputField } from '@components/Form/Field/Input';
 import { DARK_MODE_LIGHTEN_SPAN, LIGHT_MODE_DARKEN_SPAN } from '@helpers/color/constants';
 
 const count = 10;

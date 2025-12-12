@@ -33,7 +33,8 @@ export default defineConfig([
   // component addon
   {
     entry: {
-      index: './shared-components/index.tsx',
+      'shared/components': './shared/components.tsx',
+      'shared/utils': './shared/utils.tsx',
     },
     format: ['esm'],
     platform: 'browser',
@@ -47,7 +48,7 @@ export default defineConfig([
     splitting: false,
     sourcemap: false,
     minify: false,
-    outDir: 'dist/components',
+    outDir: 'dist',
     treeshake: false,
     external: [
       'react',

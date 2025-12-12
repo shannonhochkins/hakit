@@ -7,7 +7,6 @@ import { type DefaultComponentProps } from '@measured/puck';
 import { css, Global } from '@emotion/react';
 import { type FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { RenderErrorBoundary } from '@features/dashboard/Editor/RenderErrorBoundary';
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { attachAddonReference } from '@helpers/editor/pageData/attachAddonReference';
@@ -247,37 +246,35 @@ function Render<P extends DefaultComponentProps, ExtendedInternalFields extends 
     return dbValueToPuck(renderProps, activeBreakpoint ?? 'xlg') as typeof renderProps;
   }, [renderProps, activeBreakpoint]);
 
-  const editorElements = usePuckIframeElements();
   const processedProps = currentBreakpointProps;
   const { id, $styles } = processedProps;
 
-  const dashboard = useGlobalStore(state => state.dashboardWithoutData);
-
   // gather all root config styles to apply globally
-  const allCustomStyles = processedConfigs.map(rootConfig => {
-    const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
-      id,
-      _editMode: isEditing,
-      _editor: editorElements,
-      _dashboard: dashboard,
-    };
-    const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
+  const allCustomStyles = useMemo(() => {
+    return processedConfigs.map(rootConfig => {
+      const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
+        id,
+        _editMode: isEditing,
+      };
+      const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
 
-    // Get component-specific styles if provided
-    const componentStyles = rootConfig.styles
-      ? // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
-        rootConfig.styles(propsForThisRoot)
-      : undefined;
+      // Get component-specific styles if provided
+      const componentStyles = rootConfig.styles
+        ? // @ts-expect-error - this is fine, internal styles can't consume the `P` generic at this level
+          rootConfig.styles(propsForThisRoot)
+        : undefined;
 
-    // Process all styles using unified helper
-    const styles = processComponentStyles({
-      props: propsForThisRoot,
-      type: 'root',
-      componentStyles: componentStyles,
+      // Process all styles using unified helper
+      const styles = processComponentStyles({
+        fitToContent: false,
+        props: propsForThisRoot,
+        type: 'root',
+        componentStyles: componentStyles,
+      });
+
+      return styles || '';
     });
-
-    return styles || '';
-  });
+  }, [processedConfigs, id, isEditing, processedProps, remoteKeys]);
 
   const propsForRootMap = useMemo(() => {
     const map = new Map<string, Record<string, unknown>>();
@@ -285,14 +282,12 @@ function Render<P extends DefaultComponentProps, ExtendedInternalFields extends 
       const additionalProps: Omit<AdditionalRenderProps, '_dragRef'> = {
         id,
         _editMode: isEditing,
-        _editor: editorElements,
-        _dashboard: dashboard,
       };
       const propsForThisRoot = getPropsForRoot(rootConfig, processedProps, additionalProps, remoteKeys);
       map.set(rootConfig._remoteAddonId, propsForThisRoot);
     }
     return map;
-  }, [processedConfigs, id, isEditing, editorElements, dashboard, processedProps, remoteKeys]);
+  }, [processedConfigs, id, isEditing, processedProps, remoteKeys]);
 
   return (
     <>

@@ -197,7 +197,6 @@ export const iconButtonComponentConfig: CustomComponentConfig<IconButtonProps, I
 
 function Render(props: RenderProps<IconButtonProps, InternalFieldOverrides>) {
   const { content } = props;
-  console.log('props.css', props.css);
   return (
     <Fab
       ref={props._dragRef}

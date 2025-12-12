@@ -1,3 +1,5 @@
+import { ArrayField, ObjectField } from '@measured/puck';
+
 // Helper to assert field structure (avoids type errors)
 export function assertField(
   field: unknown,
@@ -8,8 +10,10 @@ export function assertField(
   }
 }
 
-export function assertObjectField(
-  field: unknown
-): asserts field is Record<string, unknown> & { type: 'object'; objectFields?: Record<string, unknown> } {
+export function assertObjectField(field: unknown): asserts field is ObjectField {
   assertField(field, 'object');
+}
+
+export function assertArrayField(field: unknown): asserts field is ArrayField {
+  assertField(field, 'array');
 }

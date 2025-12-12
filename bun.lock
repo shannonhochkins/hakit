@@ -58,7 +58,7 @@
     },
     "packages/addon": {
       "name": "@hakit/addon",
-      "version": "0.0.24",
+      "version": "0.0.33",
       "bin": {
         "@hakit/addon": "./dist/bin/index.js",
         "hakit-create-component": "./dist/component/index.js",
@@ -77,7 +77,7 @@
       "peerDependencies": {
         "@emotion/react": "^11.0.0",
         "@hakit/core": "^6.0.0",
-        "@measured/puck": "^0.20.1",
+        "@measured/puck": "^0.20.2",
         "@module-federation/rsbuild-plugin": "^0.21.2",
         "@module-federation/sdk": "^0.21.2",
         "@monaco-editor/react": "^4.7.0",

@@ -34,6 +34,6 @@
       "@typings/hono": ["./src/types/shims/hono-shim.d.ts"]
     }
   },
-  "include": ["src/**/*", "shared-components/**/*", "./tsup.config.ts"],
+  "include": ["src/**/*", "shared/**/*", "./tsup.config.ts"],
   "exclude": ["node_modules", "dist", "tmp", "templates"]
 }

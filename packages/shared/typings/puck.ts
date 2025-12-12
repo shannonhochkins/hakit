@@ -5,9 +5,12 @@ import {
   type Data,
   type Slot as InternalSlot,
   Config,
+  AppState,
+  ComponentData,
+  Metadata,
+  ResolveDataTrigger,
 } from '@measured/puck';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
-import type { Dashboard } from '@typings/hono';
 import type {
   FieldConfiguration,
   FieldDefinition,
@@ -60,30 +63,13 @@ export type AdditionalRenderProps = {
   css?: SerializedStyles;
   /** Indicates whether the component is currently being rendered in edit mode */
   _editMode: boolean;
-  /** HAKIT dashboard context containing additional information passed to each component render */
-  _dashboard: Dashboard | null;
   /** Drag reference callback function for enabling drag-and-drop functionality in the editor.
    * Automatically assigned to all valid React elements except portals (unless `autoWrapComponent` is `false`).
    */
   _dragRef: ((element: Element | null) => void) | null;
-  /** Editor-related references, only available when rendering inside the editor */
-  _editor?: {
-    /** Document reference for the editor iframe */
-    document: Document | null;
-    /** Window reference for the editor iframe */
-    window: Window | null;
-    /** HTML iframe element reference for the editor */
-    iframe: HTMLIFrameElement | null;
-  };
 };
 
-export type IgnorePuckConfigurableOptions =
-  | 'resolveFields'
-  | 'defaultProps'
-  | 'resolveFields'
-  | 'resolvePermissions'
-  | 'inline'
-  | 'category'; // category is handled internally
+export type IgnorePuckConfigurableOptions = 'defaultProps' | 'resolvePermissions' | 'inline' | 'category' | 'resolveData' | 'resolveFields'; // category is handled internally
 
 // Utility types for internalFields configuration
 
@@ -244,10 +230,15 @@ type MergedInternalFields<
   ExtendedInternalFields extends object | undefined = undefined,
 > = ExtendedInternalFields extends object ? DeepPartial<ExtendedInternalFields> & BaseInternalFields : BaseInternalFields;
 
+type WithPartialProps<T, Props extends DefaultComponentProps> = Omit<T, 'props'> & {
+  props?: Partial<Props>;
+};
+
 export type CustomComponentConfig<
   Props extends DefaultComponentProps = DefaultComponentProps,
   ExtendedInternalFields extends object | undefined = undefined,
   IsRoot extends boolean | undefined = undefined,
+  DataShape = Omit<ComponentData<Props>, 'type'>,
 > = Omit<
   ComponentConfig<{
     props: Props;
@@ -259,6 +250,12 @@ export type CustomComponentConfig<
   label: string;
   /** Indicates whether this configuration is for a dashboard-level (root) component */
   rootConfiguration?: IsRoot;
+  /**
+   * Determines whether the component should constrain its width to fit its
+   * rendered content. When `true`, the component applies `max-width: fit-content`.
+   * When `false`, it may expand to fill its container.
+   */
+  fitToContent?: boolean;
 
   /**
    * Controls whether HAKIT automatically applies CSS and drag ref to the returned element.
@@ -281,11 +278,124 @@ export type CustomComponentConfig<
    * ```
    */
   autoWrapComponent?: boolean;
+  /**
+   * Configuration for fields.
+   * Allows you to define the fields for the component.
+   *
+   * @example
+   * ```ts
+   * fields: {
+   *   title: {
+   *     type: 'text',
+   *     label: 'Title',
+   *     description: 'The title of the component',
+   *     default: 'My Component'
+   *   }
+   * }
+   * ```
+   */
   fields: FieldConfiguration<
     Props,
     SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
       DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
   >;
+  /**
+   * @description - This function is used to resolve the fields for the component, used for dynamic injection of fields, or completely updating fields based on data, or other field values.
+   * @param data - The data for the component
+   * @param params - The params for the component
+   * @param params.changed - The changed fields
+   * @param params.lastData - The last data for the component
+   * @param params.metadata - The metadata for the component
+   * @param params.trigger - The trigger for the component
+   * @param params.appState - The app state for the component
+   * @param params.parent - The parent component for the component
+   * @returns The resolved fields for the component
+   * @example
+   * ```ts
+   * resolveFields(data, params) {
+   *   return {
+   *     ...params.fields,
+   *     // update title field
+   *     title: {
+   *       ...params.fields.title,
+   *       description: 'New description'
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  resolveFields?: (
+    data: DataShape,
+    params: {
+      changed: Partial<
+        Record<keyof Props, boolean> & {
+          id: string;
+        }
+      >;
+      fields: FieldConfiguration<
+        Props,
+        SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
+          DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
+      >;
+      lastFields: FieldConfiguration<
+        Props,
+        SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
+          DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
+      >;
+      lastData: DataShape | null;
+      appState: AppState;
+      parent: ComponentData | null;
+    }
+  ) =>
+    | Promise<
+        FieldConfiguration<
+          Props,
+          SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
+            DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
+        >
+      >
+    | FieldConfiguration<
+        Props,
+        SimplifyUnitFieldValue<RemoveIndexSignature<Props>> &
+          DeepPartial<MergedInternalFields<InferInternalFields<IsRoot>, ExtendedInternalFields>>
+      >;
+  /**
+   * @description Dynamically change the props and set fields as read-only. Supports asynchronous calls.
+   * @param data - The data for the component
+   * @param params - The params for the component
+   * @param params.changed - The changed fields
+   * @param params.lastData - The last data for the component
+   * @param params.metadata - The metadata for the component
+   * @param params.trigger - The reason for the data change
+   * @returns The resolved data for the component
+   * @example
+   * ```ts
+   * resolveData(data, params) {
+   *   return {
+   *     props: {
+   *       ...params.props,
+   *       title: 'New Title'
+   *     },
+   *     readOnly: {
+   *       title: true
+   *     }
+   *   }
+   * }
+   * ```
+   */
+  resolveData?: (
+    data: DataShape,
+    params: {
+      changed: Partial<
+        Record<keyof Props, boolean> & {
+          id: string;
+        }
+      >;
+      lastData: DataShape | null;
+      metadata: Metadata;
+      trigger: ResolveDataTrigger;
+    }
+  ) => Promise<WithPartialProps<DataShape, Props>> | WithPartialProps<DataShape, Props>;
   /**
    * Configuration for internal fields (appearance, interactions, styles, etc.).
    * Allows you to omit, extend, or override default values for internal fields.
@@ -403,7 +513,60 @@ export type CustomPuckConfig<
   };
 };
 
-export type Slot = InternalSlot;
+/**
+ * The generic input here is for use cases to have strict types for the slot content
+ * when adding the defaults
+ * @example
+ * interface HeroSliderProps {
+ *  slides: {
+ *    slideWidth: UnitFieldValue;
+ *    content: Slot<{
+ *      HeroSliderItem: HeroSliderItemProps
+ *    }>
+ *  }[];
+ * }
+ * ...
+ * slides: {
+ *    type: "array",
+ *    label: "Slides",
+ *    description: "The slides to display in the slider",
+ *    getItemSummary(item, index = 0) {
+ *      return `Slide ${index + 1}`;
+ *    },
+ *    arrayFields: {
+ *      content: {
+ *        type: "slot",
+ *        label: "Slide Content",
+ *      },
+ *      slideWidth: {
+ *        type: "unit",
+ *        label: "Slide Width",
+ *        description: 'Width of this slide (e.g., "80%", "100%", "30%")',
+ *        default: "80%",
+ *      },
+ *    },
+ *    default: [
+ *      {
+ *        slideWidth: "80%",
+ *        content: [{
+ *          type: 'HeroSliderItem', // <-- Now strictly typed and expects all props from HeroSlideItemProps
+ *          props: {
+ *            width: 4,
+ *            height: 4,
+ *            content: [],
+ *          },
+ *        }]
+ *      },
+ *    ],
+ *  },
+ */
+export type Slot<
+  T extends {
+    [key: string]: DefaultComponentProps;
+  } = {
+    [key: string]: DefaultComponentProps;
+  },
+> = InternalSlot<T>;
 
 // render function type that matches exactly what CustomComponentConfig expects
 export type RenderFn<

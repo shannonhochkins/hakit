@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { DomainService, SnakeOrCamelDomains, useIcon, useIconByDomain, useStore } from '@hakit/core';
+import { DomainService, SnakeOrCamelDomains, useIcon, useIconByDomain, useHass } from '@hakit/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { getDefaultServiceByDomain } from '@helpers/editor/services';
 import { AutocompleteField } from '../Autocomplete';
@@ -78,7 +78,7 @@ export function ServiceField<T extends SnakeOrCamelDomains>({
 
   useEffect(() => {
     if (services === null) {
-      const connection = useStore.getState().connection;
+      const connection = useHass.getState().connection;
       if (connection) {
         _getServices(connection).then(services => {
           useGlobalStore.getState().setServices(services ?? []);

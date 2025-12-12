@@ -8,6 +8,7 @@ import { useKeyPress } from 'react-use';
 import { X } from 'lucide-react';
 import { css } from '@emotion/react';
 import { UnitFieldValue } from '@typings/fields';
+import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 
 const BASE_Z_INDEX = 1050;
 
@@ -35,6 +36,7 @@ export type PopupProps = {
 };
 export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
   label: 'Popup',
+  fitToContent: false,
   fields: {
     hideHeader: {
       type: 'switch',
@@ -115,7 +117,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
     return `
       .Popup {
         --popup-width: ${props.popupWidth};
-        position: absolute !important;
+        position: fixed !important;
         top: 50%;
         left: 50%;
         display: flex;
@@ -222,7 +224,7 @@ export const popupComponentConfig: CustomComponentConfig<PopupProps> = {
 
         /* Popup Backdrop */
         &-backdrop {
-          position: absolute;
+          position: fixed;
           top: 0;
           left: 0;
           width: 100%;
@@ -251,6 +253,7 @@ function Render(props: RenderProps<PopupProps>) {
   const autocloseRef = useRef<Timer | null>(null);
   // for pushing the last open popup in front of any previous popups
   const ref = useRef<HTMLDivElement>(null);
+  const editorElements = usePuckIframeElements();
 
   useEffect(() => {
     if (open) registerOverlayPortal(ref.current);
@@ -278,7 +281,7 @@ function Render(props: RenderProps<PopupProps>) {
     }
   }, [isPressed, doClose, open]);
 
-  const win = props._editor?.window || window;
+  const win = editorElements.window || window;
 
   const body = win.document.body as HTMLBodyElement | null;
 

@@ -25,6 +25,7 @@ export function DrawerItem({ name: addonName }: DrawerItemProps) {
       <Row
         key={name}
         data-component-name={name}
+        data-actual-name={addonName}
         draggable
         wrap='nowrap'
         fullWidth

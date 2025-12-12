@@ -39,8 +39,9 @@ npm run build
 ├── tsconfig.json
 ├── tsup.config.ts
 ├── README.md
-├── shared-components
-│   └── index.tsx             # Shared federated components for addon development
+|── shared
+│   └── components.tsx        # Shared federated components for addon development
+│   └── utils.tsx             # Shared federated utils for addon development
 ├── src/
 │   ├── index.ts              # Main entry point
 │   ├── bin/

@@ -3,13 +3,13 @@ import createCache from '@emotion/cache';
 import { CacheProvider, PropsOf } from '@emotion/react';
 import { Overrides, Plugin } from '@measured/puck';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { useStore } from '@hakit/core';
+import { useHass } from '@hakit/core';
 
 function IframeOverrideComponent({ children, document }: PropsOf<Overrides['iframe']>) {
   const emotionCache = useGlobalStore(state => state.emotionCache);
   useEffect(() => {
     if (!document) return;
-    const { setWindowContext } = useStore.getState();
+    const { setWindowContext } = useHass.getState();
     const { setEmotionCache, setEditorIframeDocument, editorIframeDocument, emotionCache } = useGlobalStore.getState();
 
     if (!editorIframeDocument) {

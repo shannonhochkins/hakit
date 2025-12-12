@@ -81,16 +81,14 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
   const onFieldsetClick = useCallback(
     (e: React.MouseEvent<HTMLFieldSetElement | HTMLDivElement>) => {
       e.stopPropagation();
-      if (field.type === 'object') {
-        onToggleExpand();
-      }
+      onToggleExpand();
     },
-    [field.type, onToggleExpand]
+    [onToggleExpand]
   );
 
   const className = getClassName(
     {
-      CollapsibleFieldWrapper: field.type === 'object',
+      CollapsibleFieldWrapper: true,
       collapsed: !isExpanded,
       expanded: isExpanded,
     },
@@ -102,7 +100,7 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
     {
       collapsed: !isExpanded,
       expanded: isExpanded,
-      collapsible: field.type === 'object',
+      collapsible: true,
     },
     `field-label ${field.type ? `field-${field.type}` : ''}`
   );
@@ -135,20 +133,16 @@ export function CollapsibleFieldWrapper<Props extends DefaultComponentProps = De
         labelClassName={fieldLabelLabelClassName}
         iconClassName={fieldLabelLabelClassName}
         endAdornment={
-          <>
-            {field.type === 'object' && (
-              <IconButton
-                icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                onClick={onFieldsetClick}
-                variant='transparent'
-                size='xs'
-                tooltipProps={{
-                  placement: 'left',
-                }}
-                aria-label={isExpanded ? 'Collapse' : 'Expand'}
-              />
-            )}
-          </>
+          <IconButton
+            icon={isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            onClick={onFieldsetClick}
+            variant='transparent'
+            size='xs'
+            tooltipProps={{
+              placement: 'left',
+            }}
+            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+          />
         }
       />
       {field.description && isExpanded && (
