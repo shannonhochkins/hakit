@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useStore, useTemplate } from '@hakit/core';
+import { useHass, useTemplate } from '@hakit/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import type { DefaultComponentProps } from '@measured/puck';
 import { CustomPuckConfig } from '@typings/puck';
@@ -199,7 +199,7 @@ function isNonPrimitive(value: unknown): value is object {
 
 export function useTemplates<T>(props: T, componentId: string = 'root'): T {
   const templatePaths = useGlobalStore(s => s.templateFieldMap[componentId]);
-  const connection = useStore(s => s.connection);
+  const connection = useHass(s => s.connection);
   const userConfig = useGlobalStore(s => s.userConfig);
 
   // 1) Build expressions from known template paths

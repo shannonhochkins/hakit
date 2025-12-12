@@ -160,12 +160,13 @@ async function createProject(projectPath: string, answers: ProjectAnswers) {
 
   // Get latest versions for dependencies
   console.log(chalk.blue('📦 Fetching latest package versions...'));
-
-  const dependencies: string[] = ['react', 'react-dom', '@hakit/core'];
+  // NOTE - Any packages in dependencies, the remote module federation will treat as "bundled" with the remote
+  // so we shouldn't included anything in here that is already a dependency of the host
+  const dependencies: string[] = [];
 
   const devDependencies = ['typescript', '@types/react', '@emotion/styled', '@emotion/react'];
 
-  const peerDependencies: string[] = ['@hakit/addon'];
+  const peerDependencies: string[] = ['react', 'react-dom', '@hakit/core', '@hakit/addon', '@hakit/components'];
 
   // Fetch latest versions
   packageJson.dependencies = {};

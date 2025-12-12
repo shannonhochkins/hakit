@@ -226,14 +226,47 @@ function applyDefaultsToFields<F>(fields: F, defaultsConfig: Record<string, unkn
         // This is a regular field - clone it before updating its default value to avoid mutating shared base fields
         const fieldConfig = { ...(fieldValue as Record<string, unknown>) } as { default?: unknown };
         fieldConfig.default = defaultValue;
+        // if we are an array field, we need to apply the first item of the .default array to defaultItemProps
+        if (
+          fieldValue.type === 'array' &&
+          !('defaultItemProps' in fieldValue) &&
+          'arrayFields' in fieldValue &&
+          Array.isArray(defaultValue) &&
+          defaultValue.length > 0
+        ) {
+          (fieldConfig as { defaultItemProps?: Record<string, unknown> }).defaultItemProps = {
+            ...(defaultValue[0] as Record<string, unknown>),
+          };
+        }
         // Replace the field in result with the cloned and modified version
         (result as Record<string, unknown>)[key] = fieldConfig;
+        // if we are an array field, we need to apply the .default value  to defaultItemProps
       }
     }
   }
   return result;
 }
 
+function applyDefaultItemPropsToFields<P extends DefaultComponentProps>(fields: FieldConfiguration<P>): FieldConfiguration<P> {
+  if (!fields) {
+    return fields;
+  }
+  // resursively loop over fields until we find an array field, then apply the defaultItemProps to the arrayFields
+  // if it doesn't already exist
+  for (const [, field] of Object.entries(fields)) {
+    const _field = field as FieldFor<P[keyof P], ExtractDataShape<FieldConfiguration<P>>>;
+    if (_field.type === 'array' && !_field.defaultItemProps && _field.arrayFields && _field.default.length > 0) {
+      _field.defaultItemProps = {
+        ...(_field.default[0] as Record<string, unknown>),
+      };
+      _field.arrayFields = applyDefaultItemPropsToFields(_field.arrayFields);
+    } else if (_field.type === 'object' && _field.objectFields) {
+      // @ts-expect-error - we need to cast the objectFields to the correct type, covered with tests
+      _field.objectFields = applyDefaultItemPropsToFields(_field.objectFields);
+    }
+  }
+  return fields;
+}
 /**
  * Processes internalFields configuration and returns processed fields
  * This handles omit, extend, and defaults - all field configuration modifications happen here
@@ -252,26 +285,24 @@ export function processInternalFields<
   fields: FieldConfiguration<P>,
   internalFieldsConfig: InternalFieldsConfig<InternalFields, ExtendedInternalFields, ExtractDataShape<FieldConfiguration<P>>> | undefined
 ): MergedFieldConfiguration<P, ExtendedInternalFields> {
-  if (!internalFieldsConfig) {
-    return fields as MergedFieldConfiguration<P, ExtendedInternalFields>;
-  }
-
   let processedFields = { ...fields };
 
   // Apply omit first (remove fields we don't want)
-  if (internalFieldsConfig.omit) {
+  if (internalFieldsConfig?.omit) {
     processedFields = applyOmitToFields(processedFields, internalFieldsConfig.omit);
   }
 
   // Apply extend next (add new fields)
-  if (internalFieldsConfig.extend) {
+  if (internalFieldsConfig?.extend) {
     processedFields = applyExtendToFields(processedFields, internalFieldsConfig.extend as Record<string, unknown>);
   }
 
   // Apply defaults last (update default values in field configurations)
-  if (internalFieldsConfig.defaults) {
+  if (internalFieldsConfig?.defaults) {
     processedFields = applyDefaultsToFields(processedFields, internalFieldsConfig.defaults);
   }
+  // Apply defaultItemProps last (update defaultItemProps in field configurations)
+  processedFields = applyDefaultItemPropsToFields(processedFields);
 
   return processedFields as MergedFieldConfiguration<P, ExtendedInternalFields>;
 }

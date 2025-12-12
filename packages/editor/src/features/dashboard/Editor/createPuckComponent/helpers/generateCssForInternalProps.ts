@@ -96,6 +96,7 @@ export function generateCssForInternalProps(
       cssStylesObj.backdropFilter = `blur(${d.glassBlurAmount ?? `5`}px)`;
       cssStylesObj.WebkitBackdropFilter = `blur(${d.glassBlurAmount ?? `5`}px)`;
       cssStylesObj.border = `${borderWidth} solid ${borderColor}`;
+      cssStylesObj.willChange = 'transform, backdrop-filter';
     }
     if (isLiquidGlassBackground) {
       const percent = Math.round((d.glassOutlineTransparency ?? 0.81) * 100);
@@ -120,6 +121,7 @@ export function generateCssForInternalProps(
       const filterId = sanitizeFilterId(`liquid-glass-${props.id}`);
       cssStylesObj.backdropFilter = `url(#${filterId})`;
       cssStylesObj.WebkitBackdropFilter = `url(#${filterId})`;
+      cssStylesObj.willChange = 'transform, backdrop-filter';
     }
 
     if (d.useImage && d.backgroundImage) {

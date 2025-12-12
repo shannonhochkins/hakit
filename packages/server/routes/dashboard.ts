@@ -4,7 +4,6 @@ import { eq, and } from 'drizzle-orm';
 import { pagesTable, dashboardTable } from '../db/schema/db';
 import { insertDashboardSchema, insertDashboardPageSchema, updateDashboardPageSchema, updateDashboardSchema } from '../db/schema/schemas';
 import { zValidator } from '@hono/zod-validator';
-import { v4 as uuidv4 } from 'uuid';
 import { getUser } from '../kinde';
 import { z } from 'zod/v4';
 import type { PuckPageData } from '@typings/puck';
@@ -12,6 +11,7 @@ import { serializeWithUndefined, deserializePageData } from '../../shared/helper
 import { formatErrorResponse } from '../helpers/formatErrorResponse';
 import { describeRoute } from 'hono-openapi';
 import { format404Response } from '../helpers/format404Response';
+import { generateId } from '../../shared/helpers/generateId';
 
 // Predefined default pages
 const defaultPages = [
@@ -61,8 +61,6 @@ async function getAvailableDefaultPage(dashboardId: string) {
 
   throw new Error('No available default page names left for this dashboard.');
 }
-
-const generateId = (type?: string | number) => (type ? `${type}-${uuidv4()}` : uuidv4());
 
 function createDefaultPageConfiguration(): PuckPageData {
   return {

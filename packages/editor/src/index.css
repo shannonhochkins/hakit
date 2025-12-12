@@ -222,7 +222,10 @@ button::-moz-focus-inner,
   margin-top: var(--space-5);
 }
 /* add some padding to top level fields that are not objects */
-[class*="_PuckFields-field_"] > [class*="_InputWrapper_"]:not(:has([class*="field-object"])) {
+[class*="_PuckFields-field_"] > [class*="_InputWrapper_"]:not(:has([class*="field-object"], [class*="field-array"], [class*="field-pages"])) {
+  padding: var(--space-3);
+}
+[class*="_ArrayFieldItem-fieldset_"] > [class*="_InputWrapper_"] {
   padding: var(--space-3);
 }
 /** when a field is a hidden field type, we should hide it from the UI for consistent spacing **/

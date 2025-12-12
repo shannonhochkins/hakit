@@ -1,5 +1,5 @@
 // jinja-resolver.ts
-import { useStore } from '@hakit/core';
+import { useHass } from '@hakit/core';
 import { isValidElement } from 'react';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 
@@ -92,7 +92,7 @@ export async function subscribeTemplate(
   onValue: (val: number | boolean | string | null, error?: string) => void,
   opts?: ResolveOptions
 ): Promise<() => void> {
-  const connection = useStore.getState().connection;
+  const connection = useHass.getState().connection;
   if (!connection) throw new Error('Home Assistant connection not available.');
 
   let unsub: UnsubscribeFunc | null = null;

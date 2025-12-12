@@ -117,7 +117,7 @@ export function extendPuckDataWithDefaults<
           // If both are arrays, return the data array first, else the defaults
           newRootProps[remoteId] = data.root.props[remoteId].length > 0 ? data.root.props[remoteId] : remoteDefaults;
         } else {
-          newRootProps[remoteId] = merge(remoteDefaults, data.root.props[remoteId]);
+          newRootProps[remoteId] = merge.withOptions({ mergeArrays: false }, remoteDefaults, data.root.props[remoteId]);
         }
       } else {
         // Remote doesn't exist, use defaults as-is
@@ -145,8 +145,8 @@ export function extendPuckDataWithDefaults<
     }
 
     // Deep merge defaults (base) with existing component props (overlay)
-    // merge() creates a new object, so this is safe
-    const extendedProps = merge(componentConfig.defaultProps, item.props || { id: 'unknown-id' });
+    // merge.withOptions({ mergeArrays: false }) creates a new object, so this is safe
+    const extendedProps = merge.withOptions({ mergeArrays: false }, componentConfig.defaultProps, item.props || { id: 'unknown-id' });
 
     // Recursively process any nested content arrays
     const processedProps = { ...extendedProps };

@@ -18,6 +18,8 @@ export interface ProcessComponentStylesOptions {
   componentStyles?: string | SerializedStyles | CSSInterpolation;
   /** Optional override styles from props.$styles?.css */
   overrideStyles?: string;
+  /** Whether to constrain the component to its content width */
+  fitToContent: boolean;
 }
 
 /**
@@ -42,6 +44,7 @@ export function processComponentStyles({
   type,
   componentStyles,
   overrideStyles,
+  fitToContent,
 }: ProcessComponentStylesOptions): string | SerializedStyles | undefined {
   // Generate CSS for internal fields (appearance, layout, typography, theme)
   const { cssVariables, cssStyles: internalCssStyles } = generateCssForInternalProps(props, type);
@@ -85,7 +88,7 @@ export function processComponentStyles({
     preSerializedStyles: componentStyles ? getSerializedStyles(componentStyles) : undefined,
   };
 
-  const emotionCss = generateEmotionCss(styleInputs);
+  const emotionCss = generateEmotionCss({ fitToContent, styles: styleInputs });
 
   // For root, convert SerializedStyles to string for <Global> component
   // For component, return SerializedStyles as-is for css prop

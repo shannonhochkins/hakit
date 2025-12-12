@@ -1,7 +1,7 @@
 {
   "name": "@hakit/addon",
   "description": "Create hakit.dev compatible addons with a single command",
-  "version": "0.0.25",
+  "version": "0.0.33",
   "author": "Shannon Hochkins",
   "license": "PROPRIETARY",
   "type": "module",
@@ -34,8 +34,12 @@
       "import": "./dist/component/index.js"
     },
     "./components": {
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js"
+      "types": "./dist/shared/components.d.ts",
+      "import": "./dist/shared/components.js"
+    },
+    "./utils": {
+      "types": "./dist/shared/utils.d.ts",
+      "import": "./dist/shared/utils.js"
     }
   },
   "keywords": [
@@ -85,7 +89,7 @@
     "home-assistant-js-websocket": "^9.5.0",
     "lucide-react": "^0.552.0",
     "prompts": "^2.4.2",
-    "@measured/puck": "^0.20.1",
+    "@measured/puck": "^0.20.2",
     "@hakit/core": "^6.0.0",
     "@emotion/react": "^11.0.0",
     "react": "^19.1.1",

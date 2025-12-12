@@ -334,6 +334,7 @@ describe('createRootComponent', () => {
             boxShadowBlur: 30,
             boxShadowColor: 'rgba(0,0,0,0.1)',
             boxShadowSpread: 10,
+            liquidGlassWarning: false,
             glassBackgroundOpacity: 0.1,
             glassBlur: 2,
             glassBlurAmount: 5,
@@ -398,13 +399,6 @@ describe('createRootComponent', () => {
         sharedField: 'isolated value 1',
         id: undefined,
         _editMode: undefined,
-        _editor: {
-          iframe: null,
-          document: null,
-        },
-        _dashboard: {
-          id: 'test-dashboard',
-        },
       })
     );
 
@@ -433,6 +427,7 @@ describe('createRootComponent', () => {
             boxShadowColor: 'rgba(0,0,0,0.1)',
             boxShadowEnabled: false,
             boxShadowSpread: 10,
+            liquidGlassWarning: false,
             glassBackgroundOpacity: 0.1,
             glassBlur: 2,
             glassBlurAmount: 5,
@@ -488,13 +483,6 @@ describe('createRootComponent', () => {
         sharedField: 'isolated value 2',
         id: undefined,
         _editMode: undefined,
-        _editor: {
-          iframe: null,
-          document: null,
-        },
-        _dashboard: {
-          id: 'test-dashboard',
-        },
       })
     );
 
@@ -843,6 +831,7 @@ describe('createRootComponent', () => {
             boxShadowColor: 'rgba(0,0,0,0.1)',
             boxShadowEnabled: false,
             boxShadowSpread: 10,
+            liquidGlassWarning: false,
             glassBackgroundOpacity: 0.1,
             glassBlur: 2,
             glassBlurAmount: 5,
@@ -896,13 +885,6 @@ describe('createRootComponent', () => {
         anotherSlot: expect.any(Function),
         id: undefined,
         _editMode: undefined,
-        _editor: {
-          iframe: null,
-          document: null,
-        },
-        _dashboard: {
-          id: 'test-dashboard',
-        },
       })
     );
 

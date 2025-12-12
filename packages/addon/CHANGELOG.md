@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.33] - 2025-12-10
+- Changing how utils/hooks/components are exposed for remotes to avoid double loading react
+
+## [0.0.32] - 2025-12-10
+- exposing useHakit - exposes certain information about the current dashboard, and other useful information such as component names, selected items etc.
+
+## [0.0.31] - 2025-12-10
+- exposing resolveData and resolveFields - need to test nested types extensively
+
+## [0.0.30] - 2025-12-10
+- Exposing useful hooks such use useLocalStorage, useLocalStorage, usePrevious, useIsPageEditMode, useElementSizeChange
+
+## [0.0.29] - 2025-12-03
+- Removing node polyfill and replacing uuid with crypto
+
+## [0.0.28] - 2025-12-03
+- Adding node polyfill plugin for internal rsbuild
+
+## [0.0.27] - 2025-12-03
+- Adding `SlotComponent` type and updating `Slot` to take generic input
+
+## [0.0.26] - 2025-12-03
+- Exposing generateId for resolveData method
+
 ## [0.0.25] - 2025-12-03
 - Updating types, exposing new features for extending/omitting/defaults for internal fields
 

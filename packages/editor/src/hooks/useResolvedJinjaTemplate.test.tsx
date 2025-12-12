@@ -64,7 +64,7 @@ function makeConnection(opts?: { throwOnFirstSubscribe?: boolean; track?: { call
 
 async function mockCoreWithConnection(conn: FakeConnection) {
   await moduleMocker.mock('@hakit/core', () => ({
-    useStore: {
+    useHass: {
       getState: () => ({ connection: conn }),
     },
   }));

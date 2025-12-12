@@ -191,6 +191,7 @@ export type DesignFields = {
   boxShadowSpread?: number;
 
   // (liquid-glass specific)
+  liquidGlassWarning?: boolean;
   glassDisplacementScale?: number; // default 53
   glassSpecularOpacity?: number; // default 0.1
   glassSpecularSaturation?: number; // default 2

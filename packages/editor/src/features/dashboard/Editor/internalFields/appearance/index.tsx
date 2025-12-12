@@ -8,6 +8,7 @@ import { Blend, Lightbulb, LightbulbOff, PaintBucket, Palette } from 'lucide-rea
 import { useCallback } from 'react';
 import React from 'react';
 import { fontFamilyMap, googleFontsNameMap, Typography } from '../../Typography';
+import { Alert } from '@components/Alert';
 
 export const getAppearanceFields = <T extends 'root' | 'component'>(
   type: T
@@ -44,13 +45,31 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
               return type !== 'root';
             },
           },
+          liquidGlassWarning: {
+            type: 'custom',
+            label: 'Liquid Glass Warning',
+            default: false,
+            render() {
+              return (
+                <Column
+                  style={{
+                    padding: 'var(--space-3)',
+                  }}
+                >
+                  <Alert severity='warning'>
+                    Liquid Glass is only supported in Google Chrome. This is a performance intensive effect and should be used sparingly.
+                  </Alert>
+                </Column>
+              );
+            },
+          },
           glassColor: {
             type: 'color',
             label: 'Glass Color',
             description: 'Tint color for the glass background, including alpha for transparency',
             default: 'rgba(255, 255, 255, 0.1)',
             visible(props) {
-              return props.$appearance?.design?.backgroundType === 'glass';
+              return props.$appearance?.design?.backgroundType === 'glass' || props.$appearance?.design?.backgroundType === 'liquid-glass';
             },
           },
           glassBlurAmount: {

@@ -11,8 +11,7 @@ import { toast } from 'react-toastify';
 import { COMPONENT_TYPE_DELIMITER, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import type { ComponentData } from '@measured/puck';
 import { setLocalStorageItem } from './useLocalStorage';
-import { generateId } from '@helpers/string/generateId';
-
+import { generateId } from '@shared/helpers/generateId';
 type ComponentId = string;
 type FieldDotNotatedKey = string;
 type IsBreakpointModeEnabled = boolean;

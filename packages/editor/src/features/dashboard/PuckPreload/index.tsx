@@ -4,7 +4,7 @@ import { useThemeStore } from '@hakit/components';
 import { breakpointItemToBreakPoints } from '@helpers/editor/breakpoints';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { Spinner } from '@components/Loaders/Spinner';
-import { useStore } from '@hakit/core';
+import { useHass } from '@hakit/core';
 import { getServices as _getServices } from 'home-assistant-js-websocket';
 import { getPuckConfiguration } from '../PuckDynamicConfiguration';
 import { generateComponentBreakpointMap } from '@helpers/editor/pageData/generateComponentBreakpointMap';
@@ -36,7 +36,7 @@ export function PuckPreload({ dashboard, page, children }: DashboardProps) {
   const requestingExtraInformation = useRef(false);
 
   useEffect(() => {
-    const { connection, entities } = useStore.getState();
+    const { connection, entities } = useHass.getState();
     const {
       setUserConfig,
       setBreakPointItems,

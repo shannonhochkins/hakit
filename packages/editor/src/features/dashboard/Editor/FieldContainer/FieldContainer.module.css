@@ -20,15 +20,18 @@
   transition: 0.2s ease-in-out;
   transition-property: padding, border-left-color;
 }
+[class*="_ArrayFieldItem-fieldset_"] .CollapsibleFieldWrapper {
+  border-color: var(--clr-surface-a50);
+}
 .CollapsibleFieldWrapper--collapsed {
   padding: 0;
 }
 .CollapsibleFieldWrapper--expanded {
-  border-bottom: 0;
+  border-bottom: 1px solid var(--clr-surface-a50);
 }
 
 .CollapsibleFieldWrapper-FieldLabel {
-  padding: var(--space-2) var(--space-2) var(--space-1) var(--space-1);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-1);
 }
 .CollapsibleFieldWrapper-FieldLabel--color {
   color: currentColor;
@@ -36,27 +39,47 @@
 
 .CollapsibleFieldWrapper-FieldLabel--expanded {
   border-bottom: 0;
-  color: var(--clr-on-surface-a0);
+  color: var(--clr-on-surface-a0);  
 }
 
 .CollapsibleFieldWrapper-FieldLabel--collapsed {
   border-bottom: 0;
   color: var(--clr-text-a10);
-  padding-bottom: var(--space-3);
+  &:last-of-type {
+    border-bottom: 0;
+  }
+}
+[class*="_InputWrapper_"] [class*="_InputWrapper_"]:last-of-type > fieldset {
+  border-bottom: 0 !important;
 }
 .CollapsibleFieldWrapper-FieldLabel--collapsible {
   cursor: pointer;
   &:hover {
     background-color: var(--clr-surface-a40);
     color: var(--clr-on-surface-a40);
+  }  
+}
+[class*="_ArrayFieldItem-fieldset_"] {
+  padding: 0;
+  > [class*="_InputWrapper_"]:has(fieldset) {
+    border-bottom: 1px solid var(--clr-surface-a50);
+    &:last-of-type {
+      border-bottom: 0;
+    }
   }
 }
-.CollapsibleFieldWrapper :global(.field-label.field-array), .CollapsibleFieldWrapper :global(.field-label.field-pages) {
+[class*="_ArrayFieldItem-fieldset_"] .CollapsibleFieldWrapper-FieldLabel--collapsible  {
+  background-color: rgba(0, 0, 0, 0.3);
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+/* .CollapsibleFieldWrapper :global(.field-label.field-array), .CollapsibleFieldWrapper :global(.field-label.field-pages) {
   padding-left:0;
   padding-top:0;
   padding-right: 0;
   color: var(--clr-surface-a70)
-}
+} */
 .collapsible:hover > :global(.field-label) {
   background-color: rgba(0, 0, 0, 0);
   transition: background-color 0.2s ease-in-out;
@@ -102,19 +125,45 @@
   padding: 0;
   display: none;
 }
+.fieldWrapper :global([class*='_ArrayFieldItem-summary_']) {
+  padding: var(--space-3);
+  color: var(--clr-text-a0);
+  font-weight: var(--font-weight-normal);
+}
+.fieldWrapper :global([class*='_DragIcon_']) {
+  color: var(--clr-text-a0);
+}
+.fieldWrapper :global([class*='_IconButton_']) {
+  color: var(--clr-text-a0);
+}
 
 .fieldWrapper :global([class*='_Input-input_']) {
   background-color: var(--clr-surface-a0) !important;
 }
-.fieldWrapper :global([class*='_ObjectField_']),
-.fieldWrapper :global([class*='_ArrayField_']),
-.fieldWrapper :global([class*='_ArrayFieldItem-summary']) {
+.fieldWrapper :global([class*='_ObjectField_']) {
   background-color: transparent;
-  border: 1px solid var(--clr-surface-a50);
-  border-right:0;
-  border-left: 0;
+  border-top: 1px solid var(--clr-surface-a50);
   border-radius: 0;
 }
+
+.fieldWrapper :global([class*='_ArrayField_']) {
+  background-color: transparent;
+  padding: var(--space-3);
+  border-radius: 0;
+  border-top: 1px solid var(--clr-surface-a50);
+  border-right:0;
+  border-left: 0;
+}
+
+.fieldWrapper :global([class*='_ArrayFieldItem-summary_']) {
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--clr-surface-a50);
+  border-radius: 0;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
 .fieldWrapper :global([class*='_ObjectField_']:has([class*='_ObjectField_'])) {
   border: 0;
 }
@@ -123,6 +172,7 @@
 }
 .fieldWrapper :global([class*="_ObjectField-fieldset"] > [class*="_InputWrapper_"] > fieldset:not([class*='field-object'])) {
   padding: var(--space-3);
+  border-bottom: 1px solid var(--clr-surface-a50);
   &.bp-mode-enabled {
     padding-left: var(--space-5);
     border-left: 4px solid var(--clr-primary-a50);
@@ -152,8 +202,8 @@
 .fieldWrapper :global([class*='_ArrayField-addButton_']) {
   width: 100%;
   height: 2rem;
-  background-color: var(--clr-primary-a0);
-  color: var(--clr-primary-a90);
+  background-color: var(--clr-surface-a90);
+  color: var(--clr-on-surface-a90);
   padding: 0;
   display: flex;
   align-items: center;
@@ -161,14 +211,15 @@
 }
 
 .fieldWrapper :global([class*='_ArrayField-addButton_']):hover {
-  background-color: var(--clr-primary-a20) !important;
-  color: var(--clr-primary-a90) !important;
+  background-color: var(--clr-surface-a80) !important;
+  color: var(--clr-on-surface-a80) !important;
 }
 .fieldWrapper :global([class*='_ArrayFieldItem--isExpanded'] > [class*='_ArrayFieldItem-summary']) {
-  color: var(--clr-surface-a90);
+  color: var(--clr-text-a0);
+  font-weight: var(--font-weight-bold);
 }
 .fieldWrapper :global([class*='_ArrayFieldItem-body_']) {
-  background-color: var(--clr-surface-a50);
+  background-color: transparent;
 }
 .fieldWrapper :global([class*='_Input-labelIcon_']) {
   color: currentColor;

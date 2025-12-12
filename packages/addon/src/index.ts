@@ -1,6 +1,8 @@
 /**
  * Main export file for @hakit/addon
  * This file exports types and utilities that can be used by consumers
+ * IMPORTANT - Only export types in this file - export utilities and components under the hakit-addon-shared, hakit-addon-utils files inside the editor, then rebuild the addon
+ * which will copy the files into the addon package, and then the addon package will be able to use the shared components and utils.
  */
 export type Dashboard = {
   path: string;
@@ -11,12 +13,13 @@ export type Dashboard = {
   updatedAt: string;
   dashboardId: string;
 };
-import { type DefaultComponentProps } from '@measured/puck';
+import type { DefaultComponentProps } from '@measured/puck';
 import type { CustomComponentConfig, CustomRootComponentConfig } from '@typings/puck';
 
 export type { RenderFn, RenderProps } from '@typings/puck';
 
 export type { Slot } from '@typings/puck';
+export type { SlotComponent } from '@measured/puck';
 import type { FieldConfiguration as InternalFieldConfiguration } from '@typings/fields';
 
 // field configuration object if wanting to define fields separately for shared use

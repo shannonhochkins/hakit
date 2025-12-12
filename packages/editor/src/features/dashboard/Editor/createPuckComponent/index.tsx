@@ -1,6 +1,5 @@
 import { getDefaultPropsFromFields } from '@helpers/editor/pageData/getDefaultPropsFromFields';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
 import { AdditionalRenderProps, ComponentFactoryData, CustomComponentConfig, RenderProps } from '@typings/puck';
 import { useMemo, memo } from 'react';
 import { attachPropsToElement } from './helpers/attachPropsToElement';
@@ -12,7 +11,7 @@ import { useResolvedJinjaTemplate } from '@hooks/useResolvedJinjaTemplate';
 import { usePressGestures } from '@hooks/usePressGestures';
 import puckComponentStyles from './puckComponent.module.css';
 import { router } from '../../../../router';
-import { useStore, SnakeOrCamelDomains, computeDomain, DomainService } from '@hakit/core';
+import { useHass, SnakeOrCamelDomains, computeDomain, DomainService } from '@hakit/core';
 import { callService as _callService } from 'home-assistant-js-websocket';
 import { toSnakeCase } from '@helpers/string/toSnakeCase';
 import { usePopupStore } from '@hooks/usePopupStore';
@@ -185,7 +184,7 @@ const callService = async ({
   serviceData: object;
   target: string | string[] | { entity_id: string | string[] };
 }): Promise<unknown> => {
-  const { connection, ready } = useStore.getState();
+  const { connection, ready } = useHass.getState();
   const target =
     typeof _target === 'string' || Array.isArray(_target)
       ? {
@@ -262,7 +261,7 @@ async function processInteractions(interaction: InternalComponentFields['$intera
     return;
   }
   if (interaction.type === 'callService') {
-    const entities = useStore.getState().entities;
+    const entities = useHass.getState().entities;
     const callServiceData = interaction.callService;
     const entity = callServiceData.entity;
     const service = callServiceData.service as unknown as DomainService<'light'>;
@@ -333,17 +332,13 @@ function Render<
     }
   );
 
-  const editorElements = usePuckIframeElements();
-
   // Extract the correct type for renderProps from the config's render function
   // eslint-disable-next-ine react-hooks/rules-of-hooks
   const fullProps = useMemo(() => {
-    const dashboard = useGlobalStore.getState().dashboardWithoutData;
+    // mapped component names
     const renderProps: AdditionalRenderProps = {
       id,
       _editMode: isEditing, // Ensure editMode is always defined
-      _editor: editorElements,
-      _dashboard: dashboard,
       _dragRef: dragRef,
     };
     const obj = {
@@ -360,6 +355,7 @@ function Render<
 
     // Process all styles using unified helper
     const styles = processComponentStyles({
+      fitToContent: config.fitToContent ?? true,
       props: obj,
       type: 'component',
       componentStyles,
@@ -372,7 +368,7 @@ function Render<
       obj.css = styles;
     }
     return obj;
-  }, [props, id, dragRef, isEditing, config, editorElements]);
+  }, [props, id, dragRef, isEditing, config]);
 
   // @ts-expect-error - puck expects a very specific type, which we can not satisfy here
   const renderedElement = config.render(fullProps);
@@ -393,6 +389,7 @@ function Render<
           blur={glassBlur}
           style={{
             ...defaultStyles,
+            maxWidth: config.fitToContent ? defaultStyles.maxWidth : undefined,
           }}
         >
           {renderedElement}
@@ -424,6 +421,7 @@ function Render<
         blur={glassBlur}
         style={{
           ...defaultStyles,
+          maxWidth: config.fitToContent ? defaultStyles.maxWidth : undefined,
         }}
       />
     );
@@ -441,6 +439,9 @@ function Render<
       return bindWithProps({
         ...wrapperProps,
         ...(fullProps.css ? { css: fullProps.css } : {}),
+        // @ts-expect-error - this is used to identify a component in the editor and renderer
+        'data-puck-component': true,
+        'data-component-label': config.label,
         className: [wrapperProps.className, puckComponentStyles.pressable].filter(Boolean).join(' '),
       });
     },
