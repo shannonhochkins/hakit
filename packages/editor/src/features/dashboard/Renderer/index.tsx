@@ -1,4 +1,4 @@
-import { Config, Render } from '@measured/puck';
+import { Config, Render } from '@puckeditor/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { Spinner } from '@components/Loaders/Spinner';
 import { RendererShortcuts } from './RendererShortcuts';

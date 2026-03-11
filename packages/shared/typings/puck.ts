@@ -9,7 +9,7 @@ import {
   ComponentData,
   Metadata,
   ResolveDataTrigger,
-} from '@measured/puck';
+} from '@puckeditor/core';
 import { type HassEntities, type HassServices } from 'home-assistant-js-websocket';
 import type {
   FieldConfiguration,

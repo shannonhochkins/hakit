@@ -1,5 +1,5 @@
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import { registerOverlayPortal, Slot } from '@measured/puck';
+import { registerOverlayPortal, Slot } from '@puckeditor/core';
 import { usePopupStore } from '@hooks/usePopupStore';
 import { Fab } from '@components/Button';
 import { useCallback, useEffect, useId, useRef } from 'react';

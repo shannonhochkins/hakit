@@ -1,4 +1,4 @@
-import { AutoField, DefaultComponentProps } from '@measured/puck';
+import { AutoField, DefaultComponentProps } from '@puckeditor/core';
 import { FieldConfiguration, FieldValueByKind } from '@typings/fields';
 import { ColorField } from '@components/Form/Field/Color';
 import { SliderField } from '@components/Form/Field/Slider';

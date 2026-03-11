@@ -42,6 +42,9 @@ const githubInstallSchema = z.object({
   repositoryUrl: z.url().refine(url => url.includes('github.com'), 'Must be a GitHub repository URL'),
 });
 
+type Addon = typeof addonsTable.$inferSelect;
+type AddonVersion = typeof addonVersionsTable.$inferSelect;
+
 const installFromGithubRoute = new Hono().post(
   '/from-github',
   describeRoute({ description: 'Install repository from GitHub (SSE)', tags: ['Addons'], responses: { 200: { description: 'OK' } } }),
@@ -140,8 +143,8 @@ const installFromGithubRoute = new Hono().post(
 
         const existingAddon = await db.select().from(addonsTable).where(eq(addonsTable.githubUrl, repositoryUrl)).limit(1);
 
-        let addon;
-        let addonVersion;
+        let addon: Addon | undefined;
+        let addonVersion: AddonVersion | undefined;
 
         if (existingAddon.length > 0) {
           addon = existingAddon[0];
@@ -283,29 +286,13 @@ const installFromGithubRoute = new Hono().post(
           status: 'success',
         });
 
-        // Create addon if it doesn't exist
+        const addonId = addon?.id ?? uuidv4();
+
         if (!addon) {
           await writeSSEMessage(stream, {
             message: 'Creating new addon record...',
             status: 'success',
           });
-
-          const [newAddon] = await db
-            .insert(addonsTable)
-            .values({
-              id: uuidv4(),
-              name: addonName,
-              description,
-              author: typeof author === 'string' ? author : author?.name || owner,
-              githubUrl: repositoryUrl,
-              isPublic: true,
-              totalDownloads: 0, // Start with 0, will be incremented when user connects
-              latestVersion: version,
-              lastUpdated: new Date(),
-            })
-            .returning();
-
-          addon = newAddon;
         }
 
         // Create version record
@@ -326,7 +313,7 @@ const installFromGithubRoute = new Hono().post(
         });
 
         // Upload all files from the zip to Supabase storage
-        const uploadResult = await uploadAddonZipContents(addon.id, version, zipBuffer, stream, writeSSEMessage);
+        const uploadResult = await uploadAddonZipContents(addonId, version, zipBuffer, stream, writeSSEMessage);
 
         await writeSSEMessage(stream, {
           message: `Uploaded ${uploadResult.uploadedFiles.length} files to storage`,
@@ -352,39 +339,111 @@ const installFromGithubRoute = new Hono().post(
           });
         }
 
-        const [newVersion] = await db
-          .insert(addonVersionsTable)
-          .values({
-            id: uuidv4(),
-            addonId: addon.id,
-            version,
-            components: componentNames.map(name => ({ name })),
-            manifestUrl: uploadResult.manifestUrl,
-            releaseNotesUrl,
-            isBeta: false,
-            downloadCount: 0, // Start with 0, will be incremented when user connects
-          })
-          .returning();
+        const transactionResult = await db.transaction(async trx => {
+          let addonRecord = addon;
 
-        // Update the repository's latestVersion if this is a newer version
+          if (!addonRecord) {
+            const [insertedAddon] = await trx
+              .insert(addonsTable)
+              .values({
+                id: addonId,
+                name: addonName,
+                description,
+                author: typeof author === 'string' ? author : author?.name || owner,
+                githubUrl: repositoryUrl,
+                isPublic: true,
+                totalDownloads: 0, // Start with 0, will be incremented when user connects
+                latestVersion: version,
+                lastUpdated: new Date(),
+              })
+              .returning();
+
+            addonRecord = insertedAddon;
+          }
+
+          const [newVersion] = await trx
+            .insert(addonVersionsTable)
+            .values({
+              id: uuidv4(),
+              addonId: addonRecord.id,
+              version,
+              components: componentNames.map(name => ({ name })),
+              manifestUrl: uploadResult.manifestUrl,
+              releaseNotesUrl: releaseNotesUrl ?? undefined,
+              isBeta: false,
+              downloadCount: 0, // Start with 0, will be incremented when user connects
+            } as typeof addonVersionsTable.$inferInsert)
+            .returning();
+
+          // Simple version comparison - in production, you'd use proper semver comparison
+          const shouldUpdateLatest =
+            !addonRecord.latestVersion ||
+            version.localeCompare(addonRecord.latestVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
+
+          if (shouldUpdateLatest) {
+            await trx
+              .update(addonsTable)
+              .set({
+                latestVersion: version,
+                lastUpdated: new Date(),
+              })
+              .where(eq(addonsTable.id, addonRecord.id));
+          }
+
+          // Check if user already has this repository installed (with any version)
+          const existingUserAddon = await trx
+            .select()
+            .from(userAddonsTable)
+            .where(and(eq(userAddonsTable.userId, user.id), eq(userAddonsTable.addonId, addonRecord.id)))
+            .limit(1);
+
+          const isExistingUserInstall = existingUserAddon.length > 0;
+
+          if (isExistingUserInstall) {
+            // Update existing connection to new version
+            await trx
+              .update(userAddonsTable)
+              .set({
+                versionId: newVersion.id,
+                lastUsedAt: new Date(),
+              })
+              .where(eq(userAddonsTable.id, existingUserAddon[0].id));
+          } else {
+            // Create new connection
+            await trx.insert(userAddonsTable).values({
+              id: uuidv4(),
+              userId: user.id,
+              addonId: addonRecord.id,
+              versionId: newVersion.id,
+              connectedAt: new Date(),
+              lastUsedAt: null,
+            });
+          }
+
+          // Increment download counts
+          await trx
+            .update(addonsTable)
+            .set({ totalDownloads: addonRecord.totalDownloads + 1 })
+            .where(eq(addonsTable.id, addonRecord.id));
+
+          await trx
+            .update(addonVersionsTable)
+            .set({ downloadCount: newVersion.downloadCount + 1 })
+            .where(eq(addonVersionsTable.id, newVersion.id));
+
+          return {
+            addonRecord,
+            newVersion,
+            isExistingUserInstall,
+          };
+        });
+
+        addon = transactionResult.addonRecord;
+
         await writeSSEMessage(stream, {
           message: 'Updating repository latest version...',
           status: 'success',
         });
-
-        // Simple version comparison - in production, you'd use proper semver comparison
-        const shouldUpdateLatest =
-          !addon.latestVersion || version.localeCompare(addon.latestVersion, undefined, { numeric: true, sensitivity: 'base' }) > 0;
-
-        if (shouldUpdateLatest) {
-          await db
-            .update(addonsTable)
-            .set({
-              latestVersion: version,
-              lastUpdated: new Date(),
-            })
-            .where(eq(addonsTable.id, addon.id));
-        }
 
         // Install for user
         await writeSSEMessage(stream, {
@@ -392,60 +451,12 @@ const installFromGithubRoute = new Hono().post(
           status: 'success',
         });
 
-        // Check if user already has this repository installed (with any version)
-        const existingUserAddon = await db
-          .select()
-          .from(userAddonsTable)
-          .where(and(eq(userAddonsTable.userId, user.id), eq(userAddonsTable.addonId, addon.id)))
-          .limit(1);
-
-        if (existingUserAddon.length > 0) {
-          // Update existing connection to new version
-          await db
-            .update(userAddonsTable)
-            .set({
-              versionId: newVersion.id,
-              lastUsedAt: new Date(),
-            })
-            .where(eq(userAddonsTable.id, existingUserAddon[0].id));
-
-          // Increment download counts for the new version
-          await db
-            .update(addonsTable)
-            .set({ totalDownloads: addon.totalDownloads + 1 })
-            .where(eq(addonsTable.id, addon.id));
-
-          await db
-            .update(addonVersionsTable)
-            .set({ downloadCount: newVersion.downloadCount + 1 })
-            .where(eq(addonVersionsTable.id, newVersion.id));
-
+        if (transactionResult.isExistingUserInstall) {
           await writeSSEMessage(stream, {
             message: 'Updated existing repository to new version!',
             status: 'success',
           });
         } else {
-          // Create new connection
-          await db.insert(userAddonsTable).values({
-            id: uuidv4(),
-            userId: user.id,
-            addonId: addon.id,
-            versionId: newVersion.id,
-            connectedAt: new Date(),
-            lastUsedAt: null,
-          });
-
-          // Increment download counts for new installation
-          await db
-            .update(addonsTable)
-            .set({ totalDownloads: addon.totalDownloads + 1 })
-            .where(eq(addonsTable.id, addon.id));
-
-          await db
-            .update(addonVersionsTable)
-            .set({ downloadCount: newVersion.downloadCount + 1 })
-            .where(eq(addonVersionsTable.id, newVersion.id));
-
           await writeSSEMessage(stream, {
             message: 'Addon connected successfully!',
             status: 'success',

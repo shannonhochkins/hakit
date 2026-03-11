@@ -30,7 +30,7 @@ import {
   offset,
 } from '@floating-ui/react';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
-import { useGetPuck } from '@measured/puck';
+import { useGetPuck } from '@puckeditor/core';
 import { useBreadcrumbs } from '@hooks/useBreadcrumbs';
 import { ColorSwatches, generateColorSwatches } from '@helpers/color';
 import isEqual from '@guanghechen/fast-deep-equal';

@@ -1,4 +1,4 @@
-import { createUsePuck, useGetPuck } from '@measured/puck';
+import { createUsePuck, useGetPuck } from '@puckeditor/core';
 import { Box, Copy, EllipsisVertical, RectangleHorizontal, RotateCcw, Trash, X } from 'lucide-react';
 import { useCallback } from 'react';
 import { IconButton } from '@components/Button';

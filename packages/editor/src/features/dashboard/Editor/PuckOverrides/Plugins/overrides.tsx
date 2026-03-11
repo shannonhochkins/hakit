@@ -1,4 +1,4 @@
-import { Config, Plugin, FieldRenderFunctions } from '@measured/puck';
+import { Config, Plugin, FieldRenderFunctions } from '@puckeditor/core';
 import { memo } from 'react';
 import { DrawerItem } from '../Components/DrawerItem';
 import { FieldDefinition } from '@typings/fields';
@@ -75,6 +75,8 @@ export const createPuckOverridesPlugin = (): Plugin<
       drawer: Components,
       drawerItem: DrawerItem,
       fieldTypes: {
+        // @ts-expect-error - This does exist, just not in the types, puck seems to omit it
+        custom: FieldWrapper,
         unit: FieldWrapper,
         switch: FieldWrapper,
         radio: FieldWrapper,

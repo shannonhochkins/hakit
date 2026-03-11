@@ -2,7 +2,7 @@ import { CustomComponentConfig, RenderProps } from '@typings/puck';
 import { UnitFieldValue } from '@typings/fields';
 import { PrimaryButton, SecondaryButton } from '@components/Button';
 import { TooltipProps } from '@components/Tooltip';
-import { Slot } from '@measured/puck';
+import { Slot } from '@puckeditor/core';
 
 /** =========================
  * Types & helpers

@@ -89,7 +89,7 @@
     "home-assistant-js-websocket": "^9.5.0",
     "lucide-react": "^0.552.0",
     "prompts": "^2.4.2",
-    "@measured/puck": "^0.20.2",
+    "@puckeditor/core": "^0.21.0",
     "@hakit/core": "^6.0.0",
     "@emotion/react": "^11.0.0",
     "react": "^19.1.1",

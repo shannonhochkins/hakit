@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { useGlobalStore } from './useGlobalStore';
-import { useGetPuck } from '@measured/puck';
+import { useGetPuck } from '@puckeditor/core';
 import { FieldConfiguration } from '@typings/fields';
 
 const RESPONSIVE_MODE_DEFAULT = true;

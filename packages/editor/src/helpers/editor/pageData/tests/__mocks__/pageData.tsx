@@ -1,6 +1,6 @@
 import { FilterByDomain } from '@hakit/core';
 import { EntityName } from '@hakit/core';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 import { PageValue } from '@typings/fields';
 import { CustomPuckConfig, PuckPageData, Slot } from '@typings/puck';
 

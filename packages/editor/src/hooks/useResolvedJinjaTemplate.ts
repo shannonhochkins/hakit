@@ -5,7 +5,7 @@ import { BREAKPOINT_ORDER } from '@helpers/editor/pageData/constants';
 import { toNumber } from '@helpers/number';
 import { toBoolean } from '@helpers/boolean';
 import { CustomConfig } from '@typings/puck';
-import { ComponentData } from '@measured/puck';
+import { ComponentData } from '@puckeditor/core';
 
 type UseResolveResult<T> = {
   data: T | null; // if no templates: equals input (derived, not state). if templates: state.

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { createUsePuck, type DefaultComponentProps } from '@measured/puck';
+import { createUsePuck, type DefaultComponentProps } from '@puckeditor/core';
 import { Code } from 'lucide-react';
 
 import type { FieldConfiguration } from '@typings/fields';

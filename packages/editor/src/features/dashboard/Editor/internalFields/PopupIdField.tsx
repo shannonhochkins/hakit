@@ -1,5 +1,5 @@
 import { Row } from '@components/Layout';
-import { ComponentData, createUsePuck, useGetPuck, CustomFieldRender } from '@measured/puck';
+import { ComponentData, createUsePuck, useGetPuck, CustomFieldRender } from '@puckeditor/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { toast } from 'react-toastify';
 import { usePopupStore } from '@hooks/usePopupStore';
@@ -10,6 +10,7 @@ import { IconButton, SecondaryButton } from '@components/Button';
 import { Plus, SquareArrowOutUpRight, Trash, X } from 'lucide-react';
 import { SelectField } from '@components/Form/Field/Select';
 import { COMPONENT_TYPE_DELIMITER, DEFAULT_POPUP_ZONE } from '@helpers/editor/pageData/constants';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 const usePuck = createUsePuck();
 
 const cn = getClassNameFactory('PopupIdField', styles);
@@ -21,7 +22,9 @@ export const PopupIdField: CustomFieldRender<string> = ({ value, onChange, id }:
   const hasPopupLinked = popups.find(p => p.id === value) !== undefined;
   const existingPopupComponents = popups
     .map(p => getItemById(p.id))
-    .filter((c): c is ComponentData<PopupProps> => !!c && c.type.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`));
+    .filter(
+      (c): c is ComponentData<PopupProps> => !!c && c.type.startsWith(sanitizeCssIdentifier(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`))
+    );
   // an auto complete, populated with all existing popups
   // and a button to "create" a new popup, which will assign the id of the popup via onchange once created
   // this will need to be done via the puck api

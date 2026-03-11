@@ -13,13 +13,13 @@ export type Dashboard = {
   updatedAt: string;
   dashboardId: string;
 };
-import type { DefaultComponentProps } from '@measured/puck';
+import type { DefaultComponentProps } from '@puckeditor/core';
 import type { CustomComponentConfig, CustomRootComponentConfig } from '@typings/puck';
 
 export type { RenderFn, RenderProps } from '@typings/puck';
 
 export type { Slot } from '@typings/puck';
-export type { SlotComponent } from '@measured/puck';
+export type { SlotComponent } from '@puckeditor/core';
 import type { FieldConfiguration as InternalFieldConfiguration } from '@typings/fields';
 
 // field configuration object if wanting to define fields separately for shared use

@@ -33,6 +33,16 @@ export function createRsbuildConfig(moduleFederationConfig: ModuleFederationPlug
             minSize: 100000,
             maxSize: 500000,
             cacheGroups: {
+              vendor: {
+                chunks: 'all',
+                name: 'vendor',
+                priority: 10,
+                reuseExistingChunk: true,
+                test: /[\\/]node_modules[\\/]/,
+                filename: pathData => {
+                  return `static/js/vendor/${pathData.chunk?.name ?? ''}.js`;
+                },
+              },
               components: {
                 test: /src[\\/]components/,
                 name: 'components',
@@ -40,15 +50,6 @@ export function createRsbuildConfig(moduleFederationConfig: ModuleFederationPlug
                 priority: 5,
                 reuseExistingChunk: true,
               },
-            },
-          },
-        },
-      },
-      tools: {
-        swc: {
-          jsc: {
-            experimental: {
-              plugins: [['@swc/plugin-emotion', {}]],
             },
           },
         },
@@ -62,6 +63,9 @@ export function createRsbuildConfig(moduleFederationConfig: ModuleFederationPlug
       plugins: [
         pluginReact({
           swcReactOptions: {
+            // Keep Emotion JSX/css-prop support without forcing the SWC emotion
+            // wasm plugin into consumer projects, which can drift out of sync with
+            // the consumer's resolved Rsbuild/Rspack toolchain.
             importSource: '@emotion/react',
           },
         }),

@@ -431,6 +431,12 @@ export const getAppearanceFields = <T extends 'root' | 'component'>(
             description: 'Height of the container',
             default: 'auto',
           },
+          fitToContent: {
+            type: 'switch',
+            label: 'Fit Content',
+            description: 'Whether the container should fit its content width',
+            default: true,
+          },
           padding: {
             type: 'unit',
             label: 'Padding',

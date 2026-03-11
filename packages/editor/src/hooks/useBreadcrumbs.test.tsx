@@ -2,7 +2,7 @@ import { describe, it, expect } from 'bun:test';
 import { renderHook } from '@testing-library/react';
 import { mockData } from './__mocks__/data';
 import { mockConfig } from './__mocks__/config';
-import { Puck } from '@measured/puck';
+import { Puck } from '@puckeditor/core';
 import { useBreadcrumbs } from './useBreadcrumbs';
 import React from 'react';
 

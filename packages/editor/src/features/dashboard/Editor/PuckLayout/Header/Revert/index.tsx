@@ -5,7 +5,7 @@ import { useUnsavedChanges } from '@hooks/useUnsavedChanges';
 import { PrimaryButton } from '@components/Button/Primary';
 import { SecondaryButton } from '@components/Button/Secondary';
 import { Modal, ModalActions } from '@components/Modal';
-import { createUsePuck } from '@measured/puck';
+import { createUsePuck } from '@puckeditor/core';
 import styles from './Revert.module.css';
 import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const usePuck = createUsePuck();

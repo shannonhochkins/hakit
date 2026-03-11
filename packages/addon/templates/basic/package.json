@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx --package=@hakit/addon hakit-dev",
     "type-check": "tsc --noEmit",
-    "build": "npm run type-check && npx --package=@hakit/addon hakit-bundle",
+    "build": "rm -rf dist && npm run type-check && npx --package=@hakit/addon hakit-bundle",
     "create-component": "npx --package=@hakit/addon hakit-create-component"
   },
   "dependencies": {},

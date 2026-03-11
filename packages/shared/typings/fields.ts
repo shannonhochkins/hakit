@@ -10,7 +10,7 @@ import type {
   TextField,
   SelectField as PuckSelectField,
   ComponentData,
-} from '@measured/puck';
+} from '@puckeditor/core';
 import type { ReactNode } from 'react';
 import type { Slot } from './puck';
 import type { HassEntity } from 'home-assistant-js-websocket';
@@ -226,6 +226,7 @@ export interface TypographyProps {
 export type SizeAndSpacingFields = {
   width: UnitFieldValue;
   height: UnitFieldValue;
+  fitToContent: boolean;
   padding: UnitFieldValue; // supports corners
   margin: UnitFieldValue; // supports corners
 };

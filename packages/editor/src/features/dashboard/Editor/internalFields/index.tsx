@@ -36,7 +36,7 @@ export const internalRootComponentFields: FieldConfiguration<InternalRootCompone
   },
 };
 
-function getInteractionFields<T extends keyof InternalComponentFields['$interactions']>(type: T) {
+export function getInteractionFields<T extends keyof InternalComponentFields['$interactions']>(type: T) {
   const fields: FieldConfiguration<{ value: Actions }, InternalComponentFields> = {
     // value key here is just to satisfy the type checker
     value: {

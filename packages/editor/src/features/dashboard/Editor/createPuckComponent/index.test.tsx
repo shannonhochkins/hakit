@@ -1,5 +1,5 @@
 import type { EntityName, FilterByDomain } from '@hakit/core';
-import { PuckContext } from '@measured/puck';
+import { PuckContext } from '@puckeditor/core';
 import { UnitFieldValue } from '@typings/fields';
 import { CustomComponentConfig, CustomRootComponentConfig, RenderProps } from '@typings/puck';
 export interface NavigationProps {

@@ -1,5 +1,5 @@
 import type { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import type { DefaultComponentProps } from '@measured/puck';
+import type { DefaultComponentProps } from '@puckeditor/core';
 import { trimPuckDataToConfig } from './trimPuckDataToConfig';
 import { extendPuckDataWithDefaults } from './extendPuckDataWithDefaults';
 

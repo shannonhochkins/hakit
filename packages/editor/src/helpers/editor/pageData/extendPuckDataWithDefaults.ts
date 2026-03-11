@@ -1,5 +1,5 @@
 import { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import { ComponentData, DefaultComponentProps } from '@measured/puck';
+import { ComponentData, DefaultComponentProps } from '@puckeditor/core';
 import { merge } from 'ts-deepmerge';
 import { unsafelyDeepClone } from '@helpers/deepClone';
 /**

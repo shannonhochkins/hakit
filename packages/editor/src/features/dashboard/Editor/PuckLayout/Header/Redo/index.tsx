@@ -1,6 +1,6 @@
 import { Redo2Icon } from 'lucide-react';
 import { IconButton } from '@components/Button/IconButton';
-import { createUsePuck } from '@measured/puck';
+import { createUsePuck } from '@puckeditor/core';
 
 const usePuck = createUsePuck();
 

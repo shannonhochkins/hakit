@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'bun:test';
 import { trimPuckDataToConfig } from '../trimPuckDataToConfig';
 import { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 
 describe('trimPuckDataToConfig', () => {
   describe('basic functionality', () => {

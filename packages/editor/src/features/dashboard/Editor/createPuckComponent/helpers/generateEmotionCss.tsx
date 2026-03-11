@@ -36,10 +36,10 @@ export function generateEmotionCss({
 
   if (cssInputs.length === 0) return undefined;
 
-  return css(...cssInputs, {
-    ...defaultStyles,
-    maxWidth: fitToContent ? defaultStyles.maxWidth : undefined,
-  });
+  const clonedDefaultStyles = { ...defaultStyles };
+  clonedDefaultStyles.maxWidth = fitToContent ? defaultStyles.maxWidth : ('none' as 'fit-content');
+
+  return css(...cssInputs, clonedDefaultStyles);
 }
 
 export function getSerializedStyles(obj: unknown): SerializedStyles | undefined {

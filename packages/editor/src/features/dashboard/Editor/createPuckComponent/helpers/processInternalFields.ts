@@ -1,4 +1,4 @@
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 import type { FieldConfiguration, FieldFor, InternalComponentFields, InternalRootComponentFields } from '@typings/fields';
 import type { InternalFieldsConfig } from '@typings/puck';
 import type { DeepPartial } from '@typings/utils';
@@ -247,26 +247,37 @@ function applyDefaultsToFields<F>(fields: F, defaultsConfig: Record<string, unkn
   return result;
 }
 
-function applyDefaultItemPropsToFields<P extends DefaultComponentProps>(fields: FieldConfiguration<P>): FieldConfiguration<P> {
+function applyDefaultItemPropsToFields<P extends DefaultComponentProps>(
+  fields: FieldConfiguration<P>,
+  additionalData: AdditionalData
+): FieldConfiguration<P> {
   if (!fields) {
     return fields;
   }
   // resursively loop over fields until we find an array field, then apply the defaultItemProps to the arrayFields
   // if it doesn't already exist
-  for (const [, field] of Object.entries(fields)) {
+  for (const [name, field] of Object.entries(fields)) {
     const _field = field as FieldFor<P[keyof P], ExtractDataShape<FieldConfiguration<P>>>;
+    // for field name of "fitToContent", switch the default based on the additionalData.fitToContent
+    if (_field.type === 'switch' && name === 'fitToContent') {
+      (_field as { default?: boolean }).default = additionalData.fitToContent;
+    }
     if (_field.type === 'array' && !_field.defaultItemProps && _field.arrayFields && _field.default.length > 0) {
       _field.defaultItemProps = {
         ...(_field.default[0] as Record<string, unknown>),
       };
-      _field.arrayFields = applyDefaultItemPropsToFields(_field.arrayFields);
+      _field.arrayFields = applyDefaultItemPropsToFields(_field.arrayFields, additionalData);
     } else if (_field.type === 'object' && _field.objectFields) {
       // @ts-expect-error - we need to cast the objectFields to the correct type, covered with tests
-      _field.objectFields = applyDefaultItemPropsToFields(_field.objectFields);
+      _field.objectFields = applyDefaultItemPropsToFields(_field.objectFields, additionalData);
     }
   }
   return fields;
 }
+
+type AdditionalData = {
+  fitToContent: boolean;
+};
 /**
  * Processes internalFields configuration and returns processed fields
  * This handles omit, extend, and defaults - all field configuration modifications happen here
@@ -283,7 +294,8 @@ export function processInternalFields<
   ExtendedInternalFields extends object | undefined = undefined,
 >(
   fields: FieldConfiguration<P>,
-  internalFieldsConfig: InternalFieldsConfig<InternalFields, ExtendedInternalFields, ExtractDataShape<FieldConfiguration<P>>> | undefined
+  internalFieldsConfig: InternalFieldsConfig<InternalFields, ExtendedInternalFields, ExtractDataShape<FieldConfiguration<P>>> | undefined,
+  additionalData: AdditionalData
 ): MergedFieldConfiguration<P, ExtendedInternalFields> {
   let processedFields = { ...fields };
 
@@ -302,7 +314,9 @@ export function processInternalFields<
     processedFields = applyDefaultsToFields(processedFields, internalFieldsConfig.defaults);
   }
   // Apply defaultItemProps last (update defaultItemProps in field configurations)
-  processedFields = applyDefaultItemPropsToFields(processedFields);
+  processedFields = applyDefaultItemPropsToFields(processedFields, {
+    fitToContent: additionalData.fitToContent,
+  });
 
   return processedFields as MergedFieldConfiguration<P, ExtendedInternalFields>;
 }

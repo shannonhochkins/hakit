@@ -1,4 +1,4 @@
-import { ArrayField, ObjectField } from '@measured/puck';
+import { ArrayField, ObjectField } from '@puckeditor/core';
 
 // Helper to assert field structure (avoids type errors)
 export function assertField(

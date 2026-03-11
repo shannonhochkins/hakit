@@ -104,7 +104,10 @@ export function createComponent<
         ...baseInternalFields,
       } as FieldConfiguration<P & DeepPartial<InternalComponentFields>>,
       // @ts-expect-error - Complex type compatibility between InternalFieldsConfig variants, convered with tests
-      config.internalFields
+      config.internalFields,
+      {
+        fitToContent: config.fitToContent ?? true,
+      }
     ) as FieldConfiguration<P & DeepPartial<InternalComponentFields>>;
 
     const entities = data.getAllEntities();
@@ -355,7 +358,7 @@ function Render<
 
     // Process all styles using unified helper
     const styles = processComponentStyles({
-      fitToContent: config.fitToContent ?? true,
+      fitToContent: config.fitToContent && fullProps.$appearance?.sizeAndSpacing?.fitToContent !== false ? true : false,
       props: obj,
       type: 'component',
       componentStyles,
@@ -389,7 +392,8 @@ function Render<
           blur={glassBlur}
           style={{
             ...defaultStyles,
-            maxWidth: config.fitToContent ? defaultStyles.maxWidth : undefined,
+            maxWidth:
+              fullProps.$appearance?.sizeAndSpacing?.fitToContent !== false && config.fitToContent ? defaultStyles.maxWidth : 'auto',
           }}
         >
           {renderedElement}
@@ -421,7 +425,7 @@ function Render<
         blur={glassBlur}
         style={{
           ...defaultStyles,
-          maxWidth: config.fitToContent ? defaultStyles.maxWidth : undefined,
+          maxWidth: fullProps.$appearance?.sizeAndSpacing?.fitToContent !== false && config.fitToContent ? defaultStyles.maxWidth : 'auto',
         }}
       />
     );

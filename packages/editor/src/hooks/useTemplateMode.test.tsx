@@ -5,7 +5,7 @@ import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import { useTemplateMode } from './useTemplateMode';
 // Note: actual import not used; the module is mocked via moduleMocker below
 import { FieldConfiguration } from '@typings/fields';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 
 const moduleMocker = createModuleMocker();
 
@@ -62,7 +62,7 @@ describe('useTemplateMode', () => {
         toggleBreakpointMode: () => true,
       }),
     }));
-    await moduleMocker.mock('@measured/puck', () => ({
+    await moduleMocker.mock('@puckeditor/core', () => ({
       useGetPuck: () => () => ({ selectedItem: null, appState: { data: { root: { props: { id: 'root' } } } } }),
     }));
   });
@@ -76,7 +76,7 @@ describe('useTemplateMode', () => {
         toggleBreakpointMode: () => true,
       }),
     }));
-    await moduleMocker.mock('@measured/puck', () => ({
+    await moduleMocker.mock('@puckeditor/core', () => ({
       useGetPuck: () => () => ({ selectedItem: null, appState: { data: { root: { props: { id: 'root' } } } } }),
     }));
   });

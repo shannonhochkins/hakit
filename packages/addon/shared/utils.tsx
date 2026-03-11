@@ -4,7 +4,7 @@
  *
  * IMPORTANT - This file is copied into the addon directory when it builds the addon package
  */
-export { registerOverlayPortal } from '@measured/puck';
+export { registerOverlayPortal } from '@puckeditor/core';
 export { generateId } from '@shared/helpers/generateId';
 
 // reusable hooks

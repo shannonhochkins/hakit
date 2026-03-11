@@ -1,4 +1,4 @@
-import { ComponentData, createUsePuck, Slot, walkTree, useGetPuck } from '@measured/puck';
+import { ComponentData, createUsePuck, Slot, walkTree, useGetPuck } from '@puckeditor/core';
 import { ArrowDown, ArrowUp, CornerLeftUp } from 'lucide-react';
 import { PopupProps } from '../../InternalComponents/Popup';
 import { useCallback, useMemo } from 'react';
@@ -11,6 +11,7 @@ import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 import { toast } from 'react-toastify';
 import { DEFAULT_DROPZONE_NAME } from '@constants/index';
 import { useGlobalStore } from '@hooks/useGlobalStore';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 
 const cn = getClassNameFactory('ActionBar', styles);
 
@@ -28,7 +29,7 @@ export function ActionBar() {
   const getSelectorForId = usePuck(s => s.getSelectorForId);
   const getItemById = usePuck(s => s.getItemById);
   const selectedNode = itemSelector ? getItemBySelector(itemSelector) : null;
-  const isPopup = selectedNode?.type?.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`);
+  const isPopup = selectedNode?.type?.startsWith(sanitizeCssIdentifier(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`));
   const popup = isPopup ? (selectedNode as ComponentData<PopupProps>) : null;
 
   const globalPermissions = getPermissions();

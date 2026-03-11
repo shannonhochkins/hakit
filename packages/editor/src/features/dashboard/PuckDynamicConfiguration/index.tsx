@@ -1,4 +1,4 @@
-import { Config, DefaultComponentProps } from '@measured/puck';
+import { Config, DefaultComponentProps } from '@puckeditor/core';
 import { getInstance, createInstance } from '@module-federation/enhanced/runtime';
 import { type UserOptions } from '@module-federation/runtime-core';
 import { CustomComponentConfig, CustomPuckComponentConfig, CustomPuckConfig, type ComponentFactoryData } from '@typings/puck';
@@ -10,12 +10,13 @@ import { createRootComponent } from '@features/dashboard/Editor/createRootCompon
 import { popupComponentConfig, PopupProps } from '@features/dashboard/Editor/InternalComponents/Popup';
 import { containerComponentConfig, ContainerProps } from '@features/dashboard/Editor/InternalComponents/Container';
 import { buttonComponentConfig, ButtonProps } from '../Editor/InternalComponents/Button';
-import { cardComponentConfig, CardProps } from '../Editor/InternalComponents/Card';
+import { CardProps } from '../Editor/InternalComponents/Card';
 
 import { iconButtonComponentConfig, IconButtonProps } from '../Editor/InternalComponents/IconButton';
 import { getLocalStorageItem, setLocalStorageItem } from '@hooks/useLocalStorage';
 import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 import { toast } from 'react-toastify';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 
 // Union type of all internal component configs
 type InternalComponentConfig =
@@ -283,7 +284,7 @@ async function processComponent({
   // and cast it here to the correct type
   const customComponent = componentConfig;
   const componentLabel = customComponent.label;
-  const componentType = customComponent.label + `${COMPONENT_TYPE_DELIMITER}${remote.addonId}`;
+  const componentType = sanitizeCssIdentifier(customComponent.label + `${COMPONENT_TYPE_DELIMITER}${remote.addonId}`);
   if (!componentLabel?.trim()) {
     throw new Error(`Component from remote "${remote.name}" has no label`);
   }
@@ -471,9 +472,9 @@ export async function getPuckConfiguration(data: ComponentFactoryData): Promise<
         {
           config: containerComponentConfig,
         },
-        {
-          config: cardComponentConfig,
-        },
+        // {
+        //   config: cardComponentConfig,
+        // },
       ],
     },
     {

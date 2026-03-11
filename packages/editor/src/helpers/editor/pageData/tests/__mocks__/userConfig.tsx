@@ -1,4 +1,4 @@
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 import { CustomComponentConfig, CustomConfig } from '@typings/puck';
 
 export type LayoutProps = {

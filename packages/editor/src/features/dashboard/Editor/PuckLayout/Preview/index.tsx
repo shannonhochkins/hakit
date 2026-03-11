@@ -1,4 +1,4 @@
-import { createUsePuck, Puck } from '@measured/puck';
+import { createUsePuck, Puck } from '@puckeditor/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useCallback, useEffect, useRef } from 'react';
 import styles from './Preview.module.css';

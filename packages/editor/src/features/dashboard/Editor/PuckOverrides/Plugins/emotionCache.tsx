@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import createCache from '@emotion/cache';
 import { CacheProvider, PropsOf } from '@emotion/react';
-import { Overrides, Plugin } from '@measured/puck';
+import { Overrides, Plugin } from '@puckeditor/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
 import { useHass } from '@hakit/core';
 

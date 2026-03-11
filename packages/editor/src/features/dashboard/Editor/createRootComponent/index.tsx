@@ -3,7 +3,7 @@ import { Fragment, useMemo, memo } from 'react';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import { createComponent } from '@features/dashboard/Editor/createPuckComponent';
 import { defaultRootConfig, type InternalFieldsBackgroundProps } from '@features/dashboard/Editor/createRootComponent/defaultRoot';
-import { type DefaultComponentProps } from '@measured/puck';
+import { type DefaultComponentProps } from '@puckeditor/core';
 import { css, Global } from '@emotion/react';
 import { type FieldConfiguration, InternalRootComponentFields } from '@typings/fields';
 import { useGlobalStore } from '@hooks/useGlobalStore';

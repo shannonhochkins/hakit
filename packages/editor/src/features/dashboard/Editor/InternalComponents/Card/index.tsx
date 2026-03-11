@@ -1,5 +1,5 @@
 import { CustomComponentConfig, RenderProps } from '@typings/puck';
-import { Slot } from '@measured/puck';
+import { Slot } from '@puckeditor/core';
 
 /** =========================
  * Types & helpers

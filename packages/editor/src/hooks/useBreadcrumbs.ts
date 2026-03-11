@@ -1,4 +1,4 @@
-import { createUsePuck } from '@measured/puck';
+import { createUsePuck } from '@puckeditor/core';
 import { useMemo } from 'react';
 
 const usePuck = createUsePuck();

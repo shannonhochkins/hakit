@@ -1,5 +1,5 @@
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import { Config, Puck, OnAction, useGetPuck, UiState, createUsePuck } from '@measured/puck';
+import { Config, Puck, OnAction, useGetPuck, UiState, createUsePuck } from '@puckeditor/core';
 import { createEmotionCachePlugin } from './PuckOverrides/Plugins/emotionCache';
 import { createPuckOverridesPlugin } from './PuckOverrides/Plugins/overrides';
 import { Spinner } from '@components/Loaders/Spinner';
@@ -15,6 +15,7 @@ import { usePuckMiddleware } from '@hooks/usePuckMiddleware';
 import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
 import { useHakit } from '@hooks/useHakit';
 import { usePuckIframeElements } from '@hooks/usePuckIframeElements';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 
 const emotionCachePlugin = createEmotionCachePlugin();
 const overridesPlugin = createPuckOverridesPlugin();
@@ -36,7 +37,7 @@ function SyncUnsavedAndPuckData() {
       const itemSelector = (action.ui as Partial<UiState>)?.itemSelector;
       if (itemSelector) {
         const item = getItemBySelector(itemSelector);
-        if (item?.type?.startsWith(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`)) {
+        if (item?.type?.startsWith(sanitizeCssIdentifier(`Popup${COMPONENT_TYPE_DELIMITER}@hakit`))) {
           const popupId = item.props.id;
           usePopupStore.getState().closeAllPopups();
           usePopupStore.getState().openPopup(popupId);

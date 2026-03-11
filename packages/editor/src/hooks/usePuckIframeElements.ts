@@ -16,9 +16,9 @@ export function usePuckIframeElements(): {
 
   return useMemo(
     () => ({
-      document: editorIframeDocument,
+      document: editorIframeDocument || document,
       iframe: editorIframe,
-      window: editorWindow,
+      window: editorWindow || window,
     }),
     [editorIframeDocument, editorIframe, editorWindow]
   );

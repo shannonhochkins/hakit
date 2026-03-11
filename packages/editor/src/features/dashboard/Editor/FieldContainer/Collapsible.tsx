@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
-import { createUsePuck, UiState, type DefaultComponentProps } from '@measured/puck';
+import { createUsePuck, UiState, type DefaultComponentProps } from '@puckeditor/core';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { FieldConfiguration } from '@typings/fields';
 import { Fieldset } from './Fieldset';

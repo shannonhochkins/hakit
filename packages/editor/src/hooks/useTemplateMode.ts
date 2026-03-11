@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import type { DefaultComponentProps } from '@measured/puck';
+import type { DefaultComponentProps } from '@puckeditor/core';
 import { EXCLUDE_FIELD_TYPES_FROM_TEMPLATES, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
 import { isBreakpointObject } from '@helpers/editor/pageData/isBreakpointObject';
 import { useGlobalStore } from '@hooks/useGlobalStore';

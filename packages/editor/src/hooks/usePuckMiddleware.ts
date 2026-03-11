@@ -1,4 +1,4 @@
-import { OnAction } from '@measured/puck';
+import { OnAction } from '@puckeditor/core';
 import { create } from 'zustand';
 // as onAction doesn't expose "dispatch", we need to "emit" the same actions so we can tap into them via a subscription
 

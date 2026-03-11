@@ -1,4 +1,4 @@
-import { DefaultComponentProps, Slot } from '@measured/puck';
+import { DefaultComponentProps, Slot } from '@puckeditor/core';
 import { DefaultPropsCallbackData } from '@typings/puck';
 import type { FieldConfiguration } from '@typings/fields';
 import { EntityName } from '@hakit/core';

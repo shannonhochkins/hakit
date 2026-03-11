@@ -1,4 +1,4 @@
-import { AutoField, UiState } from '@measured/puck';
+import { AutoField, UiState } from '@puckeditor/core';
 import { useMemo, memo } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { DashboardPageWithoutData } from '@typings/hono';

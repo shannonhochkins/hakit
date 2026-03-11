@@ -67,7 +67,7 @@ await moduleMocker.mock('@components/Button', () => ({
 
 import { ComponentFactoryData } from '@typings/puck';
 import { rootConfigs } from './__mocks__/rootConfigs.mock';
-import type { Slot } from '@measured/puck';
+import type { Slot } from '@puckeditor/core';
 import { createRootComponent } from './index';
 import type { CustomRootConfigWithRemote } from '@features/dashboard/PuckDynamicConfiguration';
 import React from 'react';

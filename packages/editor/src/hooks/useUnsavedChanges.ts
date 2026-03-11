@@ -3,7 +3,7 @@ import { useGlobalStore } from './useGlobalStore';
 import { useParams } from '@tanstack/react-router';
 import { PuckPageData } from '@typings/puck';
 import { updateDashboardPageForUser } from '@services/dashboard';
-import { type PuckAction } from '@measured/puck';
+import { type PuckAction } from '@puckeditor/core';
 import { toast } from 'react-toastify';
 import isDeepEqual from '@guanghechen/fast-deep-equal';
 import { deserializePageData, serializeWithUndefined } from '@shared/helpers/customSerialize';

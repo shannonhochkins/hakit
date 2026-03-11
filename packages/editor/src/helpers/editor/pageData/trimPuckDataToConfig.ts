@@ -1,5 +1,5 @@
 import { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import { ComponentData, Config, DefaultComponentProps } from '@measured/puck';
+import { ComponentData, Config, DefaultComponentProps } from '@puckeditor/core';
 import { FieldConfiguration } from '@typings/fields';
 import { getPopupIdsInData } from '@hooks/usePopupStore';
 

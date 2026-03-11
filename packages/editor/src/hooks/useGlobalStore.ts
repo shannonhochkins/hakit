@@ -6,12 +6,13 @@ import { EmotionCache } from '@emotion/react';
 import { DEFAULT_BREAKPOINTS } from '@constants';
 import { BreakpointItem } from '@typings/breakpoints';
 import { type BreakPoint } from '@hakit/components';
-import { usePuck, DefaultComponentProps } from '@measured/puck';
+import { usePuck, DefaultComponentProps } from '@puckeditor/core';
 import { toast } from 'react-toastify';
 import { COMPONENT_TYPE_DELIMITER, TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';
-import type { ComponentData } from '@measured/puck';
+import type { ComponentData } from '@puckeditor/core';
 import { setLocalStorageItem } from './useLocalStorage';
 import { generateId } from '@shared/helpers/generateId';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 type ComponentId = string;
 type FieldDotNotatedKey = string;
 type IsBreakpointModeEnabled = boolean;
@@ -217,7 +218,7 @@ export const useGlobalStore = create<PuckConfigurationStore>((set, get) => {
           });
           return null;
         }
-        const partialComponentLabel = `${componentLabel}${COMPONENT_TYPE_DELIMITER}@hakit`;
+        const partialComponentLabel = sanitizeCssIdentifier(`${componentLabel}${COMPONENT_TYPE_DELIMITER}@hakit`);
         const actualComponentLabels = Object.keys(userConfig.components).filter(
           key => key === componentLabel || key.startsWith(partialComponentLabel)
         );

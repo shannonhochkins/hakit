@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useHass, useTemplate } from '@hakit/core';
 import { useGlobalStore } from '@hooks/useGlobalStore';
-import type { DefaultComponentProps } from '@measured/puck';
+import type { DefaultComponentProps } from '@puckeditor/core';
 import { CustomPuckConfig } from '@typings/puck';
 import { FieldConfiguration } from '@typings/fields';
 import { TEMPLATE_PREFIX } from '@helpers/editor/pageData/constants';

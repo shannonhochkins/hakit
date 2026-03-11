@@ -1,6 +1,6 @@
 import { ChevronRight, PanelLeftIcon, PanelRightIcon } from 'lucide-react';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
-import { Puck, createUsePuck } from '@measured/puck';
+import { Puck, createUsePuck } from '@puckeditor/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IconButton } from '@components/Button/IconButton';
 import styles from './RightSidebar.module.css';

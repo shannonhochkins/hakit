@@ -4,7 +4,7 @@ import { getClassNameFactory } from '@helpers/styles/class-name-factory';
 const getClassName = getClassNameFactory('LeftSidebar', styles);
 import { Tabs } from '@components/Tabs';
 import { useEditorUIStore } from '@hooks/useEditorUIStore';
-import { Puck } from '@measured/puck';
+import { Puck } from '@puckeditor/core';
 import { IconButton } from '@components/Button/IconButton';
 import React, { useCallback } from 'react';
 

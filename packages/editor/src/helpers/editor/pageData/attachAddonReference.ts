@@ -1,5 +1,5 @@
 import type { FieldConfiguration } from '@typings/fields';
-import type { ComponentData, DefaultComponentProps } from '@measured/puck';
+import type { ComponentData, DefaultComponentProps } from '@puckeditor/core';
 
 function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][];

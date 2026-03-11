@@ -6,12 +6,13 @@ import { useComponentSearchStore } from '..';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { Tooltip } from '@components/Tooltip';
 import { COMPONENT_TYPE_DELIMITER } from '@helpers/editor/pageData/constants';
+import { sanitizeCssIdentifier } from '@shared/helpers/sanitizeCssIdentifier';
 const getClassName = getClassNameFactory('DrawerItem', styles);
 
 type DrawerItemProps = { name: string };
 
 export function DrawerItem({ name: addonName }: DrawerItemProps) {
-  const name = addonName.split(COMPONENT_TYPE_DELIMITER)[0];
+  const name = sanitizeCssIdentifier(addonName.split(COMPONENT_TYPE_DELIMITER)[0]);
   const [proxiedComponents] = useLocalStorage<Record<string, string>>('proxied-components', {});
   const searchTerm = useComponentSearchStore(state => state.searchTerm);
   if (searchTerm && !name.toLowerCase().includes(searchTerm.toLowerCase())) return <></>; // Hide if not matching

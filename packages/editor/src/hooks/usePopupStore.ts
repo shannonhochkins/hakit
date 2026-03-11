@@ -1,4 +1,4 @@
-import { type Config, walkTree } from '@measured/puck';
+import { type Config, walkTree } from '@puckeditor/core';
 import { type PuckPageData } from '@typings/puck';
 import { create } from 'zustand';
 import { useGlobalStore } from './useGlobalStore';

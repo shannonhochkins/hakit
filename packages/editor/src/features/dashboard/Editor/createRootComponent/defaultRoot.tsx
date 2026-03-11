@@ -2,7 +2,7 @@
 import { CustomRootComponentConfig, RenderProps } from '@typings/puck';
 // import { UnitFieldValue } from '@typings/fields';
 import { properties, sharedCss } from '../../../../css-variables';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 import { Typography } from '../Typography';
 import { UnitFieldValue } from '@typings/fields';
 // import { processPropsWithInternalFields } from '../createPuckComponent';

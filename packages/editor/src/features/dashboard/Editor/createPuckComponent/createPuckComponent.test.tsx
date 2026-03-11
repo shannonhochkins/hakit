@@ -43,7 +43,7 @@ await moduleMocker.mock('@features/dashboard/Editor/RenderErrorBoundary', () => 
 
 // Now import the types and main module
 import { CustomComponentConfig, ComponentFactoryData } from '@typings/puck';
-import { DefaultComponentProps } from '@measured/puck';
+import { DefaultComponentProps } from '@puckeditor/core';
 import { createComponent } from './index';
 import { assertField, assertObjectField } from '@test-utils/fieldAssertions';
 

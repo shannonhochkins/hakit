@@ -1,4 +1,4 @@
-import { Data } from '@measured/puck';
+import { Data } from '@puckeditor/core';
 
 // NOTE - as this is a shim of the original hono types as we don't want to expose everything in the package
 // we need to create fallback types for some types, which may mean simply copying them from @typings if they are not available,

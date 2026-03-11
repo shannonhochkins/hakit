@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'bun:test';
 import { extendPuckDataWithDefaults } from '../extendPuckDataWithDefaults';
 import { CustomPuckConfig, PuckPageData } from '@typings/puck';
-import { DefaultComponentProps, ComponentData } from '@measured/puck';
+import { DefaultComponentProps, ComponentData } from '@puckeditor/core';
 
 describe('extendPuckDataWithDefaults', () => {
   test('should extend missing typography object with defaults', () => {
